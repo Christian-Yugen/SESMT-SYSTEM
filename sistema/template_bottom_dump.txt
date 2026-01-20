@@ -1,0 +1,22 @@
+A43: As informações deste documento são usadas exclusivamente para fins administrativos, sendo tratadas com máxima confidencialidade e protegidas contra acessos não autorizados, em conformidade com todos os parametros da Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018). 
+A45: Declaro que estou ciente dos resultados dos exames acima, e que recebi a 2º via deste Atestado de Saude Ocupacional
+A46: =IF(B46="","",".")
+A47: Assinatura
+A48: =IF(B48="","",".")
+A49: Observação:
+A55: COORDENADOR DO PCMSO
+Y55: MEDICO EXAMINADOR
+A56: Dr. Issam Fares Junior
+CRM 3744
+Y60: Três Lagoas/ MS
+AK60: =AT2
+B109: Para cumprir a NR-7 aprovada pela Portaria nº 24 de 29/12/94 e alterada pela Portaria nº 8 de 08/05/96 do SST do Ministério do Trabalho e do disposto no Artigo 168 CLT atesto que o (a) Sr. (a) 
+B110: inscrito no CPF nº 
+B111: foi por mim examinado, nesta data foi considerado para exercer a função de
+B112: Para a Função de 
+B114: Idade
+E114: HOJE
+B115: =INT(E115-U10)/365.25
+E115: =TODAY()
+D117: Kg
+D118: m

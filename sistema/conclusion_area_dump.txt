@@ -1,0 +1,14 @@
+D21: Apto
+L21: Inapto (a)
+A23: Para executar as atividades de trabalho em altura e espaço confinado foi considerado:
+D25: NR35 não aplicadas para essa função
+Z25: Apto NR 35
+AL25: Inapto(a) NR 35
+D27: NR33 não aplicadas para essa função
+Z27: Apto NR 33
+AL27: Inapto(a) NR 33
+A29: Riscos Ocupacionais da Atividade:
+A30: Químico: Poeira e produtos quimicos em geral.
+Físico: Calor, radiação não ionizantes.
+Biológico: Bactérias, fungos, protozoários  e vírus.
+A34: O funcionário conforme itens da Lei, se submeteu aos seguintes exames:

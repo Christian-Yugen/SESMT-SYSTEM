@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller
+#  Portion of the path where the spec file is located
+sistema/build/
+sistema/dist/
+sistema/*.spec
+
+# User Output
+ASO/
+
+# Binary files
+*.exe
+
+# Temporary Excel files
+~$*.xlsx
