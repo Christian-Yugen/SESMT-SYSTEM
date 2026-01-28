@@ -3,6 +3,7 @@ import os
 import sys
 import datetime
 import openpyxl
+from openpyxl.styles import Font
 import win32com.client
 import win32api
 import time
@@ -23,7 +24,8 @@ class DataManager:
             'banco': 'BancoDados16012026.xlsx',
             'ghe': 'GHE.xlsx',
             'adm': 'EXAMES ADMISSIONAL.xlsx',
-            'dem': 'EXAMES DEMISSIONAL.xlsx'
+            'dem': 'EXAMES DEMISSIONAL.xlsx',
+            'referral': 'Solicitação de Exames.xlsx'
         }
     
     def _get_path(self, filename):
@@ -164,11 +166,9 @@ class DataManager:
     def load_exams(self, ghe_code, aso_type='Admissional'):
         """
         Carrega exames baseados no GHE e tipo de ASO.
-        aso_type: 'Admissional' ou 'Demissional'
+        aso_type: 'Admissional', 'Periódico' ou 'Demissional'
         """
-        filename = self.files['adm'] if aso_type == 'Admissional' else self.files['dem']
-        sheet_name = 'Exames Admissionais' if aso_type == 'Admissional' else 'Exames Demissionais' 
-        # Nota: O nome da aba no demissional pode variar, vamos tentar descobrir ou usar índice 0 se falhar
+        filename = self.files['dem'] if aso_type == 'Demissional' else self.files['adm']
         
         try:
             path = self._get_path(filename)
@@ -176,7 +176,7 @@ class DataManager:
             
             # Tentar achar a aba correta
             target_sheet = None
-            if aso_type == 'Admissional':
+            if aso_type != 'Demissional':
                  for s in xl.sheet_names:
                      if 'Exames Admissionais' in s:
                          target_sheet = s
@@ -206,10 +206,13 @@ class DataManager:
                 # Coluna 13 (N): Detalhes
                 
                 exames = []
-                for i in range(1, 12):
-                    exame = data[i]
-                    if pd.notna(exame) and str(exame).strip().lower() != 'nan':
-                        exames.append(str(exame).strip())
+                if aso_type == 'Periódico':
+                    exames = ["Exame Clínico"]
+                else:
+                    for i in range(1, 12):
+                        exame = data[i]
+                        if pd.notna(exame) and str(exame).strip().lower() != 'nan':
+                            exames.append(str(exame).strip())
                 
                 riscos = str(data[12]) if pd.notna(data[12]) and str(data[12]).lower() != 'nan' else "Não informado"
                 detalhes = str(data[13]) if 13 in data and pd.notna(data[13]) and str(data[13]).lower() != 'nan' else ""
@@ -232,7 +235,7 @@ class DataManager:
         if type(cell).__name__ != 'MergedCell':
             cell.value = value
 
-    def _excel_to_pdf(self, excel_path, pdf_path):
+    def _excel_to_pdf(self, excel_path, pdf_path, print_area="A1:AZ63"):
         """Converte um arquivo Excel para PDF usando Excel COM"""
         excel = None
         try:
@@ -247,8 +250,9 @@ class DataManager:
             wb = excel.Workbooks.Open(abs_excel)
             ws = wb.ActiveSheet
             
-            # Define a área de impressão para apenas o intervalo A1:AZ63
-            ws.PageSetup.PrintArea = "A1:AZ63"
+            # Define a área de impressão
+            if print_area:
+                ws.PageSetup.PrintArea = print_area
             
             # Configura para caber em 1 página
             ws.PageSetup.Zoom = False
@@ -410,7 +414,7 @@ class DataManager:
             wb.save(excel_path)
             
             # Converte para PDF
-            if self._excel_to_pdf(excel_path, pdf_path):
+            if self._excel_to_pdf(excel_path, pdf_path, print_area="A1:AZ63"):
                 # Imprime PDF (2 vias)
                 self._print_file(pdf_path, copies=2)
                 
@@ -428,6 +432,115 @@ class DataManager:
         except Exception as e:
             self.last_error = f"Erro ao gerar ASO:\n{e}"
             print(f"Erro ao gerar ASO: {e}")
+            return None
+
+    def generate_exam_referral(self, employee_data, exams_data, aso_type, exam_dates=None, ghe_conj="-"):
+        """
+        Preenche o template Solicitação de Exames.xlsx, converte para PDF e imprime 2 vias.
+        """
+        try:
+            template_path = self._get_path(self.files['referral'])
+            if not os.path.exists(template_path):
+                self.last_error = f"Template Solicitação de Exames.xlsx não encontrado em:\n{template_path}"
+                return None
+                
+            wb = openpyxl.load_workbook(template_path)
+            ws = wb.active
+            
+            # 1. Tipo de Exame (A5)
+            self._safe_write(ws, 'A5', f"Exame {aso_type}")
+            
+            # 2. Dados Básicos do Servidor
+            self._safe_write(ws, 'D6', employee_data.get('nome', '').upper())
+            
+            # CPF (D7)
+            raw_cpf = str(employee_data.get('cpf', '')).upper()
+            masked_cpf = self._mask_cpf(raw_cpf)
+            self._safe_write(ws, 'D7', masked_cpf)
+            
+            # Data de Nascimento (P7)
+            nasc_raw = employee_data.get('nascimento_raw')
+            if pd.notnull(nasc_raw):
+                self._safe_write(ws, 'P7', nasc_raw.strftime('%d/%m/%Y'))
+            else:
+                self._safe_write(ws, 'P7', employee_data.get('nascimento', ''))
+            
+            # Cargo (D8)
+            self._safe_write(ws, 'D8', employee_data.get('cargo', '').upper())
+            
+            # Lotação (Secretaria) (D9)
+            self._safe_write(ws, 'D9', employee_data.get('secretaria', '').upper())
+            
+            # 2. Exames (E13-E18 e O13-O18)
+            # Limpar áreas de exames
+            for r in range(13, 19):
+                self._safe_write(ws, f'E{r}', "")
+                self._safe_write(ws, f'O{r}', "")
+            
+            exames = exams_data.get('exames', [])
+            for i, exame in enumerate(exames):
+                # Lógica de capitalização (mesma do ASO)
+                exam_upper = exame.upper().strip()
+                special_cases = {"HBSAG": "HBsAG", "ANTI-HCV": "Anti-HCV", "ANTI HCV": "Anti-HCV"}
+                acronyms = ["ECG", "EEG", "TGO", "EPF", "TSH", "VDRL"]
+                
+                if exam_upper in special_cases:
+                    exame_final = special_cases[exam_upper]
+                elif exam_upper in acronyms or len(exam_upper) == 3:
+                    exame_final = exam_upper
+                else:
+                    exame_final = exame.capitalize()
+                
+                if i < 6: # E13 a E18
+                    self._safe_write(ws, f'E{13+i}', exame_final)
+                elif i < 12: # O13 a O18
+                    self._safe_write(ws, f'O{13+(i-6)}', exame_final)
+            
+            # 3. GHE CONJ (AA24)
+            self._safe_write(ws, 'AA24', ghe_conj)
+
+            # 4. Nota sobre testes rápidos (D22)
+            # Verifica se ambos HBsAg e Anti-HCV estão na lista de exames
+            exames_upper = [ex.upper().strip() for ex in exames]
+            has_hbsag = any("HBSAG" in ex for ex in exames_upper)
+            has_hcv = any("ANTI-HCV" in ex or "ANTI HCV" in ex or "HCV" in ex for ex in exames_upper)
+            
+            if has_hbsag and has_hcv:
+                note = "O servidor poderá optar pelos testes rápidos de HBsAg e Anti-HCV em substituição aos exames laboratoriais convencionais"
+                self._safe_write(ws, 'B22', note)
+                ws['B22'].font = Font(size=8)
+            
+            # 5. Salvar e Processar
+            today = datetime.datetime.now()
+            nome_original = employee_data.get('nome', 'Servidor')
+            safe_name = "".join([c for c in nome_original if c.isalnum() or c==' ']).strip().replace(' ', '_')
+            base_filename = f"Encaminhamento_{safe_name}_{today.strftime('%Y%m%d_%H%M%S')}"
+            
+            aso_folder = os.path.join(self.base_path, "ASO")
+            if not os.path.exists(aso_folder):
+                os.makedirs(aso_folder)
+            
+            # Excel temporário continua na pasta do template (dados) para ser convertido
+            excel_path = os.path.join(os.path.dirname(template_path), base_filename + ".xlsx")
+            pdf_path = os.path.join(aso_folder, base_filename + ".pdf")
+            
+            wb.save(excel_path)
+            
+            # Para o encaminhamento, a área de impressão é definida entre A1 e AB25
+            if self._excel_to_pdf(excel_path, pdf_path, print_area="A1:AB25"):
+                self._print_file(pdf_path, copies=2)
+                try:
+                    wb.close()
+                    os.remove(excel_path)
+                except:
+                    pass
+                return pdf_path
+            else:
+                return excel_path
+                
+        except Exception as e:
+            self.last_error = f"Erro ao gerar Encaminhamento:\n{e}"
+            print(f"Erro ao gerar Encaminhamento: {e}")
             return None
 
 # Teste rápido se rodar direto

@@ -322,7 +322,7 @@ class SESMTApp(ctk.CTk):
         
         ctk.CTkLabel(self.aso_config_frame, text="Tipo de Exame:", font=ctk.CTkFont(size=16)).pack(anchor="w", padx=10)
         self.aso_type_var = ctk.StringVar(value="Admissional")
-        self.aso_seg = ctk.CTkSegmentedButton(self.aso_config_frame, values=["Admissional", "Demissional"], variable=self.aso_type_var, command=self.update_aso_results, font=ctk.CTkFont(size=14))
+        self.aso_seg = ctk.CTkSegmentedButton(self.aso_config_frame, values=["Admissional", "Periódico", "Demissional"], variable=self.aso_type_var, command=self.update_aso_results, font=ctk.CTkFont(size=14))
         self.aso_seg.pack(anchor="w", padx=10, pady=5)
 
         # 4. Resultados (Coluna Direita)
@@ -348,6 +348,14 @@ class SESMTApp(ctk.CTk):
         self.exames_box.pack(fill="both", expand=True, padx=10, pady=(2, 10))
         self.exames_box.configure(state="disabled")
         
+        # Botão Gerar Encaminhamento
+        self.generate_referral_btn = ctk.CTkButton(self.results_frame, text="Gerar Encaminhamento de Exames", 
+                                         command=self.generate_referral_file, 
+                                         font=ctk.CTkFont(size=18, weight="bold"),
+                                         fg_color="#3498db", hover_color="#2980b9",
+                                         height=50)
+        self.generate_referral_btn.pack(fill="x", padx=10, pady=(0, 10))
+
         # Botão Gerar ASO
         self.generate_btn = ctk.CTkButton(self.results_frame, text="Gerar Arquivo ASO", 
                                          command=self.generate_aso_file, 
@@ -573,6 +581,36 @@ class SESMTApp(ctk.CTk):
                     pass
             else:
                 messagebox.showerror("Erro", f"Falha ao gerar o arquivo:\n{self.dm.last_error}")
+                
+        except Exception as e:
+            messagebox.showerror("Erro Fatal", f"Ocorreu um erro inesperado:\n{e}")
+
+    def generate_referral_file(self):
+        if not self.employee_data:
+            messagebox.showwarning("Aviso", "Busque um funcionário primeiro.")
+            return
+        
+        if not self.current_exams_data or not self.current_exams_data.get('exames'):
+             messagebox.showwarning("Aviso", "Selecione uma função com exames válidos.")
+             return
+        
+        try:
+            # Para o encaminhamento, não pedimos as datas dos exames (conforme layout)
+            # mas o fluxo de geração, PDF e impressão é o mesmo.
+            aso_type = self.aso_type_var.get()
+            ghe_conj = getattr(self, 'current_ghe_conj', '-')
+            
+            output_path = self.dm.generate_exam_referral(self.employee_data, self.current_exams_data, aso_type, ghe_conj=ghe_conj)
+            
+            if output_path:
+                msg = f"Encaminhamento gerado com sucesso!\n\nSalvo em PDF:\n{output_path}\n\nEnviado para a impressora (2 vias)."
+                messagebox.showinfo("Sucesso", msg)
+                try:
+                    os.startfile(output_path)
+                except:
+                    pass
+            else:
+                messagebox.showerror("Erro", f"Falha ao gerar o encaminhamento:\n{self.dm.last_error}")
                 
         except Exception as e:
             messagebox.showerror("Erro Fatal", f"Ocorreu um erro inesperado:\n{e}")
