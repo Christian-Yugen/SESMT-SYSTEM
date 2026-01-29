@@ -6,6 +6,7 @@ import openpyxl
 from openpyxl.styles import Font
 import win32com.client
 import win32api
+import win32net
 import time
 
 class DataManager:
@@ -261,13 +262,17 @@ class DataManager:
             
             # Adiciona rodapé: hora, data e usuário
             # &D = Data, &T = Hora, &P = Página (opcional)
-            # Tenta obter o usuário logado de várias formas
-            username = os.environ.get('USERNAME') or os.environ.get('USER')
-            if not username:
+            # Tenta obter o nome completo do usuário (ex: Christian Yugen)
+            # Se não conseguir o nome completo, usa o login (ex: Usuário)
+            try:
+                login_name = win32api.GetUserName()
                 try:
-                    username = win32api.GetUserName()
+                    user_info = win32net.NetUserGetInfo(None, login_name, 2)
+                    username = user_info.get('full_name') or login_name
                 except:
-                    username = "Usuario"
+                    username = login_name
+            except:
+                username = os.environ.get('USERNAME') or "Usuário"
                 
             footer_text = f"Emitido em: &D &T - Usuário: {username}"
             ws.PageSetup.RightFooter = footer_text
