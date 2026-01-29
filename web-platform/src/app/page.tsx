@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon } from "lucide-react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -25,15 +25,20 @@ export default function Home() {
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-  // Verificar autenticação
+  // Verificar autenticação e carregar perfil
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setAuthLoading(false);
       if (session) {
-        // Sincroniza o perfil do usuário para mapeamento no histórico
-        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then();
+        // Sincroniza o perfil do usuário e carrega o cargo
+        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then(() => {
+          supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
+            if (data) setUserRole(data.role);
+          });
+        });
       } else {
         router.push("/login");
       }
@@ -385,8 +390,15 @@ export default function Home() {
             onClick={() => router.push('/history')}
             className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
           >
-            <History className="w-4 h-4" />
+            <HistoryIcon className="w-4 h-4" />
             <span>Histórico</span>
+          </button>
+          <button
+            onClick={() => router.push('/users')}
+            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+          >
+            <UsersIcon className="w-4 h-4" />
+            <span>Usuários</span>
           </button>
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
             <HeartPulse className="w-4 h-4" />
@@ -593,19 +605,21 @@ export default function Home() {
               {/* BOTÕES DE AÇÃO */}
               <div className="shrink-0 pt-3 flex flex-col sm:flex-row gap-4 sm:h-[72px] pb-4 sm:pb-0">
                 <button
-                  disabled={isGenerating || !selectedFuncao}
+                  disabled={isGenerating || !selectedFuncao || userRole === 'viewer'}
                   onClick={() => requestGeneration('/generate-referral')}
                   className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#1A3351] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-blue-950 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isGenerating ? "Gerando..." : "Gerar Encaminhamento"}
                 </button>
-                <button
-                  disabled={isGenerating || !selectedFuncao}
-                  onClick={() => setShowDateModal(true)}
-                  className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#28A745] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {isGenerating ? "Gerando..." : "Gerar Arquivo ASO"}
-                </button>
+                {(userRole === 'admin' || userRole === 'nurse') && (
+                  <button
+                    disabled={isGenerating || !selectedFuncao}
+                    onClick={() => setShowDateModal(true)}
+                    className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#28A745] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {isGenerating ? "Gerando..." : "Gerar Arquivo ASO"}
+                  </button>
+                )}
               </div>
             </div>
           </div>

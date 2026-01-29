@@ -4,8 +4,8 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
-    ChevronDown, ChevronUp, Briefcase, Building2, History,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer
+    ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,7 @@ export default function HistoryPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     // Filtros
     const [filterUser, setFilterUser] = useState("all");
@@ -41,9 +42,10 @@ export default function HistoryPage() {
     useEffect(() => {
         const checkAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                router.push("/login");
-                return;
+            if (session) {
+                supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
+                    if (data) setUserRole(data.role);
+                });
             }
             loadHistory();
         };
@@ -252,10 +254,16 @@ export default function HistoryPage() {
                         <FileSearch className="w-4 h-4" />
                         <span>Readaptação</span>
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
-                        <History className="w-4 h-4" />
+                    <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
+                        <HistoryIcon className="w-4 h-4" />
                         <span>Histórico</span>
                     </button>
+                    {userRole === 'admin' && (
+                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
+                            <UsersIcon className="w-4 h-4" />
+                            <span>Usuários</span>
+                        </button>
+                    )}
                     <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
                         <HeartPulse className="w-4 h-4" />
                         <span>Benefícios</span>
@@ -286,13 +294,15 @@ export default function HistoryPage() {
                             <h2 className="text-xl font-black leading-none uppercase tracking-tight">Dashboard de Histórico</h2>
                         </div>
                         <div className="flex items-center gap-3">
-                            <button
-                                onClick={handlePrintReport}
-                                className="hidden md:flex items-center justify-center gap-2 w-64 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                            >
-                                <Printer className="w-3.5 h-3.5" />
-                                Gerar Relatório (PDF)
-                            </button>
+                            {(userRole === 'admin' || userRole === 'nurse') && (
+                                <button
+                                    onClick={handlePrintReport}
+                                    className="hidden md:flex items-center justify-center gap-2 w-64 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                >
+                                    <Printer className="w-3.5 h-3.5" />
+                                    Gerar Relatório (PDF)
+                                </button>
+                            )}
                             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
                                 <Menu className="w-6 h-6" />
                             </button>
