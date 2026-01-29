@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Loader2, Lock, User, ShieldCheck } from "lucide-react";
+import { Loader2, Lock, User, ShieldCheck, Activity } from "lucide-react";
 
 export default function LoginPage() {
     const [mode, setMode] = useState<"login" | "signup">("login");
