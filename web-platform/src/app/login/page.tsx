@@ -65,12 +65,12 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-[#D3D3D3] flex items-center justify-center p-4 font-sans">
 
-            {/* CARD DE LOGIN - EQUILIBRIO ENTRE TAMANHO E VISIBILIDADE */}
-            <div className="w-full max-w-[400px] bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col transition-all">
+            {/* CARD DE LOGIN - CABEÇALHO AMPLIADO COM LOGO MAIOR */}
+            <div className="w-full max-w-[420px] bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col transition-all">
 
-                {/* HEADER DO CARD */}
-                <div className="bg-[#B0B0B0] p-4 border-b-[4px] border-[#E31E24] flex flex-col items-center gap-2">
-                    <div className="relative w-56 h-16 drop-shadow-sm">
+                {/* HEADER DO CARD - GRANDE E IMPACTANTE */}
+                <div className="bg-[#B0B0B0] p-8 border-b-[6px] border-[#E31E24] flex flex-col items-center gap-6">
+                    <div className="relative w-64 h-24 drop-shadow-md">
                         <Image
                             src="/images/logo.png"
                             alt="Logo Prefeitura"
@@ -79,11 +79,12 @@ export default function LoginPage() {
                             priority
                         />
                     </div>
-                    <div className="flex flex-col items-center">
-                        <h1 className="text-xl font-black text-[#1A3351] uppercase tracking-tighter leading-none">
+                    <div className="flex flex-col items-center gap-1.5 text-center">
+                        <h1 className="text-3xl font-black text-[#1A3351] uppercase tracking-tight leading-none">
                             SESMT SYSTEM
                         </h1>
-                        <p className="text-[9px] font-black text-[#1A3351]/60 uppercase tracking-[0.4em]">
+                        <div className="h-1 w-20 bg-[#E31E24] rounded-full mx-auto mt-0.5"></div>
+                        <p className="text-[11px] font-black text-[#1A3351]/70 uppercase tracking-[0.4em] mt-1.5">
                             {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
                         </p>
                     </div>
