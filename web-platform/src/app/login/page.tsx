@@ -69,9 +69,15 @@ export default function LoginPage() {
             <div className="w-full max-w-md bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col scale-[1.02] transition-transform">
 
                 {/* HEADER DO CARD (CINZA COM LINHA VERMELHA) */}
-                <div className="bg-[#B0B0B0] p-8 border-b-[6px] border-[#E31E24] flex flex-col items-center gap-4">
-                    <div className="relative w-48 h-16">
-                        <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain brightness-0 opacity-80" priority />
+                <div className="bg-[#B0B0B0] p-8 border-b-[6px] border-[#E31E24] flex flex-col items-center gap-6">
+                    <div className="relative w-56 h-20 drop-shadow-md">
+                        <Image
+                            src="/images/logo.png"
+                            alt="Logo Prefeitura"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
                     </div>
                     <div className="flex flex-col items-center gap-2">
                         <h1 className="text-4xl font-black text-[#1A3351] uppercase tracking-tight text-center leading-none">
