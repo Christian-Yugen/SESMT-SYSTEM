@@ -74,8 +74,7 @@ export default function Home() {
     const { error: upsertError } = await supabase.from('profiles').upsert({
       id: session.user.id,
       email: session.user.email,
-      role: profileRole,
-      updated_at: new Date().toISOString()
+      role: profileRole
     });
 
     if (upsertError) {
