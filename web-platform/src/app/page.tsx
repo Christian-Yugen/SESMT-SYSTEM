@@ -280,6 +280,18 @@ export default function Home() {
     setExamDates(newDates);
   };
 
+  const [pdfServerUrl, setPdfServerUrl] = useState("http://127.0.0.1:8000");
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem("pdfServerUrl");
+    if (savedUrl) setPdfServerUrl(savedUrl);
+  }, []);
+
+  const handleUpdatePdfUrl = (url: string) => {
+    setPdfServerUrl(url);
+    localStorage.setItem("pdfServerUrl", url);
+  };
+
   const requestGeneration = async (endpoint: string, dates?: string[]) => {
     if (!selectedServidor || !selectedFuncao) {
       alert("Por favor, selecione um servidor e uma função primeiro.");
@@ -287,9 +299,8 @@ export default function Home() {
     }
 
     setIsGenerating(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
     try {
-      const response = await fetch(`${apiUrl}${endpoint}`, {
+      const response = await fetch(`${pdfServerUrl}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -309,17 +320,15 @@ export default function Home() {
       });
 
       if (response.ok) {
+        // ... (resto do sucesso mantido)
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.target = '_blank';
         link.click();
-
-        // Pequeno delay para garantir que o navegador processe o clique antes de revogar a URL
         setTimeout(() => window.URL.revokeObjectURL(url), 100);
 
-        // Gravar no histórico do Supabase
         try {
           await supabase.from('aso_history').insert({
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
@@ -334,8 +343,6 @@ export default function Home() {
         } catch (histError) {
           console.error("Erro ao gravar histórico:", histError);
         }
-
-        // Limpar o formulário após o sucesso para evitar erros no próximo processo
         resetForm();
       } else {
         const errorData = await response.json();
@@ -343,7 +350,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Erro na chamada do backend:", error);
-      alert("Erro ao conectar com o servidor local de PDF. Verifique se o server.py está rodando.");
+      alert(`Impossível conectar ao Servidor de PDF (${pdfServerUrl}).\n\n1. Verifique se o server.py está rodando.\n2. Se estiver em outro PC, use o IP do PC Principal.`);
     } finally {
       setIsGenerating(false);
       setShowDateModal(false);
@@ -433,10 +440,22 @@ export default function Home() {
           </button>
         </nav>
 
-        <div className="mt-auto space-y-4">
+        <div className="mt-auto space-y-4 px-4">
+          <div className="pt-4 border-t border-white/5 space-y-2">
+            <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Servidor de PDF</p>
+            <input
+              type="text"
+              value={pdfServerUrl}
+              onChange={(e) => handleUpdatePdfUrl(e.target.value)}
+              className="w-full bg-black/20 border border-white/10 rounded p-2 text-[10px] text-white/70 font-mono outline-none focus:border-[#E31E24] transition-colors"
+              placeholder="http://127.0.0.1:8000"
+            />
+            <p className="text-[8px] text-white/20 italic text-center">PC Principal: http://10.0.140.2:8000</p>
+          </div>
+
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] px-4"
+            className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px]"
           >
             <LogOut className="w-4 h-4" /> Sair
           </button>
