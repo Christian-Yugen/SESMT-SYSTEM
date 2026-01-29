@@ -430,7 +430,14 @@ export default function Home() {
         {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
         <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-black leading-none uppercase tracking-tight">Buscar Servidor</h2>
+            <div className="flex flex-col">
+              <h2 className="text-xl font-black leading-none uppercase tracking-tight">Buscar Servidor</h2>
+              {session?.user?.email && (
+                <p className="text-[10px] font-bold text-[#1A3351]/60 mt-1 uppercase tracking-wider">
+                  Olá, <span className="text-[#1A3351]">{session.user.email.split('@')[0]}</span>
+                </p>
+              )}
+            </div>
             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
               <Menu className="w-6 h-6" />
             </button>
