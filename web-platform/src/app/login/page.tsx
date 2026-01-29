@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { Loader2, Lock, User, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -18,105 +18,104 @@ export default function LoginPage() {
         setLoading(true);
         setError(null);
 
-        try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
 
-            if (error) throw error;
-
-            router.push("/");
-            router.refresh();
-        } catch (err: any) {
-            setError(err.message || "Erro ao fazer login");
-        } finally {
+        if (error) {
+            setError("Credenciais inválidas. Verifique seu e-mail e senha.");
             setLoading(false);
+        } else {
+            router.push("/");
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0A111C] p-4 relative overflow-hidden">
-            {/* Elementos Decorativos de Fundo */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-red-900/10 rounded-full blur-[120px]" />
+        <div className="min-h-screen bg-[#D3D3D3] flex items-center justify-center p-4 font-sans">
 
-            <div className="w-full max-w-md z-10 animate-in fade-in zoom-in duration-500">
-                {/* Card de Login com Glassmorphism */}
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
-                    <div className="flex flex-col items-center mb-10">
-                        <div className="relative w-48 h-20 mb-4">
-                            <Image
-                                src="/images/logo_white.png"
-                                alt="SESMT Logo"
-                                fill
-                                className="object-contain"
-                                priority
-                            />
-                        </div>
-                        <div className="h-1 w-12 bg-[#E31E24] rounded-full mb-4" />
-                        <h1 className="text-2xl font-black text-white uppercase tracking-tighter">SESMT - System</h1>
-                        <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-bold">Acesso ao Sistema</p>
+            {/* CARD DE LOGIN - SEGUINDO ESTILO DA TELA INICIAL */}
+            <div className="w-full max-w-md bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col">
+
+                {/* HEADER DO CARD (CINZA COM LINHA VERMELHA) */}
+                <div className="bg-[#B0B0B0] p-8 border-b-[6px] border-[#E31E24] flex flex-col items-center gap-4">
+                    <div className="relative w-48 h-16">
+                        <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain brightness-0 opacity-80" priority />
                     </div>
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-2xl font-black text-[#1A3351] uppercase tracking-tighter">Acesso ao Sistema</h1>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">SESMT SYSTEM v1.2</p>
+                    </div>
+                </div>
 
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-xl flex items-center gap-3 text-red-200 text-sm animate-shake">
-                                <AlertCircle className="w-5 h-5 shrink-0" />
-                                <p>{error}</p>
-                            </div>
-                        )}
+                {/* FORMULÁRIO */}
+                <form onSubmit={handleLogin} className="p-8 space-y-6 bg-white">
 
-                        <div className="space-y-4">
-                            <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 group-focus-within:text-[#E31E24] transition-colors" />
+                    {error && (
+                        <div className="p-3 bg-red-100 border-l-4 border-[#E31E24] text-[11px] font-black text-[#E31E24] uppercase tracking-wider animate-shake">
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Conta de Usuário</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     type="email"
-                                    placeholder="Seu E-mail"
                                     required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[#E31E24] focus:bg-white/10 transition-all placeholder:text-white/20"
+                                    placeholder="E-MAIL CORPORATIVO"
+                                    className="w-full px-10 py-3 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#1A3351] uppercase"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
                                 />
                             </div>
+                        </div>
 
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 group-focus-within:text-[#E31E24] transition-colors" />
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Senha de Acesso</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     type="password"
-                                    placeholder="Sua Senha"
                                     required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[#E31E24] focus:bg-white/10 transition-all placeholder:text-white/20"
+                                    placeholder="••••••••"
+                                    className="w-full px-10 py-3 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#1A3351]"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
                         </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-[#E31E24] hover:bg-[#ff2d34] text-white font-black py-4 rounded-2xl shadow-xl shadow-red-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm disabled:opacity-50 disabled:cursor-not-allowed group"
-                        >
-                            {loading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    Entrar no Sistema
-                                    <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </>
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="mt-8 pt-8 border-t border-white/5 flex justify-center">
-                        <div className="flex flex-col items-start">
-                            <p className="text-[14px] font-normal text-white/60 leading-none mb-1 text-left">Powered by</p>
-                            <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">
-                                UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span>
-                            </p>
-                        </div>
                     </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-4 bg-[#1A3351] text-white font-black uppercase tracking-widest text-sm shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 border-b-4 border-blue-950"
+                    >
+                        {loading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <>
+                                <ShieldCheck className="w-5 h-5" />
+                                <span>Autenticar Usuário</span>
+                            </>
+                        )}
+                    </button>
+
+                    <div className="pt-4 border-t border-slate-100 flex justify-center">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] text-center max-w-[200px]">
+                            Acesso restrito para servidores autorizados do departamento SESMT
+                        </p>
+                    </div>
+                </form>
+
+                {/* FOOTER DO CARD */}
+                <div className="bg-[#E8E8E8] py-4 border-t border-slate-200">
+                    <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-widest">
+                        Powered by <span className="font-black text-slate-600">UXBRAS®</span>
+                    </p>
                 </div>
             </div>
         </div>

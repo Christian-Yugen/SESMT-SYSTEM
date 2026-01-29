@@ -31,7 +31,10 @@ export default function Home() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setAuthLoading(false);
-      if (!session) {
+      if (session) {
+        // Sincroniza o perfil do usuário para mapeamento no histórico
+        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then();
+      } else {
         router.push("/login");
       }
     });
@@ -40,7 +43,9 @@ export default function Home() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
+      if (session) {
+        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then();
+      } else {
         router.push("/login");
       }
     });
@@ -288,7 +293,11 @@ export default function Home() {
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
             servidor_nome: selectedServidor.Nome,
             aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
-            generated_by: session?.user?.id
+            cargo: selectedServidor.Cargo,
+            secretaria: selectedServidor.Secretaria,
+            ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
+            generated_by: session?.user?.id,
+            operator_name: session?.user?.email?.split('@')[0].toUpperCase()
           });
         } catch (histError) {
           console.error("Erro ao gravar histórico:", histError);
