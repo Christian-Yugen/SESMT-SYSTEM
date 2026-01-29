@@ -1,0 +1,30 @@
+export interface Servidor {
+    Nome?: string;
+    CPF?: string;
+    "CPF."?: string;
+    "CPF com mascara"?: string;
+    Matrícula?: string;
+    Cargo?: string;
+    Secretaria?: string;
+    "Dt.Nascimento"?: string;
+    [key: string]: string | undefined;
+}
+
+export interface Funcao {
+    Cod: string;
+    FUNÇÃO?: string;
+    Nome?: string;
+    GHE: string;
+    "GHE CONJ"?: string;
+}
+
+export interface ExameData {
+    exames: string[];
+    riscos: string;
+    detalhes: string;
+}
+
+export interface ExamesMap {
+    admissional: Record<string, ExameData>;
+    demissional: Record<string, ExameData>;
+}

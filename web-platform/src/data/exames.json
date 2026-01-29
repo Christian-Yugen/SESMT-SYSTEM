@@ -1,0 +1,651 @@
+{
+  "admissional": {
+    "A": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum"
+      ],
+      "riscos": "Ausência de riscos ambientais",
+      "detalhes": "Ausência de riscos ambientais."
+    },
+    "B": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar",
+        "EPF"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biólogico: Bactérias, fungos, protozoários e vírus."
+    },
+    "C": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual"
+      ],
+      "riscos": "Atividade sem riscos ambientais",
+      "detalhes": "Atividade sem riscos ambientais."
+    },
+    "D": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Colinesterase",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF",
+        "Coprocultura",
+        "Raio X Lombar"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Poeira, névoas, agrotoxicos, herbicida, fungicidas e inseticidas.\nFísico: Calor, radiação não ionizantes.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "E": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Poeira e produtos quimicos em geral.\nFísico: Calor, radiação não ionizantes.\nBiológico: Bactérias, fungos, protozoários  e vírus."
+    },
+    "F": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Lombar",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Radiação não ionizantes."
+    },
+    "G": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Vibração de corpo inteiro."
+    },
+    "H": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "EPF",
+        "Coprocultura",
+        "Raio X Lombar"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Calor."
+    },
+    "I": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Torax",
+        "TSH",
+        "T3",
+        "T4",
+        "TGO",
+        "TGP"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Radiação Ionizante.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "J": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "K": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "L": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV",
+        "TGP",
+        "EPF",
+        "Coprocultura"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "M": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG",
+        "Espirometria"
+      ],
+      "riscos": "Risco Quimico e Fisico",
+      "detalhes": "Químico: Nevoas, produtos químicos sem geral.\nFísico: Ruido, Radiação não ionizante."
+    },
+    "N": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual"
+      ],
+      "riscos": "Ausência de riscos ambientais",
+      "detalhes": "Ausência de riscos ambientais."
+    },
+    "O": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Produtos químicos em geral.\nFísico: Ruídos, Poeira.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "P": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Quimico e Fisico",
+      "detalhes": "Física: Vibração de corpo inteiro, ruídos\nQuímico: Poeira"
+    },
+    "Q": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Vibração de corpo inteiro e ruído.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "R": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Torax",
+        "Acetil Metilhipurico",
+        "EEG",
+        "ECG",
+        "Espiromentria"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Radiação não ionizantes e ruído.\nQuímico: Poeira e nevoas."
+    },
+    "S": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Lombar",
+        "Audiometria",
+        "Espirometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído, vibração.\nQuímico: Poeira."
+    },
+    "T": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Torax",
+        "Audiometria",
+        "Espirometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído, vibração.\nQuímico: Poeira."
+    },
+    "U": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Lombar",
+        "Audiometria",
+        "Espirometria"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído e vibração.\nQuímico: Poeira, produtos químicos em geral"
+    },
+    "V": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF",
+        "ECG",
+        "Espirometria"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Físico: Radiação não ionizante, vibração.\nQuímico: Poeira. \nBiológia: Bactérias, fungos, protozoários e vírus."
+    },
+    "W": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV",
+        "Audiometria"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Ruido.\nBiológico - Bactérias, fungos, protozoários e vírus"
+    },
+    "X": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Produto químicos em geral.\nFísico: Ruído.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    }
+  },
+  "demissional": {
+    "A": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum"
+      ],
+      "riscos": "Ausência de riscos ambientais",
+      "detalhes": "Ausência de riscos ambientais."
+    },
+    "B": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar",
+        "EPF"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biólogico: Bactérias, fungos, protozoários e vírus."
+    },
+    "C": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual"
+      ],
+      "riscos": "Atividade sem riscos ambientais",
+      "detalhes": "Atividade sem riscos ambientais."
+    },
+    "D": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Colinesterase",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF",
+        "Coprocultura",
+        "Raio X Lombar"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Poeira, névoas, agrotoxicos, herbicida, fungicidas e inseticidas.\nFísico: Calor, radiação não ionizantes.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "E": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Poeira e produtos quimicos em geral.\nFísico: Calor, radiação não ionizantes.\nBiológico: Bactérias, fungos, protozoários  e vírus."
+    },
+    "F": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Lombar",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Radiação não ionizantes."
+    },
+    "G": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Vibração de corpo inteiro."
+    },
+    "H": {
+      "exames": [
+        "Exame Clínico"
+      ],
+      "riscos": "Risco Fisico",
+      "detalhes": "Físico: Calor."
+    },
+    "I": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade Visual",
+        "Raio X Torax",
+        "TSH",
+        "T3",
+        "T4",
+        "TGO",
+        "TGP"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Radiação Ionizante.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "J": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "K": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "L": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV",
+        "TGP",
+        "EPF",
+        "Coprocultura"
+      ],
+      "riscos": "Risco Biologico",
+      "detalhes": "Biológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "M": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG",
+        "Espirometria"
+      ],
+      "riscos": "Risco Quimico e Fisico",
+      "detalhes": "Químico: Nevoas, produtos químicos sem geral.\nFísico: Ruido, Radiação não ionizante."
+    },
+    "N": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual"
+      ],
+      "riscos": "Ausência de riscos ambientais",
+      "detalhes": "Ausência de riscos ambientais."
+    },
+    "O": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Produtos químicos em geral.\nFísico: Ruídos, Poeira.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "P": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Quimico e Fisico",
+      "detalhes": "Física: Vibração de corpo inteiro, ruídos\nQuímico: Poeira"
+    },
+    "Q": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Cervical",
+        "Raio X Torax",
+        "Raio X Lombar",
+        "Audiometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Vibração de corpo inteiro e ruído.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    },
+    "R": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Torax",
+        "Acetil Metilhipurico",
+        "EEG",
+        "ECG",
+        "Espiromentria"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Radiação não ionizantes e ruído.\nQuímico: Poeira e nevoas."
+    },
+    "S": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Lombar",
+        "Audiometria",
+        "Espirometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído, vibração.\nQuímico: Poeira."
+    },
+    "T": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Torax",
+        "Audiometria",
+        "Espirometria",
+        "EEG",
+        "ECG"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído, vibração.\nQuímico: Poeira."
+    },
+    "U": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Lombar",
+        "Audiometria",
+        "Espirometria"
+      ],
+      "riscos": "Risco Fisico e Quimico",
+      "detalhes": "Físico: Ruído e vibração.\nQuímico: Poeira, produtos químicos em geral"
+    },
+    "V": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF",
+        "ECG",
+        "Espirometria"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Físico: Radiação não ionizante, vibração.\nQuímico: Poeira. \nBiológia: Bactérias, fungos, protozoários e vírus."
+    },
+    "W": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "HBsAG",
+        "Anti-HCV",
+        "Audiometria"
+      ],
+      "riscos": "Risco Fisico e Biologico",
+      "detalhes": "Físico: Ruido.\nBiológico - Bactérias, fungos, protozoários e vírus"
+    },
+    "X": {
+      "exames": [
+        "Exame Clínico",
+        "Hemograma Completo",
+        "Glicemia em jejum",
+        "Acuidade visual",
+        "Raio X Lombar",
+        "HBsAG",
+        "Anti-HCV",
+        "EPF"
+      ],
+      "riscos": "Risco Quimico, Fisico e Biologico",
+      "detalhes": "Químico: Produto químicos em geral.\nFísico: Ruído.\nBiológico: Bactérias, fungos, protozoários e vírus."
+    }
+  }
+}

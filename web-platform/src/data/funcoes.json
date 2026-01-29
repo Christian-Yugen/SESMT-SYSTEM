@@ -1,0 +1,2264 @@
+[
+  {
+    "Nome": "ADMINISTRADOR",
+    "GHE": "A",
+    "Cod": "1",
+    "GHE CONJ": "Act.1A"
+  },
+  {
+    "Nome": "ADVOGADO",
+    "GHE": "A",
+    "Cod": "2",
+    "GHE CONJ": "Act.2A"
+  },
+  {
+    "Nome": "AGENTE ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "3",
+    "GHE CONJ": "Act.3A"
+  },
+  {
+    "Nome": "AGENTE COMUNITARIO DE SAUDE",
+    "GHE": "J",
+    "Cod": "4",
+    "GHE CONJ": "Act.4J"
+  },
+  {
+    "Nome": "AGENTE DE COMBATE A ENDEMIAS",
+    "GHE": "D",
+    "Cod": "5",
+    "GHE CONJ": "Act.5D"
+  },
+  {
+    "Nome": "AGENTE DE DESENVOLVIMENTO SOCIAL",
+    "GHE": "A",
+    "Cod": "6",
+    "GHE CONJ": "Act.6A"
+  },
+  {
+    "Nome": "AGENTE DE FISCALIZACAO DE TRANSITO",
+    "GHE": "A",
+    "Cod": "7",
+    "GHE CONJ": "Act.7A"
+  },
+  {
+    "Nome": "AGENTE DE INFORMATICA",
+    "GHE": "A",
+    "Cod": "8",
+    "GHE CONJ": "Act.8A"
+  },
+  {
+    "Nome": "AGENTE DE SAUDE",
+    "GHE": "A",
+    "Cod": "9",
+    "GHE CONJ": "Act.9A"
+  },
+  {
+    "Nome": "AGENTE DE VIGILANCIA SANITARIA",
+    "GHE": "J",
+    "Cod": "10",
+    "GHE CONJ": "Act.10J"
+  },
+  {
+    "Nome": "AGENTE MUNICIPAL DE TRANSITO",
+    "GHE": "A",
+    "Cod": "11",
+    "GHE CONJ": "Act.11A"
+  },
+  {
+    "Nome": "AGENTE MUNICIPAL DEFESA CIVIL",
+    "GHE": "A",
+    "Cod": "12",
+    "GHE CONJ": "Act.12A"
+  },
+  {
+    "Nome": "AGENTE TECNICO DE VIGILANCIA SANITARIA",
+    "GHE": "A",
+    "Cod": "13",
+    "GHE CONJ": "Act.13A"
+  },
+  {
+    "Nome": "ARQUITETO",
+    "GHE": "A",
+    "Cod": "14",
+    "GHE CONJ": "Act.14A"
+  },
+  {
+    "Nome": "ARQUITETO SAUDE",
+    "GHE": "A",
+    "Cod": "15",
+    "GHE CONJ": "Act.15A"
+  },
+  {
+    "Nome": "ARQUITETO VIGILANCIA SANITARIA",
+    "GHE": "A",
+    "Cod": "16",
+    "GHE CONJ": "Act.16A"
+  },
+  {
+    "Nome": "ARTESAO",
+    "GHE": "A",
+    "Cod": "17",
+    "GHE CONJ": "Act.17A"
+  },
+  {
+    "Nome": "ASSESSOR",
+    "GHE": "A",
+    "Cod": "18",
+    "GHE CONJ": "Act.18A"
+  },
+  {
+    "Nome": "ASSESSOR B DE ATIVIDADE CULTURAL",
+    "GHE": "A",
+    "Cod": "19",
+    "GHE CONJ": "Act.19A"
+  },
+  {
+    "Nome": "ASSESSOR DE GESTAO DE SAUDE PUBLICA",
+    "GHE": "W",
+    "Cod": "20",
+    "GHE CONJ": "Act.20W"
+  },
+  {
+    "Nome": "ASSESSOR DE IMPRENSA",
+    "GHE": "A",
+    "Cod": "21",
+    "GHE CONJ": "Act.21A"
+  },
+  {
+    "Nome": "ASSESSOR DE INFORMATICA",
+    "GHE": "A",
+    "Cod": "22",
+    "GHE CONJ": "Act.22A"
+  },
+  {
+    "Nome": "ASSESSOR DE SAUDE",
+    "GHE": "A",
+    "Cod": "23",
+    "GHE CONJ": "Act.23A"
+  },
+  {
+    "Nome": "ASSESSOR DE SAUDE FAMILIAR",
+    "GHE": "A",
+    "Cod": "24",
+    "GHE CONJ": "Act.24A"
+  },
+  {
+    "Nome": "ASSESSOR DE SAUDE ODONTOLOGICA",
+    "GHE": "A",
+    "Cod": "25",
+    "GHE CONJ": "Act.25A"
+  },
+  {
+    "Nome": "ASSESSOR DE SEGURANCA",
+    "GHE": "A",
+    "Cod": "26",
+    "GHE CONJ": "Act.26A"
+  },
+  {
+    "Nome": "ASSESSOR ESP DE CULTURA E ARTESANATO",
+    "GHE": "A",
+    "Cod": "27",
+    "GHE CONJ": "Act.27A"
+  },
+  {
+    "Nome": "ASSESSOR ESP EDUCACIONAL E PEDAGOGICO",
+    "GHE": "A",
+    "Cod": "28",
+    "GHE CONJ": "Act.28A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL",
+    "GHE": "A",
+    "Cod": "29",
+    "GHE CONJ": "Act.29A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL  PROGRAMACAO PROJETOS E ESTATITICO",
+    "GHE": "A",
+    "Cod": "30",
+    "GHE CONJ": "Act.30A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL APOIO TECNICO ADMISTRATIVO GESTAO MUNICIPA",
+    "GHE": "A",
+    "Cod": "31",
+    "GHE CONJ": "Act.31A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL CONTROLE DE OBRAS",
+    "GHE": "A",
+    "Cod": "32",
+    "GHE CONJ": "Act.32A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL CULTURA E ARTESANATO",
+    "GHE": "A",
+    "Cod": "33",
+    "GHE CONJ": "Act.33A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DA SAUDE",
+    "GHE": "A",
+    "Cod": "34",
+    "GHE CONJ": "Act.34A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE COMUNICAÇAO",
+    "GHE": "A",
+    "Cod": "35",
+    "GHE CONJ": "Act.35A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE CONT INTERNO",
+    "GHE": "A",
+    "Cod": "36",
+    "GHE CONJ": "Act.36A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE LICITACAO",
+    "GHE": "A",
+    "Cod": "37",
+    "GHE CONJ": "Act.37A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE PLANEJAMENTO PROJETO ECONOMICO",
+    "GHE": "A",
+    "Cod": "38",
+    "GHE CONJ": "Act.38A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE PROJETOS E CAPTACAO DE RECURSOS",
+    "GHE": "A",
+    "Cod": "39",
+    "GHE CONJ": "Act.39A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE RECURSOS HUMANOS",
+    "GHE": "A",
+    "Cod": "40",
+    "GHE CONJ": "Act.40A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL DE TRANSITO E LOGISTICA",
+    "GHE": "A",
+    "Cod": "41",
+    "GHE CONJ": "Act.41A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL EDUCACAO E PEDAGOGICO",
+    "GHE": "A",
+    "Cod": "42",
+    "GHE CONJ": "Act.42A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL GESTAO POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "43",
+    "GHE CONJ": "Act.43A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL JURIDICO",
+    "GHE": "A",
+    "Cod": "44",
+    "GHE CONJ": "Act.44A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL PROCON",
+    "GHE": "A",
+    "Cod": "45",
+    "GHE CONJ": "Act.45A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL RELACAO INSTITUCIONAL E ADMINISTRATIVA",
+    "GHE": "A",
+    "Cod": "46",
+    "GHE CONJ": "Act.46A"
+  },
+  {
+    "Nome": "ASSESSOR ESPECIAL TRIBUTARIO",
+    "GHE": "A",
+    "Cod": "47",
+    "GHE CONJ": "Act.47A"
+  },
+  {
+    "Nome": "ASSESSOR GESTAO DE SAUDE PULICA",
+    "GHE": "A",
+    "Cod": "48",
+    "GHE CONJ": "Act.48A"
+  },
+  {
+    "Nome": "ASSESSOR GESTAO POLITICA PUBLICA",
+    "GHE": "A",
+    "Cod": "49",
+    "GHE CONJ": "Act.49A"
+  },
+  {
+    "Nome": "ASSESSOR IMEDIATO",
+    "GHE": "A",
+    "Cod": "50",
+    "GHE CONJ": "Act.50A"
+  },
+  {
+    "Nome": "ASSESSOR INTERMEDIARIO EDUCACAO",
+    "GHE": "A",
+    "Cod": "51",
+    "GHE CONJ": "Act.51A"
+  },
+  {
+    "Nome": "ASSESSOR JURIDICO",
+    "GHE": "A",
+    "Cod": "52",
+    "GHE CONJ": "Act.52A"
+  },
+  {
+    "Nome": "ASSESSOR JURIDICO DO MUNICIPIO",
+    "GHE": "A",
+    "Cod": "53",
+    "GHE CONJ": "Act.53A"
+  },
+  {
+    "Nome": "ASSESSOR POLITICA PUBLICA",
+    "GHE": "A",
+    "Cod": "54",
+    "GHE CONJ": "Act.54A"
+  },
+  {
+    "Nome": "ASSESSOR SAUDE FAMILIAR",
+    "GHE": "A",
+    "Cod": "55",
+    "GHE CONJ": "Act.55A"
+  },
+  {
+    "Nome": "ASSESSOR SERVICOS POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "56",
+    "GHE CONJ": "Act.56A"
+  },
+  {
+    "Nome": "ASSESSOR SUP DA ASSIST SOCIAL",
+    "GHE": "A",
+    "Cod": "57",
+    "GHE CONJ": "Act.57A"
+  },
+  {
+    "Nome": "ASSESSOR SUPERIOR DA EDUCAÇÃO",
+    "GHE": "A",
+    "Cod": "58",
+    "GHE CONJ": "Act.58A"
+  },
+  {
+    "Nome": "ASSESSOR SUPERIOR DE CULTURA",
+    "GHE": "A",
+    "Cod": "59",
+    "GHE CONJ": "Act.59A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO DA EDUCACAO E CULTURA",
+    "GHE": "A",
+    "Cod": "60",
+    "GHE CONJ": "Act.60A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO DE LAZER",
+    "GHE": "A",
+    "Cod": "61",
+    "GHE CONJ": "Act.61A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO DE SAUDE",
+    "GHE": "A",
+    "Cod": "62",
+    "GHE CONJ": "Act.62A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO DESPORTIVO",
+    "GHE": "A",
+    "Cod": "63",
+    "GHE CONJ": "Act.63A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO EM EDUCACAO",
+    "GHE": "A",
+    "Cod": "64",
+    "GHE CONJ": "Act.64A"
+  },
+  {
+    "Nome": "ASSESSOR TECNICO OPERACIONAL SAUDE",
+    "GHE": "A",
+    "Cod": "65",
+    "GHE CONJ": "Act.65A"
+  },
+  {
+    "Nome": "ASSISTENTE",
+    "GHE": "A",
+    "Cod": "66",
+    "GHE CONJ": "Act.66A"
+  },
+  {
+    "Nome": "ASSISTENTE ADM DA ASS ESP DE CULT E ARTESANATO",
+    "GHE": "A",
+    "Cod": "67",
+    "GHE CONJ": "Act.67A"
+  },
+  {
+    "Nome": "ASSISTENTE ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "68",
+    "GHE CONJ": "Act.68A"
+  },
+  {
+    "Nome": "ASSISTENTE DE CRECHE",
+    "GHE": "A",
+    "Cod": "69",
+    "GHE CONJ": "Act.69A"
+  },
+  {
+    "Nome": "ASSISTENTE GEST ASSUNT JURIDICO",
+    "GHE": "A",
+    "Cod": "70",
+    "GHE CONJ": "Act.70A"
+  },
+  {
+    "Nome": "ASSISTENTE SERVICO CONTROLE INTERNO",
+    "GHE": "A",
+    "Cod": "71",
+    "GHE CONJ": "Act.71A"
+  },
+  {
+    "Nome": "ASSISTENTE SOCIAL",
+    "GHE": "A",
+    "Cod": "72",
+    "GHE CONJ": "Act.72A"
+  },
+  {
+    "Nome": "ATENDENTE CONS DENTARIO",
+    "GHE": "J",
+    "Cod": "73",
+    "GHE CONJ": "Act.73J"
+  },
+  {
+    "Nome": "ATENDENTE DE FARMACIA",
+    "GHE": "A",
+    "Cod": "74",
+    "GHE CONJ": "Act.74A"
+  },
+  {
+    "Nome": "ATENDENTE EDUCACAO INFANTIL",
+    "GHE": "A",
+    "Cod": "75",
+    "GHE CONJ": "Act.75A"
+  },
+  {
+    "Nome": "AUDITOR",
+    "GHE": "A",
+    "Cod": "76",
+    "GHE CONJ": "Act.76A"
+  },
+  {
+    "Nome": "AUDITOR CONTABIL",
+    "GHE": "A",
+    "Cod": "77",
+    "GHE CONJ": "Act.77A"
+  },
+  {
+    "Nome": "AUDITOR DA SAUDE",
+    "GHE": "A",
+    "Cod": "78",
+    "GHE CONJ": "Act.78A"
+  },
+  {
+    "Nome": "AUDITOR TRIBUTARIO MUNICIPAL",
+    "GHE": "A",
+    "Cod": "79",
+    "GHE CONJ": "Act.79A"
+  },
+  {
+    "Nome": "AUX DE LIMPEZA  ASS ESP DE CULTURA",
+    "GHE": "A",
+    "Cod": "80",
+    "GHE CONJ": "Act.80A"
+  },
+  {
+    "Nome": "AUX DE SERVIÇOS ADMINISTRATIVOS",
+    "GHE": "A",
+    "Cod": "81",
+    "GHE CONJ": "Act.81A"
+  },
+  {
+    "Nome": "AUXILIAR ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "82",
+    "GHE CONJ": "Act.82A"
+  },
+  {
+    "Nome": "AUXILIAR BASICO DA EDUCACAO",
+    "GHE": "B",
+    "Cod": "83",
+    "GHE CONJ": "Act.83B"
+  },
+  {
+    "Nome": "AUXILIAR DE CIRURGIAO DENTISTA",
+    "GHE": "W",
+    "Cod": "84",
+    "GHE CONJ": "Act.84W"
+  },
+  {
+    "Nome": "AUXILIAR DE CONTABILIDADE",
+    "GHE": "A",
+    "Cod": "85",
+    "GHE CONJ": "Act.85A"
+  },
+  {
+    "Nome": "AUXILIAR DE CRECHE",
+    "GHE": "A",
+    "Cod": "86",
+    "GHE CONJ": "Act.86A"
+  },
+  {
+    "Nome": "AUXILIAR DE ENFERMAGEM",
+    "GHE": "J",
+    "Cod": "87",
+    "GHE CONJ": "Act.87J"
+  },
+  {
+    "Nome": "AUXILIAR DE ESCOLA",
+    "GHE": "A",
+    "Cod": "88",
+    "GHE CONJ": "Act.88A"
+  },
+  {
+    "Nome": "AUXILIAR DE FARMÁCIA",
+    "GHE": "A",
+    "Cod": "89",
+    "GHE CONJ": "Act.89A"
+  },
+  {
+    "Nome": "AUXILIAR DE FISCAL AMBIENTAL",
+    "GHE": "A",
+    "Cod": "90",
+    "GHE CONJ": "Act.90A"
+  },
+  {
+    "Nome": "AUXILIAR DE LABORATORIO",
+    "GHE": "J",
+    "Cod": "91",
+    "GHE CONJ": "Act.91J"
+  },
+  {
+    "Nome": "AUXILIAR DE LIMPEZA DA ASS ESP DE CULT E ARTESANATO",
+    "GHE": "A",
+    "Cod": "92",
+    "GHE CONJ": "Act.92A"
+  },
+  {
+    "Nome": "AUXILIAR DE LIMPEZA URBANA",
+    "GHE": "A",
+    "Cod": "93",
+    "GHE CONJ": "Act.93A"
+  },
+  {
+    "Nome": "AUXILIAR DE MECANICO",
+    "GHE": "M",
+    "Cod": "94",
+    "GHE CONJ": "Act.94M"
+  },
+  {
+    "Nome": "AUXILIAR DE SAUDE BUCAL",
+    "GHE": "W",
+    "Cod": "95",
+    "GHE CONJ": "Act.95W"
+  },
+  {
+    "Nome": "AUXILIAR DE SECRETARIA",
+    "GHE": "A",
+    "Cod": "96",
+    "GHE CONJ": "Act.96A"
+  },
+  {
+    "Nome": "AUXILIAR DE SERVICOS DIVERSOS",
+    "GHE": "E",
+    "Cod": "97",
+    "GHE CONJ": "Act.97E"
+  },
+  {
+    "Nome": "AUXILIAR DE TOPOGRAFO",
+    "GHE": "N",
+    "Cod": "98",
+    "GHE CONJ": "Act.98N"
+  },
+  {
+    "Nome": "AUXILIAR EM SAUDE BUCAL",
+    "GHE": "W",
+    "Cod": "99",
+    "GHE CONJ": "Act.99W"
+  },
+  {
+    "Nome": "AUXILIAR EQUIP DENTARIO",
+    "GHE": "W",
+    "Cod": "100",
+    "GHE CONJ": "Act.100W"
+  },
+  {
+    "Nome": "AUXILIAR INTERMEDIARIO DA EDUCAÇÃO",
+    "GHE": "B",
+    "Cod": "101",
+    "GHE CONJ": "Act.101B"
+  },
+  {
+    "Nome": "AUXILIAR LIMPEZA URBANA",
+    "GHE": "A",
+    "Cod": "102",
+    "GHE CONJ": "Act.102A"
+  },
+  {
+    "Nome": "BIOLOGO",
+    "GHE": "L",
+    "Cod": "103",
+    "GHE CONJ": "Act.103L"
+  },
+  {
+    "Nome": "BIOMEDICO",
+    "GHE": "J",
+    "Cod": "104",
+    "GHE CONJ": "Act.104J"
+  },
+  {
+    "Nome": "BOMBEIRO HIDRAULICO ENCANADOR",
+    "GHE": "O",
+    "Cod": "105",
+    "GHE CONJ": "Act.105O"
+  },
+  {
+    "Nome": "BORRACHEIRO",
+    "GHE": "U",
+    "Cod": "106",
+    "GHE CONJ": "Act.106U"
+  },
+  {
+    "Nome": "CARPINTEIRO",
+    "GHE": "S",
+    "Cod": "107",
+    "GHE CONJ": "Act.107S"
+  },
+  {
+    "Nome": "CHEFE DE ASSUNTO GOVERNAMENTAL",
+    "GHE": "A",
+    "Cod": "108",
+    "GHE CONJ": "Act.108A"
+  },
+  {
+    "Nome": "CHEFE DE GABINETE",
+    "GHE": "A",
+    "Cod": "109",
+    "GHE CONJ": "Act.109A"
+  },
+  {
+    "Nome": "CHEFE DE NUCLEO",
+    "GHE": "A",
+    "Cod": "110",
+    "GHE CONJ": "Act.110A"
+  },
+  {
+    "Nome": "CHEFE DE NUCLEO ADMINISTRATIVO FINANCEIRO",
+    "GHE": "A",
+    "Cod": "111",
+    "GHE CONJ": "Act.111A"
+  },
+  {
+    "Nome": "CHEFE DE NUCLEO ADMINISTRATIVO FINANCEIRO OPERACIONAL",
+    "GHE": "A",
+    "Cod": "112",
+    "GHE CONJ": "Act.112A"
+  },
+  {
+    "Nome": "CHEFE DE NUCLEO INFORMATICA",
+    "GHE": "A",
+    "Cod": "113",
+    "GHE CONJ": "Act.113A"
+  },
+  {
+    "Nome": "CHEFE DE NUCLEO OPERACIONAL E ASSISTENCIAL",
+    "GHE": "A",
+    "Cod": "114",
+    "GHE CONJ": "Act.114A"
+  },
+  {
+    "Nome": "CIRUGIAO DENTISTA ODONTOPEDIATRA",
+    "GHE": "W",
+    "Cod": "115",
+    "GHE CONJ": "Act.115W"
+  },
+  {
+    "Nome": "CIRURGIAO DENTISTA",
+    "GHE": "W",
+    "Cod": "116",
+    "GHE CONJ": "Act.116W"
+  },
+  {
+    "Nome": "CIRURGIAO DENTISTA PROTESISTA",
+    "GHE": "W",
+    "Cod": "117",
+    "GHE CONJ": "Act.117W"
+  },
+  {
+    "Nome": "CIRURGIÃO DENTISTA REGULADOR",
+    "GHE": "W",
+    "Cod": "118",
+    "GHE CONJ": "Act.118W"
+  },
+  {
+    "Nome": "CIRURGIÃO DENTISTA BUCO MAXILO FACIAL",
+    "GHE": "W",
+    "Cod": "119",
+    "GHE CONJ": "Act.119W"
+  },
+  {
+    "Nome": "CONSELHEIRO TUTELAR",
+    "GHE": "A",
+    "Cod": "120",
+    "GHE CONJ": "Act.120A"
+  },
+  {
+    "Nome": "CONTABILISTA",
+    "GHE": "A",
+    "Cod": "121",
+    "GHE CONJ": "Act.121A"
+  },
+  {
+    "Nome": "CONTADOR",
+    "GHE": "A",
+    "Cod": "122",
+    "GHE CONJ": "Act.122A"
+  },
+  {
+    "Nome": "COORD DE SERVICO CONTROLE INTERNO",
+    "GHE": "A",
+    "Cod": "123",
+    "GHE CONJ": "Act.123A"
+  },
+  {
+    "Nome": "COORD PEDAGOCICO",
+    "GHE": "A",
+    "Cod": "124",
+    "GHE CONJ": "Act.124A"
+  },
+  {
+    "Nome": "COORD TEC DA EDUCACAO E CULTUR",
+    "GHE": "A",
+    "Cod": "125",
+    "GHE CONJ": "Act.125A"
+  },
+  {
+    "Nome": "COORDENADOR",
+    "GHE": "A",
+    "Cod": "126",
+    "GHE CONJ": "Act.126A"
+  },
+  {
+    "Nome": "COORDENADOR ADM ALBERGUE",
+    "GHE": "A",
+    "Cod": "127",
+    "GHE CONJ": "Act.127A"
+  },
+  {
+    "Nome": "COORDENADOR ADMINISTRATIVO FINANCEIRO OPERACIONAL",
+    "GHE": "A",
+    "Cod": "128",
+    "GHE CONJ": "Act.128A"
+  },
+  {
+    "Nome": "COORDENADOR AREA ESPEC",
+    "GHE": "A",
+    "Cod": "129",
+    "GHE CONJ": "Act.129A"
+  },
+  {
+    "Nome": "COORDENADOR CONTROLE PRESTACAO CONTAS",
+    "GHE": "A",
+    "Cod": "130",
+    "GHE CONJ": "Act.130A"
+  },
+  {
+    "Nome": "COORDENADOR CRECHE",
+    "GHE": "A",
+    "Cod": "131",
+    "GHE CONJ": "Act.131A"
+  },
+  {
+    "Nome": "COORDENADOR DE AREA ESPECIFICA",
+    "GHE": "A",
+    "Cod": "132",
+    "GHE CONJ": "Act.132A"
+  },
+  {
+    "Nome": "COORDENADOR DE ASSISTENCIA GESTAO POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "133",
+    "GHE CONJ": "Act.133A"
+  },
+  {
+    "Nome": "COORDENADOR DE ASSISTENCIA SOCIAL OPERACIONAL",
+    "GHE": "A",
+    "Cod": "134",
+    "GHE CONJ": "Act.134A"
+  },
+  {
+    "Nome": "COORDENADOR DE ASSUNT JURIDICO",
+    "GHE": "A",
+    "Cod": "135",
+    "GHE CONJ": "Act.135A"
+  },
+  {
+    "Nome": "COORDENADOR DE CEI",
+    "GHE": "A",
+    "Cod": "136",
+    "GHE CONJ": "Act.136A"
+  },
+  {
+    "Nome": "COORDENADOR DE CULTURA",
+    "GHE": "A",
+    "Cod": "137",
+    "GHE CONJ": "Act.137A"
+  },
+  {
+    "Nome": "COORDENADOR DE ENFERMAGEM",
+    "GHE": "J",
+    "Cod": "138",
+    "GHE CONJ": "Act.138J"
+  },
+  {
+    "Nome": "COORDENADOR DE INFORMATICA",
+    "GHE": "A",
+    "Cod": "139",
+    "GHE CONJ": "Act.139A"
+  },
+  {
+    "Nome": "COORDENADOR DE NUCLEO",
+    "GHE": "A",
+    "Cod": "140",
+    "GHE CONJ": "Act.140A"
+  },
+  {
+    "Nome": "COORDENADOR DE NUCLEO JURIDICO",
+    "GHE": "A",
+    "Cod": "141",
+    "GHE CONJ": "Act.141A"
+  },
+  {
+    "Nome": "COORDENADOR DE POLITICAS PUBLICAS ASSISTENCIA SOCIAL",
+    "GHE": "A",
+    "Cod": "142",
+    "GHE CONJ": "Act.142A"
+  },
+  {
+    "Nome": "COORDENADOR DE SERVICOS E POLITICAS  PUBLICAS",
+    "GHE": "A",
+    "Cod": "143",
+    "GHE CONJ": "Act.143A"
+  },
+  {
+    "Nome": "COORDENADOR DE UNIDADE",
+    "GHE": "A",
+    "Cod": "144",
+    "GHE CONJ": "Act.144A"
+  },
+  {
+    "Nome": "COORDENADOR DO PROCON",
+    "GHE": "A",
+    "Cod": "145",
+    "GHE CONJ": "Act.145A"
+  },
+  {
+    "Nome": "COORDENADOR GERAL",
+    "GHE": "A",
+    "Cod": "146",
+    "GHE CONJ": "Act.146A"
+  },
+  {
+    "Nome": "COORDENADOR GERAL GESTAO POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "147",
+    "GHE CONJ": "Act.147A"
+  },
+  {
+    "Nome": "COORDENADOR GESTAO POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "148",
+    "GHE CONJ": "Act.148A"
+  },
+  {
+    "Nome": "COORDENADOR MEDICO",
+    "GHE": "J",
+    "Cod": "149",
+    "GHE CONJ": "Act.149J"
+  },
+  {
+    "Nome": "COORDENADOR MUNICIPAL",
+    "GHE": "A",
+    "Cod": "150",
+    "GHE CONJ": "Act.150A"
+  },
+  {
+    "Nome": "COORDENADOR SAUDE ASSISTENCIA SOCIAL E LAZER",
+    "GHE": "A",
+    "Cod": "151",
+    "GHE CONJ": "Act.151A"
+  },
+  {
+    "Nome": "COORDENADOR SERV JURIDICOS",
+    "GHE": "A",
+    "Cod": "152",
+    "GHE CONJ": "Act.152A"
+  },
+  {
+    "Nome": "COORDENADOR SETORIAL",
+    "GHE": "A",
+    "Cod": "153",
+    "GHE CONJ": "Act.153A"
+  },
+  {
+    "Nome": "COORDENADOR SISTEMA CONTROLE INTERNO",
+    "GHE": "A",
+    "Cod": "154",
+    "GHE CONJ": "Act.154A"
+  },
+  {
+    "Nome": "COORDENADOR TECNICO DESPORTIVO LAZER",
+    "GHE": "A",
+    "Cod": "155",
+    "GHE CONJ": "Act.155A"
+  },
+  {
+    "Nome": "COORDENADOR TECNICO",
+    "GHE": "A",
+    "Cod": "156",
+    "GHE CONJ": "Act.156A"
+  },
+  {
+    "Nome": "COVEIRO",
+    "GHE": "V",
+    "Cod": "157",
+    "GHE CONJ": "Act.157V"
+  },
+  {
+    "Nome": "COZINHEIRO",
+    "GHE": "H",
+    "Cod": "158",
+    "GHE CONJ": "Act.158H"
+  },
+  {
+    "Nome": "CUIDADOR PLANTONISTA",
+    "GHE": "K",
+    "Cod": "159",
+    "GHE CONJ": "Act.159K"
+  },
+  {
+    "Nome": "DESENHISTA",
+    "GHE": "A",
+    "Cod": "160",
+    "GHE CONJ": "Act.160A"
+  },
+  {
+    "Nome": "DIRETOR",
+    "GHE": "A",
+    "Cod": "161",
+    "GHE CONJ": "Act.161A"
+  },
+  {
+    "Nome": "DIRETOR ADJUNTO DE CEI",
+    "GHE": "A",
+    "Cod": "162",
+    "GHE CONJ": "Act.162A"
+  },
+  {
+    "Nome": "DIRETOR ADJUNTO DE ESCOLA",
+    "GHE": "A",
+    "Cod": "163",
+    "GHE CONJ": "Act.163A"
+  },
+  {
+    "Nome": "DIRETOR DE CEI",
+    "GHE": "A",
+    "Cod": "164",
+    "GHE CONJ": "Act.164A"
+  },
+  {
+    "Nome": "DIRETOR DE COMUNICAÇÃO SOCIAL",
+    "GHE": "A",
+    "Cod": "165",
+    "GHE CONJ": "Act.165A"
+  },
+  {
+    "Nome": "DIRETOR DE DEP DE INFRAESTRUTURA E ADM ESCOLAR",
+    "GHE": "A",
+    "Cod": "166",
+    "GHE CONJ": "Act.166A"
+  },
+  {
+    "Nome": "DIRETOR DE DEPARTAMENTO",
+    "GHE": "A",
+    "Cod": "167",
+    "GHE CONJ": "Act.167A"
+  },
+  {
+    "Nome": "DIRETOR DE DEPARTAMENTO ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "168",
+    "GHE CONJ": "Act.168A"
+  },
+  {
+    "Nome": "DIRETOR DE ESCOLA",
+    "GHE": "A",
+    "Cod": "169",
+    "GHE CONJ": "Act.169A"
+  },
+  {
+    "Nome": "DIRETOR DEPARTAMENTO EDUCACAO",
+    "GHE": "A",
+    "Cod": "170",
+    "GHE CONJ": "Act.170A"
+  },
+  {
+    "Nome": "DIRETOR EXECUTIVO",
+    "GHE": "A",
+    "Cod": "171",
+    "GHE CONJ": "Act.171A"
+  },
+  {
+    "Nome": "ECONOMISTA",
+    "GHE": "A",
+    "Cod": "172",
+    "GHE CONJ": "Act.172A"
+  },
+  {
+    "Nome": "EDUCADOR FISICO",
+    "GHE": "A",
+    "Cod": "173",
+    "GHE CONJ": "Act.173A"
+  },
+  {
+    "Nome": "EDUCADOR SOCIAL",
+    "GHE": "A",
+    "Cod": "174",
+    "GHE CONJ": "Act.174A"
+  },
+  {
+    "Nome": "ELETRICISTA",
+    "GHE": "F",
+    "Cod": "175",
+    "GHE CONJ": "Act.175F"
+  },
+  {
+    "Nome": "ENCANADOR",
+    "GHE": "O",
+    "Cod": "176",
+    "GHE CONJ": "Act.176O"
+  },
+  {
+    "Nome": "ENCARREGADO ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "177",
+    "GHE CONJ": "Act.177A"
+  },
+  {
+    "Nome": "ENCARREGADO DE SERVICO",
+    "GHE": "A",
+    "Cod": "178",
+    "GHE CONJ": "Act.178A"
+  },
+  {
+    "Nome": "ENCARREGADO DE SERVICO CONTROLE INTERNO",
+    "GHE": "A",
+    "Cod": "179",
+    "GHE CONJ": "Act.179A"
+  },
+  {
+    "Nome": "ENCARREGADO GESTAO ADMINISTRATIVO FINANCEIRO",
+    "GHE": "A",
+    "Cod": "180",
+    "GHE CONJ": "Act.180A"
+  },
+  {
+    "Nome": "ENCARREGADO SERVIÇO ADMINISTRATIVO FINANCAS OPERACIONAL",
+    "GHE": "A",
+    "Cod": "181",
+    "GHE CONJ": "Act.181A"
+  },
+  {
+    "Nome": "ENCARREGADO SERVICO ASSISTENCIA SOCIAL",
+    "GHE": "A",
+    "Cod": "182",
+    "GHE CONJ": "Act.182A"
+  },
+  {
+    "Nome": "ENCARREGADO SERVIÇO ATENCAO SAUDE",
+    "GHE": "A",
+    "Cod": "183",
+    "GHE CONJ": "Act.183A"
+  },
+  {
+    "Nome": "ENCARREGADO SERVIÇO POLITICA EDUCACIONAL",
+    "GHE": "A",
+    "Cod": "184",
+    "GHE CONJ": "Act.184A"
+  },
+  {
+    "Nome": "ENCARREGADO SERVIÇO POLITICA PUBLICA",
+    "GHE": "A",
+    "Cod": "185",
+    "GHE CONJ": "Act.185A"
+  },
+  {
+    "Nome": "ENDODONTISTA",
+    "GHE": "J",
+    "Cod": "186",
+    "GHE CONJ": "Act.186J"
+  },
+  {
+    "Nome": "ENFERMEIRO",
+    "GHE": "J",
+    "Cod": "187",
+    "GHE CONJ": "Act.187J"
+  },
+  {
+    "Nome": "ENFERMEIRO DE VIGILÂNCIA SANITARIA",
+    "GHE": "J",
+    "Cod": "188",
+    "GHE CONJ": "Act.188J"
+  },
+  {
+    "Nome": "ENFERMEIRO DO TRABALHO",
+    "GHE": "A",
+    "Cod": "189",
+    "GHE CONJ": "Act.189A"
+  },
+  {
+    "Nome": "ENGENHEIRO",
+    "GHE": "A",
+    "Cod": "190",
+    "GHE CONJ": "Act.190A"
+  },
+  {
+    "Nome": "ENGENHEIRO AGRICOLA",
+    "GHE": "A",
+    "Cod": "191",
+    "GHE CONJ": "Act.191A"
+  },
+  {
+    "Nome": "ENGENHEIRO AGRONOMO",
+    "GHE": "A",
+    "Cod": "192",
+    "GHE CONJ": "Act.192A"
+  },
+  {
+    "Nome": "ENGENHEIRO AMBIENTAL",
+    "GHE": "A",
+    "Cod": "193",
+    "GHE CONJ": "Act.193A"
+  },
+  {
+    "Nome": "ENGENHEIRO CIVIL",
+    "GHE": "A",
+    "Cod": "194",
+    "GHE CONJ": "Act.194A"
+  },
+  {
+    "Nome": "ENGENHEIRO DE SEGURANÇA DO TRABALHO",
+    "GHE": "A",
+    "Cod": "195",
+    "GHE CONJ": "Act.195A"
+  },
+  {
+    "Nome": "ESPECIALISTA DE EDUCACAO",
+    "GHE": "A",
+    "Cod": "196",
+    "GHE CONJ": "Act.196A"
+  },
+  {
+    "Nome": "ESPECIALISTA EM ESTATISTICA",
+    "GHE": "A",
+    "Cod": "197",
+    "GHE CONJ": "Act.197A"
+  },
+  {
+    "Nome": "ESPECIALISTA ESPORTE LAZER",
+    "GHE": "A",
+    "Cod": "198",
+    "GHE CONJ": "Act.198A"
+  },
+  {
+    "Nome": "ESTATÍSTICO FINANCEIRO",
+    "GHE": "A",
+    "Cod": "199",
+    "GHE CONJ": "Act.199A"
+  },
+  {
+    "Nome": "FARMACEUTICO",
+    "GHE": "A",
+    "Cod": "200",
+    "GHE CONJ": "Act.200A"
+  },
+  {
+    "Nome": "FARMACEUTICO DE VIGILANCIA SANITARIA",
+    "GHE": "A",
+    "Cod": "201",
+    "GHE CONJ": "Act.201A"
+  },
+  {
+    "Nome": "FARMACEUTICO/BIOQUIMICO",
+    "GHE": "J",
+    "Cod": "202",
+    "GHE CONJ": "Act.202J"
+  },
+  {
+    "Nome": "FISCAL AMBIENTAL",
+    "GHE": "A",
+    "Cod": "203",
+    "GHE CONJ": "Act.203A"
+  },
+  {
+    "Nome": "FISCAL AMBIENTAL AGRONOMO",
+    "GHE": "A",
+    "Cod": "204",
+    "GHE CONJ": "Act.204A"
+  },
+  {
+    "Nome": "FISCAL AMBIENTAL ENGENHEIRO",
+    "GHE": "A",
+    "Cod": "205",
+    "GHE CONJ": "Act.205A"
+  },
+  {
+    "Nome": "FISCAL DE DEFESA DO CONSUMIDOR-PROCON",
+    "GHE": "A",
+    "Cod": "206",
+    "GHE CONJ": "Act.206A"
+  },
+  {
+    "Nome": "FISCAL DE MEIO AMBIENTE",
+    "GHE": "A",
+    "Cod": "207",
+    "GHE CONJ": "Act.207A"
+  },
+  {
+    "Nome": "FISCAL DE OBRAS E POSTURA",
+    "GHE": "A",
+    "Cod": "208",
+    "GHE CONJ": "Act.208A"
+  },
+  {
+    "Nome": "FISCAL DE POSTURAS",
+    "GHE": "A",
+    "Cod": "209",
+    "GHE CONJ": "Act.209A"
+  },
+  {
+    "Nome": "FISCAL DE RENDA",
+    "GHE": "A",
+    "Cod": "210",
+    "GHE CONJ": "Act.210A"
+  },
+  {
+    "Nome": "FISCAL DE TRIBUTOS",
+    "GHE": "A",
+    "Cod": "211",
+    "GHE CONJ": "Act.211A"
+  },
+  {
+    "Nome": "FISCAL DE VIGILÂNCIA SANITÁRIA",
+    "GHE": "A",
+    "Cod": "212",
+    "GHE CONJ": "Act.212A"
+  },
+  {
+    "Nome": "FISCAL DE VIGILÂNCIA SANITÁRIA NUTRICIONISTA",
+    "GHE": "A",
+    "Cod": "213",
+    "GHE CONJ": "Act.213A"
+  },
+  {
+    "Nome": "FISCAL DE VIGILÂNCIA SANITÁRIA VETERINÁRIO",
+    "GHE": "A",
+    "Cod": "214",
+    "GHE CONJ": "Act.214A"
+  },
+  {
+    "Nome": "FISCAL SANITARISTA",
+    "GHE": "A",
+    "Cod": "215",
+    "GHE CONJ": "Act.215A"
+  },
+  {
+    "Nome": "FISIOTERAPEUTA",
+    "GHE": "A",
+    "Cod": "216",
+    "GHE CONJ": "Act.216A"
+  },
+  {
+    "Nome": "FONOAUDIOLOGO",
+    "GHE": "A",
+    "Cod": "217",
+    "GHE CONJ": "Act.217A"
+  },
+  {
+    "Nome": "FUNILEIRO",
+    "GHE": "A",
+    "Cod": "218",
+    "GHE CONJ": "Act.218A"
+  },
+  {
+    "Nome": "GARI",
+    "GHE": "A",
+    "Cod": "219",
+    "GHE CONJ": "Act.219A"
+  },
+  {
+    "Nome": "GEOGRAFO",
+    "GHE": "A",
+    "Cod": "220",
+    "GHE CONJ": "Act.220A"
+  },
+  {
+    "Nome": "GERENTE ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "221",
+    "GHE CONJ": "Act.221A"
+  },
+  {
+    "Nome": "GERENTE ADMINISTRATIVO DEFESA CIVIL",
+    "GHE": "A",
+    "Cod": "222",
+    "GHE CONJ": "Act.222A"
+  },
+  {
+    "Nome": "GERENTE DE APOIO E LOGISTICA",
+    "GHE": "A",
+    "Cod": "223",
+    "GHE CONJ": "Act.223A"
+  },
+  {
+    "Nome": "GERENTE DE DIVISAO",
+    "GHE": "A",
+    "Cod": "224",
+    "GHE CONJ": "Act.224A"
+  },
+  {
+    "Nome": "GERENTE DE GESTAO POLITICA PUBLICA",
+    "GHE": "A",
+    "Cod": "225",
+    "GHE CONJ": "Act.225A"
+  },
+  {
+    "Nome": "GERENTE DE NUCLEO",
+    "GHE": "A",
+    "Cod": "226",
+    "GHE CONJ": "Act.226A"
+  },
+  {
+    "Nome": "GERENTE DE NUCLEO DE JULGAMENT",
+    "GHE": "A",
+    "Cod": "227",
+    "GHE CONJ": "Act.227A"
+  },
+  {
+    "Nome": "GERENTE ESPECIAL CONTROLE INTERNO",
+    "GHE": "A",
+    "Cod": "228",
+    "GHE CONJ": "Act.228A"
+  },
+  {
+    "Nome": "GERENTE ESPECIAL DE CADASTRO IMOB",
+    "GHE": "A",
+    "Cod": "229",
+    "GHE CONJ": "Act.229A"
+  },
+  {
+    "Nome": "GERENTE ESPECIAL DE CONTROLE PRESTACAO CONTAS",
+    "GHE": "A",
+    "Cod": "230",
+    "GHE CONJ": "Act.230A"
+  },
+  {
+    "Nome": "GERENTE ESPECIAL DE TESOURARIA",
+    "GHE": "A",
+    "Cod": "231",
+    "GHE CONJ": "Act.231A"
+  },
+  {
+    "Nome": "GERENTE ESPECIAL GESTAO POLITICAS PUBLICAS",
+    "GHE": "A",
+    "Cod": "232",
+    "GHE CONJ": "Act.232A"
+  },
+  {
+    "Nome": "GERENTE SETORIAL",
+    "GHE": "A",
+    "Cod": "233",
+    "GHE CONJ": "Act.233A"
+  },
+  {
+    "Nome": "GUIA TRANSPORTE DA SAUDE",
+    "GHE": "A",
+    "Cod": "234",
+    "GHE CONJ": "Act.234A"
+  },
+  {
+    "Nome": "INSPETOR DE ALUNOS",
+    "GHE": "A",
+    "Cod": "235",
+    "GHE CONJ": "Act.235A"
+  },
+  {
+    "Nome": "INSTRUTOR DE SAUDE",
+    "GHE": "A",
+    "Cod": "236",
+    "GHE CONJ": "Act.236A"
+  },
+  {
+    "Nome": "JARDINEIRO",
+    "GHE": "E",
+    "Cod": "237",
+    "GHE CONJ": "Act.237E"
+  },
+  {
+    "Nome": "LAVADEIRA",
+    "GHE": "X",
+    "Cod": "238",
+    "GHE CONJ": "Act.238X"
+  },
+  {
+    "Nome": "LUBRIFICADOR",
+    "GHE": "M",
+    "Cod": "239",
+    "GHE CONJ": "Act.239M"
+  },
+  {
+    "Nome": "MARCENEIRO",
+    "GHE": "S",
+    "Cod": "240",
+    "GHE CONJ": "Act.240S"
+  },
+  {
+    "Nome": "MECANICO",
+    "GHE": "M",
+    "Cod": "241",
+    "GHE CONJ": "Act.241M"
+  },
+  {
+    "Nome": "MECANICO DE MAQUINA PESADA",
+    "GHE": "M",
+    "Cod": "242",
+    "GHE CONJ": "Act.242M"
+  },
+  {
+    "Nome": "MECANICO ELETRICISTA DE AUTO",
+    "GHE": "F",
+    "Cod": "243",
+    "GHE CONJ": "Act.243F"
+  },
+  {
+    "Nome": "MEDICO ALERGISTA",
+    "GHE": "J",
+    "Cod": "244",
+    "GHE CONJ": "Act.244J"
+  },
+  {
+    "Nome": "MEDICO ANESTESIOLOGISTA",
+    "GHE": "J",
+    "Cod": "245",
+    "GHE CONJ": "Act.245J"
+  },
+  {
+    "Nome": "MEDICO ANGIOLOGISTA",
+    "GHE": "J",
+    "Cod": "246",
+    "GHE CONJ": "Act.246J"
+  },
+  {
+    "Nome": "MÉDICO CARDIOLOGISTA",
+    "GHE": "J",
+    "Cod": "247",
+    "GHE CONJ": "Act.247J"
+  },
+  {
+    "Nome": "MÉDICO CARDIOLOGISTA - RISCO CIRÚRGICO",
+    "GHE": "J",
+    "Cod": "248",
+    "GHE CONJ": "Act.248J"
+  },
+  {
+    "Nome": "MÉDICO CARDIOLOGISTA PEDIÁTRICO",
+    "GHE": "J",
+    "Cod": "249",
+    "GHE CONJ": "Act.249J"
+  },
+  {
+    "Nome": "MEDICO CIRURGIAO GERAL",
+    "GHE": "J",
+    "Cod": "250",
+    "GHE CONJ": "Act.250J"
+  },
+  {
+    "Nome": "MEDICO CLINICO GERAL",
+    "GHE": "J",
+    "Cod": "251",
+    "GHE CONJ": "Act.251J"
+  },
+  {
+    "Nome": "MEDICO CLINICO GERAL PROCESSO SELETIVO",
+    "GHE": "J",
+    "Cod": "252",
+    "GHE CONJ": "Act.252J"
+  },
+  {
+    "Nome": "MEDICO DA FAMILIA",
+    "GHE": "J",
+    "Cod": "253",
+    "GHE CONJ": "Act.253J"
+  },
+  {
+    "Nome": "MEDICO DERMATOLOGISTA",
+    "GHE": "J",
+    "Cod": "254",
+    "GHE CONJ": "Act.254J"
+  },
+  {
+    "Nome": "MEDICO ENDOCOSPIA E COLONOPISTA",
+    "GHE": "J",
+    "Cod": "255",
+    "GHE CONJ": "Act.255J"
+  },
+  {
+    "Nome": "MEDICO ENDOCRINOLOGISTA",
+    "GHE": "J",
+    "Cod": "256",
+    "GHE CONJ": "Act.256J"
+  },
+  {
+    "Nome": "MÉDICO ENDOCRINOLOGISTA PEDIÁTRICO",
+    "GHE": "J",
+    "Cod": "257",
+    "GHE CONJ": "Act.257J"
+  },
+  {
+    "Nome": "MÉDICO GASTROENTEROLOGISTA",
+    "GHE": "J",
+    "Cod": "258",
+    "GHE CONJ": "Act.258J"
+  },
+  {
+    "Nome": "MÉDICO GERIATRA",
+    "GHE": "J",
+    "Cod": "259",
+    "GHE CONJ": "Act.259J"
+  },
+  {
+    "Nome": "MEDICO GINECOLOGISTA",
+    "GHE": "J",
+    "Cod": "260",
+    "GHE CONJ": "Act.260J"
+  },
+  {
+    "Nome": "MEDICO GINECOLOGISTA/OBSTETRA",
+    "GHE": "J",
+    "Cod": "261",
+    "GHE CONJ": "Act.261J"
+  },
+  {
+    "Nome": "MÉDICO HEMATO E HEMOTERAPEUTA",
+    "GHE": "J",
+    "Cod": "262",
+    "GHE CONJ": "Act.262J"
+  },
+  {
+    "Nome": "MÉDICO HEPATOLOGISTA",
+    "GHE": "J",
+    "Cod": "263",
+    "GHE CONJ": "Act.263J"
+  },
+  {
+    "Nome": "MEDICO INFECTOLOGISTA",
+    "GHE": "J",
+    "Cod": "264",
+    "GHE CONJ": "Act.264J"
+  },
+  {
+    "Nome": "MEDICO INTERVENCIONISTA REDE URGENCIA E EMERGENCIA",
+    "GHE": "J",
+    "Cod": "265",
+    "GHE CONJ": "Act.265J"
+  },
+  {
+    "Nome": "MEDICO MASTOLOGISTA",
+    "GHE": "J",
+    "Cod": "266",
+    "GHE CONJ": "Act.266J"
+  },
+  {
+    "Nome": "MÉDICO NEFROLOGISTA",
+    "GHE": "J",
+    "Cod": "267",
+    "GHE CONJ": "Act.267J"
+  },
+  {
+    "Nome": "MÉDICO NEFROLOGISTA PEDIÁTRICO",
+    "GHE": "J",
+    "Cod": "268",
+    "GHE CONJ": "Act.268J"
+  },
+  {
+    "Nome": "MÉDICO NEUROCIRURGIÃO",
+    "GHE": "J",
+    "Cod": "269",
+    "GHE CONJ": "Act.269J"
+  },
+  {
+    "Nome": "MEDICO NEUROLOGISTA",
+    "GHE": "J",
+    "Cod": "270",
+    "GHE CONJ": "Act.270J"
+  },
+  {
+    "Nome": "MEDICO NEUROPEDIATRA",
+    "GHE": "J",
+    "Cod": "271",
+    "GHE CONJ": "Act.271J"
+  },
+  {
+    "Nome": "MEDICO OFTALMOLOGISTA",
+    "GHE": "J",
+    "Cod": "272",
+    "GHE CONJ": "Act.272J"
+  },
+  {
+    "Nome": "MEDICO ORTOPEDISTA",
+    "GHE": "J",
+    "Cod": "273",
+    "GHE CONJ": "Act.273J"
+  },
+  {
+    "Nome": "MÉDICO ORTOPEDISTA TRAUMATOLOGISTA",
+    "GHE": "J",
+    "Cod": "274",
+    "GHE CONJ": "Act.274J"
+  },
+  {
+    "Nome": "MEDICO OTORRINOLARINGOLOGISTA",
+    "GHE": "J",
+    "Cod": "275",
+    "GHE CONJ": "Act.275J"
+  },
+  {
+    "Nome": "MÉDICO OTORRINOLARINGOLOGISTA PEDIÁTRICO",
+    "GHE": "J",
+    "Cod": "276",
+    "GHE CONJ": "Act.276J"
+  },
+  {
+    "Nome": "MEDICO PEDIATRA",
+    "GHE": "J",
+    "Cod": "277",
+    "GHE CONJ": "Act.277J"
+  },
+  {
+    "Nome": "MEDICO PNEUMOLOGISTA",
+    "GHE": "J",
+    "Cod": "278",
+    "GHE CONJ": "Act.278J"
+  },
+  {
+    "Nome": "MEDICO PSIQUIATRA",
+    "GHE": "J",
+    "Cod": "279",
+    "GHE CONJ": "Act.279J"
+  },
+  {
+    "Nome": "MEDICO PSIQUIATRA INFANTIL",
+    "GHE": "J",
+    "Cod": "280",
+    "GHE CONJ": "Act.280J"
+  },
+  {
+    "Nome": "MEDICO RADIOLOGISTA",
+    "GHE": "J",
+    "Cod": "281",
+    "GHE CONJ": "Act.281J"
+  },
+  {
+    "Nome": "MEDICO REGULADOR",
+    "GHE": "J",
+    "Cod": "282",
+    "GHE CONJ": "Act.282J"
+  },
+  {
+    "Nome": "MÉDICO REGULADOR INTERVENCIONISTA REDE URG. EMERG",
+    "GHE": "J",
+    "Cod": "283",
+    "GHE CONJ": "Act.283J"
+  },
+  {
+    "Nome": "MEDICO REGULADOR INTERVENCIONISTA SAMU",
+    "GHE": "J",
+    "Cod": "284",
+    "GHE CONJ": "Act.284J"
+  },
+  {
+    "Nome": "MEDICO REUMATOLOGISTA",
+    "GHE": "J",
+    "Cod": "285",
+    "GHE CONJ": "Act.285J"
+  },
+  {
+    "Nome": "MEDICO UROLOGISTA",
+    "GHE": "J",
+    "Cod": "286",
+    "GHE CONJ": "Act.286J"
+  },
+  {
+    "Nome": "MEDICO VASCULAR",
+    "GHE": "J",
+    "Cod": "287",
+    "GHE CONJ": "Act.287J"
+  },
+  {
+    "Nome": "MERENDEIRA",
+    "GHE": "H",
+    "Cod": "288",
+    "GHE CONJ": "Act.288H"
+  },
+  {
+    "Nome": "MESTRE DE OBRAS",
+    "GHE": "T",
+    "Cod": "289",
+    "GHE CONJ": "Act.289T"
+  },
+  {
+    "Nome": "MONITOR DE ESPORTE JUVENTUDE E LAZER",
+    "GHE": "A",
+    "Cod": "290",
+    "GHE CONJ": "Act.290A"
+  },
+  {
+    "Nome": "MONITOR DE INFORMATICA",
+    "GHE": "C",
+    "Cod": "291",
+    "GHE CONJ": "Act.291C"
+  },
+  {
+    "Nome": "MOTORISTA",
+    "GHE": "G",
+    "Cod": "292",
+    "GHE CONJ": "Act.292G"
+  },
+  {
+    "Nome": "MOTORISTA SOCORRISTA SAMU",
+    "GHE": "Q",
+    "Cod": "293",
+    "GHE CONJ": "Act.293Q"
+  },
+  {
+    "Nome": "MOTORISTA SOCORRISTA URGENCIA E EMERGENCIA",
+    "GHE": "Q",
+    "Cod": "294",
+    "GHE CONJ": "Act.294Q"
+  },
+  {
+    "Nome": "NUTRICIONISTA",
+    "GHE": "A",
+    "Cod": "295",
+    "GHE CONJ": "Act.295A"
+  },
+  {
+    "Nome": "ODONTOPEDIATRA",
+    "GHE": "J",
+    "Cod": "296",
+    "GHE CONJ": "Act.296J"
+  },
+  {
+    "Nome": "OFICINEIRO",
+    "GHE": "M",
+    "Cod": "297",
+    "GHE CONJ": "Act.297M"
+  },
+  {
+    "Nome": "OPERADOR DE MAQUINA",
+    "GHE": "P",
+    "Cod": "298",
+    "GHE CONJ": "Act.298P"
+  },
+  {
+    "Nome": "OPERADOR DE MOTONIVELADORA",
+    "GHE": "P",
+    "Cod": "299",
+    "GHE CONJ": "Act.299P"
+  },
+  {
+    "Nome": "ORIENTADOR SOCIAL",
+    "GHE": "A",
+    "Cod": "300",
+    "GHE CONJ": "Act.300A"
+  },
+  {
+    "Nome": "OUVIDOR - GERAL DO MUNICIPIO",
+    "GHE": "A",
+    "Cod": "301",
+    "GHE CONJ": "Act.301A"
+  },
+  {
+    "Nome": "PEDAGOGO",
+    "GHE": "A",
+    "Cod": "302",
+    "GHE CONJ": "Act.302A"
+  },
+  {
+    "Nome": "PEDREIRO",
+    "GHE": "T",
+    "Cod": "303",
+    "GHE CONJ": "Act.303T"
+  },
+  {
+    "Nome": "PINTOR",
+    "GHE": "R",
+    "Cod": "304",
+    "GHE CONJ": "Act.304R"
+  },
+  {
+    "Nome": "PINTOR DE PREDIOS",
+    "GHE": "R",
+    "Cod": "305",
+    "GHE CONJ": "Act.305R"
+  },
+  {
+    "Nome": "PREFEITO MUNICIPAL",
+    "GHE": "A",
+    "Cod": "306",
+    "GHE CONJ": "Act.306A"
+  },
+  {
+    "Nome": "PRESIDENTE",
+    "GHE": "A",
+    "Cod": "307",
+    "GHE CONJ": "Act.307A"
+  },
+  {
+    "Nome": "PROCURADOR GERAL",
+    "GHE": "A",
+    "Cod": "308",
+    "GHE CONJ": "Act.308A"
+  },
+  {
+    "Nome": "PROCURADOR GERAL ADJUNTO",
+    "GHE": "A",
+    "Cod": "309",
+    "GHE CONJ": "Act.309A"
+  },
+  {
+    "Nome": "PROFESSOR",
+    "GHE": "A",
+    "Cod": "310",
+    "GHE CONJ": "Act.310A"
+  },
+  {
+    "Nome": "PROFISSIONAL DE APOIO A INCLUSAO ESCOLAR - PAIE",
+    "GHE": "A",
+    "Cod": "311",
+    "GHE CONJ": "Act.311A"
+  },
+  {
+    "Nome": "PROTESISTA",
+    "GHE": "A",
+    "Cod": "312",
+    "GHE CONJ": "Act.312A"
+  },
+  {
+    "Nome": "PSICOLOGO",
+    "GHE": "A",
+    "Cod": "313",
+    "GHE CONJ": "Act.313A"
+  },
+  {
+    "Nome": "PSICOPEDAGOGO",
+    "GHE": "A",
+    "Cod": "314",
+    "GHE CONJ": "Act.314A"
+  },
+  {
+    "Nome": "RADIO OPERADOR SAMU",
+    "GHE": "A",
+    "Cod": "315",
+    "GHE CONJ": "Act.315A"
+  },
+  {
+    "Nome": "RECREADOR",
+    "GHE": "A",
+    "Cod": "316",
+    "GHE CONJ": "Act.316A"
+  },
+  {
+    "Nome": "SANITARISTA",
+    "GHE": "A",
+    "Cod": "317",
+    "GHE CONJ": "Act.317A"
+  },
+  {
+    "Nome": "SECRETARIA ESCOLAR",
+    "GHE": "A",
+    "Cod": "318",
+    "GHE CONJ": "Act.318A"
+  },
+  {
+    "Nome": "SECRETARIO DE EDUCACAO E CULTURA",
+    "GHE": "A",
+    "Cod": "319",
+    "GHE CONJ": "Act.319A"
+  },
+  {
+    "Nome": "SECRETARIO ESCOLAR",
+    "GHE": "A",
+    "Cod": "320",
+    "GHE CONJ": "Act.320A"
+  },
+  {
+    "Nome": "SECRETARIO MUNICIPAL",
+    "GHE": "A",
+    "Cod": "321",
+    "GHE CONJ": "Act.321A"
+  },
+  {
+    "Nome": "SECRETARIO MUNICIPAL EDUCACAO",
+    "GHE": "A",
+    "Cod": "322",
+    "GHE CONJ": "Act.322A"
+  },
+  {
+    "Nome": "SOLDADOR",
+    "GHE": "M",
+    "Cod": "323",
+    "GHE CONJ": "Act.323M"
+  },
+  {
+    "Nome": "SUPERINTENDENTE",
+    "GHE": "A",
+    "Cod": "324",
+    "GHE CONJ": "Act.324A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO",
+    "GHE": "A",
+    "Cod": "325",
+    "GHE CONJ": "Act.325A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO E PLANEJAMENTO",
+    "GHE": "A",
+    "Cod": "326",
+    "GHE CONJ": "Act.326A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO FINANCEIRO",
+    "GHE": "A",
+    "Cod": "327",
+    "GHE CONJ": "Act.327A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO FISCAL",
+    "GHE": "A",
+    "Cod": "328",
+    "GHE CONJ": "Act.328A"
+  },
+  {
+    "Nome": "TÉCNICO ADMINISTRATIVO NÍVEL SUPERIOR",
+    "GHE": "A",
+    "Cod": "329",
+    "GHE CONJ": "Act.329A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO PLANTONISTA",
+    "GHE": "A",
+    "Cod": "330",
+    "GHE CONJ": "Act.330A"
+  },
+  {
+    "Nome": "TÉCNICO ADMINISTRATIVO PLANTONISTA REGULAÇÃO",
+    "GHE": "A",
+    "Cod": "331",
+    "GHE CONJ": "Act.331A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO SAMU",
+    "GHE": "A",
+    "Cod": "332",
+    "GHE CONJ": "Act.332A"
+  },
+  {
+    "Nome": "TECNICO ADMINISTRATIVO SAUDE",
+    "GHE": "A",
+    "Cod": "333",
+    "GHE CONJ": "Act.333A"
+  },
+  {
+    "Nome": "TECNICO AGRICOLA",
+    "GHE": "A",
+    "Cod": "334",
+    "GHE CONJ": "Act.334A"
+  },
+  {
+    "Nome": "TECNICO AMBIENTAL",
+    "GHE": "A",
+    "Cod": "335",
+    "GHE CONJ": "Act.335A"
+  },
+  {
+    "Nome": "TECNICO ATENDENTE DE REGULAÇAO MEDICA/TARM",
+    "GHE": "A",
+    "Cod": "336",
+    "GHE CONJ": "Act.336A"
+  },
+  {
+    "Nome": "TECNICO ATENDI EG URGENCIA E EMERGENCIA",
+    "GHE": "A",
+    "Cod": "337",
+    "GHE CONJ": "Act.337A"
+  },
+  {
+    "Nome": "TECNICO ATENDIMENTO TRIBUTARIO",
+    "GHE": "A",
+    "Cod": "338",
+    "GHE CONJ": "Act.338A"
+  },
+  {
+    "Nome": "TECNICO CADISTA",
+    "GHE": "A",
+    "Cod": "339",
+    "GHE CONJ": "Act.339A"
+  },
+  {
+    "Nome": "TECNICO DE ADMINISTRACAO",
+    "GHE": "A",
+    "Cod": "340",
+    "GHE CONJ": "Act.340A"
+  },
+  {
+    "Nome": "TECNICO DE CASTRAMENTO",
+    "GHE": "A",
+    "Cod": "341",
+    "GHE CONJ": "Act.341A"
+  },
+  {
+    "Nome": "TÉCNICO DE EDIFICAÇAO",
+    "GHE": "A",
+    "Cod": "342",
+    "GHE CONJ": "Act.342A"
+  },
+  {
+    "Nome": "TECNICO DE FISCAL TRIBUTARIA",
+    "GHE": "A",
+    "Cod": "343",
+    "GHE CONJ": "Act.343A"
+  },
+  {
+    "Nome": "TECNICO DE INFORMATICA",
+    "GHE": "C",
+    "Cod": "344",
+    "GHE CONJ": "Act.344C"
+  },
+  {
+    "Nome": "TÉCNICO DE INFORMÁTICA FINANCEIRO",
+    "GHE": "C",
+    "Cod": "345",
+    "GHE CONJ": "Act.345C"
+  },
+  {
+    "Nome": "TECNICO DE LABORATORIO",
+    "GHE": "J",
+    "Cod": "346",
+    "GHE CONJ": "Act.346J"
+  },
+  {
+    "Nome": "TECNICO DE RAIO X",
+    "GHE": "I",
+    "Cod": "347",
+    "GHE CONJ": "Act.347I"
+  },
+  {
+    "Nome": "TECNICO DE SERVIÇO CADASTRAL",
+    "GHE": "A",
+    "Cod": "348",
+    "GHE CONJ": "Act.348A"
+  },
+  {
+    "Nome": "TECNICO DE VIGILANCIA EM SAUDE",
+    "GHE": "A",
+    "Cod": "349",
+    "GHE CONJ": "Act.349A"
+  },
+  {
+    "Nome": "TECNICO EM CITOLOGIA",
+    "GHE": "A",
+    "Cod": "350",
+    "GHE CONJ": "Act.350A"
+  },
+  {
+    "Nome": "TECNICO EM CONTABILIDADE",
+    "GHE": "A",
+    "Cod": "351",
+    "GHE CONJ": "Act.351A"
+  },
+  {
+    "Nome": "TECNICO EM ENFERMAGEM",
+    "GHE": "J",
+    "Cod": "352",
+    "GHE CONJ": "Act.352J"
+  },
+  {
+    "Nome": "TECNICO EM FINANCAS",
+    "GHE": "A",
+    "Cod": "353",
+    "GHE CONJ": "Act.353A"
+  },
+  {
+    "Nome": "TECNICO EM HIGIENE BUCAL",
+    "GHE": "W",
+    "Cod": "354",
+    "GHE CONJ": "Act.354W"
+  },
+  {
+    "Nome": "TECNICO EM IMOBILIZACAO ORTOPEDICA",
+    "GHE": "J",
+    "Cod": "355",
+    "GHE CONJ": "Act.355J"
+  },
+  {
+    "Nome": "TECNICO EM LABORATORIO",
+    "GHE": "J",
+    "Cod": "356",
+    "GHE CONJ": "Act.356J"
+  },
+  {
+    "Nome": "TECNICO EM LICITACAO",
+    "GHE": "A",
+    "Cod": "357",
+    "GHE CONJ": "Act.357A"
+  },
+  {
+    "Nome": "TECNICO EM ORCAMENTO",
+    "GHE": "A",
+    "Cod": "358",
+    "GHE CONJ": "Act.358A"
+  },
+  {
+    "Nome": "TECNICO EM PROTESE DENTARIA",
+    "GHE": "J",
+    "Cod": "359",
+    "GHE CONJ": "Act.359J"
+  },
+  {
+    "Nome": "TECNICO EM RECURSOS HUMANOS",
+    "GHE": "A",
+    "Cod": "360",
+    "GHE CONJ": "Act.360A"
+  },
+  {
+    "Nome": "TECNICO EM SAUDE BUCAL",
+    "GHE": "W",
+    "Cod": "361",
+    "GHE CONJ": "Act.361W"
+  },
+  {
+    "Nome": "TECNICO EM VIGILANCIA",
+    "GHE": "A",
+    "Cod": "362",
+    "GHE CONJ": "Act.362A"
+  },
+  {
+    "Nome": "TECNICO HIGIENE DENTAL",
+    "GHE": "J",
+    "Cod": "363",
+    "GHE CONJ": "Act.363J"
+  },
+  {
+    "Nome": "TECNICO IMOBILIZADOR GESSO-PLANTONISTA",
+    "GHE": "J",
+    "Cod": "364",
+    "GHE CONJ": "Act.364J"
+  },
+  {
+    "Nome": "TECNICO SEGURANÇA DO TRABALHO",
+    "GHE": "A",
+    "Cod": "365",
+    "GHE CONJ": "Act.365A"
+  },
+  {
+    "Nome": "TELEFONISTA",
+    "GHE": "A",
+    "Cod": "366",
+    "GHE CONJ": "Act.366A"
+  },
+  {
+    "Nome": "TERAPEUTA OCUPACIONAL",
+    "GHE": "A",
+    "Cod": "367",
+    "GHE CONJ": "Act.367A"
+  },
+  {
+    "Nome": "TOPOGRAFO",
+    "GHE": "N",
+    "Cod": "368",
+    "GHE CONJ": "Act.368N"
+  },
+  {
+    "Nome": "TORNEIRO MECANICO",
+    "GHE": "M",
+    "Cod": "369",
+    "GHE CONJ": "Act.369M"
+  },
+  {
+    "Nome": "TRATORISTA",
+    "GHE": "P",
+    "Cod": "370",
+    "GHE CONJ": "Act.370P"
+  },
+  {
+    "Nome": "TURISMOLOGO",
+    "GHE": "A",
+    "Cod": "371",
+    "GHE CONJ": "Act.371A"
+  },
+  {
+    "Nome": "TUTORES DE NÍVEL SUPERIOR DA CULTURA",
+    "GHE": "A",
+    "Cod": "372",
+    "GHE CONJ": "Act.372A"
+  },
+  {
+    "Nome": "VETERINARIO",
+    "GHE": "L",
+    "Cod": "373",
+    "GHE CONJ": "Act.373L"
+  },
+  {
+    "Nome": "VICE-PREFEITO",
+    "GHE": "A",
+    "Cod": "374",
+    "GHE CONJ": "Act.374A"
+  },
+  {
+    "Nome": "VIDEOFONISTA",
+    "GHE": "A",
+    "Cod": "375",
+    "GHE CONJ": "Act.375A"
+  },
+  {
+    "Nome": "VIGIA",
+    "GHE": "A",
+    "Cod": "376",
+    "GHE CONJ": "Act.376A"
+  },
+  {
+    "Nome": "ZELADOR",
+    "GHE": "A",
+    "Cod": "377",
+    "GHE CONJ": "Act.377A"
+  }
+]
