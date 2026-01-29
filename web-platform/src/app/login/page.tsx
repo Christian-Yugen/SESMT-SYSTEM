@@ -179,7 +179,7 @@ export default function LoginPage() {
                             }}
                             className="text-[9px] font-black text-[#1A3351] hover:text-[#E31E24] uppercase tracking-[0.2em] transition-colors underline underline-offset-4"
                         >
-                            {mode === "login" ? "Cadastrar Novo Operador" : "Voltar para o Login"}
+                            {mode === "login" ? "Cadastrar Novo Usuário" : "Voltar para o Login"}
                         </button>
                     </div>
                 </form>
