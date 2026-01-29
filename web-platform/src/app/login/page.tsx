@@ -22,10 +22,18 @@ export default function LoginPage() {
         setError(null);
         setSuccess(null);
 
-        if (mode === "signup" && password !== confirmPassword) {
-            setError("As senhas digitadas não coincidem.");
-            setLoading(false);
-            return;
+        if (mode === "signup") {
+            if (password !== confirmPassword) {
+                setError("As senhas digitadas não coincidem.");
+                setLoading(false);
+                return;
+            }
+
+            if (!email.toLowerCase().endsWith("@treslagoas.ms.gov.br")) {
+                setError("Apenas e-mails corporativos @treslagoas.ms.gov.br são permitidos.");
+                setLoading(false);
+                return;
+            }
         }
 
         if (mode === "login") {
@@ -119,6 +127,11 @@ export default function LoginPage() {
                                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
                                 />
                             </div>
+                            {mode === "signup" && (
+                                <p className="text-[9px] text-slate-400 font-bold mt-1 pl-1 italic">
+                                    * Use apenas seu e-mail @treslagoas.ms.gov.br
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-1">
