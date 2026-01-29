@@ -1,17 +1,13 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History } from "lucide-react";
 import Image from "next/image";
-import servidoresData from "@/data/servidores.json";
-import funcoesData from "@/data/funcoes.json";
-import examesDataRaw from "@/data/exames.json";
-import { Servidor, Funcao, ExameData, ExamesMap } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const examesData = examesDataRaw as unknown as ExamesMap;
+import { Servidor, Funcao, ExameData } from "@/types";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -375,6 +371,13 @@ export default function Home() {
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
             <FileSearch className="w-4 h-4" />
             <span>Readaptação</span>
+          </button>
+          <button
+            onClick={() => router.push('/history')}
+            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+          >
+            <History className="w-4 h-4" />
+            <span>Histórico</span>
           </button>
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
             <HeartPulse className="w-4 h-4" />
