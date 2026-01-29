@@ -74,7 +74,7 @@ async function migrateData() {
         console.log(`📦 Preparando para migrar ${totalToMigrate} servidores em lotes de ${batchSize}...`);
 
         for (let i = 0; i < totalToMigrate; i += batchSize) {
-            const batch = servidoresData.slice(i, i + batchSize).map((s) => ({
+            const batchRaw = servidoresData.slice(i, i + batchSize).map((s) => ({
                 cpf: String(s.CPF || s['CPF.'] || "").replace(/\D/g, ""),
                 nome: s.Nome,
                 cargo: s.Cargo,
@@ -82,6 +82,9 @@ async function migrateData() {
                 nascimento: s['Dt.Nascimento'] || s.Nascimento,
                 secretaria: s.Secretaria
             })).filter(s => s.cpf && s.matricula); // Garantir que tem CPF e Matrícula
+
+            // Remover duplicatas de CPF+Matrícula dentro do próprio lote (causa erro no Postgres)
+            const batch = Array.from(new Map(batchRaw.map(item => [`${item.cpf}-${item.matricula}`, item])).values());
 
             const { error: sError } = await supabase.from('servidores').upsert(batch, { onConflict: 'cpf,matricula' });
             if (sError) console.error(`Erro no lote ${i}:`, sError);

@@ -285,6 +285,21 @@ export default function Home() {
 
         // Pequeno delay para garantir que o navegador processe o clique antes de revogar a URL
         setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+        // Gravar no histórico do Supabase
+        try {
+          await supabase.from('aso_history').insert({
+            servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
+            servidor_nome: selectedServidor.Nome,
+            aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
+            generated_by: session?.user?.id
+          });
+        } catch (histError) {
+          console.error("Erro ao gravar histórico:", histError);
+        }
+
+        // Limpar o formulário após o sucesso para evitar erros no próximo processo
+        resetForm();
       } else {
         const errorData = await response.json();
         alert("Erro ao gerar documento: " + (errorData.detail || "Erro desconhecido"));
@@ -296,6 +311,16 @@ export default function Home() {
       setIsGenerating(false);
       setShowDateModal(false);
     }
+  };
+
+  const resetForm = () => {
+    setCpf("");
+    setSelectedServidor(null);
+    setFunctionSearch("");
+    setSelectedFuncao(null);
+    setSearchResults([]);
+    setAsoType("Admissional");
+    setCurrentExams({ exames: [], riscos: "", detalhes: "" });
   };
 
   if (authLoading) {
