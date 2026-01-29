@@ -33,8 +33,18 @@ export default function Home() {
       setSession(session);
       setAuthLoading(false);
       if (session) {
+        // Lista de e-mails que ganham cargo de Enfermagem automaticamente
+        const nurseEmails = ['eliane.tavares@treslagoas.ms.gov.br', 'yvy.coelho@treslagoas.ms.gov.br'];
+        const userEmail = session.user.email?.toLowerCase() || '';
+
         // Sincroniza o perfil do usuário e carrega o cargo
-        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then(() => {
+        // Se o e-mail estiver na lista, força o cargo 'nurse' se for um novo perfil ou atualização
+        const profileData: any = { id: session.user.id, email: session.user.email };
+        if (nurseEmails.includes(userEmail)) {
+          profileData.role = 'nurse';
+        }
+
+        supabase.from('profiles').upsert(profileData).then(() => {
           supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
             if (data) setUserRole(data.role);
           });
@@ -49,7 +59,13 @@ export default function Home() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then();
+        const nurseEmails = ['eliane.tavares@treslagoas.ms.gov.br', 'yvy.coelho@treslagoas.ms.gov.br'];
+        const userEmail = session.user.email?.toLowerCase() || '';
+        const profileData: any = { id: session.user.id, email: session.user.email };
+        if (nurseEmails.includes(userEmail)) {
+          profileData.role = 'nurse';
+        }
+        supabase.from('profiles').upsert(profileData).then();
       } else {
         router.push("/login");
       }
