@@ -73,11 +73,14 @@ export default function LoginPage() {
                     <div className="relative w-48 h-16">
                         <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain brightness-0 opacity-80" priority />
                     </div>
-                    <div className="flex flex-col items-center">
-                        <h1 className="text-2xl font-black text-[#1A3351] uppercase tracking-tighter">
-                            {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
+                    <div className="flex flex-col items-center gap-2">
+                        <h1 className="text-4xl font-black text-[#1A3351] uppercase tracking-tight text-center leading-none">
+                            SESMT SYSTEM
                         </h1>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">SESMT SYSTEM v1.2</p>
+                        <div className="h-1 w-24 bg-[#E31E24] rounded-full"></div>
+                        <p className="text-[12px] font-black text-[#1A3351]/60 uppercase tracking-[0.4em] mt-1">
+                            {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
+                        </p>
                     </div>
                 </div>
 
