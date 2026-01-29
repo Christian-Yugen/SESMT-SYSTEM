@@ -7,27 +7,49 @@ import Image from "next/image";
 import { Loader2, Lock, User, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
+    const [mode, setMode] = useState<"login" | "signup">("login");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const router = useRouter();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSuccess(null);
 
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        if (mode === "login") {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-        if (error) {
-            setError("Credenciais inválidas. Verifique seu e-mail e senha.");
-            setLoading(false);
+            if (error) {
+                setError("Credenciais inválidas. Verifique seu e-mail e senha.");
+                setLoading(false);
+            } else {
+                router.push("/");
+            }
         } else {
-            router.push("/");
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: window.location.origin
+                }
+            });
+
+            if (error) {
+                setError(error.message === "User already registered" ? "Este e-mail já possui cadastro." : error.message);
+                setLoading(false);
+            } else {
+                setSuccess("Cadastro realizado! Você já pode entrar.");
+                setMode("login");
+                setLoading(false);
+            }
         }
     };
 
@@ -43,13 +65,15 @@ export default function LoginPage() {
                         <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain brightness-0 opacity-80" priority />
                     </div>
                     <div className="flex flex-col items-center">
-                        <h1 className="text-2xl font-black text-[#1A3351] uppercase tracking-tighter">Acesso ao Sistema</h1>
+                        <h1 className="text-2xl font-black text-[#1A3351] uppercase tracking-tighter">
+                            {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
+                        </h1>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">SESMT SYSTEM v1.2</p>
                     </div>
                 </div>
 
                 {/* FORMULÁRIO */}
-                <form onSubmit={handleLogin} className="p-8 space-y-6 bg-white">
+                <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white">
 
                     {error && (
                         <div className="p-3 bg-red-100 border-l-4 border-[#E31E24] text-[11px] font-black text-[#E31E24] uppercase tracking-wider animate-shake">
@@ -57,15 +81,21 @@ export default function LoginPage() {
                         </div>
                     )}
 
+                    {success && (
+                        <div className="p-3 bg-green-100 border-l-4 border-[#28A745] text-[11px] font-black text-[#28A745] uppercase tracking-wider">
+                            {success}
+                        </div>
+                    )}
+
                     <div className="space-y-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Conta de Usuário</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail Corporativo</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     type="email"
                                     required
-                                    placeholder="E-MAIL CORPORATIVO"
+                                    placeholder="SEU@EMAIL.GOV.BR"
                                     className="w-full px-10 py-3 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#1A3351] uppercase"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
@@ -86,6 +116,9 @@ export default function LoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
+                            {mode === "signup" && (
+                                <p className="text-[9px] text-slate-400 font-bold mt-1 pl-1 italic">* Mínimo de 6 caracteres</p>
+                            )}
                         </div>
                     </div>
 
@@ -99,12 +132,19 @@ export default function LoginPage() {
                         ) : (
                             <>
                                 <ShieldCheck className="w-5 h-5" />
-                                <span>Autenticar Usuário</span>
+                                <span>{mode === "login" ? "Autenticar Usuário" : "Criar Minha Conta"}</span>
                             </>
                         )}
                     </button>
 
-                    <div className="pt-4 border-t border-slate-100 flex justify-center">
+                    <div className="pt-4 border-t border-slate-100 flex flex-col gap-3 items-center">
+                        <button
+                            type="button"
+                            onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                            className="text-[10px] font-black text-slate-500 hover:text-[#E31E24] uppercase tracking-widest transition-colors underline underline-offset-4"
+                        >
+                            {mode === "login" ? "Não tem conta? Cadastre-se aqui" : "Já tem conta? Clique para entrar"}
+                        </button>
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] text-center max-w-[200px]">
                             Acesso restrito para servidores autorizados do departamento SESMT
                         </p>
