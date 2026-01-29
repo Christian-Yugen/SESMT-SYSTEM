@@ -15,7 +15,7 @@ export default function Home() {
   const [selectedServidor, setSelectedServidor] = useState<Servidor | null>(null);
   const [functionSearch, setFunctionSearch] = useState("");
   const [selectedFuncao, setSelectedFuncao] = useState<Funcao | null>(null);
-  const [asoType, setAsoType] = useState<"Admissional" | "Periódico" | "Demissional">("Admissional");
+  const [asoType, setAsoType] = useState<"Admissional" | "de Retorno ao Trabalho" | "Demissional">("Admissional");
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -103,7 +103,7 @@ export default function Home() {
     const ghe = selectedFuncao.GHE;
     const type = asoType === "Demissional" ? "demissional" : "admissional";
     const data = examesData[type][ghe];
-    if (asoType === "Periódico") return { exames: ["Exame Clínico"], riscos: data?.riscos || "Não informado", detalhes: data?.detalhes || "" };
+    if (asoType === "de Retorno ao Trabalho") return { exames: ["Exame Clínico"], riscos: data?.riscos || "Não informado", detalhes: data?.detalhes || "" };
     return data || { exames: [], riscos: "GHE não encontrado", detalhes: "" };
   }, [selectedFuncao, asoType]);
 
@@ -348,14 +348,14 @@ export default function Home() {
                 <div className="pl-2">
                   <p className="text-sm font-black mb-2 uppercase text-slate-900">Tipo de Exame Requerido:</p>
                   <div className="flex flex-wrap bg-[#888] border-2 border-[#888] rounded-md overflow-hidden w-full sm:w-fit shadow-md">
-                    {(["Admissional", "Periódico", "Demissional"] as const).map((type) => (
+                    {(["Admissional", "de Retorno ao Trabalho", "Demissional"] as const).map((type) => (
                       <button
                         key={type}
                         onClick={() => setAsoType(type)}
                         className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 text-[10px] sm:text-xs font-black transition-all border-r last:border-0 border-[#777] uppercase tracking-tighter ${asoType === type ? "bg-[#1A3351] text-white shadow-inner" : "text-white/70 hover:text-white hover:bg-white/10"
                           }`}
                       >
-                        {type}
+                        {type === "de Retorno ao Trabalho" ? "Retorno ao Trabalho" : type}
                       </button>
                     ))}
                   </div>
