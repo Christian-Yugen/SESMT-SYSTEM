@@ -33,22 +33,7 @@ export default function Home() {
       setSession(session);
       setAuthLoading(false);
       if (session) {
-        // Lista de e-mails que ganham cargo de Enfermagem automaticamente
-        const nurseEmails = ['eliane.tavares@treslagoas.ms.gov.br', 'yvy.coelho@treslagoas.ms.gov.br'];
-        const userEmail = session.user.email?.toLowerCase() || '';
-
-        // Sincroniza o perfil do usuário e carrega o cargo
-        // Se o e-mail estiver na lista, força o cargo 'nurse' se for um novo perfil ou atualização
-        const profileData: any = { id: session.user.id, email: session.user.email };
-        if (nurseEmails.includes(userEmail)) {
-          profileData.role = 'nurse';
-        }
-
-        supabase.from('profiles').upsert(profileData).then(() => {
-          supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
-            if (data) setUserRole(data.role);
-          });
-        });
+        syncProfile(session);
       } else {
         router.push("/login");
       }
@@ -59,13 +44,7 @@ export default function Home() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        const nurseEmails = ['eliane.tavares@treslagoas.ms.gov.br', 'yvy.coelho@treslagoas.ms.gov.br'];
-        const userEmail = session.user.email?.toLowerCase() || '';
-        const profileData: any = { id: session.user.id, email: session.user.email };
-        if (nurseEmails.includes(userEmail)) {
-          profileData.role = 'nurse';
-        }
-        supabase.from('profiles').upsert(profileData).then();
+        syncProfile(session);
       } else {
         router.push("/login");
       }
@@ -73,6 +52,38 @@ export default function Home() {
 
     return () => subscription.unsubscribe();
   }, [router]);
+
+  async function syncProfile(session: any) {
+    const nurseEmails = ['eliane.tavares@treslagoas.ms.gov.br', 'yvy.coelho@treslagoas.ms.gov.br'];
+    const userEmail = session.user.email?.toLowerCase() || '';
+
+    // Primeiro, tentamos ver se o perfil já existe para não sobrescrever cargo se ele já foi mudado pelo admin
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    // Se não existir, criamos com cargo padrão. Se existir, apenas mantemos/atualizamos e-mail.
+    // Especial: Se for Eliane ou Yvy, forçamos 'nurse' independente de já existir (ou apenas se não tiver cargo)
+    let profileRole = existingProfile?.role || 'viewer';
+    if (nurseEmails.includes(userEmail)) {
+      profileRole = 'nurse';
+    }
+
+    const { error: upsertError } = await supabase.from('profiles').upsert({
+      id: session.user.id,
+      email: session.user.email,
+      role: profileRole,
+      updated_at: new Date().toISOString()
+    });
+
+    if (upsertError) {
+      console.error("Erro ao sincronizar perfil:", upsertError.message);
+    } else {
+      setUserRole(profileRole);
+    }
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
