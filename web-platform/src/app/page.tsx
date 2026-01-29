@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon } from "lucide-react";
 import Image from "next/image";
-import servidoresData from "@/data/servidores.json";
-import funcoesData from "@/data/funcoes.json";
-import examesDataRaw from "@/data/exames.json";
-import { Servidor, Funcao, ExameData, ExamesMap } from "@/types";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-const examesData = examesDataRaw as unknown as ExamesMap;
+import { Servidor, Funcao, ExameData } from "@/types";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -23,6 +22,46 @@ export default function Home() {
   const [showSelectionModal, setShowSelectionModal] = useState(false);
 
   const [showManualModal, setShowManualModal] = useState(false);
+  const router = useRouter();
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Verificar autenticação e carregar perfil
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+      if (session) {
+        // Sincroniza o perfil do usuário e carrega o cargo
+        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then(() => {
+          supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data }) => {
+            if (data) setUserRole(data.role);
+          });
+        });
+      } else {
+        router.push("/login");
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        supabase.from('profiles').upsert({ id: session.user.id, email: session.user.email }).then();
+      } else {
+        router.push("/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   const [manualData, setManualData] = useState({
     cpf: "",
     nome: "",
@@ -36,10 +75,21 @@ export default function Home() {
   const [examDates, setExamDates] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Extrair secretarias únicas para o dropdown
-  const secretarias = useMemo(() => {
-    const sets = new Set((servidoresData as Servidor[]).map(s => s.Secretaria).filter(Boolean));
-    return Array.from(sets).sort();
+  // Extrair secretarias únicas do Supabase (Otimizado: apenas as top/comuns inicialmente)
+  const [secretarias, setSecretarias] = useState<string[]>([]);
+  useEffect(() => {
+    async function loadSecretarias() {
+      const { data } = await supabase
+        .from('servidores')
+        .select('secretaria')
+        .not('secretaria', 'is', null);
+
+      if (data) {
+        const unique = Array.from(new Set(data.map(s => s.secretaria))).sort();
+        setSecretarias(unique);
+      }
+    }
+    loadSecretarias();
   }, []);
 
   // Função para formatar data e calcular idade
@@ -70,42 +120,125 @@ export default function Home() {
     return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year} (${age} anos)`;
   };
 
-  const filteredFuncoes = useMemo(() => {
-    if (!functionSearch || (selectedFuncao && (selectedFuncao.Nome || selectedFuncao.FUNÇÃO) === functionSearch)) return [];
-    return (funcoesData as Funcao[]).filter(f =>
-      (f.Nome || f.FUNÇÃO || "").toLowerCase().includes(functionSearch.toLowerCase()) ||
-      f.Cod.includes(functionSearch)
-    ).slice(0, 10);
-  }, [functionSearch, selectedFuncao]);
 
-  const handleSearch = () => {
+
+  const handleSearch = async () => {
     const cleanCpf = cpf.replace(/\D/g, "");
-    const results = (servidoresData as Servidor[]).filter(s => {
-      const sCpf = (s.CPF || s["CPF."] || "").replace(/\D/g, "");
-      return sCpf === cleanCpf;
-    });
+    if (!cleanCpf) return;
 
-    if (results.length === 0) {
+    const { data: results, error } = await supabase
+      .from('servidores')
+      .select('*')
+      .eq('cpf', cleanCpf);
+
+    if (error) {
+      console.error("Erro ao buscar servidor:", error);
+      alert("Erro ao buscar no banco de dados.");
+      return;
+    }
+
+    if (!results || results.length === 0) {
       alert("Servidor não encontrado.");
       return;
     }
 
     if (results.length === 1) {
-      setSelectedServidor(results[0]);
+      // Mapear campos do Supabase para o formato esperado pelo componente
+      const s = results[0];
+      setSelectedServidor({
+        "CPF.": s.cpf,
+        Nome: s.nome,
+        Cargo: s.cargo,
+        Matrícula: s.matricula,
+        "Dt.Nascimento": s.nascimento,
+        Secretaria: s.secretaria
+      });
     } else {
-      setSearchResults(results);
+      setSearchResults(results.map(s => ({
+        "CPF.": s.cpf,
+        Nome: s.nome,
+        Cargo: s.cargo,
+        Matrícula: s.matricula,
+        "Dt.Nascimento": s.nascimento,
+        Secretaria: s.secretaria
+      })));
       setShowSelectionModal(true);
     }
   };
 
-  const currentExams = useMemo((): ExameData => {
-    if (!selectedFuncao) return { exames: [], riscos: "", detalhes: "" };
-    const ghe = selectedFuncao.GHE;
-    const type = asoType === "Demissional" ? "demissional" : "admissional";
-    const data = examesData[type][ghe];
-    if (asoType === "de Retorno ao Trabalho") return { exames: ["Exame Clínico"], riscos: data?.riscos || "Não informado", detalhes: data?.detalhes || "" };
-    return data || { exames: [], riscos: "GHE não encontrado", detalhes: "" };
+  // Carregar dados de exames e riscos do Supabase com base no GHE e asoType
+  const [currentExams, setCurrentExams] = useState<ExameData>({ exames: [], riscos: "", detalhes: "" });
+
+  useEffect(() => {
+    async function loadConfig() {
+      if (!selectedFuncao) return;
+
+      if (asoType === "de Retorno ao Trabalho") {
+        // Para Retorno ao Trabalho, usamos uma regra fixa mas pegamos os riscos do admissional
+        const { data } = await supabase
+          .from('exames_config')
+          .select('riscos, detalhes')
+          .eq('aso_type', 'admissional')
+          .eq('ghe', selectedFuncao.GHE)
+          .single();
+
+        setCurrentExams({
+          exames: ["Exame Clínico"],
+          riscos: data?.riscos || "Não informado",
+          detalhes: data?.detalhes || ""
+        });
+        return;
+      }
+
+      const type = asoType === "Demissional" ? "demissional" : "admissional";
+      const { data, error } = await supabase
+        .from('exames_config')
+        .select('*')
+        .eq('aso_type', type)
+        .eq('ghe', selectedFuncao.GHE)
+        .single();
+
+      if (error) {
+        console.error("Erro ao carregar exames:", error);
+        setCurrentExams({ exames: [], riscos: "GHE não encontrado no banco", detalhes: "" });
+      } else {
+        setCurrentExams({
+          exames: data.exames,
+          riscos: data.riscos,
+          detalhes: data.detalhes
+        });
+      }
+    }
+    loadConfig();
   }, [selectedFuncao, asoType]);
+
+  // Carregar funções do Supabase conforme o usuário digita
+  const [filteredFuncoes, setFilteredFuncoes] = useState<Funcao[]>([]);
+  useEffect(() => {
+    async function searchFuncoes() {
+      if (!functionSearch || (selectedFuncao && (selectedFuncao.Nome || selectedFuncao.FUNÇÃO) === functionSearch)) {
+        setFilteredFuncoes([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('funcoes')
+        .select('*')
+        .or(`nome.ilike.%${functionSearch}%,cod.ilike.%${functionSearch}%`)
+        .limit(10);
+
+      if (!error && data) {
+        setFilteredFuncoes(data.map(f => ({
+          Cod: f.cod,
+          Nome: f.nome,
+          GHE: f.ghe,
+          "GHE CONJ": f.ghe_conj
+        })));
+      }
+    }
+    const timer = setTimeout(searchFuncoes, 300);
+    return () => clearTimeout(timer);
+  }, [functionSearch, selectedFuncao]);
 
   useEffect(() => {
     setMounted(true);
@@ -128,8 +261,9 @@ export default function Home() {
     }
 
     setIsGenerating(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
     try {
-      const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -158,6 +292,25 @@ export default function Home() {
 
         // Pequeno delay para garantir que o navegador processe o clique antes de revogar a URL
         setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+        // Gravar no histórico do Supabase
+        try {
+          await supabase.from('aso_history').insert({
+            servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
+            servidor_nome: selectedServidor.Nome,
+            aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
+            cargo: selectedServidor.Cargo,
+            secretaria: selectedServidor.Secretaria,
+            ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
+            generated_by: session?.user?.id,
+            operator_name: session?.user?.email?.split('@')[0].toUpperCase()
+          });
+        } catch (histError) {
+          console.error("Erro ao gravar histórico:", histError);
+        }
+
+        // Limpar o formulário após o sucesso para evitar erros no próximo processo
+        resetForm();
       } else {
         const errorData = await response.json();
         alert("Erro ao gerar documento: " + (errorData.detail || "Erro desconhecido"));
@@ -170,6 +323,27 @@ export default function Home() {
       setShowDateModal(false);
     }
   };
+
+  const resetForm = () => {
+    setCpf("");
+    setSelectedServidor(null);
+    setFunctionSearch("");
+    setSelectedFuncao(null);
+    setSearchResults([]);
+    setAsoType("Admissional");
+    setCurrentExams({ exames: [], riscos: "", detalhes: "" });
+  };
+
+  if (authLoading) {
+    return (
+      <div className="h-screen w-full bg-[#0A111C] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
+        <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">Autenticando...</p>
+      </div>
+    );
+  }
+
+  if (!session) return null;
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#0A111C] text-white font-sans overflow-x-hidden">
@@ -213,6 +387,20 @@ export default function Home() {
             <FileSearch className="w-4 h-4" />
             <span>Readaptação</span>
           </button>
+          <button
+            onClick={() => router.push('/history')}
+            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+          >
+            <HistoryIcon className="w-4 h-4" />
+            <span>Histórico</span>
+          </button>
+          <button
+            onClick={() => router.push('/users')}
+            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+          >
+            <UsersIcon className="w-4 h-4" />
+            <span>Usuários</span>
+          </button>
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
             <HeartPulse className="w-4 h-4" />
             <span>Benefícios</span>
@@ -220,7 +408,10 @@ export default function Home() {
         </nav>
 
         <div className="mt-auto space-y-4">
-          <button className="flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] px-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] px-4"
+          >
             <LogOut className="w-4 h-4" /> Sair
           </button>
 
@@ -415,19 +606,21 @@ export default function Home() {
               {/* BOTÕES DE AÇÃO */}
               <div className="shrink-0 pt-3 flex flex-col sm:flex-row gap-4 sm:h-[72px] pb-4 sm:pb-0">
                 <button
-                  disabled={isGenerating || !selectedFuncao}
+                  disabled={isGenerating || !selectedFuncao || userRole === 'viewer'}
                   onClick={() => requestGeneration('/generate-referral')}
                   className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#1A3351] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-blue-950 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isGenerating ? "Gerando..." : "Gerar Encaminhamento"}
                 </button>
-                <button
-                  disabled={isGenerating || !selectedFuncao}
-                  onClick={() => setShowDateModal(true)}
-                  className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#28A745] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {isGenerating ? "Gerando..." : "Gerar Arquivo ASO"}
-                </button>
+                {(userRole === 'admin' || userRole === 'nurse') && (
+                  <button
+                    disabled={isGenerating || !selectedFuncao}
+                    onClick={() => setShowDateModal(true)}
+                    className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#28A745] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {isGenerating ? "Gerando..." : "Gerar Arquivo ASO"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
