@@ -65,12 +65,12 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-[#D3D3D3] flex items-center justify-center p-4 font-sans">
 
-            {/* CARD DE LOGIN - COMPACTADO PARA VISIBILIDADE MAXIMA */}
-            <div className="w-full max-w-md bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col transition-all">
+            {/* CARD DE LOGIN - ULTRA COMPACTADO PARA ZERO SCROLL */}
+            <div className="w-full max-w-sm bg-white border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col transition-all">
 
-                {/* HEADER DO CARD (MINIMIZADO VERTICALMENTE) */}
-                <div className="bg-[#B0B0B0] p-4 border-b-[4px] border-[#E31E24] flex flex-col items-center gap-2">
-                    <div className="relative w-64 h-24 drop-shadow-sm">
+                {/* HEADER DO CARD (ULTRA COMPACTO) */}
+                <div className="bg-[#B0B0B0] p-3 border-b-[4px] border-[#E31E24] flex flex-col items-center gap-1">
+                    <div className="relative w-52 h-16 drop-shadow-sm">
                         <Image
                             src="/images/logo.png"
                             alt="Logo Prefeitura"
@@ -79,41 +79,41 @@ export default function LoginPage() {
                             priority
                         />
                     </div>
-                    <div className="flex flex-col items-center gap-0.5">
-                        <h1 className="text-xl font-black text-[#1A3351] uppercase tracking-tighter text-center leading-none">
+                    <div className="flex flex-col items-center">
+                        <h1 className="text-lg font-black text-[#1A3351] uppercase tracking-tighter leading-none">
                             SESMT SYSTEM
                         </h1>
-                        <p className="text-[9px] font-black text-[#1A3351]/70 uppercase tracking-[0.4em]">
+                        <p className="text-[8px] font-black text-[#1A3351]/60 uppercase tracking-[0.3em]">
                             {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
                         </p>
                     </div>
                 </div>
 
-                {/* FORMULÁRIO COMPACTO */}
-                <form onSubmit={handleSubmit} className="p-5 space-y-4 bg-white">
+                {/* FORMULÁRIO ULTRA COMPACTO */}
+                <form onSubmit={handleSubmit} className="p-4 space-y-3 bg-white">
 
                     {error && (
-                        <div className="p-2 bg-red-100 border-l-4 border-[#E31E24] text-[10px] font-black text-[#E31E24] uppercase tracking-wider animate-shake">
+                        <div className="p-1.5 bg-red-100 border-l-4 border-[#E31E24] text-[9px] font-black text-[#E31E24] uppercase tracking-wider animate-shake">
                             {error}
                         </div>
                     )}
 
                     {success && (
-                        <div className="p-2 bg-green-100 border-l-4 border-[#28A745] text-[10px] font-black text-[#28A745] uppercase tracking-wider">
+                        <div className="p-1.5 bg-green-100 border-l-4 border-[#28A745] text-[9px] font-black text-[#28A745] uppercase tracking-wider">
                             {success}
                         </div>
                     )}
 
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                         <div className="space-y-0.5">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail Corporativo</label>
+                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none">E-mail Corporativo</label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
                                 <input
                                     type="email"
                                     required
                                     placeholder="SEU@EMAIL.GOV.BR"
-                                    className="w-full px-9 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-xs text-[#1A3351] outline-none focus:border-[#E31E24] uppercase transition-colors"
+                                    className="w-full px-8 py-1.5 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-[11px] text-[#1A3351] outline-none focus:border-[#E31E24] uppercase transition-colors"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
                                 />
@@ -121,14 +121,14 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-0.5">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Senha de Acesso</label>
+                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none">Senha de Acesso</label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
                                 <input
                                     type="password"
                                     required
                                     placeholder="••••••••"
-                                    className="w-full px-9 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-xs text-[#1A3351] outline-none focus:border-[#E31E24] transition-colors"
+                                    className="w-full px-8 py-1.5 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-[11px] text-[#1A3351] outline-none focus:border-[#E31E24] transition-colors"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
@@ -137,14 +137,14 @@ export default function LoginPage() {
 
                         {mode === "signup" && (
                             <div className="space-y-0.5 animate-in slide-in-from-top-1 duration-300">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirmar Senha</label>
+                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none">Confirmar Senha</label>
                                 <div className="relative">
-                                    <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                    <ShieldCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
                                     <input
                                         type="password"
                                         required
                                         placeholder="••••••••"
-                                        className={`w-full px-9 py-2 bg-[#E8E8E8] border shadow-inner font-bold text-xs text-[#1A3351] outline-none transition-colors ${password !== confirmPassword && confirmPassword ? 'border-red-400' : 'border-[#888] focus:border-[#E31E24]'}`}
+                                        className={`w-full px-8 py-1.5 bg-[#E8E8E8] border shadow-inner font-bold text-[11px] text-[#1A3351] outline-none transition-colors ${password !== confirmPassword && confirmPassword ? 'border-red-400' : 'border-[#888] focus:border-[#E31E24]'}`}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                     />
@@ -156,19 +156,19 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 bg-[#1A3351] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-blue-950"
+                        className="w-full py-2.5 bg-[#1A3351] text-white font-black uppercase tracking-widest text-[10px] shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-blue-950"
                     >
                         {loading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                             <>
                                 <Activity className="w-4 h-4" />
-                                <span>{mode === "login" ? "Autenticar Usuário" : "Finalizar Cadastro"}</span>
+                                <span>{mode === "login" ? "Entrar no Sistema" : "Finalizar Cadastro"}</span>
                             </>
                         )}
                     </button>
 
-                    <div className="pt-2 border-t border-slate-100 flex flex-col gap-2 items-center text-center">
+                    <div className="pt-2 border-t border-slate-100 flex flex-col gap-1.5 items-center">
                         <button
                             type="button"
                             onClick={() => {
@@ -176,17 +176,18 @@ export default function LoginPage() {
                                 setError(null);
                                 setSuccess(null);
                             }}
-                            className="text-[9px] font-black text-[#1A3351] hover:text-[#E31E24] uppercase tracking-[0.15em] transition-colors underline underline-offset-4"
+                            className="text-[8px] font-black text-[#1A3351] hover:text-[#E31E24] uppercase tracking-[0.2em] transition-colors underline underline-offset-4"
                         >
-                            {mode === "login" ? "Não tem conta? Cadastre-se" : "Já tem conta? Clique aqui"}
+                            {mode === "login" ? "Cadastrar Novo Operador" : "Voltar para o Login"}
                         </button>
                     </div>
                 </form>
 
-                {/* FOOTER DO CARD - SEMPRE VISIVEL */}
-                <div className="bg-[#E8E8E8] py-2 border-t border-slate-200">
-                    <p className="text-[8px] font-bold text-slate-400 text-center uppercase tracking-widest">
-                        Powered by <span className="font-black text-slate-600">UXBRAS®</span>
+                {/* FOOTER DO CARD - PADRÃO UXBRAS */}
+                <div className="bg-[#E8E8E8] py-3 border-t border-slate-200 flex flex-col items-center">
+                    <p className="text-[9px] font-normal text-slate-400 leading-none mb-1 uppercase tracking-widest">Powered by</p>
+                    <p className="text-[14px] font-black text-slate-600 leading-none tracking-[0.1em]">
+                        UXBRAS<span className="text-[10px] font-normal align-top ml-0.5 tracking-normal">®</span>
                     </p>
                 </div>
             </div>
