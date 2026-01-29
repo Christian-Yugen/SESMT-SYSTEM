@@ -430,29 +430,10 @@ export default function Home() {
         {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
         <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
           <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#1A3351] p-2 rounded-lg shadow-inner">
-                <Database className="w-5 h-5 text-white" />
-              </div>
-              <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {session?.user?.email && (
-                <div className="hidden md:flex flex-col items-end">
-                  <p className="text-[13px] font-bold text-slate-600 flex items-center gap-1.5 leading-none">
-                    <span>Bom trabalho,</span>
-                    <span className="text-[#E31E24] underline underline-offset-4 decoration-dotted">
-                      {(session.user.email.split('@')[0]).toUpperCase()}
-                    </span>
-                    <span>! 👋</span>
-                  </p>
-                </div>
-              )}
-              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-                <Menu className="w-6 h-6" />
-              </button>
-            </div>
+            <h2 className="text-xl font-black leading-none uppercase tracking-tight">Buscar Servidor</h2>
+            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
             <input
