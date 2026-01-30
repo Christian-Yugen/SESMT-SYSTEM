@@ -272,7 +272,12 @@ export default function Home() {
     setExamDates(currentExams.exames.map(() => today));
   }, [currentExams.exames]);
 
-  if (!mounted) return <div className="h-screen bg-[#0A111C]" />;
+  const [pdfServerUrl, setPdfServerUrl] = useState("http://127.0.0.1:8000");
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem("pdfServerUrl");
+    if (savedUrl) setPdfServerUrl(savedUrl);
+  }, []);
 
   const handleDateChange = (index: number, value: string) => {
     const newDates = [...examDates];
@@ -280,12 +285,6 @@ export default function Home() {
     setExamDates(newDates);
   };
 
-  const [pdfServerUrl, setPdfServerUrl] = useState("http://127.0.0.1:8000");
-
-  useEffect(() => {
-    const savedUrl = localStorage.getItem("pdfServerUrl");
-    if (savedUrl) setPdfServerUrl(savedUrl);
-  }, []);
 
   const handleUpdatePdfUrl = (url: string) => {
     setPdfServerUrl(url);
@@ -366,6 +365,7 @@ export default function Home() {
     setAsoType("Admissional");
     setCurrentExams({ exames: [], riscos: "", detalhes: "" });
   };
+  if (!mounted) return <div className="h-screen bg-[#0A111C]" />;
 
   if (authLoading) {
     return (

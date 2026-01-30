@@ -135,6 +135,8 @@ export default function HistoryPage() {
       </tr>
     `).join('');
 
+        const logoUrl = window.location.origin + "/images/logo.png";
+
         printWindow.document.write(`
       <html>
         <head>
@@ -160,7 +162,7 @@ export default function HistoryPage() {
         <body>
           <div class="official-header">
             <div class="logo-area">
-              <img src="/images/logo.png" alt="Prefeitura Três Lagoas" />
+              <img src="${logoUrl}" alt="Prefeitura Três Lagoas" />
             </div>
             <div class="report-title-area">
               <h1>Relatório de Emissões Operacionais</h1>
@@ -208,7 +210,12 @@ export default function HistoryPage() {
       </html>
     `);
         printWindow.document.close();
-        printWindow.print();
+
+        // Esperar as imagens carregarem antes de abrir a caixa de impressão
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+
     };
 
     if (loading) {
