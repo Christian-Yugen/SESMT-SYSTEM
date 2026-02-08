@@ -2,12 +2,12 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon } from "lucide-react";
-import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Servidor, Funcao, ExameData } from "@/types";
+import { generateASOPDF, generateReferralPDF } from "@/lib/pdf-generator";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -272,13 +272,6 @@ export default function Home() {
     setExamDates(currentExams.exames.map(() => today));
   }, [currentExams.exames]);
 
-  const [pdfServerUrl, setPdfServerUrl] = useState("http://127.0.0.1:8000");
-
-  useEffect(() => {
-    const savedUrl = localStorage.getItem("pdfServerUrl");
-    if (savedUrl) setPdfServerUrl(savedUrl);
-  }, []);
-
   const handleDateChange = (index: number, value: string) => {
     const newDates = [...examDates];
     newDates[index] = value;
@@ -286,10 +279,6 @@ export default function Home() {
   };
 
 
-  const handleUpdatePdfUrl = (url: string) => {
-    setPdfServerUrl(url);
-    localStorage.setItem("pdfServerUrl", url);
-  };
 
   const requestGeneration = async (endpoint: string, dates?: string[]) => {
     if (!selectedServidor || !selectedFuncao) {
@@ -299,57 +288,34 @@ export default function Home() {
 
     setIsGenerating(true);
     try {
-      const response = await fetch(`${pdfServerUrl}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employee_data: {
-            nome: selectedServidor.Nome || "",
-            cpf: selectedServidor.CPF || selectedServidor["CPF."] || "",
-            nascimento: formatBirthInfo(selectedServidor["Dt.Nascimento"] || selectedServidor.Nascimento).split(' ')[0],
-            cargo: selectedServidor.Cargo || "",
-            matricula: selectedServidor.Matrícula || "",
-            secretaria: selectedServidor.Secretaria || ""
-          },
-          exams_data: currentExams,
-          aso_type: asoType,
-          exam_dates: dates,
-          ghe_conj: selectedFuncao["GHE CONJ"] || "-"
-        })
-      });
-
-      if (response.ok) {
-        // ... (resto do sucesso mantido)
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = '_blank';
-        link.click();
-        setTimeout(() => window.URL.revokeObjectURL(url), 100);
-
-        try {
-          await supabase.from('aso_history').insert({
-            servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
-            servidor_nome: selectedServidor.Nome,
-            aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
-            cargo: selectedServidor.Cargo,
-            secretaria: selectedServidor.Secretaria,
-            ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
-            generated_by: session?.user?.id,
-            operator_name: session?.user?.email?.split('@')[0].toUpperCase()
-          });
-        } catch (histError) {
-          console.error("Erro ao gravar histórico:", histError);
-        }
-        resetForm();
+      // Geração de PDF Local (Online / Browser-side) - Removeu dependência do server.py
+      if (endpoint.includes('aso')) {
+        generateASOPDF(selectedServidor, currentExams, asoType, dates || examDates);
       } else {
-        const errorData = await response.json();
-        alert("Erro ao gerar documento: " + (errorData.detail || "Erro desconhecido"));
+        generateReferralPDF(selectedServidor, currentExams, asoType, dates || examDates);
       }
+
+      // Salva Histórico no Supabase (Processo Online)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await supabase.from('aso_history').insert({
+          servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
+          servidor_nome: selectedServidor.Nome,
+          aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
+          cargo: selectedServidor.Cargo,
+          secretaria: selectedServidor.Secretaria,
+          ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
+          generated_by: session?.user?.id,
+          operator_name: session?.user?.email?.split('@')[0].toUpperCase()
+        });
+      } catch (histError) {
+        console.error("Erro ao gravar histórico:", histError);
+      }
+
+      resetForm();
     } catch (error) {
-      console.error("Erro na chamada do backend:", error);
-      alert(`Impossível conectar ao Servidor de PDF (${pdfServerUrl}).\n\n1. Verifique se o server.py está rodando.\n2. Se estiver em outro PC, use o IP do PC Principal.`);
+      console.error("Erro na geração do PDF:", error);
+      alert("Erro ao gerar o documento PDF. Tente novamente.");
     } finally {
       setIsGenerating(false);
       setShowDateModal(false);
@@ -401,8 +367,8 @@ export default function Home() {
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <div className="relative w-full h-16 mb-2">
-            <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain" priority />
+          <div className="w-full h-16 mb-2 flex items-center justify-center">
+            <span className="text-white font-black text-2xl tracking-[0.2em]">SESMT</span>
           </div>
           <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">SESMT SYSTEM</p>
         </div>
@@ -441,18 +407,6 @@ export default function Home() {
         </nav>
 
         <div className="mt-auto space-y-4 px-4">
-          <div className="pt-4 border-t border-white/5 space-y-2">
-            <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Servidor de PDF</p>
-            <input
-              type="text"
-              value={pdfServerUrl}
-              onChange={(e) => handleUpdatePdfUrl(e.target.value)}
-              className="w-full bg-black/20 border border-white/10 rounded p-2 text-[10px] text-white/70 font-mono outline-none focus:border-[#E31E24] transition-colors"
-              placeholder="http://127.0.0.1:8000"
-            />
-            <p className="text-[8px] text-white/20 italic text-center">PC Principal: http://10.0.140.2:8000</p>
-          </div>
-
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px]"

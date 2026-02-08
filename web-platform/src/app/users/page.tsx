@@ -7,7 +7,6 @@ import {
     ChevronDown, ChevronUp, UserPlus, Shield, UserRound, Users as UsersIcon,
     Search, Filter, Trash2, Edit, Save, ShieldCheck, Mail, History as HistoryIcon
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -110,8 +109,8 @@ export default function UsersPage() {
                             <X className="w-6 h-6 text-white" />
                         </button>
                     </div>
-                    <div className="relative w-full h-16 mb-2">
-                        <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain" priority />
+                    <div className="w-full h-16 mb-2 flex items-center justify-center">
+                        <span className="text-white font-black text-2xl tracking-[0.2em]">SESMT</span>
                     </div>
                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">SESMT SYSTEM</p>
                 </div>

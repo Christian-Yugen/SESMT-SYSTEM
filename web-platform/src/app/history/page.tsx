@@ -7,7 +7,6 @@ import {
     ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -144,7 +143,7 @@ export default function HistoryPage() {
           <style>
             body { font-family: sans-serif; padding: 20px; color: #333; line-height: 1.4; }
             .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #E31E24; padding-bottom: 15px; margin-bottom: 25px; }
-            .logo-area img { height: 60px; object-fit: contain; }
+            .logo-area span { font-size: 20px; font-weight: 900; color: #1A3351; }
             .report-title-area { text-align: right; }
             .report-title-area h1 { margin: 0; font-size: 16px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
             .report-info { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
@@ -162,7 +161,7 @@ export default function HistoryPage() {
         <body>
           <div class="official-header">
             <div class="logo-area">
-              <img src="${logoUrl}" alt="Prefeitura Três Lagoas" />
+              <span>PREFEITURA</span>
             </div>
             <div class="report-title-area">
               <h1>Relatório de Emissões Operacionais</h1>
@@ -242,8 +241,8 @@ export default function HistoryPage() {
                             <X className="w-6 h-6 text-white" />
                         </button>
                     </div>
-                    <div className="relative w-full h-16 mb-2">
-                        <Image src="/images/logo_white.png" alt="Logo" fill className="object-contain" priority />
+                    <div className="w-full h-16 mb-2 flex items-center justify-center">
+                        <span className="text-white font-black text-2xl tracking-[0.2em]">SESMT</span>
                     </div>
                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">SESMT SYSTEM</p>
                 </div>

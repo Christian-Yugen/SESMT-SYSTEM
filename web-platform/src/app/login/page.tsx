@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Loader2, Lock, User, ShieldCheck, Activity } from "lucide-react";
 
 export default function LoginPage() {
@@ -78,14 +77,8 @@ export default function LoginPage() {
 
                 {/* HEADER DO CARD - GRANDE E IMPACTANTE */}
                 <div className="bg-[#B0B0B0] p-8 border-b-[6px] border-[#E31E24] flex flex-col items-center gap-6">
-                    <div className="relative w-64 h-24 drop-shadow-md">
-                        <Image
-                            src="/images/logo.png"
-                            alt="Logo Prefeitura"
-                            fill
-                            className="object-contain"
-                            priority
-                        />
+                    <div className="w-64 h-24 flex items-center justify-center border-2 border-[#1A3351] rounded-lg">
+                        <span className="text-3xl font-black text-[#1A3351] tracking-tighter">PREFEITURA</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5 text-center">
                         <h1 className="text-3xl font-black text-[#1A3351] uppercase tracking-tight leading-none">

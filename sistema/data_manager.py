@@ -260,21 +260,8 @@ class DataManager:
             ws.PageSetup.FitToPagesWide = 1
             ws.PageSetup.FitToPagesTall = 1
             
-            # Adiciona rodapé: hora, data e usuário
-            # &D = Data, &T = Hora, &P = Página (opcional)
-            # Tenta obter o nome completo do usuário (ex: Christian Yugen)
-            # Se não conseguir o nome completo, usa o login (ex: Usuário)
-            try:
-                login_name = win32api.GetUserName()
-                try:
-                    user_info = win32net.NetUserGetInfo(None, login_name, 2)
-                    username = user_info.get('full_name') or login_name
-                except:
-                    username = login_name
-            except:
-                username = os.environ.get('USERNAME') or "Usuário"
-                
-            footer_text = f"Emitido em: &D &T - Usuário: {username}"
+            # Adiciona rodapé: apenas data e hora (removendo usuário local para privacidade/estabilidade)
+            footer_text = f"Emitido em: &D &T"
             ws.PageSetup.RightFooter = footer_text
             
             # 0 = xlTypePDF
@@ -291,21 +278,9 @@ class DataManager:
             if excel:
                 excel.Quit()
 
-    def _print_file(self, file_path, copies=2):
-        """Envia o arquivo para a impressora padrão 2 vezes"""
-        try:
-            abs_path = os.path.abspath(file_path)
-            for _ in range(copies):
-                win32api.ShellExecute(0, "print", abs_path, None, ".", 0)
-                time.sleep(2) # Pequena pausa entre vias
-            return True
-        except Exception as e:
-            self.last_error = f"Erro ao imprimir:\n{e}"
-            return False
-
     def generate_aso(self, employee_data, exams_data, aso_type, exam_dates=None, ghe_conj="-"):
         """
-        Preenche o template ASO.xlsx, converte para PDF e imprime 2 vias.
+        Preenche o template ASO.xlsx e converte para PDF.
         """
         try:
             template_path = self._get_path('ASO.xlsx')
@@ -420,9 +395,6 @@ class DataManager:
             
             # Converte para PDF
             if self._excel_to_pdf(excel_path, pdf_path, print_area="A1:AZ63"):
-                # Imprime PDF (2 vias)
-                self._print_file(pdf_path, copies=2)
-                
                 # Deleta o Excel temporário para não entulhar
                 try:
                     wb.close() # Garante que o openpyxl soltou o arquivo
@@ -533,7 +505,6 @@ class DataManager:
             
             # Para o encaminhamento, a área de impressão é definida entre A1 e AB25
             if self._excel_to_pdf(excel_path, pdf_path, print_area="A1:AB25"):
-                self._print_file(pdf_path, copies=2)
                 try:
                     wb.close()
                     os.remove(excel_path)
