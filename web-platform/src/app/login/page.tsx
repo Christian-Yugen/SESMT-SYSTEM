@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2, Lock, User, ShieldCheck, Activity } from "lucide-react";
+import { syncProfile } from "@/lib/auth-utils";
 
 export default function LoginPage() {
     const [mode, setMode] = useState<"login" | "signup">("login");
@@ -36,7 +37,7 @@ export default function LoginPage() {
         }
 
         if (mode === "login") {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
@@ -44,7 +45,9 @@ export default function LoginPage() {
             if (error) {
                 setError("Credenciais inválidas. Verifique seu e-mail e senha.");
                 setLoading(false);
-            } else {
+            } else if (data.session) {
+                // Sincroniza o perfil imediatamente após o login
+                await syncProfile(data.session);
                 router.push("/");
             }
         } else {
@@ -60,11 +63,18 @@ export default function LoginPage() {
                 setError(error.message === "User already registered" ? "Este e-mail já possui cadastro." : error.message);
                 setLoading(false);
             } else {
-                setSuccess("Cadastro realizado! Você já pode entrar.");
-                setMode("login");
-                setPassword("");
-                setConfirmPassword("");
-                setLoading(false);
+                // Se o Supabase já criou a sessão (e-mail confirmation off), sincroniza e entra
+                if (data.session) {
+                    await syncProfile(data.session);
+                    setSuccess("Cadastro realizado com sucesso! Redirecionando...");
+                    setTimeout(() => router.push("/"), 1500);
+                } else {
+                    setSuccess("Cadastro realizado! Verifique seu e-mail para confirmar seu acesso (se necessário) e faça login.");
+                    setMode("login");
+                    setPassword("");
+                    setConfirmPassword("");
+                    setLoading(false);
+                }
             }
         }
     };
