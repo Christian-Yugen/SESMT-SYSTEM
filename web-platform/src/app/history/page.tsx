@@ -130,7 +130,6 @@ export default function HistoryPage() {
         <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.aso_type}</td>
         <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.cargo || '-'}</td>
         <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.secretaria || '-'}</td>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.ghe_conj || '-'}</td>
       </tr>
     `).join('');
 
@@ -148,9 +147,9 @@ export default function HistoryPage() {
             .report-title-area h1 { margin: 0; font-size: 16px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
             .report-info { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
             
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
             th { background-color: #1A3351; color: white; border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 9px; text-transform: uppercase; }
-            td { border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 9px; }
+            td { border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 9px; word-wrap: break-word; }
             
             .footer { margin-top: 30px; font-size: 9px; text-align: center; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
             .lgpd-box { background: #f9f9f9; border: 1px solid #eee; padding: 12px; margin-top: 25px; border-radius: 4px; }
@@ -182,11 +181,10 @@ export default function HistoryPage() {
             <thead>
               <tr>
                 <th style="width: 15%;">Data/Hora</th>
-                <th style="width: 25%;">Nome do Servidor</th>
+                <th style="width: 30%;">Nome do Servidor</th>
                 <th style="width: 15%;">Tipo</th>
-                <th style="width: 15%;">Cargo</th>
-                <th style="width: 15%;">Secretaria</th>
-                <th style="width: 15%;">GHE</th>
+                <th style="width: 20%;">Cargo</th>
+                <th style="width: 20%;">Secretaria</th>
               </tr>
             </thead>
             <tbody>
