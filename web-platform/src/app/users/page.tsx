@@ -28,7 +28,7 @@ export default function UsersPage() {
 
     // Invite user state
     const [inviteEmail, setInviteEmail] = useState("");
-    const [inviteRole, setInviteRole] = useState("operator");
+    const [inviteRole, setInviteRole] = useState("admin");
     const [inviteLoading, setInviteLoading] = useState(false);
 
     useEffect(() => {
@@ -295,10 +295,10 @@ export default function UsersPage() {
                                                             outline-none cursor-pointer
                                                         `}
                                                     >
-                                                        <option value="admin">Administrador (Total)</option>
-                                                        <option value="nurse">Enfermagem (ASO/Enc/Relat)</option>
-                                                        <option value="operator">Operador (Apenas Encaminham.)</option>
-                                                        <option value="viewer">Visualizador (Consulta)</option>
+                                                        <option value="admin">ADMINISTRADOR (TOTAL)</option>
+                                                        <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                                        <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
+                                                        <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                                     </select>
                                                 </div>
                                             </td>
@@ -376,9 +376,10 @@ export default function UsersPage() {
                                             value={inviteRole}
                                             onChange={(e) => setInviteRole(e.target.value)}
                                         >
-                                            <option value="operator">Operador (Emissão de Documentos)</option>
-                                            <option value="admin">Administrador (Controle Total)</option>
-                                            <option value="viewer">Visualizador (Apenas Consulta)</option>
+                                            <option value="admin">ADMINISTRADOR (TOTAL)</option>
+                                            <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                            <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
+                                            <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                         </select>
                                     </div>
                                 </div>
