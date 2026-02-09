@@ -168,10 +168,10 @@ export default function UsersPage() {
                             <X className="w-6 h-6 text-white" />
                         </button>
                     </div>
-                    <div className="w-full h-16 mb-2 flex items-center justify-center">
-                        <span className="text-white font-black text-2xl tracking-[0.2em]">SESMT</span>
+                    <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
+                        <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
                     </div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">SESMT SYSTEM</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
                 </div>
 
                 <nav className="flex-1 space-y-1">
