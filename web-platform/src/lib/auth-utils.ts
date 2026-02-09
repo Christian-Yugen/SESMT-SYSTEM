@@ -72,3 +72,20 @@ export async function syncProfile(session: any): Promise<string> {
 
     return roleToApply;
 }
+
+/**
+ * Gera um UUID v4 compatível com todos os navegadores (incluindo ambientes não-secure).
+ */
+export function generateUUID() {
+    // Tenta usar a API nativa se disponível
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    // Fallback para navegadores antigos ou ambientes sem HTTPS
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
