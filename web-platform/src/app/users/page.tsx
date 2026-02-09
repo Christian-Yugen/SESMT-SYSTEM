@@ -80,6 +80,65 @@ export default function UsersPage() {
         }
     };
 
+    const handleInviteUser = async () => {
+        if (!inviteEmail) return;
+
+        if (!inviteEmail.toLowerCase().endsWith("@treslagoas.ms.gov.br")) {
+            alert("Apenas e-mails corporativos @treslagoas.ms.gov.br são permitidos.");
+            return;
+        }
+
+        setInviteLoading(true);
+
+        // Verifica se já existe
+        const { data: existing } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', inviteEmail.toLowerCase())
+            .maybeSingle();
+
+        if (existing) {
+            alert("Este e-mail já possui um perfil cadastrado ou pré-autorizado.");
+            setInviteLoading(false);
+            return;
+        }
+
+        // Cria perfil pré-autorizado com um ID temporário (UUID)
+        const tempId = crypto.randomUUID();
+        const { error } = await supabase
+            .from('profiles')
+            .insert({
+                id: tempId,
+                email: inviteEmail.toLowerCase(),
+                role: inviteRole,
+                full_name: 'CONVITE PENDENTE'
+            });
+
+        if (error) {
+            alert("Erro ao criar convite: " + error.message);
+        } else {
+            setInviteEmail("");
+            setIsInviteModalOpen(false);
+            loadProfiles();
+        }
+        setInviteLoading(false);
+    };
+
+    const handleDeleteProfile = async (userId: string) => {
+        if (!confirm("Tem certeza que deseja remover este acesso?")) return;
+
+        const { error } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', userId);
+
+        if (!error) {
+            loadProfiles();
+        } else {
+            alert("Erro ao remover: " + error.message);
+        }
+    };
+
     const filteredProfiles = profiles.filter(p =>
         p.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -251,7 +310,11 @@ export default function UsersPage() {
                                                     <button className="p-2 text-slate-400 hover:text-[#1A3351] transition-colors" title="Editar Perfil">
                                                         <Edit className="w-4 h-4" />
                                                     </button>
-                                                    <button className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Revogar Acesso">
+                                                    <button
+                                                        onClick={() => handleDeleteProfile(user.id)}
+                                                        className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                                        title="Revogar Acesso"
+                                                    >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
@@ -323,17 +386,23 @@ export default function UsersPage() {
 
                             <div className="p-4 bg-blue-50 border-l-4 border-[#1A3351] rounded">
                                 <p className="text-[10px] text-blue-800 leading-relaxed italic">
-                                    * Atualmente, o sistema exige que o primeiro acesso do usuário seja realizado através do processo de login/cadastro padrão. Este convite será implementado no backend futuramente.
+                                    * O perfil será criado como "PRÉ-AUTORIZADO". Quando o usuário realizar o primeiro acesso com este e-mail, o sistema vinculará automaticamente o acesso à role escolhida.
                                 </p>
                             </div>
 
                             <button
-                                disabled={inviteLoading}
-                                onClick={() => setIsInviteModalOpen(false)}
-                                className="w-full py-4 bg-[#1A3351] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                disabled={inviteLoading || !inviteEmail}
+                                onClick={handleInviteUser}
+                                className="w-full py-4 bg-[#1A3351] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                             >
-                                <Save className="w-4 h-4" />
-                                Salvar e Sincronizar
+                                {inviteLoading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4" />
+                                        <span>Confirmar Pré-Autorização</span>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
