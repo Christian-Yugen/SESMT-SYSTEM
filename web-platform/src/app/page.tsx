@@ -288,16 +288,18 @@ export default function Home() {
 
     setIsGenerating(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const operatorName = session?.user?.email?.split('@')[0].toUpperCase() || "USUARIO";
+
       // Geração de PDF Local (Online / Browser-side) - Removeu dependência do server.py
       if (endpoint.includes('aso')) {
-        generateASOPDF(selectedServidor, currentExams, asoType, dates || examDates);
+        generateASOPDF(selectedServidor, currentExams, asoType, dates || examDates, operatorName);
       } else {
-        generateReferralPDF(selectedServidor, currentExams, asoType, dates || examDates);
+        generateReferralPDF(selectedServidor, currentExams, asoType, dates || examDates, operatorName);
       }
 
       // Salva Histórico no Supabase (Processo Online)
       try {
-        const { data: { session } } = await supabase.auth.getSession();
         await supabase.from('aso_history').insert({
           servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
           servidor_nome: selectedServidor.Nome,
@@ -306,7 +308,7 @@ export default function Home() {
           secretaria: selectedServidor.Secretaria,
           ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
           generated_by: session?.user?.id,
-          operator_name: session?.user?.email?.split('@')[0].toUpperCase()
+          operator_name: operatorName
         });
       } catch (histError) {
         console.error("Erro ao gravar histórico:", histError);
