@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { generateUUID } from "@/lib/auth-utils";
 
 interface Profile {
     id: string;
@@ -90,38 +91,43 @@ export default function UsersPage() {
 
         setInviteLoading(true);
 
-        // Verifica se já existe
-        const { data: existing } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('email', inviteEmail.toLowerCase())
-            .maybeSingle();
+        try {
+            // Verifica se já existe
+            const { data: existing } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('email', inviteEmail.toLowerCase())
+                .maybeSingle();
 
-        if (existing) {
-            alert("Este e-mail já possui um perfil cadastrado ou pré-autorizado.");
+            if (existing) {
+                alert("Este e-mail já possui um perfil cadastrado ou pré-autorizado.");
+                return;
+            }
+
+            // Cria perfil pré-autorizado com um ID temporário (UUID) usando utility compatível
+            const tempId = generateUUID();
+            const { error } = await supabase
+                .from('profiles')
+                .insert({
+                    id: tempId,
+                    email: inviteEmail.toLowerCase(),
+                    role: inviteRole,
+                    full_name: 'CONVITE PENDENTE'
+                });
+
+            if (error) {
+                alert("Erro ao criar convite: " + error.message);
+            } else {
+                setInviteEmail("");
+                setIsInviteModalOpen(false);
+                loadProfiles();
+            }
+        } catch (err: any) {
+            console.error("Erro no processamento:", err);
+            alert("Erro inesperado ao criar operador.");
+        } finally {
             setInviteLoading(false);
-            return;
         }
-
-        // Cria perfil pré-autorizado com um ID temporário (UUID)
-        const tempId = crypto.randomUUID();
-        const { error } = await supabase
-            .from('profiles')
-            .insert({
-                id: tempId,
-                email: inviteEmail.toLowerCase(),
-                role: inviteRole,
-                full_name: 'CONVITE PENDENTE'
-            });
-
-        if (error) {
-            alert("Erro ao criar convite: " + error.message);
-        } else {
-            setInviteEmail("");
-            setIsInviteModalOpen(false);
-            loadProfiles();
-        }
-        setInviteLoading(false);
     };
 
     const handleDeleteProfile = async (userId: string) => {
