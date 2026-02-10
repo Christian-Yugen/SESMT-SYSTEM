@@ -35,6 +35,7 @@ export default function HistoryPage() {
     // Filtros
     const [filterUser, setFilterUser] = useState("all");
     const [filterType, setFilterType] = useState("all");
+    const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
@@ -89,20 +90,15 @@ export default function HistoryPage() {
 
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
-    // Estatísticas
-    const stats = useMemo(() => {
-        const total = history.length;
-        const asos = history.filter(h => h.aso_type.toLowerCase().includes('aso')).length;
-        const encs = history.filter(h => h.aso_type.toLowerCase().includes('encaminhamento')).length;
-        const uniqueUsers = new Set(history.map(h => h.generated_by)).size;
-        return { total, asos, encs, uniqueUsers };
-    }, [history]);
+
 
     const uniqueUsersList = useMemo(() => Array.from(new Set(history.map(h => h.generated_by))), [history]);
+    const uniqueSecretarias = useMemo(() => Array.from(new Set(history.map(h => h.secretaria).filter(Boolean))).sort() as string[], [history]);
 
     const filteredHistory = history.filter(entry => {
         const matchesSearch = entry.servidor_nome.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesUser = filterUser === "all" || entry.generated_by === filterUser;
+        const matchesSecretaria = filterSecretaria === "all" || entry.secretaria === filterSecretaria;
         const entryType = entry.aso_type.toLowerCase().includes('aso') ? 'ASO' : (entry.aso_type.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
         const matchesType = filterType === "all" || entryType === filterType;
 
@@ -111,8 +107,17 @@ export default function HistoryPage() {
         const matchesStartDate = !startDate || entryDate >= startDate;
         const matchesEndDate = !endDate || entryDate <= endDate;
 
-        return matchesSearch && matchesUser && matchesType && matchesStartDate && matchesEndDate;
+        return matchesSearch && matchesUser && matchesType && matchesSecretaria && matchesStartDate && matchesEndDate;
     });
+
+    // Estatísticas Dinâmicas (Baseadas no Histórico Filtrado)
+    const stats = useMemo(() => {
+        const total = filteredHistory.length;
+        const asos = filteredHistory.filter(h => h.aso_type.toLowerCase().includes('aso')).length;
+        const encs = filteredHistory.filter(h => h.aso_type.toLowerCase().includes('encaminhamento')).length;
+        const uniqueUsers = new Set(filteredHistory.map(h => h.generated_by)).size;
+        return { total, asos, encs, uniqueUsers };
+    }, [filteredHistory]);
 
     // Função para gerar relatório de impressão (SEM CPF POR PRIVACIDADE)
     const handlePrintReport = async () => {
@@ -123,68 +128,143 @@ export default function HistoryPage() {
         if (!printWindow) return;
 
         const today = new Date().toLocaleDateString('pt-BR');
-        const rows = filteredHistory.map(entry => `
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${new Date(entry.generated_at).toLocaleString('pt-BR')}</td>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.servidor_nome}</td>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.aso_type}</td>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.cargo || '-'}</td>
-        <td style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 10px;">${entry.secretaria || '-'}</td>
-      </tr>
-    `).join('');
+        // Lógica para legenda dinâmica baseada no conteúdo do relatório
+        const usedTypesSet = new Set<string>();
+        filteredHistory.forEach(h => {
+            const t = (h.aso_type || "").toUpperCase();
+            const prefix = t.includes("ENCAMINHAMENTO") ? "ENC" : "ASO";
+            let suffix = "";
+            if (t.includes("ADMISS")) suffix = "ADM";
+            else if (t.includes("DEMISS")) suffix = "DEM";
+            else if (t.includes("RETORNO")) suffix = "RET";
+            else if (t.includes("MUDANÇA")) suffix = "MUD";
+            else if (t.includes("PERIÓDIC")) suffix = "PER";
+            if (suffix) usedTypesSet.add(`${prefix}|${suffix}`);
+        });
+
+        const dynamicLegendHTML = Array.from(usedTypesSet).sort().map(key => {
+            const [pref, suff] = key.split('|');
+            const fullPref = pref === "ENC" ? "ENCAMINHAMENTO" : "ASO";
+            let fullSuff = "";
+            if (suff === "ADM") fullSuff = "ADMISSIONAL";
+            else if (suff === "DEM") fullSuff = "DEMISSIONAL";
+            else if (suff === "RET") fullSuff = "RETORNO AO TRABALHO";
+            else if (suff === "MUD") fullSuff = "MUDANÇA DE FUNÇÃO";
+            else if (suff === "PER") fullSuff = "PERIÓDICO";
+            return `<div class="legend-item"><span>${pref} ${suff}:</span> ${fullPref} ${fullSuff}</div>`;
+        }).join('');
+
+        const abbreviateType = (type: string) => {
+            const t = (type || "").toUpperCase();
+            const prefix = t.includes("ENCAMINHAMENTO") ? "ENC" : "ASO";
+            if (t.includes("ADMISS")) return `${prefix} ADM`;
+            if (t.includes("DEMISS")) return `${prefix} DEM`;
+            if (t.includes("RETORNO")) return `${prefix} RET`;
+            if (t.includes("MUDANÇA")) return `${prefix} MUD`;
+            if (t.includes("PERIÓDIC")) return `${prefix} PER`;
+            return t.length > 10 ? t.substring(0, 10) + "..." : t;
+        };
+
+        const rows = filteredHistory.map(entry => {
+            const fullDate = new Date(entry.generated_at).toLocaleString('pt-BR');
+            const [date, time] = fullDate.split(' ');
+            const timeShort = time ? time.substring(0, 5) : "";
+
+            return `
+              <tr>
+                <td class="datetime-cell">
+                    <span class="date-part">${date}</span>
+                    <span class="time-part">${timeShort}</span>
+                </td>
+                <td>${entry.servidor_nome}</td>
+                <td style="color: #1A3351; text-align: center;">${abbreviateType(entry.aso_type)}</td>
+                <td>${entry.cargo || '-'}</td>
+                <td>${entry.secretaria || '-'}</td>
+              </tr>
+            `;
+        }).join('');
 
         const logoUrl = window.location.origin + "/images/logo.png";
+
+        const formatFilterDate = (dateStr: string) => {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        };
+
+        const displayStartDate = formatFilterDate(startDate) || 'INÍCIO';
+        const displayEndDate = formatFilterDate(endDate) || 'HOJE';
 
         printWindow.document.write(`
       <html>
         <head>
           <title>Relatório Gerencial SESMT - ${today}</title>
           <style>
-            body { font-family: sans-serif; padding: 20px; color: #333; line-height: 1.4; }
-            .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #E31E24; padding-bottom: 15px; margin-bottom: 25px; }
-            .logo-area span { font-size: 20px; font-weight: 900; color: #1A3351; }
+            body { font-family: sans-serif; padding: 15px; color: #333; line-height: 1.0; }
+            .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #E31E24; padding-bottom: 8px; margin-bottom: 12px; }
+            .logo-area img { height: 35px; width: auto; }
             .report-title-area { text-align: right; }
-            .report-title-area h1 { margin: 0; font-size: 16px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
-            .report-info { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
+            .report-title-area h1 { margin: 0; font-size: 13px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
+            .report-info { font-size: 7.5px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 1px; }
             
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-            th { background-color: #1A3351; color: white; border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 9px; text-transform: uppercase; }
-            td { border: 1px solid #ddd; padding: 8px; text-transform: uppercase; font-size: 9px; word-wrap: break-word; }
+            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 2px; border: 1px solid #f0f0f0; }
+            .legend-item { display: flex; gap: 3px; }
+
+            table { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
+            th { background-color: #1A3351; color: white; border: 1px solid #ccc; padding: 4px; text-align: left; font-size: 7.5px; text-transform: uppercase; }
+            td { border: 1px solid #eee; padding: 2px 4px; text-transform: uppercase; font-size: 7.5px; word-wrap: break-word; color: #444; vertical-align: middle; }
             
-            .footer { margin-top: 30px; font-size: 9px; text-align: center; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
-            .lgpd-box { background: #f9f9f9; border: 1px solid #eee; padding: 12px; margin-top: 25px; border-radius: 4px; }
-            .lgpd-title { font-size: 9px; font-weight: 800; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block; }
-            .lgpd-text { font-size: 8px; color: #777; text-align: justify; margin: 0; }
+            .datetime-cell { text-align: center; line-height: 1.0; }
+            .date-part { display: block; }
+            .time-part { display: block; font-size: 7.5px; color: #777; }
+
+            /* Estilos específicos para modo Paisagem (Landscape) */
+            @media print and (orientation: landscape) {
+                body { padding: 8px; }
+                .date-part, .time-part { display: inline; font-size: 7.5px; color: inherit; }
+                .date-part::after { content: " "; }
+                td, th { padding: 1.5px 4px; }
+                .official-header { margin-bottom: 5px; padding-bottom: 4px; }
+                .legend-bar { margin-bottom: 4px; }
+            }
+
+            .stats-bar { font-size: 8px; font-weight: 900; margin-bottom: 5px; color: #1A3351; text-transform: uppercase; border-left: 3px solid #E31E24; padding-left: 8px; }
+            .footer { margin-top: 20px; font-size: 7px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+            .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 15px; border-radius: 2px; }
+            .lgpd-title { font-size: 8px; font-weight: 900; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block; }
+            .lgpd-text { font-size: 8px; color: #333; text-align: justify; margin: 0; line-height: 1.4; font-weight: 500; }
           </style>
         </head>
         <body>
           <div class="official-header">
             <div class="logo-area">
-              <img src="${logoUrl}" alt="Logo" style="height: 50px; width: auto;" />
+              <img src="${logoUrl}" alt="Logo" />
             </div>
             <div class="report-title-area">
               <h1>Relatório de Emissões Operacionais</h1>
               <div class="report-info">
-                Responsável: ${userName} | Emissão: ${today}
+                Operador: ${userName} | Data: ${today}
               </div>
               <div class="report-info" style="color: #E31E24;">
-                Período: ${startDate || 'Início'} até ${endDate || 'Hoje'}
+                FILTRO: ${displayStartDate} À ${displayEndDate}
               </div>
             </div>
           </div>
           
-          <div style="font-size: 9px; font-weight: bold; margin-bottom: 10px; color: #1A3351; text-transform: uppercase;">
-            Total de registros localizados: ${filteredHistory.length}
+          <div class="stats-bar">
+            Total de registros: ${filteredHistory.length}
           </div>
+
+          ${dynamicLegendHTML ? `<div class="legend-bar">LEGENDA: ${dynamicLegendHTML}</div>` : ''}
 
           <table>
             <thead>
               <tr>
-                <th style="width: 15%;">Data/Hora</th>
+                <th style="width: 9%; text-align: center;">Data/Hora</th>
                 <th style="width: 30%;">Nome do Servidor</th>
-                <th style="width: 15%;">Tipo</th>
-                <th style="width: 20%;">Cargo</th>
-                <th style="width: 20%;">Secretaria</th>
+                <th style="width: 7%; text-align: center;">Tipo</th>
+                <th style="width: 27%;">Cargo</th>
+                <th style="width: 27%;">Secretaria</th>
               </tr>
             </thead>
             <tbody>
@@ -193,16 +273,14 @@ export default function HistoryPage() {
           </table>
           
           <div class="lgpd-box">
-            <span class="lgpd-title">Observação sobre Proteção de Dados (LGPD)</span>
+            <span class="lgpd-title">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
             <p class="lgpd-text">
-                Este relatório foi gerado em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018). 
-                As informações contidas neste documento destinam-se exclusivamente para fins de gestão operacional do SESMT. 
-                É vedado o compartilhamento destes dados com terceiros não autorizados. A reprodução, manipulação ou uso indevido 
-                destas informações sujeitará o infrator às sanções administrativas e legais previstas na legislação vigente.
+                Este relatório atende à Lei nº 13.709/2018 (LGPD). Uso exclusivo para gestão operacional do SESMT. 
+                Proibido compartilhamento com terceiros. O uso indevido sujeita o infrator às sanções administrativas e legais previstas na legislação vigente.
             </p>
           </div>
 
-          <div class="footer">Documento gerado eletronicamente por ${userName} via SESMT SYSTEM - Powered by UXBRAS®</div>
+          <div class="footer">Gerado via SESMT SYSTEM - Powered by UXBRAS®</div>
         </body>
       </html>
     `);
@@ -258,10 +336,22 @@ export default function HistoryPage() {
                         <FileSearch className="w-4 h-4" />
                         <span>Readaptação</span>
                     </button>
-                    <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
-                        <HistoryIcon className="w-4 h-4" />
-                        <span>Histórico</span>
-                    </button>
+                    <div className="group">
+                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
+                            <HistoryIcon className="w-4 h-4" />
+                            <span>Histórico</span>
+                        </button>
+
+                        {/* Submenu Indicadores - Aparece no Hover do group */}
+                        <button
+                            onClick={() => router.push('/analytics')}
+                            className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[10px] uppercase tracking-tight"
+                        >
+                            <BarChart3 className="w-3.5 h-3.5" />
+                            <span>Indicadores</span>
+                        </button>
+                    </div>
+
                     {userRole === 'admin' && (
                         <button onClick={() => router.push('/users')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
                             <UsersIcon className="w-4 h-4" />
@@ -298,10 +388,17 @@ export default function HistoryPage() {
                             <h2 className="text-xl font-black leading-none uppercase tracking-tight">Dashboard de Histórico</h2>
                         </div>
                         <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => router.push('/analytics')}
+                                className="hidden md:flex items-center justify-center gap-2 w-48 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                            >
+                                <BarChart3 className="w-3.5 h-3.5" />
+                                Indicadores BI
+                            </button>
                             {(userRole === 'admin' || userRole === 'nurse') && (
                                 <button
                                     onClick={handlePrintReport}
-                                    className="hidden md:flex items-center justify-center gap-2 w-64 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    className="hidden md:flex items-center justify-center gap-2 w-52 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
                                     <Printer className="w-3.5 h-3.5" />
                                     Gerar Relatório (PDF)
@@ -407,9 +504,28 @@ export default function HistoryPage() {
                                 <option value="ASO">ASOs</option>
                                 <option value="Encaminhamento">ENCAMINHAMENTOS</option>
                             </select>
-                            {(searchTerm || filterUser !== "all" || filterType !== "all" || startDate || endDate) && (
+
+                            <select
+                                value={filterSecretaria}
+                                onChange={(e) => setFilterSecretaria(e.target.value)}
+                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
+                            >
+                                <option value="all">TODAS SECRETARIAS</option>
+                                {uniqueSecretarias.map(sec => (
+                                    <option key={sec} value={sec}>{sec}</option>
+                                ))}
+                            </select>
+
+                            {(searchTerm || filterUser !== "all" || filterType !== "all" || filterSecretaria !== "all" || startDate || endDate) && (
                                 <button
-                                    onClick={() => { setSearchTerm(""); setFilterUser("all"); setFilterType("all"); setStartDate(""); setEndDate(""); }}
+                                    onClick={() => {
+                                        setSearchTerm("");
+                                        setFilterUser("all");
+                                        setFilterType("all");
+                                        setFilterSecretaria("all");
+                                        setStartDate("");
+                                        setEndDate("");
+                                    }}
                                     className="px-4 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all"
                                 >
                                     Zerar Filtros
@@ -453,48 +569,61 @@ export default function HistoryPage() {
                                 <div key={entry.id} className="group">
                                     <div
                                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className="px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                                        className={`px-6 py-2.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-2 rounded ${expandedId === entry.id ? 'bg-[#E31E24] text-white' : 'bg-slate-200 text-slate-500'}`}>
-                                                <ClipboardList className="w-5 h-5" />
+                                            <div className={`p-1.5 rounded transition-colors ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                                <ClipboardList className={`${expandedId === entry.id ? 'w-5 h-5' : 'w-4 h-4'}`} />
                                             </div>
-                                            <div>
-                                                <h4 className="font-black uppercase text-base text-[#1A3351] leading-tight">{entry.servidor_nome}</h4>
-                                                <div className="flex gap-4 text-[10px] font-bold text-slate-500 uppercase">
-                                                    <span className="text-[#E31E24]">{entry.aso_type}</span>
-                                                </div>
+                                            <div className="flex items-baseline gap-3 transition-all duration-300">
+                                                <h4 className={`font-black uppercase text-[#1A3351] leading-tight transition-all duration-300 ${expandedId === entry.id ? 'text-lg' : 'text-sm'}`}>
+                                                    {entry.servidor_nome}
+                                                </h4>
+                                                {expandedId === entry.id && (
+                                                    <span className="bg-[#1A3351] text-white px-2 py-0.5 rounded text-[10px] font-black tracking-widest shrink-0">
+                                                        REF: #{entry.id}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className={`flex gap-4 font-bold uppercase transition-all duration-300 ${expandedId === entry.id ? 'text-xs mt-1' : 'text-[9px]'}`}>
+                                                <span className="text-[#E31E24]">{entry.aso_type}</span>
+                                                {expandedId !== entry.id && <span className="text-slate-500 font-black">#{entry.id}</span>}
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-6 shrink-0 md:text-right">
+                                        <div className={`flex items-center gap-6 shrink-0 md:text-right transition-all ${expandedId === entry.id ? 'opacity-100' : 'opacity-80'}`}>
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-black text-slate-400 uppercase">Data de Registro</span>
-                                                <span className="text-xs font-bold text-slate-700">{new Date(entry.generated_at).toLocaleString('pt-BR')}</span>
+                                                <span className={`font-black text-slate-400 uppercase transition-all ${expandedId === entry.id ? 'text-[10px]' : 'text-[8px]'}`}>Registro</span>
+                                                <span className={`font-bold text-slate-700 transition-all ${expandedId === entry.id ? 'text-sm' : 'text-[10px]'}`}>
+                                                    {new Date(entry.generated_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                </span>
                                             </div>
-                                            {expandedId === entry.id ? <ChevronUp className="w-5 h-5 text-[#E31E24]" /> : <ChevronDown className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />}
+                                            {expandedId === entry.id ? <ChevronUp className="w-5 h-5 text-[#1A3351]" /> : <ChevronDown className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />}
                                         </div>
                                     </div>
 
                                     {/* Detalhes Expandidos */}
                                     {expandedId === entry.id && (
-                                        <div className="px-6 pb-6 pt-2 bg-slate-50/80 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Cargo</span>
-                                                    <p className="text-sm font-bold text-slate-700 uppercase">{entry.cargo || "Não registrado"}</p>
+                                        <div className="px-6 pb-6 pt-2 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
+                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-2">
+                                                <div className="md:col-span-4 flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Cargo</span>
+                                                    <p className="text-[13px] font-black text-[#1A3351] uppercase truncate" title={entry.cargo}>{entry.cargo || "Não registrado"}</p>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Secretaria</span>
-                                                    <p className="text-sm font-bold text-slate-700 uppercase">{entry.secretaria || "Não registrado"}</p>
+                                                <div className="md:col-span-5 flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Secretaria</span>
+                                                    <p className="text-[13px] font-black text-[#1A3351] uppercase truncate whitespace-nowrap" title={entry.secretaria}>{entry.secretaria || "Não registrado"}</p>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">GHE CONJ</span>
-                                                    <p className="text-sm font-bold text-slate-700 uppercase">{entry.ghe_conj || "Não registrado"}</p>
+                                                <div className="md:col-span-3 flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1 text-right">GHE CONJ</span>
+                                                    <p className="text-[11px] font-black text-slate-500 uppercase text-right leading-tight">{entry.ghe_conj || "---"}</p>
                                                 </div>
                                             </div>
-                                            <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-widest">
-                                                <span>Responsável: {entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}</span>
-                                                <span>Ref: #{entry.id}</span>
+                                            <div className="mt-6 pt-3 border-t border-slate-200 flex justify-between items-center uppercase tracking-widest">
+                                                <span className="text-[10px] font-black text-[#1A3351]">
+                                                    <span className="text-slate-400 font-bold mr-1">Operador Responsável:</span>
+                                                    {entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}
+                                                </span>
+                                                <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
                                             </div>
                                         </div>
                                     )}

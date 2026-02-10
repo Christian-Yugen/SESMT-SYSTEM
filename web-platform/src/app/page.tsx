@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -27,6 +27,7 @@ export default function Home() {
   const [session, setSession] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("Usuário");
 
   // Verificar autenticação e carregar perfil
   useEffect(() => {
@@ -35,6 +36,8 @@ export default function Home() {
       setAuthLoading(false);
       if (session) {
         syncProfile(session).then(role => setUserRole(role));
+        const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
+        setUserName(name);
       } else {
         router.push("/login");
       }
@@ -46,6 +49,8 @@ export default function Home() {
       setSession(session);
       if (session) {
         syncProfile(session).then(role => setUserRole(role));
+        const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
+        setUserName(name);
       } else {
         router.push("/login");
       }
@@ -340,10 +345,15 @@ export default function Home() {
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
+          <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
             <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
           </div>
-          <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
+          <div className="text-center w-full px-1 mt-2">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
+            <p className="text-[11px] font-bold text-white/70 uppercase tracking-tight truncate whitespace-nowrap">
+              Olá, <span className="font-black text-white">{userName}</span>
+            </p>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-1">
@@ -359,20 +369,35 @@ export default function Home() {
             <FileSearch className="w-4 h-4" />
             <span>Readaptação</span>
           </button>
-          <button
-            onClick={() => router.push('/history')}
-            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
-          >
-            <HistoryIcon className="w-4 h-4" />
-            <span>Histórico</span>
-          </button>
-          <button
-            onClick={() => router.push('/users')}
-            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
-          >
-            <UsersIcon className="w-4 h-4" />
-            <span>Usuários</span>
-          </button>
+          <div className="group">
+            <button
+              onClick={() => router.push('/history')}
+              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+            >
+              <HistoryIcon className="w-4 h-4" />
+              <span>Histórico</span>
+            </button>
+
+            {/* Submenu Indicadores - Aparece no Hover do group */}
+            <button
+              onClick={() => router.push('/analytics')}
+              className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[10px] uppercase tracking-tight"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Indicadores</span>
+            </button>
+          </div>
+
+          {userRole === 'admin' && (
+            <button
+              onClick={() => router.push('/users')}
+              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+            >
+              <UsersIcon className="w-4 h-4" />
+              <span>Usuários</span>
+            </button>
+          )}
+
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
             <HeartPulse className="w-4 h-4" />
             <span>Benefícios</span>
@@ -401,29 +426,31 @@ export default function Home() {
 
         {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
         <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-black leading-none uppercase tracking-tight">Buscar Servidor</h2>
+          <div className="flex justify-between items-center mb-1">
+            <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
               <Menu className="w-6 h-6" />
             </button>
           </div>
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-            <input
-              type="text"
-              placeholder="000.000.000-00"
-              className="w-full md:w-80 px-4 py-2 border border-[#888] shadow-inner text-base font-normal bg-[#E8E8E8] outline-none"
-              value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <div className="flex gap-2">
-              <button onClick={handleSearch} className="flex-1 md:flex-none px-6 md:px-10 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10">Buscar</button>
-              <button
-                onClick={() => setShowManualModal(true)}
-                className="flex-1 md:flex-none px-4 md:px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10"
-              >
-                Inclusão Manual
-              </button>
+          <div className="mt-3">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+              <input
+                type="text"
+                placeholder="000.000.000-00"
+                className="w-full md:w-80 px-4 py-2 border border-[#888] shadow-inner text-base font-normal bg-[#E8E8E8] outline-none"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <div className="flex gap-2">
+                <button onClick={handleSearch} className="flex-1 md:flex-none px-6 md:px-10 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10">Buscar</button>
+                <button
+                  onClick={() => setShowManualModal(true)}
+                  className="flex-1 md:flex-none px-4 md:px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10"
+                >
+                  Inclusão Manual
+                </button>
+              </div>
             </div>
           </div>
         </section>
