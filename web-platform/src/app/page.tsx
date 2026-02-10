@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -369,20 +369,35 @@ export default function Home() {
             <FileSearch className="w-4 h-4" />
             <span>Readaptação</span>
           </button>
-          <button
-            onClick={() => router.push('/history')}
-            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
-          >
-            <HistoryIcon className="w-4 h-4" />
-            <span>Histórico</span>
-          </button>
-          <button
-            onClick={() => router.push('/users')}
-            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
-          >
-            <UsersIcon className="w-4 h-4" />
-            <span>Usuários</span>
-          </button>
+          <div className="group">
+            <button
+              onClick={() => router.push('/history')}
+              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+            >
+              <HistoryIcon className="w-4 h-4" />
+              <span>Histórico</span>
+            </button>
+
+            {/* Submenu Indicadores - Aparece no Hover do group */}
+            <button
+              onClick={() => router.push('/analytics')}
+              className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[10px] uppercase tracking-tight"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Indicadores</span>
+            </button>
+          </div>
+
+          {userRole === 'admin' && (
+            <button
+              onClick={() => router.push('/users')}
+              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+            >
+              <UsersIcon className="w-4 h-4" />
+              <span>Usuários</span>
+            </button>
+          )}
+
           <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
             <HeartPulse className="w-4 h-4" />
             <span>Benefícios</span>
