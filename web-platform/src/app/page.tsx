@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -361,14 +361,33 @@ export default function Home() {
             <LayoutDashboard className="w-4 h-4" />
             <span>ASO</span>
           </button>
-          <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-            <Database className="w-4 h-4" />
-            <span>Afastamentos</span>
-          </button>
-          <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-            <FileSearch className="w-4 h-4" />
-            <span>Readaptação</span>
-          </button>
+          {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
+          <div className="group">
+            <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
+              <HeartPulse className="w-4 h-4" />
+              <span>Benefícios</span>
+            </button>
+
+            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+              <Database className="w-3.5 h-3.5 shrink-0" />
+              <span>Auxílio Doença</span>
+            </button>
+
+            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+              <FileSearch className="w-3.5 h-3.5 shrink-0" />
+              <span>Readaptação</span>
+            </button>
+
+            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+              <span>Abono Salarial</span>
+            </button>
+
+            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+              <span>Redução de Jornada</span>
+            </button>
+          </div>
           <div className="group">
             <button
               onClick={() => router.push('/history')}
@@ -398,10 +417,6 @@ export default function Home() {
             </button>
           )}
 
-          <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight transition-colors">
-            <HeartPulse className="w-4 h-4" />
-            <span>Benefícios</span>
-          </button>
         </nav>
 
         <div className="mt-auto space-y-4 px-4">

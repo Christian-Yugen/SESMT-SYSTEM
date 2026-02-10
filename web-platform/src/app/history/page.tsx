@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -328,14 +328,34 @@ export default function HistoryPage() {
                         <LayoutDashboard className="w-4 h-4" />
                         <span>ASO</span>
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <Database className="w-4 h-4" />
-                        <span>Afastamentos</span>
-                    </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <FileSearch className="w-4 h-4" />
-                        <span>Readaptação</span>
-                    </button>
+
+                    {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
+                    <div className="group">
+                        <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
+                            <HeartPulse className="w-4 h-4" />
+                            <span>Benefícios</span>
+                        </button>
+
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+                            <Database className="w-3.5 h-3.5 shrink-0" />
+                            <span>Auxílio Doença</span>
+                        </button>
+
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                            <span>Readaptação</span>
+                        </button>
+
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                            <span>Abono Salarial</span>
+                        </button>
+
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap">
+                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                            <span>Redução de Jornada</span>
+                        </button>
+                    </div>
                     <div className="group">
                         <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
                             <HistoryIcon className="w-4 h-4" />
@@ -345,9 +365,9 @@ export default function HistoryPage() {
                         {/* Submenu Indicadores - Aparece no Hover do group */}
                         <button
                             onClick={() => router.push('/analytics')}
-                            className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[10px] uppercase tracking-tight"
+                            className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap"
                         >
-                            <BarChart3 className="w-3.5 h-3.5" />
+                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                             <span>Indicadores</span>
                         </button>
                     </div>
@@ -358,10 +378,6 @@ export default function HistoryPage() {
                             <span>Usuários</span>
                         </button>
                     )}
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <HeartPulse className="w-4 h-4" />
-                        <span>Benefícios</span>
-                    </button>
                 </nav>
 
                 <div className="mt-auto space-y-4">
