@@ -38,6 +38,7 @@ export default function HistoryPage() {
     const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [sortOrder, setSortOrder] = useState("date-desc");
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -119,6 +120,16 @@ export default function HistoryPage() {
         return { total, asos, encs, uniqueUsers };
     }, [filteredHistory]);
 
+    // Ordenação Final
+    const sortedHistory = useMemo(() => {
+        const base = [...filteredHistory];
+        if (sortOrder === "alpha") {
+            return base.sort((a, b) => (a.servidor_nome || "").localeCompare(b.servidor_nome || "", 'pt-BR'));
+        }
+        // default: date desc
+        return base.sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
+    }, [filteredHistory, sortOrder]);
+
     // Função para gerar relatório de impressão (SEM CPF POR PRIVACIDADE)
     const handlePrintReport = async () => {
         const { data: { session } } = await supabase.auth.getSession();
@@ -165,7 +176,7 @@ export default function HistoryPage() {
             return t.length > 10 ? t.substring(0, 10) + "..." : t;
         };
 
-        const rows = filteredHistory.map(entry => {
+        const rows = sortedHistory.map(entry => {
             const fullDate = new Date(entry.generated_at).toLocaleString('pt-BR');
             const [date, time] = fullDate.split(' ');
             const timeShort = time ? time.substring(0, 5) : "";
@@ -576,12 +587,25 @@ export default function HistoryPage() {
 
                     {/* LISTA DE REGISTROS */}
                     <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
-                        <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex justify-between items-center">
-                            <h3 className="text-xs font-black uppercase tracking-widest">Log de Processamento Geral</h3>
-                            <div className="text-[9px] font-black text-slate-600 uppercase">Mostrando {filteredHistory.length} resultados</div>
+                        <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Log de Processamento Geral</h3>
+                            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-slate-600 uppercase">Ordem:</span>
+                                    <select
+                                        value={sortOrder}
+                                        onChange={(e) => setSortOrder(e.target.value)}
+                                        className="bg-[#D3D3D3] border border-slate-400 text-[9px] font-black uppercase px-2 py-1 outline-none focus:border-[#1A3351]"
+                                    >
+                                        <option value="date-desc">Data e Hora (Recentes)</option>
+                                        <option value="alpha">Alfabeto (A-Z)</option>
+                                    </select>
+                                </div>
+                                <div className="text-[9px] font-black text-slate-600 uppercase">Mostrando {sortedHistory.length} resultados</div>
+                            </div>
                         </div>
                         <div className="divide-y divide-slate-200">
-                            {filteredHistory.length > 0 ? filteredHistory.map((entry) => (
+                            {sortedHistory.length > 0 ? sortedHistory.map((entry) => (
                                 <div key={entry.id} className="group">
                                     <div
                                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
