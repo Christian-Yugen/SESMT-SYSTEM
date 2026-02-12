@@ -131,63 +131,6 @@ export default function ArchivePage() {
         if (!searchTerm.trim()) return;
 
         setLoading(true);
-
-        // Simulando delay de rede
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // DADOS DE DEMONSTRAÇÃO (REMOVER QUANDO O BANCO ESTIVER CONFIGURADO)
-        const mockData: MedicalFolder[] = [
-            {
-                id: '1',
-                servidor_cpf: '030.307.754-96',
-                servidor_nome: 'JOÃO SILVA SANTOS',
-                armario: 5,
-                gaveta: 3,
-                pasta: 10,
-                status: 'ARQUIVADO',
-                ultima_movimentacao: new Date().toISOString()
-            },
-            {
-                id: '2',
-                servidor_cpf: '123.456.789-00',
-                servidor_nome: 'MARIA OLIVEIRA COSTA',
-                armario: 2,
-                gaveta: 1,
-                pasta: 45,
-                status: 'RETIRADO',
-                posse_nome: 'Dr. Ricardo Mendes',
-                motivo_saida: 'Avaliação médica periódica',
-                data_saida: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                ultima_movimentacao: new Date().toISOString()
-            },
-            {
-                id: '3',
-                servidor_cpf: '987.654.321-00',
-                servidor_nome: 'CARLOS EDUARDO LIMA',
-                armario: 8,
-                gaveta: 2,
-                pasta: 127,
-                status: 'ARQUIVADO',
-                ultima_movimentacao: new Date().toISOString()
-            }
-        ];
-
-        // Filtrar baseado na busca
-        const searchLower = searchTerm.toLowerCase().replace(/[.-]/g, '');
-        const filtered = mockData.filter(item => {
-            if (searchType === 'nome') {
-                return item.servidor_nome.toLowerCase().includes(searchLower);
-            } else {
-                const cpfClean = item.servidor_cpf.replace(/[.-]/g, '');
-                return cpfClean.includes(searchLower);
-            }
-        });
-
-        setFolders(filtered);
-        setLoading(false);
-
-        // Código original comentado para quando o banco estiver pronto:
-        /*
         try {
             const { data, error } = await supabase
                 .from('medical_folders')
@@ -203,7 +146,6 @@ export default function ArchivePage() {
         } finally {
             setLoading(false);
         }
-        */
     };
 
     const loadFolderHistory = async (folderId: string) => {
