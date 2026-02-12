@@ -5,7 +5,10 @@ import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, UserPlus, Shield, UserRound, Users as UsersIcon,
-    Search, Filter, Trash2, Edit, Save, ShieldCheck, Mail, History as HistoryIcon
+    Search, Filter, Trash2, Edit, Save, ShieldCheck, Mail, History as HistoryIcon,
+    ClipboardList,
+    BarChart3,
+    TrendingUp
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -164,7 +167,7 @@ export default function UsersPage() {
 
             {/* SIDEBAR */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-52 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
+                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="mb-8 flex flex-col items-center">
@@ -181,24 +184,52 @@ export default function UsersPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <LayoutDashboard className="w-4 h-4" />
-                        <span>ASO</span>
+                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                        <LayoutDashboard className="w-4 h-4 shrink-0" />
+                        <span>Criar documentos</span>
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <Database className="w-4 h-4" />
-                        <span>Afastamentos</span>
+
+                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                        <ClipboardList className="w-4 h-4 shrink-0" />
+                        <span>Central de Evidências</span>
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <FileSearch className="w-4 h-4" />
-                        <span>Readaptação</span>
-                    </button>
-                    <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight">
-                        <HistoryIcon className="w-4 h-4" />
-                        <span>Histórico</span>
-                    </button>
-                    <button className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-black text-[11px] uppercase tracking-tight shadow-sm border border-white/5">
-                        <UsersIcon className="w-4 h-4" />
+
+                    <div className="group">
+                        <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <HeartPulse className="w-4 h-4 shrink-0" />
+                            <span>Benefícios</span>
+                        </button>
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <Database className="w-3.5 h-3.5 shrink-0" />
+                            <span>Auxílio Doença</span>
+                        </button>
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                            <span>Readaptação</span>
+                        </button>
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                            <span>Abono Salarial</span>
+                        </button>
+                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                            <span>Redução de Jornada</span>
+                        </button>
+                    </div>
+
+                    <div className="group">
+                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <HistoryIcon className="w-4 h-4 shrink-0" />
+                            <span>Histórico</span>
+                        </button>
+                        <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                            <span>Indicadores</span>
+                        </button>
+                    </div>
+
+                    <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20 whitespace-nowrap">
+                        <UsersIcon className="w-4 h-4 shrink-0" />
                         <span>Usuários</span>
                     </button>
                 </nav>
