@@ -116,44 +116,46 @@ export default function AnalyticsPage() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-
-            if (session) {
-                const { data } = await supabase
-                    .from("profiles")
-                    .select("role")
-                    .eq("id", session.user.id)
-                    .single();
-
-                if (data) setUserRole(data.role);
-
-                const name =
-                    session.user.user_metadata?.full_name ||
-                    session.user.email?.split("@")[0] ||
-                    "Usuário";
-                setUserName(name);
-
-                loadHistory();
-
-                const { data: profData } = await supabase
-                    .from("profiles")
-                    .select("id, email");
-                if (profData) {
-                    const map: Record<string, string> = {};
-                    profData.forEach((p) => {
-                        map[p.id] = p.email;
-                    });
-                    setOperatorsMap(map);
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    console.error("Auth error:", error.message);
+                    await supabase.auth.signOut();
+                    router.push("/login");
+                    return;
                 }
-            } else {
+
+                if (session) {
+                    const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+                    if (data) setUserRole(data.role);
+
+                    const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
+                    setUserName(name);
+                    loadHistory();
+
+                    const { data: profData } = await supabase.from('profiles').select('id, full_name, role');
+                    if (profData) {
+                        const map: Record<string, string> = {};
+                        profData.forEach(p => { map[p.id] = p.full_name || p.id; });
+                        setOperatorsMap(map);
+                    }
+                } else {
+                    router.push("/login");
+                    return;
+                }
+            } catch (err) {
+                console.error("Fatal auth error:", err);
+                await supabase.auth.signOut();
                 router.push("/login");
             }
         };
-
         checkAuth();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+            if (event === 'SIGNED_OUT') router.push("/login");
+        });
+
+        return () => subscription.unsubscribe();
     }, [router]);
 
     async function loadHistory() {
@@ -422,7 +424,7 @@ export default function AnalyticsPage() {
             >
                 <div className="mb-8 flex flex-col items-center">
                     <div className="flex justify-between items-center w-full lg:hidden mb-4">
-                        <span className="text-white font-black text-xs uppercase">Menu</span>
+                        <span className="text-white font-bold text-xs uppercase">Menu</span>
                         <button onClick={() => setIsSidebarOpen(false)}>
                             <X className="w-6 h-6 text-white" />
                         </button>
@@ -433,22 +435,22 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div className="text-center w-full px-1 mt-2">
-                        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">
                             SESMT SYSTEM
                         </p>
-                        <p className="text-[11px] font-bold text-white/70 uppercase tracking-tight truncate whitespace-nowrap">
-                            Olá, <span className="font-black text-white">{userName}</span>
+                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
+                            Olá, <span className="text-white">{userName}</span>
                         </p>
                     </div>
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push("/")} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <LayoutDashboard className="w-4 h-4 shrink-0" />
                         <span>Criar documentos</span>
                     </button>
 
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <ClipboardList className="w-4 h-4 shrink-0" />
                         <span>Central de Evidências</span>
                     </button>
@@ -456,46 +458,46 @@ export default function AnalyticsPage() {
 
                     {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
                     <div className="group">
-                        <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HeartPulse className="w-4 h-4 shrink-0" />
                             <span>Benefícios</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Database className="w-3.5 h-3.5 shrink-0" />
                             <span>Auxílio Doença</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileSearch className="w-3.5 h-3.5 shrink-0" />
                             <span>Readaptação</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                         </button>
                     </div>
 
                     <div className="group">
-                        <button onClick={() => router.push("/history")} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HistoryIcon className="w-4 h-4 shrink-0" />
                             <span>Histórico</span>
                         </button>
 
-                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[9px] uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
+                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
                             <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                             <span>Indicadores</span>
                         </button>
                     </div>
 
                     {userRole === "admin" && (
-                        <button onClick={() => router.push("/users")} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button onClick={() => router.push("/users")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <UsersIcon className="w-4 h-4 shrink-0" />
                             <span>Usuários</span>
                         </button>
@@ -506,7 +508,7 @@ export default function AnalyticsPage() {
                 <div className="mt-auto space-y-4 px-4">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px]"
+                        className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
                     >
                         <LogOut className="w-4 h-4" /> Sair
                     </button>

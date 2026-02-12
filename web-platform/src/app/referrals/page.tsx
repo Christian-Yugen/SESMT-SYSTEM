@@ -45,19 +45,39 @@ export default function ReferralsPage() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-                if (data) setUserRole(data.role);
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) {
+                    console.error("Auth error:", error.message);
+                    await supabase.auth.signOut();
+                    router.push("/login");
+                    return;
+                }
 
-                const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
-                setUserName(name);
-            } else {
+                if (session) {
+                    const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+                    if (data) setUserRole(data.role);
+
+                    const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
+                    setUserName(name);
+                } else {
+                    router.push("/login");
+                    return;
+                }
+                loadReferrals();
+            } catch (err) {
+                console.error("Fatal auth error:", err);
+                await supabase.auth.signOut();
                 router.push("/login");
             }
-            loadReferrals();
         };
         checkAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+            if (event === 'SIGNED_OUT') router.push("/login");
+        });
+
+        return () => subscription.unsubscribe();
     }, [router]);
 
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
@@ -150,7 +170,7 @@ export default function ReferralsPage() {
       `}>
                 <div className="mb-8 flex flex-col items-center">
                     <div className="flex justify-between items-center w-full lg:hidden mb-4">
-                        <span className="text-white font-black text-xs uppercase">Menu</span>
+                        <span className="text-white font-bold text-xs uppercase">Menu</span>
                         <button onClick={() => setIsSidebarOpen(false)}>
                             <X className="w-6 h-6 text-white" />
                         </button>
@@ -158,11 +178,11 @@ export default function ReferralsPage() {
                     <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
                         <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
                     </div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <LayoutDashboard className="w-4 h-4 shrink-0" />
                         <span>Criar documentos</span>
                     </button>
@@ -174,27 +194,27 @@ export default function ReferralsPage() {
 
                     {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
                     <div className="group">
-                        <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HeartPulse className="w-4 h-4 shrink-0" />
                             <span>Benefícios</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Database className="w-3.5 h-3.5 shrink-0" />
                             <span>Auxílio Doença</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileSearch className="w-3.5 h-3.5 shrink-0" />
                             <span>Readaptação</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                         </button>
@@ -205,14 +225,14 @@ export default function ReferralsPage() {
                             <HistoryIcon className="w-4 h-4 shrink-0" />
                             <span>Histórico</span>
                         </button>
-                        <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                             <span>Indicadores</span>
                         </button>
                     </div>
 
                     {userRole === 'admin' && (
-                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <UsersIcon className="w-4 h-4 shrink-0" />
                             <span>Usuários</span>
                         </button>
@@ -220,7 +240,7 @@ export default function ReferralsPage() {
                 </nav>
 
                 <div className="mt-auto space-y-4">
-                    <button onClick={handleLogout} className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] px-4">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px] px-4">
                         <LogOut className="w-4 h-4" /> Sair
                     </button>
                     <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
