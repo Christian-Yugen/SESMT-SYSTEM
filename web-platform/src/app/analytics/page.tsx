@@ -36,6 +36,7 @@ import {
     ClipboardList,
     TrendingUp,
     Printer,
+    FolderOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
