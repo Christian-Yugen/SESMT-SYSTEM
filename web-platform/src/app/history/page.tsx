@@ -38,6 +38,7 @@ export default function HistoryPage() {
     const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [filterAsoSubtype, setFilterAsoSubtype] = useState("all");
     const [sortOrder, setSortOrder] = useState("date-desc");
 
     useEffect(() => {
@@ -102,13 +103,14 @@ export default function HistoryPage() {
         const matchesSecretaria = filterSecretaria === "all" || entry.secretaria === filterSecretaria;
         const entryType = entry.aso_type.toLowerCase().includes('aso') ? 'ASO' : (entry.aso_type.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
         const matchesType = filterType === "all" || entryType === filterType;
+        const matchesAsoSubtype = filterAsoSubtype === "all" || (entryType === 'ASO' && entry.aso_type.toUpperCase().includes(filterAsoSubtype.toUpperCase()));
 
         // Filtro de Data
         const entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
         const matchesStartDate = !startDate || entryDate >= startDate;
         const matchesEndDate = !endDate || entryDate <= endDate;
 
-        return matchesSearch && matchesUser && matchesType && matchesSecretaria && matchesStartDate && matchesEndDate;
+        return matchesSearch && matchesUser && matchesType && matchesAsoSubtype && matchesSecretaria && matchesStartDate && matchesEndDate;
     });
 
     // Estatísticas Dinâmicas (Baseadas no Histórico Filtrado)
@@ -532,6 +534,21 @@ export default function HistoryPage() {
                                 <option value="Encaminhamento">ENCAMINHAMENTOS</option>
                             </select>
 
+                            {filterType === 'ASO' && (
+                                <select
+                                    value={filterAsoSubtype}
+                                    onChange={(e) => setFilterAsoSubtype(e.target.value)}
+                                    className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#1A3351] text-[10px] font-black uppercase outline-none animate-in fade-in slide-in-from-left-2"
+                                >
+                                    <option value="all">TODOS TIPOS DE ASO</option>
+                                    <option value="ADMISS">ADMISSIONAL</option>
+                                    <option value="DEMISS">DEMISSIONAL</option>
+                                    <option value="RETORNO">RETORNO AO TRABALHO</option>
+                                    <option value="MUDANÇA">MUDANÇA DE FUNÇÃO</option>
+                                    <option value="PERIÓDIC">PERIÓDICO</option>
+                                </select>
+                            )}
+
                             <select
                                 value={filterSecretaria}
                                 onChange={(e) => setFilterSecretaria(e.target.value)}
@@ -543,12 +560,13 @@ export default function HistoryPage() {
                                 ))}
                             </select>
 
-                            {(searchTerm || filterUser !== "all" || filterType !== "all" || filterSecretaria !== "all" || startDate || endDate) && (
+                            {(searchTerm || filterUser !== "all" || filterType !== "all" || filterAsoSubtype !== "all" || filterSecretaria !== "all" || startDate || endDate) && (
                                 <button
                                     onClick={() => {
                                         setSearchTerm("");
                                         setFilterUser("all");
                                         setFilterType("all");
+                                        setFilterAsoSubtype("all");
                                         setFilterSecretaria("all");
                                         setStartDate("");
                                         setEndDate("");
