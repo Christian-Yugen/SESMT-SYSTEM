@@ -31,7 +31,13 @@ export default function Home() {
 
   // Verificar autenticação e carregar perfil
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("Erro ao obter sessão:", error.message);
+        supabase.auth.signOut().then(() => router.push("/login"));
+        return;
+      }
+
       setSession(session);
       setAuthLoading(false);
       if (session) {
@@ -41,17 +47,22 @@ export default function Home() {
       } else {
         router.push("/login");
       }
+    }).catch(err => {
+      console.error("Erro fatal de autenticação:", err);
+      supabase.auth.signOut().then(() => router.push("/login"));
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
         syncProfile(session).then(role => setUserRole(role));
         const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
         setUserName(name);
-      } else {
+      } else if (event === 'SIGNED_OUT') {
+        router.push("/login");
+      } else if (!session) {
         router.push("/login");
       }
     });
@@ -358,22 +369,22 @@ export default function Home() {
             <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
           </div>
           <div className="text-center w-full px-1 mt-2">
-            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
-            <p className="text-[11px] font-bold text-white/70 uppercase tracking-tight truncate whitespace-nowrap">
-              Olá, <span className="font-black text-white">{userName}</span>
+            <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
+            <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
+              Olá, <span className="text-white">{userName}</span>
             </p>
           </div>
         </div>
 
         <nav className="flex-1 space-y-1">
-          <button className="w-full flex items-center gap-2 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
+          <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
             <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span>Criar documentos</span>
           </button>
 
           <button
             onClick={() => router.push('/referrals')}
-            className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
+            className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
           >
             <ClipboardList className="w-4 h-4 shrink-0" />
             <span>Central de Evidências</span>
@@ -381,27 +392,27 @@ export default function Home() {
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
           <div className="group">
-            <button className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
               <HeartPulse className="w-4 h-4 shrink-0" />
               <span>Benefícios</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
               <Database className="w-3.5 h-3.5 shrink-0" />
               <span>Auxílio Doença</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
               <FileSearch className="w-3.5 h-3.5 shrink-0" />
               <span>Readaptação</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
               <ClipboardList className="w-3.5 h-3.5 shrink-0" />
               <span>Abono Salarial</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
               <TrendingUp className="w-3.5 h-3.5 shrink-0" />
               <span>Redução de Jornada</span>
             </button>
@@ -409,14 +420,14 @@ export default function Home() {
           <div className="group">
             <button
               onClick={() => router.push('/history')}
-              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+              className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
             >
               <HistoryIcon className="w-4 h-4 shrink-0" />
               <span>Histórico</span>
             </button>
             <button
               onClick={() => router.push('/analytics')}
-              className="hidden group-hover:flex w-full items-center gap-2 p-2 pl-9 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[9px] uppercase tracking-tight whitespace-nowrap"
+              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
             >
               <BarChart3 className="w-3.5 h-3.5 shrink-0" />
               <span>Indicadores</span>
@@ -426,9 +437,9 @@ export default function Home() {
           {userRole === 'admin' && (
             <button
               onClick={() => router.push('/users')}
-              className="w-full flex items-center gap-2 p-3 rounded-lg text-white/50 hover:bg-white/5 hover:text-white transition-all font-black text-[11px] uppercase tracking-tight"
+              className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
             >
-              <UsersIcon className="w-4 h-4" />
+              <UsersIcon className="w-4 h-4 shrink-0" />
               <span>Usuários</span>
             </button>
           )}
@@ -438,7 +449,7 @@ export default function Home() {
         <div className="mt-auto space-y-4 px-4">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 p-2 text-white/30 hover:text-white transition-all font-black uppercase tracking-widest text-[9px]"
+            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
           >
             <LogOut className="w-4 h-4" /> Sair
           </button>
