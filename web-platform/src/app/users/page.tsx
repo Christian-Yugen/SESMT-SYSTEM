@@ -8,7 +8,8 @@ import {
     Search, Filter, Trash2, Edit, Save, ShieldCheck, Mail, History as HistoryIcon,
     ClipboardList,
     BarChart3,
-    TrendingUp
+    TrendingUp,
+    FolderOpen
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -246,6 +247,14 @@ export default function UsersPage() {
                             <span>Indicadores</span>
                         </button>
                     </div>
+
+                    <button
+                        onClick={() => router.push('/archive')}
+                        className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                    >
+                        <FolderOpen className="w-4 h-4 shrink-0" />
+                        <span>Arquivo Médico</span>
+                    </button>
 
                     <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20 whitespace-nowrap">
                         <UsersIcon className="w-4 h-4 shrink-0" />

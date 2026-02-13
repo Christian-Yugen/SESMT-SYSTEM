@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, AlertCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -21,6 +21,7 @@ interface HistoryEntry {
     operator_name?: string;
     generated_at: string;
     generated_by: string;
+    deletion_pending?: boolean;
 }
 
 export default function HistoryPage() {
@@ -31,6 +32,13 @@ export default function HistoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    // Estados para o modal de exclusão
+    const [showDeletionModal, setShowDeletionModal] = useState(false);
+    const [selectedEntryForDeletion, setSelectedEntryForDeletion] = useState<HistoryEntry | null>(null);
+    const [deletionReason, setDeletionReason] = useState("");
+    const [processingDeletion, setProcessingDeletion] = useState(false);
 
     // Filtros
     const [filterUser, setFilterUser] = useState("all");
@@ -53,6 +61,7 @@ export default function HistoryPage() {
                 }
 
                 if (session) {
+                    setCurrentUserId(session.user.id);
                     const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
                     if (data) setUserRole(data.role);
                 } else {
@@ -152,6 +161,82 @@ export default function HistoryPage() {
         // default: date desc
         return base.sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
     }, [filteredHistory, sortOrder]);
+
+    // Funções para exclusão de registros
+    const handleRequestDeletion = (entry: HistoryEntry) => {
+        setSelectedEntryForDeletion(entry);
+        setDeletionReason("");
+        setShowDeletionModal(true);
+    };
+
+    const confirmDeletionRequest = async () => {
+        if (!selectedEntryForDeletion || !currentUserId) return;
+
+        if (!deletionReason.trim()) {
+            alert('Por favor, descreva o motivo da exclusão.');
+            return;
+        }
+
+        if (!confirm('Tem certeza que deseja solicitar a exclusão deste registro? Esta solicitação será enviada para aprovação do administrador.')) {
+            return;
+        }
+
+        setProcessingDeletion(true);
+        try {
+            // Obter nome do operador atual
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('id', currentUserId)
+                .single();
+
+            // Criar solicitação de exclusão
+            const { error: insertError } = await supabase
+                .from('deletion_requests')
+                .insert({
+                    history_record_id: selectedEntryForDeletion.id,
+                    requester_id: currentUserId,
+                    requester_name: profileData?.email || 'Desconhecido',
+                    deletion_reason: deletionReason.trim(),
+                    status: 'pending',
+                    original_data: {
+                        servidor_cpf: selectedEntryForDeletion.servidor_cpf,
+                        servidor_nome: selectedEntryForDeletion.servidor_nome,
+                        aso_type: selectedEntryForDeletion.aso_type,
+                        cargo: selectedEntryForDeletion.cargo,
+                        secretaria: selectedEntryForDeletion.secretaria,
+                        generated_at: selectedEntryForDeletion.generated_at
+                    }
+                });
+
+            if (insertError) {
+                console.error('Erro ao criar solicitação:', insertError);
+                alert('Erro ao criar solicitação de exclusão: ' + insertError.message);
+                setProcessingDeletion(false);
+                return;
+            }
+
+            // Marcar o registro como pendente de exclusão
+            const { error: updateError } = await supabase
+                .from('aso_history')
+                .update({ deletion_pending: true })
+                .eq('id', selectedEntryForDeletion.id);
+
+            if (updateError) {
+                console.error('Erro ao atualizar registro:', updateError);
+            }
+
+            alert('Solicitação de exclusão enviada com sucesso! Aguarde aprovação do administrador.');
+            setShowDeletionModal(false);
+            setSelectedEntryForDeletion(null);
+            setDeletionReason("");
+            loadHistory(); // Recarregar histórico
+        } catch (err) {
+            console.error('Erro ao solicitar exclusão:', err);
+            alert('Erro ao processar solicitação de exclusão.');
+        }
+        setProcessingDeletion(false);
+    };
 
     // Função para gerar relatório de impressão (SEM CPF POR PRIVACIDADE)
     const handlePrintReport = async () => {
@@ -411,11 +496,25 @@ export default function HistoryPage() {
                         </button>
                     </div>
 
+                    <button
+                        onClick={() => router.push('/archive')}
+                        className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                    >
+                        <FolderOpen className="w-4 h-4 shrink-0" />
+                        <span>Arquivo Médico</span>
+                    </button>
+
                     {userRole === 'admin' && (
-                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <UsersIcon className="w-4 h-4 shrink-0" />
-                            <span>Usuários</span>
-                        </button>
+                        <>
+                            <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <UsersIcon className="w-4 h-4 shrink-0" />
+                                <span>Usuários</span>
+                            </button>
+                            <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <Trash2 className="w-4 h-4 shrink-0" />
+                                <span>Exclusões Pendentes</span>
+                            </button>
+                        </>
                     )}
                 </nav>
 
@@ -653,7 +752,12 @@ export default function HistoryPage() {
                                 <div key={entry.id} className="group">
                                     <div
                                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className={`px-6 py-2.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
+                                        className={`px-6 py-2.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${entry.deletion_pending
+                                            ? 'bg-amber-50/50 border-amber-500 opacity-60'
+                                            : expandedId === entry.id
+                                                ? 'bg-[#1A3351]/5 border-[#1A3351]'
+                                                : 'border-transparent'
+                                            }`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
                                             <div className={`p-1.5 rounded transition-colors ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
@@ -663,7 +767,12 @@ export default function HistoryPage() {
                                                 <h4 className={`font-black uppercase text-[#1A3351] leading-tight transition-all duration-300 ${expandedId === entry.id ? 'text-lg' : 'text-sm'}`}>
                                                     {entry.servidor_nome}
                                                 </h4>
-                                                {expandedId === entry.id && (
+                                                {entry.deletion_pending && (
+                                                    <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[9px] font-black tracking-widest shrink-0 animate-pulse">
+                                                        ⚠️ EXCLUSÃO PENDENTE
+                                                    </span>
+                                                )}
+                                                {expandedId === entry.id && !entry.deletion_pending && (
                                                     <span className="bg-[#1A3351] text-white px-2 py-0.5 rounded text-[10px] font-black tracking-widest shrink-0">
                                                         REF: #{entry.id}
                                                     </span>
@@ -697,6 +806,22 @@ export default function HistoryPage() {
                                     {/* Detalhes Expandidos */}
                                     {expandedId === entry.id && (
                                         <div className="px-6 pb-6 pt-2 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
+                                            {entry.deletion_pending && (
+                                                <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded animate-in fade-in">
+                                                    <div className="flex items-start gap-3">
+                                                        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 animate-pulse" />
+                                                        <div>
+                                                            <h5 className="text-xs font-black text-amber-800 uppercase mb-1">
+                                                                Registro com Solicitação de Exclusão Pendente
+                                                            </h5>
+                                                            <p className="text-xs text-amber-700">
+                                                                Este registro está aguardando aprovação do administrador para exclusão definitiva.
+                                                                O registro permanecerá visível até que a solicitação seja aprovada ou rejeitada.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-2">
                                                 <div className="md:col-span-4 flex flex-col">
                                                     <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Cargo</span>
@@ -711,12 +836,33 @@ export default function HistoryPage() {
                                                     <p className="text-[11px] font-black text-slate-500 uppercase text-right leading-tight">{entry.ghe_conj || "---"}</p>
                                                 </div>
                                             </div>
-                                            <div className="mt-6 pt-3 border-t border-slate-200 flex justify-between items-center uppercase tracking-widest">
+                                            <div className="mt-6 pt-3 border-t border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 uppercase tracking-widest">
                                                 <span className="text-[10px] font-black text-[#1A3351]">
                                                     <span className="text-slate-400 font-bold mr-1">Operador Responsável:</span>
                                                     {entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
+                                                <div className="flex items-center gap-3 w-full md:w-auto">
+                                                    <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
+                                                    {currentUserId === entry.generated_by && (
+                                                        entry.deletion_pending ? (
+                                                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white font-black text-[10px] uppercase rounded shadow-md cursor-not-allowed">
+                                                                <AlertCircle className="w-3.5 h-3.5 animate-pulse" />
+                                                                Aguardando Aprovação de Exclusão Definitiva
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleRequestDeletion(entry);
+                                                                }}
+                                                                className="flex items-center gap-2 px-4 py-2 bg-[#E31E24] text-white font-black text-[10px] uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                                Solicitar Exclusão
+                                                            </button>
+                                                        )
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -732,6 +878,92 @@ export default function HistoryPage() {
                     </div>
                 </div>
             </main>
+
+            {/* MODAL DE SOLICITAÇÃO DE EXCLUSÃO */}
+            {showDeletionModal && selectedEntryForDeletion && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95">
+                        <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#E31E24]">
+                            <AlertCircle className="w-8 h-8 text-[#E31E24]" />
+                            <h3 className="text-lg font-black uppercase text-[#1A3351]">Solicitar Exclusão de Registro</h3>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Servidor:</p>
+                                <p className="font-bold text-[#1A3351]">{selectedEntryForDeletion.servidor_nome}</p>
+                            </div>
+
+                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Tipo de Documento:</p>
+                                <p className="text-sm text-[#E31E24] font-bold">{selectedEntryForDeletion.aso_type}</p>
+                            </div>
+
+                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Log ID:</p>
+                                <p className="text-sm text-slate-700 font-mono">#{selectedEntryForDeletion.id}</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-black text-slate-700 uppercase mb-2">
+                                    Motivo da Exclusão <span className="text-[#E31E24]">*</span>
+                                </label>
+                                <textarea
+                                    value={deletionReason}
+                                    onChange={(e) => setDeletionReason(e.target.value)}
+                                    placeholder="Descreva detalhadamente o motivo da solicitação de exclusão..."
+                                    className="w-full px-4 py-3 border-2 border-slate-200 rounded text-sm outline-none focus:border-[#1A3351] transition-all min-h-[120px] resize-none"
+                                    maxLength={500}
+                                />
+                                <p className="text-xs text-slate-400 mt-1 text-right">
+                                    {deletionReason.length}/500 caracteres
+                                </p>
+                            </div>
+
+                            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                                <p className="text-xs font-bold text-amber-800 flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>
+                                        Esta solicitação será enviada para aprovação do administrador.
+                                        O registro permanecerá no histórico até que a exclusão seja aprovada.
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowDeletionModal(false);
+                                    setSelectedEntryForDeletion(null);
+                                    setDeletionReason("");
+                                }}
+                                disabled={processingDeletion}
+                                className="flex-1 py-3 px-4 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded hover:bg-slate-300 transition-all disabled:opacity-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={confirmDeletionRequest}
+                                disabled={processingDeletion || !deletionReason.trim()}
+                                className="flex-[2] py-3 px-4 bg-[#E31E24] text-white font-black text-xs uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {processingDeletion ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Processando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 className="w-4 h-4" />
+                                        Enviar Solicitação
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

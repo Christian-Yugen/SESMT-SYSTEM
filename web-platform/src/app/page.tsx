@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -433,6 +433,14 @@ export default function Home() {
               <span>Indicadores</span>
             </button>
           </div>
+
+          <button
+            onClick={() => router.push('/archive')}
+            className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+          >
+            <FolderOpen className="w-4 h-4 shrink-0" />
+            <span>Arquivo Médico</span>
+          </button>
 
           {userRole === 'admin' && (
             <button
