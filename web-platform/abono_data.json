@@ -2,8 +2,8 @@
   {
     "cpf": "446.203.731-68",
     "nome": "ADAUTO DE LIMA SANTOS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-05",
     "quant": 1
   },
@@ -42,8 +42,8 @@
   {
     "cpf": "690.115.911-00",
     "nome": "ALEXANDRE MARQUES MARTINS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-10-03",
     "quant": 1
   },
@@ -51,7 +51,7 @@
     "cpf": "142.176.037-11",
     "nome": "ALINE CHAGAS IVAE",
     "portaria": "1766/SEMAD/DRH/2025",
-    "assomasul_data": "2025-08-09",
+    "assomasul_data": "2025-09-08",
     "inicio": "2025-08-18",
     "quant": 1
   },
@@ -67,7 +67,7 @@
     "cpf": "024.830.061-08",
     "nome": "ANA CAROLINA ARANTES DE LIMA",
     "portaria": "1273/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-22",
     "quant": 1
   },
@@ -99,7 +99,7 @@
     "cpf": "000.889.221-03",
     "nome": "ANDERSON DE SOUZA AZEVEDO",
     "portaria": "1274/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-05",
     "quant": 1
   },
@@ -115,7 +115,7 @@
     "cpf": "280.873.898-67",
     "nome": "ANDREA MIRA DOS SANTOS MARTINS",
     "portaria": "1293/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-11",
     "quant": 2
   },
@@ -123,7 +123,7 @@
     "cpf": "223.281.868-31",
     "nome": "ANDREIA PEREIRA",
     "portaria": "1282/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-22",
     "quant": 1
   },
@@ -131,7 +131,7 @@
     "cpf": "041.215.999-69",
     "nome": "ANGELA MARIA PAES SANTOS",
     "portaria": "1653/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-19",
     "quant": 1
   },
@@ -147,7 +147,7 @@
     "cpf": "595.840.171-87",
     "nome": "APARECIDA GONCALVES",
     "portaria": "1276/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-03-17",
     "quant": 1
   },
@@ -155,7 +155,7 @@
     "cpf": "000.439.701-09",
     "nome": "ARIEU AZEVEDO MORAES",
     "portaria": "1871/SEMAD/DRH/2025",
-    "assomasul_data": "2025-06-11",
+    "assomasul_data": "2025-11-06",
     "inicio": "2025-10-14",
     "quant": 1
   },
@@ -170,8 +170,8 @@
   {
     "cpf": "020.243.241-69",
     "nome": "BEATRIZ RODRIGUES DE SOUZA MELO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-11-07",
     "quant": 1
   },
@@ -187,15 +187,15 @@
     "cpf": "369.798.668-69",
     "nome": "BRUNA ALVES TAVEIRA UENO",
     "portaria": "1908/SEMAD/DRH/2025",
-    "assomasul_data": "2025-10-12",
+    "assomasul_data": "2025-12-10",
     "inicio": "2025-12-02",
     "quant": 1
   },
   {
     "cpf": "825.908.001-00",
     "nome": "BRYSSIA FERNANDA CAETANO COELHO MORATO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2026-01-15",
     "quant": 1
   },
@@ -203,7 +203,7 @@
     "cpf": "328.931.668-81",
     "nome": "CAMILA MARIELA CATTANIO",
     "portaria": "1272/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-16",
     "quant": 1
   },
@@ -211,7 +211,7 @@
     "cpf": "034.738.451-08",
     "nome": "CARLA MURIEL COELHO ROCHA CHIARELI",
     "portaria": "1768/SEMAD/DRH/2025",
-    "assomasul_data": "2025-12-09",
+    "assomasul_data": "2025-09-12",
     "inicio": "2025-09-30",
     "quant": 1
   },
@@ -227,7 +227,7 @@
     "cpf": "710.733.611-87",
     "nome": "CELSO JOSE DE SOUZA",
     "portaria": "1264/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-01",
     "quant": 2
   },
@@ -267,7 +267,7 @@
     "cpf": "000.890.121-00",
     "nome": "CLAUDIA ROBERTA DE OLIVEIRA",
     "portaria": "1710/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-04-08",
+    "assomasul_data": "2025-08-04",
     "inicio": "2025-07-25",
     "quant": 1
   },
@@ -283,7 +283,7 @@
     "cpf": "249.817.021-91",
     "nome": "CLAUDIO FELICIANO MACHADO",
     "portaria": "1657/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-07-01",
     "quant": 1
   },
@@ -291,7 +291,7 @@
     "cpf": "158.084.698-05",
     "nome": "CLEIDE RODRIGUES SOARES SILVA",
     "portaria": "1278/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-05",
     "quant": 1
   },
@@ -299,7 +299,7 @@
     "cpf": "010.082.521-40",
     "nome": "CONCEICAO APARECIDA DE CASTRO DE MATOS DOS SANTOS",
     "portaria": "1909/SEMAD/DRH/2025",
-    "assomasul_data": "2025-10-12",
+    "assomasul_data": "2025-12-10",
     "inicio": "2025-11-06",
     "quant": 1
   },
@@ -307,7 +307,7 @@
     "cpf": "024.676.651-43",
     "nome": "CRISTIANE MACHADO VALENTE",
     "portaria": "1292/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-22",
     "quant": 1
   },
@@ -315,7 +315,7 @@
     "cpf": "981.190.791-91",
     "nome": "CRISTINA APARECIDA RAMOS ARAUJO",
     "portaria": "1656/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-24",
     "quant": 1
   },
@@ -323,7 +323,7 @@
     "cpf": "023.202.081-78",
     "nome": "DAIANE CARDOSO DO ESPIRITO SANTO",
     "portaria": "1279/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-06-27",
     "quant": 2
   },
@@ -347,7 +347,7 @@
     "cpf": "831.735.521-72",
     "nome": "DANIELE OLIVEIRA DA SILVA",
     "portaria": "1709/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-04-08",
+    "assomasul_data": "2025-08-04",
     "inicio": "2025-08-01",
     "quant": 1
   },
@@ -379,7 +379,7 @@
     "cpf": "095.761.824-76",
     "nome": "DIEGO JOSE SILVA AZEVEDO",
     "portaria": "1832/SEMAD/DRH/2025",
-    "assomasul_data": "2025-07-10",
+    "assomasul_data": "2025-10-07",
     "inicio": "2025-10-06",
     "quant": 1
   },
@@ -387,23 +387,23 @@
     "cpf": "609.902.281-34",
     "nome": "DOMINGOS DE PAULA VIEIRA",
     "portaria": "1765/SEMAD/PMTL/2025",
-    "assomasul_data": "1970-01-01",
+    "assomasul_data": null,
     "inicio": "2025-09-01",
     "quant": 1
   },
   {
     "cpf": "823.136.281-91",
     "nome": "DORSILIA LEITE ARAUJO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": null,
     "quant": 1
   },
   {
     "cpf": "005.359.931-45",
     "nome": "ELAINE CRISTINA FERREIRA CAMPOS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-03-25",
     "quant": 1
   },
@@ -411,7 +411,7 @@
     "cpf": "218.192.488-01",
     "nome": "ELAINE CRISTINA MAIOLO MENDONCA",
     "portaria": "1295/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-14",
     "quant": 1
   },
@@ -419,7 +419,7 @@
     "cpf": "728.091.911-15",
     "nome": "ELENILSA RODRIGUES DE PAULA GOMES",
     "portaria": "1275/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-03-26",
     "quant": 1
   },
@@ -443,7 +443,7 @@
     "cpf": "297.347.608-90",
     "nome": "ELIANE MESSIAS ALVES AMOLINAR",
     "portaria": "1654/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-25",
     "quant": 1
   },
@@ -459,15 +459,15 @@
     "cpf": "518.851.821-04",
     "nome": "ELIZETH QUINTINO DE OLIVEIRA",
     "portaria": "1296/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-28",
     "quant": 2
   },
   {
     "cpf": "724.664.211-00",
     "nome": "ELOA APARECIDA PIRES MORETTI",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-10-23",
     "quant": 1
   },
@@ -475,7 +475,7 @@
     "cpf": "637.944.381-91",
     "nome": "EMILIANA DOS ANJOS AZAMBUJA",
     "portaria": "1260/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-21",
     "quant": 3
   },
@@ -507,7 +507,7 @@
     "cpf": "059.834.091-23",
     "nome": "EVELLYN FERNANDES DE SOUZA",
     "portaria": "1663/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-10",
     "quant": 1
   },
@@ -523,15 +523,15 @@
     "cpf": "367.009.998-04",
     "nome": "FABIANA DE SOUZA ALMEIDA",
     "portaria": "1268/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-11",
     "quant": 1
   },
   {
     "cpf": "759.588.301-63",
     "nome": "FABIANA VASCONCELOS EPIFANIO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-05-13",
     "quant": 1
   },
@@ -539,7 +539,7 @@
     "cpf": "032.819.421-21",
     "nome": "FABIO HENRIQUE TEIXEIRA BEZERRA",
     "portaria": "1823/SEMAD/DRH/2025",
-    "assomasul_data": "2025-02-10",
+    "assomasul_data": "2025-10-02",
     "inicio": "2025-10-09",
     "quant": 1
   },
@@ -547,7 +547,7 @@
     "cpf": "953.677.721-53",
     "nome": "FABRICIA SOARES DE ARAUJO",
     "portaria": "1283/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-22",
     "quant": 1
   },
@@ -570,8 +570,8 @@
   {
     "cpf": "855.875.751-87",
     "nome": "FERNANDO PRADO MOREIRA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-10",
     "quant": 2
   },
@@ -603,7 +603,7 @@
     "cpf": "017.007.331-92",
     "nome": "GISLAINE AMELIA ALMEIDA DA SILVA",
     "portaria": "1270/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-01",
     "quant": 1
   },
@@ -627,15 +627,15 @@
     "cpf": "647.076.282-49",
     "nome": "GRACE KELLY BORGES MARIA FERREIRA",
     "portaria": "1288/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-16",
     "quant": 1
   },
   {
     "cpf": "011.556.501-90",
     "nome": "GRACIELA REGINA DOS SANTOS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-01",
     "quant": 1
   },
@@ -643,31 +643,31 @@
     "cpf": "005.741.341-07",
     "nome": "HELOINA MARCELA DA SILVA ALENCAR",
     "portaria": "1289/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-24",
     "quant": 1
   },
   {
     "cpf": "639.078.281-00",
     "nome": "HUMBERTA CORREIA SILVA AZAMBUJA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
-    "inicio": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
+    "inicio": null,
     "quant": 1
   },
   {
     "cpf": "582.550.601-20",
     "nome": "IOLANDA DE SOUZA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-15",
     "quant": 1
   },
   {
     "cpf": "582.573.651-49",
     "nome": "IRACEMA VIEIRA SILVA DIAS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-03-14",
     "quant": 1
   },
@@ -690,8 +690,8 @@
   {
     "cpf": "044.481.151-60",
     "nome": "JANAINA MARTIM DIAS CANDIDO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-10-16",
     "quant": 1
   },
@@ -714,16 +714,16 @@
   {
     "cpf": "012.199.121-07",
     "nome": "JAQUELINE FREITAS AZEVEDO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-11-03",
     "quant": 1
   },
   {
     "cpf": "319.758.268-33",
     "nome": "JAQUELINE MEDEIROS DE OLIVEIRA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-11-24",
     "quant": 1
   },
@@ -731,7 +731,7 @@
     "cpf": "035.914.191-92",
     "nome": "JESSICA MACHADO DA SILVA MEDINA",
     "portaria": "1269/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-14",
     "quant": 1
   },
@@ -739,7 +739,7 @@
     "cpf": "367.932.131-72",
     "nome": "JOAO PRADO",
     "portaria": "1267/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-22",
     "quant": 1
   },
@@ -771,7 +771,7 @@
     "cpf": "018.560.971-61",
     "nome": "JOSIANE MACHADO DE SOUZA",
     "portaria": "1259/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-08",
     "quant": 1
   },
@@ -779,7 +779,7 @@
     "cpf": "707.618.841-49",
     "nome": "JOSIANE ROCHA DE MORAES NUNES",
     "portaria": "1655/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-10",
     "quant": 1
   },
@@ -794,8 +794,8 @@
   {
     "cpf": "288.647.618-88",
     "nome": "JULIA SANTANA DO NASCIMENTO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-02-06",
     "quant": 1
   },
@@ -803,7 +803,7 @@
     "cpf": "299.956.838-06",
     "nome": "JULIANA CRUZ DA SILVA",
     "portaria": "1764/SEMAD/DRH/2025",
-    "assomasul_data": "2025-08-09",
+    "assomasul_data": "2025-09-08",
     "inicio": "2025-08-14",
     "quant": 1
   },
@@ -811,7 +811,7 @@
     "cpf": "032.784.781-69",
     "nome": "JULIANA FREITAS FERREIRA SANTELI",
     "portaria": "1271/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-17",
     "quant": 1
   },
@@ -819,15 +819,15 @@
     "cpf": "869.510.331-53",
     "nome": "JULIANA MOREIRA MANTOVANI",
     "portaria": "1290/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-17",
     "quant": 1
   },
   {
     "cpf": "843.499.211-68",
     "nome": "JUSCILENE FRANCO DOS SANTOS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-19",
     "quant": 1
   },
@@ -851,7 +851,7 @@
     "cpf": "026.145.121-92",
     "nome": "KARLA LARISSA DA SILVA BARBOSA",
     "portaria": "1822/SEMAD/DRH/2025",
-    "assomasul_data": "2025-02-10",
+    "assomasul_data": "2025-10-02",
     "inicio": "2025-10-13",
     "quant": 1
   },
@@ -867,15 +867,15 @@
     "cpf": "300.579.338-98",
     "nome": "KATIANE RAMOS PEREIRA",
     "portaria": "1794/SEMAD/DRH/2025",
-    "assomasul_data": "1970-01-01",
+    "assomasul_data": null,
     "inicio": "2025-08-27",
     "quant": 1
   },
   {
     "cpf": "136.925.078-95",
     "nome": "KLEBER RONALDO DOS SANTOS CAETANO",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2026-01-16",
     "quant": 1
   },
@@ -907,7 +907,7 @@
     "cpf": "018.582.411-03",
     "nome": "LAURA NUNES MENEGUIM",
     "portaria": "1284/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-03-26",
     "quant": 1
   },
@@ -915,7 +915,7 @@
     "cpf": "320.321.208-01",
     "nome": "LEANDRA DOS SANTOS COSTA",
     "portaria": "1662/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-07-04",
     "quant": 1
   },
@@ -954,8 +954,8 @@
   {
     "cpf": "833.855.681-53",
     "nome": "LILIANE APARECIDA DOS SANTOS",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-10-24",
     "quant": 1
   },
@@ -970,16 +970,16 @@
   {
     "cpf": "266.537.548-63",
     "nome": "LUCIANA ASSI DE LIMA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-11-12",
     "quant": 1
   },
   {
     "cpf": "474.237.788-50",
     "nome": "LYANDRA MARIANA MENEZES SOARES",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-08-08",
     "quant": 1
   },
@@ -1003,7 +1003,7 @@
     "cpf": "321.382.101-20",
     "nome": "MARCOS ALESSIO BOLETI",
     "portaria": "1907/SEMAD/DRH/2025",
-    "assomasul_data": "2025-10-12",
+    "assomasul_data": "2025-12-10",
     "inicio": "2025-11-25",
     "quant": 1
   },
@@ -1035,7 +1035,7 @@
     "cpf": "910.449.601-91",
     "nome": "MARISTELA ANSELMO ATAIDE",
     "portaria": "1906/SEMAD/DRH/2025",
-    "assomasul_data": "2025-10-12",
+    "assomasul_data": "2025-12-10",
     "inicio": "2025-11-05",
     "quant": 1
   },
@@ -1107,7 +1107,7 @@
     "cpf": "041.050.381-92",
     "nome": "MIRIAN MORAES YAMAMOTO",
     "portaria": "1291/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-03-31",
     "quant": 1
   },
@@ -1115,15 +1115,15 @@
     "cpf": "021.541.321-03",
     "nome": "NEUZA REGINA FERRACINE DE OLIVEIRA",
     "portaria": "1277/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-16",
     "quant": 1
   },
   {
     "cpf": "002.956.841-27",
     "nome": "PATRICIA AZAMBUJA VIANA ALVARENGA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-02-11",
     "quant": 1
   },
@@ -1147,7 +1147,7 @@
     "cpf": "051.792.761-60",
     "nome": "PRISCILA DA SILVA OLIVEIRA",
     "portaria": "1266/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-05",
     "quant": 2
   },
@@ -1203,7 +1203,7 @@
     "cpf": "031.514.481-51",
     "nome": "RENATA PONCE DOS SANTOS",
     "portaria": "1658/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-09-07",
+    "assomasul_data": "2025-07-09",
     "inicio": "2025-06-24",
     "quant": 1
   },
@@ -1218,16 +1218,16 @@
   {
     "cpf": "877.064.231-15",
     "nome": "ROSANGELA DA SILVA ALMEIDA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-02-13",
     "quant": 1
   },
   {
     "cpf": "022.767.231-30",
     "nome": "RUBIA JUNIELE CEZARETO DE OLIVEIRA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-11-25",
     "quant": 1
   },
@@ -1235,7 +1235,7 @@
     "cpf": "026.687.311-19",
     "nome": "SAMARA CORREA DO NASCIMENTO",
     "portaria": "1265/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-05-15",
     "quant": 1
   },
@@ -1243,7 +1243,7 @@
     "cpf": "994.730.111-72",
     "nome": "SANDRA LUCIANA DE LIMA",
     "portaria": "1769/SEMAD/DRH/2025",
-    "assomasul_data": "2025-12-09",
+    "assomasul_data": "2025-09-12",
     "inicio": "2025-08-31",
     "quant": 1
   },
@@ -1283,15 +1283,15 @@
     "cpf": "032.895.031-94",
     "nome": "TAMIRIS GNUTZMANN SILVA",
     "portaria": "1793/SEMAD/DRH/2025",
-    "assomasul_data": "1970-01-01",
+    "assomasul_data": null,
     "inicio": "2025-08-21",
     "quant": 1
   },
   {
     "cpf": "875.493.521-00",
     "nome": "TARCILA MARQUES DA SILVA  GONDIM",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-05",
     "quant": 2
   },
@@ -1347,7 +1347,7 @@
     "cpf": "054.453.641-00",
     "nome": "VANESSA GOMES DE ARAUJO FERNANDES",
     "portaria": "1285/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-10",
     "quant": 1
   },
@@ -1379,7 +1379,7 @@
     "cpf": "016.859.711-05",
     "nome": "WALMA SOUZA DE CASTRO SAVIO",
     "portaria": "1824/SEMAD/DRH/2025",
-    "assomasul_data": "2025-02-10",
+    "assomasul_data": "2025-10-02",
     "inicio": "2025-09-24",
     "quant": 1
   },
@@ -1387,15 +1387,15 @@
     "cpf": "809.003.051-34",
     "nome": "WALTER FRANCO BOGAMIL JUNIOR",
     "portaria": "1263/SEMAD/PMTL/2025",
-    "assomasul_data": "2025-03-06",
+    "assomasul_data": "2025-06-03",
     "inicio": "2025-04-07",
     "quant": 2
   },
   {
     "cpf": "002.590.021-86",
     "nome": "ZULEIDE JANAINA SILVA DE OLIVEIRA",
-    "portaria": "0",
-    "assomasul_data": "1970-01-01",
+    "portaria": null,
+    "assomasul_data": null,
     "inicio": "2025-12-08",
     "quant": 1
   }
