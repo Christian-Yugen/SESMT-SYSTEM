@@ -100,6 +100,7 @@ export default function UsersPage() {
             .eq('id', userId);
 
         if (!error) {
+            router.refresh();
             loadProfiles();
         }
     };
@@ -143,6 +144,7 @@ export default function UsersPage() {
             } else {
                 setInviteEmail("");
                 setIsInviteModalOpen(false);
+                router.refresh();
                 loadProfiles();
             }
         } catch (err: any) {
@@ -162,6 +164,7 @@ export default function UsersPage() {
             .eq('id', userId);
 
         if (!error) {
+            router.refresh();
             loadProfiles();
         } else {
             alert("Erro ao remover: " + error.message);

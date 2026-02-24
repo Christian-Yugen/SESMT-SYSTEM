@@ -89,14 +89,22 @@ export default function HistoryPage() {
     async function loadHistory() {
         setLoading(true);
 
-        // Carrega o histórico
+        // Força o Next.js a atualizar o cache do roteador
+        router.refresh();
+
+        // Carrega o histórico com um "cache breaker" manual para evitar cache agressivo em produção (Vercel)
+        const cacheBreaker = Date.now();
+
         const { data: histData, error: histError } = await supabase
             .from('aso_history')
             .select('*')
+            .neq('id', -cacheBreaker) // Filtro inútil apenas para mudar a URL da requisição e evitar cache viciado
             .order('generated_at', { ascending: false });
 
         if (!histError && histData) {
             setHistory(histData);
+        } else if (histError) {
+            console.error("Erro ao carregar histórico:", histError);
         }
 
         // Tenta carregar mapeamento de perfis para mostrar e-mails em vez de IDs
@@ -470,7 +478,10 @@ export default function HistoryPage() {
                             <span>Readaptação</span>
                         </button>
 
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button
+                            onClick={() => router.push('/abono')}
+                            className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                        >
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>

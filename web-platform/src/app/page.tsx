@@ -407,7 +407,10 @@ export default function Home() {
               <span>Readaptação</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+            <button
+              onClick={() => router.push('/abono')}
+              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+            >
               <ClipboardList className="w-3.5 h-3.5 shrink-0" />
               <span>Abono Salarial</span>
             </button>
@@ -765,7 +768,7 @@ export default function Home() {
                   type="text"
                   className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase"
                   value={manualData.nome}
-                  onChange={(e) => setManualData({ ...manualData, nome: e.target.value })}
+                  onChange={(e) => setManualData({ ...manualData, nome: e.target.value.toUpperCase() })}
                 />
               </div>
 
@@ -775,7 +778,7 @@ export default function Home() {
                   type="text"
                   className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase"
                   value={manualData.cargo}
-                  onChange={(e) => setManualData({ ...manualData, cargo: e.target.value })}
+                  onChange={(e) => setManualData({ ...manualData, cargo: e.target.value.toUpperCase() })}
                 />
               </div>
               <div className="space-y-1">
