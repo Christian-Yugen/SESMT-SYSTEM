@@ -6,7 +6,7 @@ import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2,
-    CreditCard
+    CreditCard, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError } from "@/lib/auth-utils";

@@ -9,7 +9,8 @@ import {
     ClipboardList,
     BarChart3,
     TrendingUp,
-    FolderOpen
+    FolderOpen,
+    Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError } from "@/lib/auth-utils";
