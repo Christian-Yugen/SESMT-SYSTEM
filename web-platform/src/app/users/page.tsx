@@ -365,6 +365,8 @@ export default function UsersPage() {
                                                     >
                                                         <option value="admin">ADMINISTRADOR (TOTAL)</option>
                                                         <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                                        <option value="social_assistant">ASSISTENTE SOCIAL (ABONO)</option>
+                                                        <option value="analytic_manager">GERENTE ANALÍTICO (CONSULTA TOTAL)</option>
                                                         <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
                                                         <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                                     </select>
@@ -446,6 +448,8 @@ export default function UsersPage() {
                                         >
                                             <option value="admin">ADMINISTRADOR (TOTAL)</option>
                                             <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                            <option value="social_assistant">ASSISTENTE SOCIAL (ABONO)</option>
+                                            <option value="analytic_manager">GERENTE ANALÍTICO (CONSULTA TOTAL)</option>
                                             <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
                                             <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                         </select>

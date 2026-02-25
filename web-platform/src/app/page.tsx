@@ -68,7 +68,14 @@ export default function Home() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, userRole]);
+
+  // Redirecionamento para Assistente Social
+  useEffect(() => {
+    if (userRole === 'social_assistant') {
+      router.push('/abono');
+    }
+  }, [userRole, router]);
 
 
   const handleLogout = async () => {
@@ -377,18 +384,22 @@ export default function Home() {
         </div>
 
         <nav className="flex-1 space-y-1">
-          <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
-            <LayoutDashboard className="w-4 h-4 shrink-0" />
-            <span>Criar documentos</span>
-          </button>
+          {userRole !== 'social_assistant' && (
+            <>
+              <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                <span>Criar documentos</span>
+              </button>
 
-          <button
-            onClick={() => router.push('/referrals')}
-            className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
-          >
-            <ClipboardList className="w-4 h-4 shrink-0" />
-            <span>Central de Evidências</span>
-          </button>
+              <button
+                onClick={() => router.push('/referrals')}
+                className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
+              >
+                <ClipboardList className="w-4 h-4 shrink-0" />
+                <span>Central de Evidências</span>
+              </button>
+            </>
+          )}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
           <div className="group">
@@ -397,15 +408,19 @@ export default function Home() {
               <span>Benefícios</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <Database className="w-3.5 h-3.5 shrink-0" />
-              <span>Auxílio Doença</span>
-            </button>
+            {userRole !== 'social_assistant' && (
+              <>
+                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                  <Database className="w-3.5 h-3.5 shrink-0" />
+                  <span>Auxílio Doença</span>
+                </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <FileSearch className="w-3.5 h-3.5 shrink-0" />
-              <span>Readaptação</span>
-            </button>
+                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                  <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                  <span>Readaptação</span>
+                </button>
+              </>
+            )}
 
             <button
               onClick={() => router.push('/abono')}
@@ -415,35 +430,42 @@ export default function Home() {
               <span>Abono Salarial</span>
             </button>
 
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span>Redução de Jornada</span>
-            </button>
-          </div>
-          <div className="group">
-            <button
-              onClick={() => router.push('/history')}
-              className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-            >
-              <HistoryIcon className="w-4 h-4 shrink-0" />
-              <span>Histórico</span>
-            </button>
-            <button
-              onClick={() => router.push('/analytics')}
-              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-            >
-              <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-              <span>Indicadores</span>
-            </button>
+            {userRole !== 'social_assistant' && (
+              <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                <span>Redução de Jornada</span>
+              </button>
+            )}
           </div>
 
-          <button
-            onClick={() => router.push('/archive')}
-            className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-          >
-            <FolderOpen className="w-4 h-4 shrink-0" />
-            <span>Arquivo Médico</span>
-          </button>
+          {userRole !== 'social_assistant' && (
+            <>
+              <div className="group">
+                <button
+                  onClick={() => router.push('/history')}
+                  className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                >
+                  <HistoryIcon className="w-4 h-4 shrink-0" />
+                  <span>Histórico</span>
+                </button>
+                <button
+                  onClick={() => router.push('/analytics')}
+                  className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Indicadores</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => router.push('/archive')}
+                className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+              >
+                <FolderOpen className="w-4 h-4 shrink-0" />
+                <span>Arquivo Médico</span>
+              </button>
+            </>
+          )}
 
           {userRole === 'admin' && (
             <button
@@ -497,12 +519,14 @@ export default function Home() {
               />
               <div className="flex gap-2">
                 <button onClick={handleSearch} className="flex-1 md:flex-none px-6 md:px-10 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10">Buscar</button>
-                <button
-                  onClick={() => setShowManualModal(true)}
-                  className="flex-1 md:flex-none px-4 md:px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10"
-                >
-                  Inclusão Manual
-                </button>
+                {userRole !== 'analytic_manager' && (
+                  <button
+                    onClick={() => setShowManualModal(true)}
+                    className="flex-1 md:flex-none px-4 md:px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10"
+                  >
+                    Inclusão Manual
+                  </button>
+                )}
               </div>
             </div>
           </div>

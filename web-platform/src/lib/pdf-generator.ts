@@ -228,9 +228,10 @@ export const generateASOPDF = (
     doc.text(fullDateText, 150.5, boxY + 28, { align: 'center' });
 
     // 11. Rodapé Final SESMT System - Imediatamente após o bloco
-    doc.setFontSize(8);
-    doc.setTextColor(100);
-    doc.text(`Documento gerado eletronicamente por ${operatorName} via SESMT SYSTEM - Powered by UXBRAS®`, 196, boxY + 34, { align: 'right' });
+    doc.setFontSize(7.5);
+    doc.setFont('times', 'normal');
+    doc.setTextColor(119, 119, 119);
+    doc.text(`Operador: ${operatorName} | Gerado via SESMT SYSTEM - Powered by UXBRAS®`, 105, boxY + 34, { align: 'center' });
 
     window.open(doc.output('bloburl'), '_blank');
 };
@@ -354,8 +355,9 @@ export const generateReferralPDF = (
     const footerLine1 = "R. Munir Thomé, 949, Centro, Três Lagoas - MS";
     doc.text(footerLine1, 105, 282, { align: 'center' });
 
-    doc.setFontSize(8);
-    doc.text(`Documento gerado eletronicamente por ${operatorName} via SESMT SYSTEM - Powered by UXBRAS®`, 105, 286, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Operador: ${operatorName} | Gerado via SESMT SYSTEM - Powered by UXBRAS®`, 105, 286, { align: 'center' });
 
     window.open(doc.output('bloburl'), '_blank');
 };

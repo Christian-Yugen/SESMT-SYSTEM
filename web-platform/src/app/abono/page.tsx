@@ -11,6 +11,13 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { AbonoRecord } from "@/types";
 
+// Tipos adicionais para o relatório
+interface PrintData {
+    operator: string;
+    timestamp: string;
+    filters: string;
+}
+
 export default function AbonoPage() {
     const [records, setRecords] = useState<AbonoRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -30,6 +37,8 @@ export default function AbonoPage() {
     const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
     const [tempStartDate, setTempStartDate] = useState<string>("");
     const [tempEndDate, setTempEndDate] = useState<string>("");
+    const [printLayout, setPrintLayout] = useState<'portrait' | 'landscape'>('landscape');
+    const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -247,8 +256,16 @@ export default function AbonoPage() {
         const ativos = finalRecords.filter(r => isBenefitActive(r.inicio)).length;
         const finalizados = finalRecords.filter(r => !isBenefitActive(r.inicio)).length;
 
-        return { totalBenefits, totalServidores, ativos, finalizados };
-    }, [filteredRecords, statusFilter]);
+        // Dados formatados para o cabeçalho do PDF
+        const printFilters = [
+            searchTerm ? `Busca: "${searchTerm}"` : null,
+            secretariaFilter !== 'all' ? `Secretaria: ${secretariaFilter}` : 'Todas as Secretarias',
+            (startDate || endDate) ? `Período: ${formatDate(startDate)} até ${formatDate(endDate)}` : 'Início até Hoje',
+            statusFilter !== 'all' ? `Status: ${statusFilter === 'active' ? 'Ativos' : 'Finalizados'}` : 'Todos os Status'
+        ].filter(Boolean).join(' | ');
+
+        return { totalBenefits, totalServidores, ativos, finalizados, finalRecords, printFilters };
+    }, [filteredRecords, statusFilter, searchTerm, secretariaFilter, startDate, endDate]);
 
     if (loading) {
         return (
@@ -264,7 +281,7 @@ export default function AbonoPage() {
 
             {/* SIDEBAR */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
+                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform print:hidden
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="mb-8 flex flex-col items-center">
@@ -281,54 +298,68 @@ export default function AbonoPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <LayoutDashboard className="w-4 h-4 shrink-0" />
-                        <span>Criar documentos</span>
-                    </button>
+                    {userRole !== 'social_assistant' && (
+                        <>
+                            <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                                <span>Criar documentos</span>
+                            </button>
 
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <ClipboardList className="w-4 h-4 shrink-0" />
-                        <span>Central de Evidências</span>
-                    </button>
+                            <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <ClipboardList className="w-4 h-4 shrink-0" />
+                                <span>Central de Evidências</span>
+                            </button>
+                        </>
+                    )}
 
                     <div className="group">
                         <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HeartPulse className="w-4 h-4 shrink-0" />
                             <span>Benefícios</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <Database className="w-3.5 h-3.5 shrink-0" />
-                            <span>Auxílio Doença</span>
-                        </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                            <span>Readaptação</span>
-                        </button>
-                        <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        {userRole !== 'social_assistant' && (
+                            <>
+                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <Database className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Auxílio Doença</span>
+                                </button>
+                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Readaptação</span>
+                                </button>
+                            </>
+                        )}
+                        <button onClick={() => router.push('/abono')} className={`hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${router.pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                            <span>Redução de Jornada</span>
-                        </button>
+                        {userRole !== 'social_assistant' && (
+                            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                <span>Redução de Jornada</span>
+                            </button>
+                        )}
                     </div>
 
-                    <div className="group">
-                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HistoryIcon className="w-4 h-4 shrink-0" />
-                            <span>Histórico</span>
-                        </button>
-                        <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                            <span>Indicadores</span>
-                        </button>
-                    </div>
+                    {userRole !== 'social_assistant' && (
+                        <div className="group">
+                            <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <HistoryIcon className="w-4 h-4 shrink-0" />
+                                <span>Histórico</span>
+                            </button>
+                            <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                <span>Indicadores</span>
+                            </button>
+                        </div>
+                    )}
 
-                    <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
+                    {userRole !== 'social_assistant' && (
+                        <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <FolderOpen className="w-4 h-4 shrink-0" />
+                            <span>Arquivo Médico</span>
+                        </button>
+                    )}
 
                     {userRole === 'admin' && (
                         <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
@@ -352,7 +383,7 @@ export default function AbonoPage() {
             </aside>
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden print:hidden">
 
                 {/* HEADER */}
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
@@ -361,14 +392,60 @@ export default function AbonoPage() {
                             <ClipboardList className="w-6 h-6 text-[#1A3351]" />
                             <h2 className="text-xl font-black leading-none uppercase tracking-tight">Abono Salarial</h2>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            {/* Botão de Impressão com Popover de Opções */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
+                                    className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    Gerar Relatório (PDF)
+                                    <ChevronDown className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {isPrintPopoverOpen && (
+                                    <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="p-3 border-b border-slate-100 bg-slate-50">
+                                            <p className="text-[9px] font-black text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
+                                        </div>
+                                        <div className="p-2 space-y-1">
+                                            <button
+                                                onClick={() => { setPrintLayout('portrait'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
+                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                            >
+                                                <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
+                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                            </button>
+                                            <button
+                                                onClick={() => { setPrintLayout('landscape'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
+                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                            >
+                                                <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
+                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <button
-                                onClick={() => router.push('/abono/new')}
-                                className="hidden md:flex items-center justify-center gap-2 w-56 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-xs uppercase border border-black/10"
+                                onClick={() => router.push('/abono/analytics')}
+                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
-                                <PlusCircle className="w-4 h-4" />
-                                Novo Lançamento
+                                <BarChart3 className="w-4 h-4" />
+                                Indicadores BI
                             </button>
+
+                            {userRole !== 'analytic_manager' && (
+                                <button
+                                    onClick={() => router.push('/abono/new')}
+                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-black rounded shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                >
+                                    <PlusCircle className="w-4 h-4" />
+                                    Novo Lançamento
+                                </button>
+                            )}
                             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
                                 <Menu className="w-6 h-6" />
                             </button>
@@ -534,14 +611,8 @@ export default function AbonoPage() {
                     {/* LISTA DE REGISTROS */}
                     <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div className="flex flex-col gap-1">
+                            <div>
                                 <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
-                                <div className={`text-sm font-black uppercase tracking-tight transition-colors duration-300 ${statusFilter === 'active' ? 'text-green-700' :
-                                    statusFilter === 'finished' ? 'text-[#E31E24]' :
-                                        'text-[#1A3351]'
-                                    }`}>
-                                    Mostrando {groupedRecords.length} servidores {statusFilter !== 'all' ? (statusFilter === 'active' ? 'ativos' : 'finalizados') : 'cadastrados'}
-                                </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4">
@@ -706,12 +777,14 @@ export default function AbonoPage() {
                                                                     <p className="text-[8px] text-slate-400 italic">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
                                                                 <div className="flex items-center justify-end">
-                                                                    <button
-                                                                        onClick={() => router.push(`/abono/edit/${record.id}`)}
-                                                                        className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-auto"
-                                                                    >
-                                                                        Editar Dados
-                                                                    </button>
+                                                                    {userRole !== 'analytic_manager' && (
+                                                                        <button
+                                                                            onClick={() => router.push(`/abono/edit/${record.id}`)}
+                                                                            className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-auto"
+                                                                        >
+                                                                            Editar Dados
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             </div>
 
@@ -793,6 +866,105 @@ export default function AbonoPage() {
                     </div>
                 </div>
             </main>
+
+            {/* RELATÓRIO PDF (OCULTO NA TELA, VISÍVEL NA IMPRESSÃO) */}
+            <div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto">
+                {/* CABEÇALHO OFICIAL - ULTRA COMPACTO */}
+                <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
+                    <div className="flex items-center gap-3">
+                        <img src="/images/logo.png" alt="Logo" className="h-12 w-auto object-contain" />
+                        <div className="h-10 w-[1px] bg-slate-200 mx-1" />
+                        <div className="flex flex-col">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase leading-none mb-0.5">Prefeitura Três Lagoas</p>
+                            <p className="text-[9px] font-medium text-slate-400 uppercase leading-none">SESMT - Saúde Ocupacional</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <h1 className="text-base font-black text-[#1A3351] uppercase tracking-tighter leading-tight">Relatório Gerencial de Abono</h1>
+                        <div className="text-[8px] font-bold text-slate-400 uppercase">
+                            OP: {userName} | {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* RESUMO DOS FILTROS - MAIS DISCRETO */}
+                <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1 h-3.5 bg-[#E31E24]" />
+                        <p className="text-[8px] font-black uppercase text-[#1A3351]">
+                            REGISTROS: <span className="text-[#E31E24]">{stats.finalRecords.length}</span>
+                        </p>
+                    </div>
+                    <p className="text-[7.5px] font-medium uppercase text-slate-400 truncate max-w-[60%] italic">
+                        FILTROS: {stats.printFilters}
+                    </p>
+                </div>
+
+                {/* TABELA DE DADOS - MÁXIMA COMPACTAÇÃO E SEM NEGRITOS DESNECESSÁRIOS */}
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr className="bg-slate-50 border-b border-slate-300">
+                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
+                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Portaria</th>
+                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Início</th>
+                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Término</th>
+                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Secretaria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {stats.finalRecords.sort((a, b) => a.nome.localeCompare(b.nome)).map((record, index) => {
+                            const endDate = record.inicio ? (() => {
+                                const d = new Date(record.inicio + 'T00:00:00');
+                                d.setFullYear(d.getFullYear() + 1);
+                                return d.toISOString().split('T')[0];
+                            })() : null;
+
+                            return (
+                                <tr key={record.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'} border-b border-slate-100`}>
+                                    <td className="p-0.5 px-2 border border-slate-100 font-medium">
+                                        <p className="text-[9px] text-slate-600 uppercase leading-tight">{record.nome}</p>
+                                    </td>
+                                    <td className="p-0.5 px-2 text-[8px] font-normal text-slate-500 border border-slate-100 uppercase">{record.portaria}</td>
+                                    <td className="p-0.5 text-[8px] font-bold text-[#1A3351] border border-slate-100 text-center whitespace-nowrap">{formatDate(record.inicio)}</td>
+                                    <td className="p-0.5 text-[8px] font-bold text-[#E31E24] border border-slate-100 text-center whitespace-nowrap">{formatDate(endDate)}</td>
+                                    <td className="p-0.5 px-2 text-[8px] font-normal text-slate-400 border border-slate-100 uppercase leading-tight truncate max-w-[180px]">{record.secretaria || '---'}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+
+
+                {/* RODAPÉ DO PDF */}
+                <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
+                    <p className="text-[7.5px] font-normal text-slate-500">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
+                </div>
+
+                <style jsx global>{`
+                    @media print {
+                        #print-area {
+                            display: block !important;
+                            position: relative !important;
+                            z-index: 9999 !important;
+                        }
+                        #print-area table {
+                            display: table !important;
+                            width: 100% !important;
+                        }
+                        #print-area tr {
+                            display: table-row !important;
+                        }
+                        #print-area td, #print-area th {
+                            display: table-cell !important;
+                        }
+                        @page {
+                            size: ${printLayout};
+                            margin: 0.5cm;
+                        }
+                    }
+                `}</style>
+            </div>
+
         </div>
     );
 }

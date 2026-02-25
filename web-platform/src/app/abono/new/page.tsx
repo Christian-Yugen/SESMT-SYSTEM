@@ -35,7 +35,14 @@ export default function NewAbonoPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-                if (data) setUserRole(data.role);
+                if (data) {
+                    setUserRole(data.role);
+                    if (data.role === 'analytic_manager') {
+                        alert("Acesso Negado: Gerente Analítico não possui permissão para criar registros.");
+                        router.push('/abono');
+                        return;
+                    }
+                }
                 const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
                 setUserName(name);
             } else {
