@@ -4,8 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
-    ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight
+    ChevronDown, ChevronUp, History as HistoryIcon,
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight,
+    Building2
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -408,10 +409,16 @@ export default function AbonoPage() {
                     )}
 
                     {userRole === 'admin' && (
-                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <UsersIcon className="w-4 h-4 shrink-0" />
-                            <span>Usuários</span>
-                        </button>
+                        <>
+                            <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <UsersIcon className="w-4 h-4 shrink-0" />
+                                <span>Usuários</span>
+                            </button>
+                            <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <Trash2 className="w-4 h-4 shrink-0" />
+                                <span>Exclusões Pendentes</span>
+                            </button>
+                        </>
                     )}
                 </nav>
 

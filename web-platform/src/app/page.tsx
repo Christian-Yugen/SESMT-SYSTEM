@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen, ChevronDown, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -502,13 +502,16 @@ export default function Home() {
           )}
 
           {userRole === 'admin' && (
-            <button
-              onClick={() => router.push('/users')}
-              className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-            >
-              <UsersIcon className="w-4 h-4 shrink-0" />
-              <span>Usuários</span>
-            </button>
+            <>
+              <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                <UsersIcon className="w-4 h-4 shrink-0" />
+                <span>Usuários</span>
+              </button>
+              <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                <Trash2 className="w-4 h-4 shrink-0" />
+                <span>Exclusões Pendentes</span>
+              </button>
+            </>
           )}
 
         </nav>

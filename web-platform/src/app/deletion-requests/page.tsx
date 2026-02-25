@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, X, Menu,
-    ChevronDown, ChevronUp, Briefcase, History as HistoryIcon,
+    ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, CheckCircle, XCircle, AlertTriangle, ClipboardList, Eye
 } from "lucide-react";
 import { useRouter } from "next/navigation";

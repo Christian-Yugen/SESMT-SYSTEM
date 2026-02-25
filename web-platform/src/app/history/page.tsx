@@ -4,8 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
-    ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, AlertCircle
+    ChevronDown, ChevronUp, History as HistoryIcon,
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, AlertCircle,
+    Building2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
