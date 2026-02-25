@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { handleAuthError } from "@/lib/auth-utils";
 import { AbonoRecord } from "@/types";
 
 // Tipos adicionais para o relatório
@@ -49,9 +50,7 @@ export default function AbonoPage() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
-                    console.error("Auth error:", error.message);
-                    await supabase.auth.signOut();
-                    router.push("/login");
+                    await handleAuthError(error);
                     return;
                 }
 
@@ -72,9 +71,7 @@ export default function AbonoPage() {
                 }
                 loadRecords();
             } catch (err) {
-                console.error("Fatal auth error:", err);
-                await supabase.auth.signOut();
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();

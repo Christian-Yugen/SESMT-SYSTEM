@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { handleAuthError } from "@/lib/auth-utils";
 
 interface MedicalFolder {
     id: string;
@@ -95,9 +96,7 @@ export default function ArchivePage() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
-                    console.error("Auth error:", error.message);
-                    await supabase.auth.signOut();
-                    router.push("/login");
+                    await handleAuthError(error);
                     return;
                 }
 
@@ -121,9 +120,7 @@ export default function ArchivePage() {
                     return;
                 }
             } catch (err) {
-                console.error("Fatal auth error:", err);
-                await supabase.auth.signOut();
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();

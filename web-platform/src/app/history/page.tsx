@@ -6,10 +6,10 @@ import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, AlertCircle,
-    Building2
+    Building2, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { handleAuthError } from "@/lib/auth-utils";
 
 interface HistoryEntry {
     id: number;
@@ -60,9 +60,7 @@ export default function HistoryPage() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
-                    console.error("Auth error:", error.message);
-                    await supabase.auth.signOut();
-                    router.push("/login");
+                    await handleAuthError(error);
                     return;
                 }
 
@@ -79,9 +77,7 @@ export default function HistoryPage() {
                 }
                 loadHistory();
             } catch (err) {
-                console.error("Fatal auth error:", err);
-                await supabase.auth.signOut();
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();
