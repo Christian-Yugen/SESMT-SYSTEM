@@ -107,6 +107,9 @@ export default function UsersPage() {
         if (!error) {
             router.refresh();
             loadProfiles();
+        } else {
+            console.error("Erro ao atualizar role:", error.message);
+            alert("Erro ao atualizar nível de acesso: " + error.message);
         }
     };
 
@@ -410,8 +413,10 @@ export default function UsersPage() {
                                                             px-3 py-1.5 rounded-full text-[9px] font-black uppercase 
                                                             ${user.role === 'admin' ? 'bg-red-50 text-[#E31E24] border border-[#E31E24]/20' :
                                                                 user.role === 'nurse' ? 'bg-green-50 text-green-700 border border-green-200' :
-                                                                    user.role === 'operator' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                                                                        'bg-slate-50 text-slate-500 border border-slate-200'}
+                                                                    user.role === 'social_assistant' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                                                        user.role === 'analytic_manager' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
+                                                                            user.role === 'operator' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                                                                'bg-slate-50 text-slate-500 border border-slate-200'}
                                                             outline-none cursor-pointer
                                                         `}
                                                     >
@@ -480,8 +485,10 @@ export default function UsersPage() {
                                                 w-full px-4 py-3 rounded-lg text-[10px] font-black uppercase 
                                                 ${user.role === 'admin' ? 'bg-red-50 text-[#E31E24] border border-[#E31E24]/20' :
                                                     user.role === 'nurse' ? 'bg-green-50 text-green-700 border border-green-200' :
-                                                        user.role === 'operator' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                                                            'bg-slate-50 text-slate-500 border border-slate-200'}
+                                                        user.role === 'social_assistant' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                                            user.role === 'analytic_manager' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
+                                                                user.role === 'operator' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                                                    'bg-slate-50 text-slate-500 border border-slate-200'}
                                                 outline-none
                                             `}
                                         >
