@@ -7,7 +7,7 @@ import {
     ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { AbonoRecord } from "@/types";
 
@@ -22,6 +22,7 @@ export default function AbonoPage() {
     const [records, setRecords] = useState<AbonoRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedCpf, setExpandedCpf] = useState<string | null>(null);
@@ -338,9 +339,8 @@ export default function AbonoPage() {
                                     </button>
                                 </>
                             )}
-                            {/* Abono Salarial - Restrito para nurse e operator */}
                             {userRole !== 'nurse' && userRole !== 'operator' && (
-                                <button onClick={() => router.push('/abono')} className={`hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${router.pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
+                                <button onClick={() => router.push('/abono')} className={`hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
                                     <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                                     <span>Abono Salarial</span>
                                 </button>

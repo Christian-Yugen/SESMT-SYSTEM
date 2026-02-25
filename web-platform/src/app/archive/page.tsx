@@ -98,6 +98,7 @@ export default function ArchivePage() {
                 }
 
                 if (session) {
+                    const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
                     if (data) {
                         setUserRole(data.role);
                         if (data.role === 'social_assistant') {
