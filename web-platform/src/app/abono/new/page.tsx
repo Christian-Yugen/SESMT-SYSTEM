@@ -12,7 +12,8 @@ import { Servidor } from "@/types";
 
 export default function NewAbonoPage() {
     const router = useRouter();
-    const [cpf, setCpf] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [foundServidores, setFoundServidores] = useState<any[]>([]);
     const [selectedServidor, setSelectedServidor] = useState<Servidor | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searching, setSearching] = useState(false);
@@ -44,32 +45,58 @@ export default function NewAbonoPage() {
         checkAuth();
     }, [router]);
 
-    const handleSearch = async () => {
-        const cleanCpf = cpf.replace(/\D/g, "");
-        if (!cleanCpf) return;
+    // Busca Automática (Autocomplete)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery.trim().length >= 3 && !selectedServidor) {
+                performSearch(searchQuery);
+            } else if (searchQuery.trim().length < 3) {
+                setFoundServidores([]);
+            }
+        }, 400); // 400ms de delay para não sobrecarregar o banco
 
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const performSearch = async (queryStr: string) => {
         setSearching(true);
-        const { data, error } = await supabase
-            .from('servidores')
-            .select('*')
-            .eq('cpf', cleanCpf)
-            .single();
+        const cleanQuery = queryStr.replace(/\D/g, "");
+        const isNumeric = /^\d+$/.test(cleanQuery) && cleanQuery.length > 0;
 
-        if (error) {
-            console.error("Erro ao buscar servidor:", error);
-            alert("Servidor não encontrado ou erro na busca.");
-            setSelectedServidor(null);
-        } else if (data) {
-            setSelectedServidor({
-                "CPF.": data.cpf,
-                Nome: data.nome,
-                Cargo: data.cargo,
-                Matrícula: data.matricula,
-                "Dt.Nascimento": data.nascimento,
-                Secretaria: data.secretaria
-            });
+        let query = supabase.from('servidores').select('*');
+
+        if (isNumeric) {
+            // Se for número, busca por CPF que COMEÇA com esses números
+            query = query.ilike('cpf', `${cleanQuery}%`).limit(8);
+        } else {
+            // Se for texto, busca por nome
+            query = query.ilike('nome', `%${queryStr}%`).limit(8);
+        }
+
+        const { data, error } = await query;
+
+        if (!error && data) {
+            setFoundServidores(data);
         }
         setSearching(false);
+    };
+
+    const handleSearch = () => {
+        if (searchQuery.trim()) {
+            performSearch(searchQuery);
+        }
+    };
+
+    const selectServidor = (s: any) => {
+        setSelectedServidor({
+            "CPF.": s.cpf,
+            Nome: s.nome,
+            Cargo: s.cargo,
+            Matrícula: s.matricula,
+            "Dt.Nascimento": s.nascimento,
+            Secretaria: s.secretaria
+        });
+        setFoundServidores([]);
     };
 
     const handleSave = async () => {
@@ -219,10 +246,13 @@ export default function NewAbonoPage() {
                             <div className="flex gap-3">
                                 <input
                                     type="text"
-                                    placeholder="CPF DO SERVIDOR (000.000.000-00)"
-                                    className="flex-1 px-4 py-3 border border-[#888] shadow-inner text-base font-bold bg-[#E8E8E8] outline-none"
-                                    value={cpf}
-                                    onChange={(e) => setCpf(e.target.value)}
+                                    placeholder="NOME OU CPF DO SERVIDOR..."
+                                    className="flex-1 px-4 py-3 border border-[#888] shadow-inner text-base font-bold bg-[#E8E8E8] outline-none uppercase"
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        if (selectedServidor) setSelectedServidor(null);
+                                    }}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                                 <button
@@ -234,6 +264,38 @@ export default function NewAbonoPage() {
                                     Buscar
                                 </button>
                             </div>
+
+                            {/* LISTA DE RESULTADOS (Autocomplete em tempo real) */}
+                            {foundServidores.length > 0 && !selectedServidor && (
+                                <div className="mt-2 border-2 border-[#1A3351] bg-white overflow-hidden rounded shadow-2xl animate-in fade-in slide-in-from-top-2 z-10 relative">
+                                    <div className="bg-[#1A3351] px-4 py-2 flex justify-between items-center">
+                                        <p className="text-[10px] font-black text-white uppercase tracking-widest">Sugestões Encontradas</p>
+                                        <button onClick={() => setFoundServidores([])} className="text-white hover:text-red-400">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <div className="max-h-60 overflow-y-auto">
+                                        {foundServidores.map((s) => (
+                                            <button
+                                                key={s.id || s.cpf}
+                                                onClick={() => selectServidor(s)}
+                                                className="w-full text-left p-4 border-b border-slate-100 hover:bg-[#E31E24]/5 transition-colors group flex justify-between items-center"
+                                            >
+                                                <div>
+                                                    <p className="text-sm font-black text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
+                                                    <div className="flex gap-4 mt-1">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase text-amber-600">Matrícula: {s.matricula}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded text-[9px] font-black text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
+                                                    Selecionar
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {selectedServidor && (
                                 <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded grid grid-cols-2 gap-4 animate-in fade-in duration-300">

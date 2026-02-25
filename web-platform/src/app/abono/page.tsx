@@ -27,6 +27,9 @@ export default function AbonoPage() {
     const [secretariaFilter, setSecretariaFilter] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
+    const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
+    const [tempStartDate, setTempStartDate] = useState<string>("");
+    const [tempEndDate, setTempEndDate] = useState<string>("");
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -175,20 +178,20 @@ export default function AbonoPage() {
         return changes;
     };
 
-    const groupedRecords = useMemo(() => {
-        // Utility to check if a benefit is active
-        const isBenefitActive = (inicioStr: string | undefined) => {
-            if (!inicioStr) return false;
-            try {
-                const parts = inicioStr.split('-');
-                const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                endDate.setFullYear(endDate.getFullYear() + 1);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return endDate >= today;
-            } catch (e) { return false; }
-        };
+    // Utility to check if a benefit is active
+    const isBenefitActive = (inicioStr: string | undefined) => {
+        if (!inicioStr) return false;
+        try {
+            const parts = inicioStr.split('-');
+            const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            endDate.setFullYear(endDate.getFullYear() + 1);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return endDate >= today;
+        } catch (e) { return false; }
+    };
 
+    const groupedRecords = useMemo(() => {
         const groups: Record<string, { nome: string, cpf: string, benefits: AbonoRecord[] }> = {};
         filteredRecords.forEach(record => {
             if (!groups[record.cpf]) {
@@ -228,17 +231,24 @@ export default function AbonoPage() {
     }, [filteredRecords, statusFilter, sortBy]);
 
     const stats = useMemo(() => {
-        const totalBenefits = records.length;
-        const totalServidores = new Set(records.map(r => r.cpf)).size;
-        const recent = records.filter(r => {
-            if (!r.inicio) return false;
-            const initDate = new Date(r.inicio + 'T00:00:00');
-            const now = new Date();
-            const diffMonths = (now.getFullYear() - initDate.getFullYear()) * 12 + (now.getMonth() - initDate.getMonth());
-            return diffMonths <= 12;
-        }).length;
-        return { totalBenefits, totalServidores, recent };
-    }, [records]);
+        // As estatísticas refletem exatamente o que está sendo filtrado na tela (incluindo o filtro de status)
+        let finalRecords = [...filteredRecords];
+
+        // Se houver filtro de status, aplicamos para que os cards (como o Total) acompanhem a lista
+        if (statusFilter === 'active') {
+            finalRecords = finalRecords.filter(r => isBenefitActive(r.inicio));
+        } else if (statusFilter === 'finished') {
+            finalRecords = finalRecords.filter(r => !isBenefitActive(r.inicio));
+        }
+
+        const totalBenefits = finalRecords.length;
+        const totalServidores = new Set(finalRecords.map(r => r.cpf)).size;
+
+        const ativos = finalRecords.filter(r => isBenefitActive(r.inicio)).length;
+        const finalizados = finalRecords.filter(r => !isBenefitActive(r.inicio)).length;
+
+        return { totalBenefits, totalServidores, ativos, finalizados };
+    }, [filteredRecords, statusFilter]);
 
     if (loading) {
         return (
@@ -366,25 +376,107 @@ export default function AbonoPage() {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <div className="flex flex-col md:flex-row gap-3">
-                            <div className="flex-1 relative">
+                        <div className="flex flex-col md:flex-row gap-2">
+                            {/* Busca principal */}
+                            <div className="flex-[3] relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
                                     placeholder="BUSCAR POR NOME OU CPF..."
-                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400"
+                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
+
+                            {/* Filtro por Período Estilizado (Padrao Historico - Lado a Lado) */}
+                            <div className="flex-1 relative min-w-[200px]">
+                                <button
+                                    onClick={() => {
+                                        setTempStartDate(startDate);
+                                        setTempEndDate(endDate);
+                                        setIsDatePopoverOpen(!isDatePopoverOpen);
+                                    }}
+                                    className="w-full h-full min-h-[40px] px-4 py-2 border border-[#888] shadow-inner bg-[#E8E8E8] flex items-center justify-between text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition-all uppercase"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-slate-500" />
+                                        <span>Filtrar por Período</span>
+                                    </div>
+                                    <ChevronDown className={`w-3 h-3 transition-transform ${isDatePopoverOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {/* Popover de Datas (Alineado à direita para não cortar na tela) */}
+                                {isDatePopoverOpen && (
+                                    <div className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#1A3351] shadow-2xl z-[100] p-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="flex justify-between items-center mb-6">
+                                            <h4 className="text-sm font-black text-[#1A3351] uppercase tracking-tighter">Definir Período</h4>
+                                            <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500 transition-colors">
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Inicial (Início)</label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="date"
+                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded focus:border-[#1A3351] transition-colors"
+                                                        value={tempStartDate}
+                                                        onChange={(e) => setTempStartDate(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Final (Fim)</label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="date"
+                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded focus:border-[#1A3351] transition-colors"
+                                                        value={tempEndDate}
+                                                        onChange={(e) => setTempEndDate(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-2 pt-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setTempStartDate("");
+                                                        setTempEndDate("");
+                                                        setStartDate("");
+                                                        setEndDate("");
+                                                        setIsDatePopoverOpen(false);
+                                                    }}
+                                                    className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-black uppercase hover:bg-slate-50 transition-all rounded shadow-sm"
+                                                >
+                                                    Limpar
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setStartDate(tempStartDate);
+                                                        setEndDate(tempEndDate);
+                                                        setIsDatePopoverOpen(false);
+                                                    }}
+                                                    className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-black uppercase hover:brightness-110 transition-all rounded shadow-lg active:scale-[0.98]"
+                                                >
+                                                    Filtrar Agora
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex flex-col md:flex-row gap-3">
-                            {/* Dropdown Secretaria */}
-                            <div className="flex-1 lg:flex-[1.5] relative">
+                        <div className="flex flex-col md:flex-row gap-2 mt-1">
+                            {/* Dropdown Secretaria - Mais compacto */}
+                            <div className="flex-1 md:max-w-md relative">
                                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <select
-                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
+                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-xs font-black bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
                                     value={secretariaFilter}
                                     onChange={(e) => setSecretariaFilter(e.target.value)}
                                 >
@@ -396,41 +488,20 @@ export default function AbonoPage() {
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                             </div>
 
-                            {/* Filtro por Período */}
-                            <div className="flex-1 flex gap-2">
-                                <div className="flex-1 relative group">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                    <input
-                                        type="date"
-                                        className="w-full px-10 py-2 border border-[#888] shadow-inner text-[11px] font-bold bg-[#E8E8E8] outline-none"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                    />
-                                    <span className="absolute -top-1.5 left-2 bg-[#B0B0B0] px-1 text-[7px] font-black text-[#1A3351] uppercase">De</span>
-                                </div>
-                                <div className="flex-1 relative group">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                    <input
-                                        type="date"
-                                        className="w-full px-10 py-2 border border-[#888] shadow-inner text-[11px] font-bold bg-[#E8E8E8] outline-none"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                    />
-                                    <span className="absolute -top-1.5 left-2 bg-[#B0B0B0] px-1 text-[7px] font-black text-[#1A3351] uppercase">Até</span>
-                                </div>
-                            </div>
-
-                            {/* Botão Limpar */}
-                            {(startDate || endDate || secretariaFilter !== 'all') && (
+                            {/* Botão Global Zerar Filtros - Padrao Historico Vermelho */}
+                            {(secretariaFilter !== 'all' || searchTerm || startDate || endDate) && (
                                 <button
                                     onClick={() => {
                                         setStartDate("");
                                         setEndDate("");
+                                        setTempStartDate("");
+                                        setTempEndDate("");
                                         setSecretariaFilter("all");
+                                        setSearchTerm("");
                                     }}
-                                    className="px-4 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
+                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
                                 >
-                                    <X className="w-3 h-3" /> Limpar Filtros
+                                    ZERAR FILTROS
                                 </button>
                             )}
                         </div>
@@ -440,19 +511,23 @@ export default function AbonoPage() {
                 {/* CONTEÚDO */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
 
-                    {/* STATS CARDS */}
+                    {/* STATS CARDS - DINÂMICOS E PADRONIZADOS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-white p-6 border-b-4 border-[#1A3351] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total de Servidores</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Total de Servidores</p>
                             <h3 className="text-3xl font-black text-[#1A3351]">{stats.totalServidores}</h3>
                         </div>
                         <div className="bg-white p-6 border-b-4 border-slate-300 shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total de Benefícios</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Total de Benefícios</p>
                             <h3 className="text-3xl font-black text-slate-500">{stats.totalBenefits}</h3>
                         </div>
+                        <div className="bg-white p-6 border-b-4 border-green-600 shadow-md flex flex-col gap-1">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Abonos Ativos</p>
+                            <h3 className="text-3xl font-black text-green-700">{stats.ativos}</h3>
+                        </div>
                         <div className="bg-white p-6 border-b-4 border-[#E31E24] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Iniciados Recentes</p>
-                            <h3 className="text-3xl font-black text-[#1A3351]">{stats.recent}</h3>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Abonos Finalizados</p>
+                            <h3 className="text-3xl font-black text-[#E31E24]">{stats.finalizados}</h3>
                         </div>
                     </div>
 
