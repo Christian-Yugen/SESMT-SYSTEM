@@ -4,8 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
-    ChevronDown, ChevronUp, Briefcase, Building2, History as HistoryIcon,
-    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight
+    ChevronDown, ChevronUp, History as HistoryIcon,
+    BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight,
+    Building2
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -40,6 +41,8 @@ export default function AbonoPage() {
     const [tempEndDate, setTempEndDate] = useState<string>("");
     const [printLayout, setPrintLayout] = useState<'portrait' | 'landscape'>('landscape');
     const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -288,7 +291,7 @@ export default function AbonoPage() {
 
             {/* SIDEBAR */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform print:hidden
+                fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out print:hidden
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="mb-8 flex flex-col items-center">
@@ -298,10 +301,15 @@ export default function AbonoPage() {
                             <X className="w-6 h-6 text-white" />
                         </button>
                     </div>
-                    <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
+                    <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
                         <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
                     </div>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
+                    <div className="text-center w-full px-1 mt-2">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
+                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
+                            Olá, <span className="text-white">{userName}</span>
+                        </p>
+                    </div>
                 </div>
 
                 <nav className="flex-1 space-y-1">
@@ -322,64 +330,95 @@ export default function AbonoPage() {
                     )}
 
                     {userRole !== 'viewer' && (
-                        <div className="group">
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HeartPulse className="w-4 h-4 shrink-0" />
-                                <span>Benefícios</span>
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <HeartPulse className="w-4 h-4 shrink-0" />
+                                    <span>Benefícios</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            {userRole !== 'social_assistant' && (
-                                <>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <Database className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Auxílio Doença</span>
-                                    </button>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Readaptação</span>
-                                    </button>
-                                </>
-                            )}
-                            {/* Abono Salarial - Restrito para nurse e operator */}
-                            {userRole !== 'nurse' && userRole !== 'operator' && (
-                                <button onClick={() => router.push('/abono')} className={`hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
-                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Abono Salarial</span>
-                                </button>
-                            )}
-                            {userRole !== 'social_assistant' && (
-                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Redução de Jornada</span>
-                                </button>
+
+                            {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                    {userRole !== 'social_assistant' && (
+                                        <>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <Database className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Auxílio Doença</span>
+                                            </button>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Readaptação</span>
+                                            </button>
+                                        </>
+                                    )}
+                                    {userRole !== 'nurse' && userRole !== 'operator' && (
+                                        <button onClick={() => router.push('/abono')} className={`w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
+                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Abono Salarial</span>
+                                        </button>
+                                    )}
+                                    {userRole !== 'social_assistant' && (
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Redução de Jornada</span>
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}
 
                     {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <div className="group">
-                            <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HistoryIcon className="w-4 h-4 shrink-0" />
-                                <span>Histórico</span>
-                            </button>
-                            <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                <span>Indicadores</span>
+                        <div className="space-y-1">
+                            <div className="space-y-1">
+                                <button
+                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                    className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        <HistoryIcon className="w-4 h-4 shrink-0" />
+                                        <span>Histórico</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                    <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Log Principal</span>
+                                        </button>
+                                        <button onClick={() => router.push('/analytics')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Indicadores</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
                             </button>
                         </div>
-                    )}
-
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <FolderOpen className="w-4 h-4 shrink-0" />
-                            <span>Arquivo Médico</span>
-                        </button>
                     )}
 
                     {userRole === 'admin' && (
-                        <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <UsersIcon className="w-4 h-4 shrink-0" />
-                            <span>Usuários</span>
-                        </button>
+                        <>
+                            <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <UsersIcon className="w-4 h-4 shrink-0" />
+                                <span>Usuários</span>
+                            </button>
+                            <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <Trash2 className="w-4 h-4 shrink-0" />
+                                <span>Exclusões Pendentes</span>
+                            </button>
+                        </>
                     )}
                 </nav>
 
@@ -396,15 +435,22 @@ export default function AbonoPage() {
                 </div>
             </aside>
 
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* ÁREA PRINCIPAL */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden print:hidden">
 
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
                     <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-3">
-                            <ClipboardList className="w-6 h-6 text-[#1A3351]" />
-                            <h2 className="text-xl font-black leading-none uppercase tracking-tight">Abono Salarial</h2>
+                        <div className="flex items-center gap-3 text-[#1A3351]">
+                            <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
+                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Abono Salarial</h2>
                         </div>
                         <div className="flex items-center gap-2">
                             {/* Botão de Impressão com Popover de Opções */}
@@ -460,8 +506,12 @@ export default function AbonoPage() {
                                     Novo Lançamento
                                 </button>
                             )}
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-                                <Menu className="w-6 h-6" />
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                            >
+                                <Menu className="w-5 h-5" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                             </button>
                         </div>
                     </div>
@@ -603,22 +653,22 @@ export default function AbonoPage() {
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
 
                     {/* STATS CARDS - DINÂMICOS E PADRONIZADOS */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-white p-6 border-b-4 border-[#1A3351] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Total de Servidores</p>
-                            <h3 className="text-3xl font-black text-[#1A3351]">{stats.totalServidores}</h3>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 shrink-0">
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#1A3351] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Total Servidores</p>
+                            <h3 className="text-xl lg:text-3xl font-black text-[#1A3351]">{stats.totalServidores}</h3>
                         </div>
-                        <div className="bg-white p-6 border-b-4 border-slate-300 shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Total de Benefícios</p>
-                            <h3 className="text-3xl font-black text-slate-500">{stats.totalBenefits}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-slate-300 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Benefícios</p>
+                            <h3 className="text-xl lg:text-3xl font-black text-slate-500">{stats.totalBenefits}</h3>
                         </div>
-                        <div className="bg-white p-6 border-b-4 border-green-600 shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Abonos Ativos</p>
-                            <h3 className="text-3xl font-black text-green-700">{stats.ativos}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Abonos Ativos</p>
+                            <h3 className="text-xl lg:text-3xl font-black text-emerald-600">{stats.ativos}</h3>
                         </div>
-                        <div className="bg-white p-6 border-b-4 border-[#E31E24] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Abonos Finalizados</p>
-                            <h3 className="text-3xl font-black text-[#E31E24]">{stats.finalizados}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Finalizados</p>
+                            <h3 className="text-xl lg:text-3xl font-black text-[#E31E24]">{stats.finalizados}</h3>
                         </div>
                     </div>
 

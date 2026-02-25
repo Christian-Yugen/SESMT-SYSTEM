@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, ChevronRight, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen, ChevronDown, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -18,6 +18,8 @@ export default function Home() {
   const [asoType, setAsoType] = useState<"Admissional" | "de Retorno ao Trabalho" | "Demissional">("Admissional");
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const [searchResults, setSearchResults] = useState<Servidor[]>([]);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
@@ -350,7 +352,7 @@ export default function Home() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0A111C] text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0A111C] text-white font-sans overflow-x-hidden selection:bg-[#E31E24]/30">
 
       {/* SIDEBAR - MOBILE OVERLAY */}
       {isSidebarOpen && (
@@ -362,7 +364,7 @@ export default function Home() {
 
       {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
+        fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="mb-8 flex flex-col items-center">
@@ -405,63 +407,88 @@ export default function Home() {
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
           {userRole !== 'viewer' && (
-            <div className="group">
-              <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                <HeartPulse className="w-4 h-4 shrink-0" />
-                <span>Benefícios</span>
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+              >
+                <div className="flex items-center gap-1.5">
+                  <HeartPulse className="w-4 h-4 shrink-0" />
+                  <span>Benefícios</span>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {userRole !== 'social_assistant' && (
-                <>
-                  <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                    <Database className="w-3.5 h-3.5 shrink-0" />
-                    <span>Auxílio Doença</span>
-                  </button>
+              {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                  {userRole !== 'social_assistant' && (
+                    <>
+                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <Database className="w-3.5 h-3.5 shrink-0" />
+                        <span>Auxílio Doença</span>
+                      </button>
 
-                  <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                    <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                    <span>Readaptação</span>
-                  </button>
-                </>
-              )}
+                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                        <span>Readaptação</span>
+                      </button>
+                    </>
+                  )}
 
-              {/* Abono Salarial - Restrito para nurse e operator e viewer */}
-              {userRole !== 'nurse' && userRole !== 'operator' && (
-                <button
-                  onClick={() => router.push('/abono')}
-                  className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                >
-                  <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                  <span>Abono Salarial</span>
-                </button>
-              )}
+                  {/* Abono Salarial - Restrito para nurse e operator e viewer */}
+                  {userRole !== 'nurse' && userRole !== 'operator' && (
+                    <button
+                      onClick={() => router.push('/abono')}
+                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                    >
+                      <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                      <span>Abono Salarial</span>
+                    </button>
+                  )}
 
-              {userRole !== 'social_assistant' && (
-                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                  <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                  <span>Redução de Jornada</span>
-                </button>
+                  {userRole !== 'social_assistant' && (
+                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                      <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                      <span>Redução de Jornada</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           )}
 
           {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-            <>
-              <div className="group">
+            <div className="space-y-1">
+              <div className="space-y-1">
                 <button
-                  onClick={() => router.push('/history')}
-                  className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                  onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                  className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
                 >
-                  <HistoryIcon className="w-4 h-4 shrink-0" />
-                  <span>Histórico</span>
+                  <div className="flex items-center gap-1.5">
+                    <HistoryIcon className="w-4 h-4 shrink-0" />
+                    <span>Histórico</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                 </button>
-                <button
-                  onClick={() => router.push('/analytics')}
-                  className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                >
-                  <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                  <span>Indicadores</span>
-                </button>
+
+                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                  <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                    <button
+                      onClick={() => router.push('/history')}
+                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                    >
+                      <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span>Log Principal</span>
+                    </button>
+                    <button
+                      onClick={() => router.push('/analytics')}
+                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                    >
+                      <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Indicadores</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button
@@ -471,17 +498,20 @@ export default function Home() {
                 <FolderOpen className="w-4 h-4 shrink-0" />
                 <span>Arquivo Médico</span>
               </button>
-            </>
+            </div>
           )}
 
           {userRole === 'admin' && (
-            <button
-              onClick={() => router.push('/users')}
-              className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-            >
-              <UsersIcon className="w-4 h-4 shrink-0" />
-              <span>Usuários</span>
-            </button>
+            <>
+              <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                <UsersIcon className="w-4 h-4 shrink-0" />
+                <span>Usuários</span>
+              </button>
+              <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                <Trash2 className="w-4 h-4 shrink-0" />
+                <span>Exclusões Pendentes</span>
+              </button>
+            </>
           )}
 
         </nav>
@@ -507,11 +537,15 @@ export default function Home() {
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
 
         {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
-        <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+        <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
           <div className="flex justify-between items-center mb-1">
-            <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
-            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-              <Menu className="w-6 h-6" />
+            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+            >
+              <Menu className="w-5 h-5" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
             </button>
           </div>
           <div className="mt-3">
@@ -540,15 +574,15 @@ export default function Home() {
         </section>
 
         {/* CONTAINER DE DADOS (2 COLUNAS) */}
-        <div className="flex-1 p-4 md:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-6 xl:gap-10 max-w-[1600px] overflow-y-auto min-h-0">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] overflow-y-auto min-h-0 mx-auto w-full">
 
           {/* COLUNA ESQUERDA (DADOS E GHE) */}
           <div className="col-span-12 xl:col-span-6 flex flex-col gap-6 min-h-0">
 
             {/* DADOS DO SERVIDOR */}
             <div className="shrink-0">
-              <h2 className="text-2xl font-black mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2">Dados do Servidor</h2>
-              <div className="space-y-3 text-base leading-snug pl-2">
+              <h2 className="text-xl lg:text-2xl font-black mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Dados do Servidor</h2>
+              <div className="space-y-4 lg:space-y-3 text-sm lg:text-base leading-snug pl-1 lg:pl-2">
                 <p className="flex gap-4 items-baseline">
                   <span className="font-black text-slate-900 w-32 shrink-0">Matrícula:</span>
                   <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
@@ -574,7 +608,7 @@ export default function Home() {
 
             {/* DEFINIÇÃO DE GHE */}
             <div className="flex-1 flex flex-col gap-4 min-h-0">
-              <h2 className="text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2">Definição de GHE</h2>
+              <h2 className="text-xl lg:text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Definição de GHE</h2>
               <div className="flex flex-col gap-5 min-h-0">
                 <div className="pl-2">
                   <p className="text-sm font-black mb-2 uppercase text-slate-900">Função Laboral:</p>
@@ -605,8 +639,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="space-y-3 text-base pl-2">
-                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-black text-slate-900 w-full sm:w-48 shrink-0">GHE Correspondente:</span> <span className="text-[#1A3351] font-normal text-lg sm:text-xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
+                <div className="space-y-4 lg:space-y-3 text-sm lg:text-base pl-1 lg:pl-2">
+                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-black text-slate-900 w-full sm:w-48 shrink-0">GHE Correspondente:</span> <span className="text-[#1A3351] font-bold lg:font-normal text-lg lg:text-xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
                   <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline">
                     <span className="font-black text-slate-900 w-full sm:w-48 shrink-0">GHE CONJ:</span>
                     <span className="text-slate-600 font-normal underline underline-offset-4 decoration-slate-300 decoration-1 tracking-wide">
@@ -645,8 +679,8 @@ export default function Home() {
           </div>
 
           {/* COLUNA DIREITA (EXAMES E RISCOS) */}
-          <div className="col-span-12 xl:col-span-6 flex flex-col gap-4 min-h-0 overflow-hidden text-black">
-            <h2 className="text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 shrink-0">Exames e Riscos</h2>
+          <div className="col-span-12 xl:col-span-6 flex flex-col gap-4 min-h-0 overflow-hidden text-black pb-10 xl:pb-0">
+            <h2 className="text-xl lg:text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 shrink-0 text-[#1A3351]">Exames e Riscos</h2>
 
             <div className="flex-1 flex flex-col gap-3 overflow-hidden">
               {/* RISCOS E DETALHES */}
@@ -715,22 +749,23 @@ export default function Home() {
       {showDateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-[#D3D3D3] w-full max-w-4xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-              <h3 className="text-xl font-black uppercase tracking-tight text-white">Definir Datas dos Exames</h3>
-              <button onClick={() => setShowDateModal(false)} className="text-white/70 hover:text-white transition-colors">
-                <X className="w-6 h-6" />
+            <div className="bg-[#1A3351] p-4 lg:p-6 flex justify-between items-center">
+              <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-white">Datas dos Exames</h3>
+              <button onClick={() => setShowDateModal(false)} className="text-white/70 hover:text-white transition-all bg-white/10 p-2 rounded-full">
+                <X className="w-5 h-5 lg:w-6 lg:h-6" />
               </button>
             </div>
 
-            <div className="p-8 overflow-y-auto max-h-[70vh]">
-              <p className="text-slate-700 font-black uppercase text-sm mb-6 border-b border-slate-400 pb-2">Informe as datas dos exames (DD/MM/AAAA):</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <div className="p-4 lg:p-8 overflow-y-auto max-h-[70vh]">
+              <p className="text-slate-700 font-black uppercase text-[10px] lg:text-sm mb-6 border-b border-slate-400 pb-2">Informe as datas (DD/MM/AAAA):</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {currentExams.exames.map((ex, i) => (
-                  <div key={i} className="flex items-center justify-between gap-4 bg-[#B0B0B0]/30 p-2 rounded-lg border border-slate-300 shadow-sm">
-                    <span className="text-sm font-black text-slate-800 uppercase line-clamp-1 flex-1">{ex}:</span>
+                  <div key={i} className="flex items-center justify-between gap-3 bg-[#B0B0B0]/30 p-3 rounded-lg border border-slate-300 shadow-sm">
+                    <span className="text-[11px] lg:text-sm font-black text-slate-800 uppercase line-clamp-2 flex-1">{ex}:</span>
                     <input
                       type="text"
-                      className="w-32 px-3 py-1.5 bg-white border border-slate-400 rounded font-normal text-center text-sm outline-none focus:border-[#1A3351] shadow-inner text-slate-900"
+                      inputMode="numeric"
+                      className="w-28 lg:w-32 px-3 py-2 bg-white border border-slate-400 rounded-md font-bold text-center text-sm outline-none focus:border-[#1A3351] shadow-inner text-slate-900"
                       value={examDates[i] || ""}
                       onChange={(e) => handleDateChange(i, e.target.value)}
                     />
@@ -739,17 +774,17 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="p-6 bg-[#B0B0B0] flex justify-center gap-6 border-t border-slate-400">
+            <div className="p-4 lg:p-6 bg-[#B0B0B0] flex flex-col lg:flex-row justify-center gap-3 lg:gap-6 border-t border-slate-400">
               <button
                 disabled={isGenerating}
                 onClick={() => requestGeneration('/generate-aso', examDates)}
-                className="px-12 py-3 bg-[#28A745] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-green-800 disabled:opacity-50 disabled:cursor-not-allowed min-w-[300px]"
+                className="w-full lg:w-auto px-12 py-4 bg-[#28A745] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isGenerating ? "Gerando Documento..." : "Confirmar e Gerar ASO"}
+                {isGenerating ? "Gerando..." : "Confirmar e Gerar ASO"}
               </button>
               <button
                 onClick={() => setShowDateModal(false)}
-                className="px-12 py-3 bg-[#E31E24] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900"
+                className="w-full lg:w-auto px-12 py-4 bg-[#E31E24] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900"
               >
                 Cancelar
               </button>
