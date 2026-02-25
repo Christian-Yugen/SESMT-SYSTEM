@@ -28,3 +28,19 @@ export interface ExamesMap {
     admissional: Record<string, ExameData>;
     demissional: Record<string, ExameData>;
 }
+
+export interface AbonoRecord {
+    id: number;
+    cpf: string;
+    nome: string;
+    secretaria?: string;
+    portaria?: string;
+    assomasul_data?: string;
+    inicio?: string;
+    quant?: number;
+    observacoes?: string;
+    motivo_alteracao?: string;
+    alterado_por?: string;
+    created_at: string;
+    updated_at: string;
+}

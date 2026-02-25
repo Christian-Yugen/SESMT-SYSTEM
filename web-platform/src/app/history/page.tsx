@@ -32,7 +32,9 @@ export default function HistoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string>((null));
+    const [printLayout, setPrintLayout] = useState<'portrait' | 'landscape'>('landscape');
+    const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
 
     // Estados para o modal de exclusão
     const [showDeletionModal, setShowDeletionModal] = useState(false);
@@ -82,21 +84,38 @@ export default function HistoryPage() {
         });
 
         return () => subscription.unsubscribe();
-    }, [router]);
+    }, [router, userRole]);
+
+    // Redirecionamento para perfis sem acesso ao histórico
+    useEffect(() => {
+        if (userRole === 'social_assistant') {
+            router.push('/abono');
+        } else if (userRole === 'operator' || userRole === 'viewer') {
+            router.push('/');
+        }
+    }, [userRole, router]);
 
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
 
     async function loadHistory() {
         setLoading(true);
 
-        // Carrega o histórico
+        // Força o Next.js a atualizar o cache do roteador
+        router.refresh();
+
+        // Carrega o histórico com um "cache breaker" manual para evitar cache agressivo em produção (Vercel)
+        const cacheBreaker = Date.now();
+
         const { data: histData, error: histError } = await supabase
             .from('aso_history')
             .select('*')
+            .neq('id', -cacheBreaker) // Filtro inútil apenas para mudar a URL da requisição e evitar cache viciado
             .order('generated_at', { ascending: false });
 
         if (!histError && histData) {
             setHistory(histData);
+        } else if (histError) {
+            console.error("Erro ao carregar histórico:", histError);
         }
 
         // Tenta carregar mapeamento de perfis para mostrar e-mails em vez de IDs
@@ -412,6 +431,149 @@ export default function HistoryPage() {
 
     };
 
+    const handlePrintRequest = (layout: 'portrait' | 'landscape') => {
+        setPrintLayout(layout);
+        setIsPrintPopoverOpen(false);
+        // Pequeno timeout para garantir que o estado do @page seja atualizado (se fosse renderizado na mesma tela)
+        // Como o histórico usa window.open, precisamos injetar a orientação correta no HTML
+        generatePrintReportWithLayout(layout);
+    };
+
+    const generatePrintReportWithLayout = async (layout: 'portrait' | 'landscape') => {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userName = session?.user?.email?.split('@')[0].toUpperCase() || "SISTEMA";
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return;
+
+        const today = new Date().toLocaleDateString('pt-BR');
+        const usedTypesSet = new Set<string>();
+        filteredHistory.forEach(h => {
+            const t = (h.aso_type || "").toUpperCase();
+            const prefix = t.includes("ENCAMINHAMENTO") ? "ENC" : "ASO";
+            let suffix = "";
+            if (t.includes("ADMISS")) suffix = "ADM";
+            else if (t.includes("DEMISS")) suffix = "DEM";
+            else if (t.includes("RETORNO")) suffix = "RET";
+            else if (t.includes("MUDANÇA")) suffix = "MUD";
+            else if (t.includes("PERIÓDIC")) suffix = "PER";
+            if (suffix) usedTypesSet.add(`${prefix}|${suffix}`);
+        });
+
+        const dynamicLegendHTML = Array.from(usedTypesSet).sort().map(key => {
+            const [pref, suff] = key.split('|');
+            const fullPref = pref === "ENC" ? "ENCAMINHAMENTO" : "ASO";
+            let fullSuff = "";
+            if (suff === "ADM") fullSuff = "ADMISSIONAL";
+            else if (suff === "DEM") fullSuff = "DEMISSIONAL";
+            else if (suff === "RET") fullSuff = "RETORNO AO TRABALHO";
+            else if (suff === "MUD") fullSuff = "MUDANÇA DE FUNÇÃO";
+            else if (suff === "PER") fullSuff = "PERIÓDICO";
+            return `<div class="legend-item"><span>${pref} ${suff}:</span> ${fullPref} ${fullSuff}</div>`;
+        }).join('');
+
+        const abbreviateType = (type: string) => {
+            const t = (type || "").toUpperCase();
+            const prefix = t.includes("ENCAMINHAMENTO") ? "ENC" : "ASO";
+            if (t.includes("ADMISS")) return `${prefix} ADM`;
+            if (t.includes("DEMISS")) return `${prefix} DEM`;
+            if (t.includes("RETORNO")) return `${prefix} RET`;
+            if (t.includes("MUDANÇA")) return `${prefix} MUD`;
+            if (t.includes("PERIÓDIC")) return `${prefix} PER`;
+            return t.length > 10 ? t.substring(0, 10) + "..." : t;
+        };
+
+        const rows = sortedHistory.map(entry => {
+            const fullDate = new Date(entry.generated_at).toLocaleString('pt-BR');
+            const [date, time] = fullDate.split(' ');
+            const timeShort = time ? time.substring(0, 5) : "";
+
+            return `
+              <tr>
+                <td class="datetime-cell">
+                    <span class="date-part">${date}</span>
+                    <span class="time-part">${timeShort}</span>
+                </td>
+                <td>${entry.servidor_nome}</td>
+                <td style="color: #1A3351; text-align: center;">${abbreviateType(entry.aso_type)}</td>
+                <td>${entry.cargo || '-'}</td>
+                <td>${entry.secretaria || '-'}</td>
+              </tr>
+            `;
+        }).join('');
+
+        const logoUrl = window.location.origin + "/images/logo.png";
+        const displayStartDate = (startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'INÍCIO');
+        const displayEndDate = (endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('pt-BR') : 'HOJE');
+
+        printWindow.document.write(`
+      <html>
+        <head>
+          <title>Relatório Gerencial SESMT - ${today}</title>
+          <style>
+            @page { size: ${layout}; margin: 1cm; }
+            body { font-family: sans-serif; padding: 10px; color: #333; line-height: 1.0; }
+            .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #E31E24; padding-bottom: 8px; margin-bottom: 12px; }
+            .logo-area img { height: 35px; width: auto; }
+            .report-title-area { text-align: right; }
+            .report-title-area h1 { margin: 0; font-size: 13px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
+            .report-info { font-size: 7.5px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 1px; }
+            
+            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 2px; border: 1px solid #f0f0f0; }
+            .legend-item { display: flex; gap: 3px; }
+
+            table { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
+            th { background-color: #1A3351; color: white; border: 1px solid #ccc; padding: 4px; text-align: left; font-size: 7.5px; text-transform: uppercase; }
+            td { border: 1px solid #eee; padding: 2px 4px; text-transform: uppercase; font-size: 7.5px; word-wrap: break-word; color: #444; vertical-align: middle; }
+            
+            .datetime-cell { text-align: center; line-height: 1.0; }
+            .date-part { display: block; }
+            .time-part { display: block; font-size: 7.5px; color: #777; }
+            
+            .stats-bar { font-size: 8px; font-weight: 900; margin-bottom: 5px; color: #1A3351; text-transform: uppercase; border-left: 3px solid #E31E24; padding-left: 8px; }
+            .footer { margin-top: 20px; font-size: 7px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <div class="official-header">
+            <div class="logo-area">
+              <img src="${logoUrl}" alt="Logo" />
+            </div>
+            <div class="report-title-area">
+              <h1>Relatório de Emissões Operacionais</h1>
+              <div class="report-info">
+                Operador: ${userName} | Data: ${today}
+              </div>
+              <div class="report-info" style="color: #E31E24;">
+                FILTRO: ${displayStartDate} À ${displayEndDate}
+              </div>
+            </div>
+          </div>
+          <div class="stats-bar">
+            Total de registros: ${filteredHistory.length}
+          </div>
+          ${dynamicLegendHTML ? `<div class="legend-bar">LEGENDA: ${dynamicLegendHTML}</div>` : ''}
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 9%; text-align: center;">Data/Hora</th>
+                <th style="width: 30%;">Nome do Servidor</th>
+                <th style="width: 7%; text-align: center;">Tipo</th>
+                <th style="width: 27%;">Cargo</th>
+                <th style="width: 27%;">Secretaria</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+          <div class="footer">Gerado via SESMT SYSTEM - Powered by UXBRAS®</div>
+        </body>
+      </html>
+    `);
+        printWindow.document.close();
+    };
+
     if (loading) {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
@@ -443,66 +605,72 @@ export default function HistoryPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <LayoutDashboard className="w-4 h-4 shrink-0" />
-                        <span>Criar documentos</span>
-                    </button>
+                    {userRole !== 'social_assistant' && (
+                        <>
+                            <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                                <span>Criar documentos</span>
+                            </button>
+                            {userRole !== 'viewer' && (
+                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                    <ClipboardList className="w-4 h-4 shrink-0" />
+                                    <span>Central de Evidências</span>
+                                </button>
+                            )}
+                        </>
+                    )}
 
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <ClipboardList className="w-4 h-4 shrink-0" />
-                        <span>Central de Evidências</span>
-                    </button>
+                    {userRole !== 'viewer' && (
+                        <div className="group">
+                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <HeartPulse className="w-4 h-4 shrink-0" />
+                                <span>Benefícios</span>
+                            </button>
+                            {userRole !== 'social_assistant' && (
+                                <>
+                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                        <Database className="w-3.5 h-3.5 shrink-0" />
+                                        <span>Auxílio Doença</span>
+                                    </button>
+                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                        <span>Readaptação</span>
+                                    </button>
+                                </>
+                            )}
+                            {userRole !== 'nurse' && userRole !== 'operator' && (
+                                <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Abono Salarial</span>
+                                </button>
+                            )}
+                            {userRole !== 'social_assistant' && (
+                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Redução de Jornada</span>
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
+                        <>
+                            <div className="group">
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20">
+                                    <HistoryIcon className="w-4 h-4 shrink-0" />
+                                    <span>Histórico</span>
+                                </button>
+                                <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Indicadores</span>
+                                </button>
+                            </div>
 
-                    {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
-                    <div className="group">
-                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HeartPulse className="w-4 h-4 shrink-0" />
-                            <span>Benefícios</span>
-                        </button>
-
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <Database className="w-3.5 h-3.5 shrink-0" />
-                            <span>Auxílio Doença</span>
-                        </button>
-
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                            <span>Readaptação</span>
-                        </button>
-
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                            <span>Abono Salarial</span>
-                        </button>
-
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                            <span>Redução de Jornada</span>
-                        </button>
-                    </div>
-                    <div className="group">
-                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20">
-                            <HistoryIcon className="w-4 h-4 shrink-0" />
-                            <span>Histórico</span>
-                        </button>
-
-                        {/* Submenu Indicadores - Aparece no Hover do group */}
-                        <button
-                            onClick={() => router.push('/analytics')}
-                            className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                        >
-                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                            <span>Indicadores</span>
-                        </button>
-                    </div>
-
-                    <button
-                        onClick={() => router.push('/archive')}
-                        className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                    >
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
+                            </button>
+                        </>
+                    )}
 
                     {userRole === 'admin' && (
                         <>
@@ -550,13 +718,40 @@ export default function HistoryPage() {
                                 Indicadores BI
                             </button>
                             {(userRole === 'admin' || userRole === 'nurse') && (
-                                <button
-                                    onClick={handlePrintReport}
-                                    className="hidden md:flex items-center justify-center gap-2 w-52 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                                >
-                                    <Printer className="w-3.5 h-3.5" />
-                                    Gerar Relatório (PDF)
-                                </button>
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
+                                        className="hidden md:flex items-center justify-center gap-2 w-52 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    >
+                                        <Printer className="w-3.5 h-3.5" />
+                                        Gerar Relatório (PDF)
+                                        <ChevronDown className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isPrintPopoverOpen && (
+                                        <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
+                                            <div className="p-3 border-b border-slate-100 bg-slate-50">
+                                                <p className="text-[9px] font-black text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
+                                            </div>
+                                            <div className="p-2 space-y-1">
+                                                <button
+                                                    onClick={() => handlePrintRequest('portrait')}
+                                                    className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                >
+                                                    <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
+                                                    {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                </button>
+                                                <button
+                                                    onClick={() => handlePrintRequest('landscape')}
+                                                    className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                >
+                                                    <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
+                                                    {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
                                 <Menu className="w-6 h-6" />
@@ -843,7 +1038,7 @@ export default function HistoryPage() {
                                                 </span>
                                                 <div className="flex items-center gap-3 w-full md:w-auto">
                                                     <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
-                                                    {currentUserId === entry.generated_by && (
+                                                    {currentUserId === entry.generated_by && userRole !== 'analytic_manager' && (
                                                         entry.deletion_pending ? (
                                                             <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white font-black text-[10px] uppercase rounded shadow-md cursor-not-allowed">
                                                                 <AlertCircle className="w-3.5 h-3.5 animate-pulse" />

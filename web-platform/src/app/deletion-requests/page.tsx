@@ -119,15 +119,21 @@ export default function DeletionRequestsPage() {
                 .single();
 
             // 2. Excluir o registro do histórico do banco de dados
-            const { error: deleteError } = await supabase
+            // Usamos { count: 'exact' } para verificar se o registro foi realmente deletado
+            const { error: deleteError, count } = await supabase
                 .from('aso_history')
-                .delete()
+                .delete({ count: 'exact' })
                 .eq('id', selectedRequest.history_record_id);
 
             if (deleteError) {
                 alert('Erro ao excluir registro do histórico: ' + deleteError.message);
                 setProcessingAction(false);
                 return;
+            }
+
+            if (count === 0) {
+                console.warn("Nenhum registro encontrado em aso_history com ID:", selectedRequest.history_record_id);
+                // Mesmo que o registro não exista (talvez já deletado), vamos proceder para limpar a solicitação
             }
 
             // 3. Atualizar a solicitação como aprovada
@@ -145,6 +151,7 @@ export default function DeletionRequestsPage() {
                 alert('Erro ao atualizar solicitação: ' + updateError.message);
             } else {
                 alert('Registro excluído definitivamente com sucesso!');
+                router.refresh(); // Força a revalidação do cache do roteador do Next.js
                 loadRequests();
             }
         } catch (err) {
@@ -399,15 +406,15 @@ export default function DeletionRequestsPage() {
                                     <div
                                         onClick={() => setExpandedId(expandedId === request.id ? null : request.id)}
                                         className={`px-6 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedId === request.id ? 'bg-[#1A3351]/5 border-[#E31E24]' :
-                                                request.status === 'pending' ? 'border-[#E31E24]' :
-                                                    request.status === 'approved' ? 'border-green-500' :
-                                                        'border-slate-400'
+                                            request.status === 'pending' ? 'border-[#E31E24]' :
+                                                request.status === 'approved' ? 'border-green-500' :
+                                                    'border-slate-400'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
                                             <div className={`p-2 rounded ${request.status === 'pending' ? 'bg-[#E31E24]/10 text-[#E31E24]' :
-                                                    request.status === 'approved' ? 'bg-green-100 text-green-600' :
-                                                        'bg-slate-100 text-slate-500'
+                                                request.status === 'approved' ? 'bg-green-100 text-green-600' :
+                                                    'bg-slate-100 text-slate-500'
                                                 }`}>
                                                 {request.status === 'pending' ? <AlertTriangle className="w-5 h-5" /> :
                                                     request.status === 'approved' ? <CheckCircle className="w-5 h-5" /> :

@@ -100,6 +100,7 @@ export default function UsersPage() {
             .eq('id', userId);
 
         if (!error) {
+            router.refresh();
             loadProfiles();
         }
     };
@@ -143,6 +144,7 @@ export default function UsersPage() {
             } else {
                 setInviteEmail("");
                 setIsInviteModalOpen(false);
+                router.refresh();
                 loadProfiles();
             }
         } catch (err: any) {
@@ -162,6 +164,7 @@ export default function UsersPage() {
             .eq('id', userId);
 
         if (!error) {
+            router.refresh();
             loadProfiles();
         } else {
             alert("Erro ao remover: " + error.message);
@@ -362,6 +365,8 @@ export default function UsersPage() {
                                                     >
                                                         <option value="admin">ADMINISTRADOR (TOTAL)</option>
                                                         <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                                        <option value="social_assistant">ASSISTENTE SOCIAL (ABONO)</option>
+                                                        <option value="analytic_manager">GERENTE ANALÍTICO (CONSULTA TOTAL)</option>
                                                         <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
                                                         <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                                     </select>
@@ -443,6 +448,8 @@ export default function UsersPage() {
                                         >
                                             <option value="admin">ADMINISTRADOR (TOTAL)</option>
                                             <option value="nurse">ENFERMAGEM (ASO/ENC/RELAT)</option>
+                                            <option value="social_assistant">ASSISTENTE SOCIAL (ABONO)</option>
+                                            <option value="analytic_manager">GERENTE ANALÍTICO (CONSULTA TOTAL)</option>
                                             <option value="operator">OPERADOR (APENAS ENCAMINHAM.)</option>
                                             <option value="viewer">VISUALIZADOR (CONSULTA)</option>
                                         </select>
