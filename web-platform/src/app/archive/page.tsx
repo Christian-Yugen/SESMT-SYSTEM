@@ -58,6 +58,8 @@ export default function ArchivePage() {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [userName, setUserName] = useState<string>("Usuário");
 
     // Estados de busca e dados
@@ -333,55 +335,81 @@ export default function ArchivePage() {
                     )}
 
                     {userRole !== 'viewer' && (
-                        <div className="group">
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HeartPulse className="w-4 h-4 shrink-0" />
-                                <span>Benefícios</span>
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <HeartPulse className="w-4 h-4 shrink-0" />
+                                    <span>Benefícios</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            {userRole !== 'social_assistant' && (
-                                <>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <Database className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Auxílio Doença</span>
-                                    </button>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Readaptação</span>
-                                    </button>
-                                </>
-                            )}
-                            {userRole !== 'nurse' && userRole !== 'operator' && (
-                                <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Abono Salarial</span>
-                                </button>
-                            )}
-                            {userRole !== 'social_assistant' && (
-                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Redução de Jornada</span>
-                                </button>
+
+                            {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                    {userRole !== 'social_assistant' && (
+                                        <>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <Database className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Auxílio Doença</span>
+                                            </button>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Readaptação</span>
+                                            </button>
+                                        </>
+                                    )}
+                                    {userRole !== 'nurse' && userRole !== 'operator' && (
+                                        <button onClick={() => router.push('/abono')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Abono Salarial</span>
+                                        </button>
+                                    )}
+                                    {userRole !== 'social_assistant' && (
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Redução de Jornada</span>
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}
 
                     {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <>
-                            <div className="group">
-                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider truncate">
-                                    <HistoryIcon className="w-4 h-4 shrink-0" />
-                                    <span>Histórico</span>
+                        <div className="space-y-1">
+                            <div className="space-y-1">
+                                <button
+                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                    className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        <HistoryIcon className="w-4 h-4 shrink-0" />
+                                        <span>Histórico</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                                 </button>
-                                <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Indicadores</span>
-                                </button>
+
+                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                    <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Log Principal</span>
+                                        </button>
+                                        <button onClick={() => router.push('/analytics')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Indicadores</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20">
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all">
                                 <FolderOpen className="w-4 h-4 shrink-0" />
                                 <span>Arquivo Médico</span>
                             </button>
-                        </>
+                        </div>
                     )}
 
                     {userRole === 'admin' && (
@@ -413,23 +441,27 @@ export default function ArchivePage() {
             <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
 
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
-                        <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Arquivo Médico</h2>
-                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-                            <Menu className="w-6 h-6" />
+                        <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Arquivo Médico</h2>
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                        >
+                            <Menu className="w-5 h-5" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                         </button>
                     </div>
                 </section>
 
                 {/* BARRA DE BUSCA */}
-                <section className="bg-[#B0B0B0] p-6 border-b-2 border-[#999] shrink-0">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex gap-2">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 border-b-2 border-[#999] shrink-0">
+                    <div className="max-w-4xl mx-auto w-full">
+                        <div className="flex flex-col lg:flex-row gap-4">
+                            <div className="flex gap-2 w-full lg:w-auto">
                                 <button
                                     onClick={() => setSearchType('nome')}
-                                    className={`px-4 py-2 rounded font-bold text-sm uppercase transition-all ${searchType === 'nome'
+                                    className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg font-bold text-xs lg:text-sm uppercase transition-all shadow-sm ${searchType === 'nome'
                                         ? 'bg-[#1A3351] text-white shadow-md'
                                         : 'bg-white/50 text-slate-700 hover:bg-white/80'
                                         }`}
@@ -438,7 +470,7 @@ export default function ArchivePage() {
                                 </button>
                                 <button
                                     onClick={() => setSearchType('cpf')}
-                                    className={`px-4 py-2 rounded font-bold text-sm uppercase transition-all ${searchType === 'cpf'
+                                    className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg font-bold text-xs lg:text-sm uppercase transition-all shadow-sm ${searchType === 'cpf'
                                         ? 'bg-[#1A3351] text-white shadow-md'
                                         : 'bg-white/50 text-slate-700 hover:bg-white/80'
                                         }`}
@@ -446,11 +478,11 @@ export default function ArchivePage() {
                                     CPF
                                 </button>
                             </div>
-                            <div className="flex-1 flex gap-3">
+                            <div className="flex-1 flex gap-2">
                                 <input
                                     type="text"
-                                    placeholder={searchType === 'nome' ? "Digite o nome do servidor..." : "Digite o CPF..."}
-                                    className="flex-1 px-4 py-2 border-2 border-[#888] shadow-inner text-base font-normal bg-white outline-none focus:border-[#1A3351] rounded"
+                                    placeholder={searchType === 'nome' ? "Digite o nome..." : "Digite o CPF..."}
+                                    className="flex-1 min-w-0 px-4 py-2.5 border-2 border-[#888] shadow-inner text-sm lg:text-base font-normal bg-white outline-none focus:border-[#1A3351] rounded-lg uppercase"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -458,9 +490,9 @@ export default function ArchivePage() {
                                 <button
                                     onClick={handleSearch}
                                     disabled={loading}
-                                    className="px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10 disabled:opacity-50"
+                                    className="px-6 lg:px-8 py-2.5 bg-[#1A3351] text-white font-black rounded-lg shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase flex items-center justify-center disabled:opacity-50"
                                 >
-                                    {loading ? "Buscando..." : <Search className="w-5 h-5" />}
+                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                                 </button>
                             </div>
                         </div>
@@ -468,61 +500,61 @@ export default function ArchivePage() {
                 </section>
 
                 {/* RESULTADOS */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
                     {folders.length === 0 && !loading && (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-50">
-                            <Archive className="w-24 h-24 mb-4" />
-                            <p className="text-xl font-black uppercase tracking-wider">Aguardando Pesquisa</p>
-                            <p className="text-sm mt-2">Use a barra de busca acima para localizar prontuários</p>
+                        <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-50 py-12">
+                            <Archive className="w-20 lg:w-24 h-20 lg:h-24 mb-4" />
+                            <p className="text-lg lg:text-xl font-black uppercase tracking-wider text-center">Aguardando Pesquisa</p>
+                            <p className="text-[10px] lg:text-sm mt-2 text-center uppercase tracking-widest font-bold">Localize prontuários pela barra de busca</p>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-7xl mx-auto pb-10">
                         {folders.map((folder) => (
                             <div
                                 key={folder.id}
                                 onClick={() => handleSelectFolder(folder)}
-                                className="bg-white rounded-xl shadow-lg border-2 border-slate-300 p-6 hover:border-[#1A3351] transition-all cursor-pointer group"
+                                className="bg-white rounded-xl shadow-lg border-2 border-slate-300 p-4 lg:p-6 hover:border-[#1A3351] transition-all cursor-pointer group flex flex-col justify-between"
                             >
                                 <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-black text-[#1A3351] uppercase group-hover:text-[#E31E24] transition-colors">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base lg:text-lg font-black text-[#1A3351] uppercase group-hover:text-[#E31E24] transition-colors truncate">
                                             {folder.servidor_nome}
                                         </h3>
-                                        <p className="text-xs text-slate-500 font-bold mt-1">CPF: {folder.servidor_cpf}</p>
+                                        <p className="text-[10px] lg:text-xs text-slate-500 font-bold mt-1 uppercase">CPF: {folder.servidor_cpf}</p>
                                     </div>
                                     {folder.status === 'ARQUIVADO' ? (
-                                        <CheckCircle className="w-6 h-6 text-green-600 shrink-0" />
+                                        <CheckCircle className="w-5 lg:w-6 h-5 lg:h-6 text-green-600 shrink-0 ml-2" />
                                     ) : (
-                                        <AlertCircle className="w-6 h-6 text-orange-600 shrink-0" />
+                                        <AlertCircle className="w-5 lg:w-6 h-5 lg:h-6 text-orange-600 shrink-0 ml-2" />
                                     )}
                                 </div>
 
                                 {folder.status === 'ARQUIVADO' ? (
-                                    <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded">
-                                        <p className="text-xs font-black text-green-900 uppercase mb-2">✓ Disponível no Arquivo</p>
-                                        <div className="grid grid-cols-3 gap-2 text-center">
-                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase">Armário</p>
-                                                <p className="text-2xl font-black text-[#1A3351]">{folder.armario}</p>
+                                    <div className="bg-green-50 border-l-4 border-green-600 p-3 lg:p-4 rounded-lg">
+                                        <p className="text-[10px] lg:text-xs font-black text-green-900 uppercase mb-2">✓ Disponível no Arquivo</p>
+                                        <div className="grid grid-cols-3 gap-1.5 lg:gap-2 text-center">
+                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                                <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Armário</p>
+                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.armario}</p>
                                             </div>
-                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
-                                                <p className="text-2xl font-black text-[#1A3351]">{folder.gaveta}</p>
+                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                                <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
+                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.gaveta}</p>
                                             </div>
-                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
-                                                <p className="text-2xl font-black text-[#1A3351]">{folder.pasta}</p>
+                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                                <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
+                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.pasta}</p>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-orange-50 border-l-4 border-orange-600 p-4 rounded">
-                                        <p className="text-xs font-black text-orange-900 uppercase mb-2">⚠ Em Posse de:</p>
-                                        <p className="text-sm font-bold text-slate-900">{folder.posse_nome}</p>
-                                        <p className="text-xs text-slate-600 mt-2 italic">Motivo: {folder.motivo_saida}</p>
-                                        <p className="text-[10px] text-slate-500 mt-1">
-                                            Desde: {new Date(folder.data_saida!).toLocaleString('pt-BR')}
+                                    <div className="bg-orange-50 border-l-4 border-orange-600 p-3 lg:p-4 rounded-lg">
+                                        <p className="text-[10px] lg:text-xs font-black text-orange-900 uppercase mb-2 block">⚠ Em Posse de:</p>
+                                        <p className="text-sm font-bold text-slate-900 truncate uppercase">{folder.posse_nome}</p>
+                                        <p className="text-[10px] text-slate-600 mt-2 italic leading-tight line-clamp-2 uppercase">Motivo: {folder.motivo_saida}</p>
+                                        <p className="text-[8px] lg:text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-tighter">
+                                            {new Date(folder.data_saida!).toLocaleString('pt-BR')}
                                         </p>
                                     </div>
                                 )}
@@ -535,9 +567,9 @@ export default function ArchivePage() {
                                                 setSelectedFolder(folder);
                                                 setShowWithdrawModal(true);
                                             }}
-                                            className="flex-1 px-3 py-2 bg-[#1A3351] text-white text-xs font-bold uppercase rounded hover:brightness-110 transition-all"
+                                            className="flex-1 px-3 py-2.5 bg-[#1A3351] text-white text-[10px] lg:text-xs font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
                                         >
-                                            Registrar Retirada
+                                            Retirada
                                         </button>
                                     ) : (
                                         <button
@@ -546,9 +578,9 @@ export default function ArchivePage() {
                                                 setSelectedFolder(folder);
                                                 setShowReturnModal(true);
                                             }}
-                                            className="flex-1 px-3 py-2 bg-green-600 text-white text-xs font-bold uppercase rounded hover:brightness-110 transition-all"
+                                            className="flex-1 px-3 py-2.5 bg-green-600 text-white text-[10px] lg:text-xs font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
                                         >
-                                            Registrar Devolução
+                                            Devolução
                                         </button>
                                     )}
                                     <button
@@ -557,7 +589,7 @@ export default function ArchivePage() {
                                             handleSelectFolder(folder);
                                             setShowHistoryModal(true);
                                         }}
-                                        className="px-3 py-2 bg-slate-600 text-white text-xs font-bold uppercase rounded hover:brightness-110 transition-all"
+                                        className="px-3 py-2.5 bg-slate-600 text-white text-[10px] font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
                                     >
                                         <Clock className="w-4 h-4" />
                                     </button>
@@ -569,232 +601,238 @@ export default function ArchivePage() {
             </main>
 
             {/* MODAL: REGISTRAR RETIRADA */}
-            {showWithdrawModal && selectedFolder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[#D3D3D3] w-full max-w-xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
-                        <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                            <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Retirada</h3>
-                            <button onClick={() => setShowWithdrawModal(false)} className="text-white/70 hover:text-white transition-colors">
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            <div className="bg-white p-4 rounded border-l-4 border-[#1A3351]">
-                                <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
-                                <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
+            {
+                showWithdrawModal && selectedFolder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div className="bg-[#D3D3D3] w-full max-w-xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
+                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Retirada</h3>
+                                <button onClick={() => setShowWithdrawModal(false)} className="text-white/70 hover:text-white transition-colors">
+                                    <X className="w-6 h-6" />
+                                </button>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-black uppercase text-slate-700">Quem está retirando?*</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
-                                    value={withdrawData.servidor_nome}
-                                    onChange={(e) => setWithdrawData({ ...withdrawData, servidor_nome: e.target.value })}
-                                    placeholder="Ex: Dr. João Silva"
-                                />
+                            <div className="p-6 space-y-4">
+                                <div className="bg-white p-4 rounded border-l-4 border-[#1A3351]">
+                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                    <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-black uppercase text-slate-700">Quem está retirando?*</label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
+                                        value={withdrawData.servidor_nome}
+                                        onChange={(e) => setWithdrawData({ ...withdrawData, servidor_nome: e.target.value })}
+                                        placeholder="Ex: Dr. João Silva"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-black uppercase text-slate-700">Motivo da retirada*</label>
+                                    <textarea
+                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
+                                        rows={3}
+                                        value={withdrawData.motivo}
+                                        onChange={(e) => setWithdrawData({ ...withdrawData, motivo: e.target.value })}
+                                        placeholder="Ex: Avaliação médica periódica"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-black uppercase text-slate-700">Motivo da retirada*</label>
-                                <textarea
-                                    className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
-                                    rows={3}
-                                    value={withdrawData.motivo}
-                                    onChange={(e) => setWithdrawData({ ...withdrawData, motivo: e.target.value })}
-                                    placeholder="Ex: Avaliação médica periódica"
-                                />
+                            <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
+                                <button
+                                    onClick={() => setShowWithdrawModal(false)}
+                                    className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleWithdraw}
+                                    className="px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                >
+                                    Confirmar Retirada
+                                </button>
                             </div>
-                        </div>
-
-                        <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
-                            <button
-                                onClick={() => setShowWithdrawModal(false)}
-                                className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleWithdraw}
-                                className="px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
-                            >
-                                Confirmar Retirada
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* MODAL: REGISTRAR DEVOLUÇÃO */}
-            {showReturnModal && selectedFolder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[#D3D3D3] w-full max-w-2xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
-                        <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                            <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Devolução</h3>
-                            <button onClick={() => setShowReturnModal(false)} className="text-white/70 hover:text-white transition-colors">
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            <div className="bg-white p-4 rounded border-l-4 border-green-600">
-                                <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
-                                <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
-                                <p className="text-xs text-slate-600 mt-2">Estava com: {selectedFolder.posse_nome}</p>
+            {
+                showReturnModal && selectedFolder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div className="bg-[#D3D3D3] w-full max-w-2xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
+                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Devolução</h3>
+                                <button onClick={() => setShowReturnModal(false)} className="text-white/70 hover:text-white transition-colors">
+                                    <X className="w-6 h-6" />
+                                </button>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-black uppercase text-slate-700">Anotações/Mudanças durante a posse*</label>
-                                <textarea
-                                    className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
-                                    rows={4}
-                                    value={returnData.anotacoes}
-                                    onChange={(e) => setReturnData({ ...returnData, anotacoes: e.target.value })}
-                                    placeholder="Ex: Adicionados 3 novos laudos de exames complementares"
-                                />
-                            </div>
-
-                            <div className="border-t pt-4">
-                                <p className="text-sm font-black text-slate-700 uppercase mb-3">A pasta retornará para o local original?</p>
-                                <div className="grid grid-cols-3 gap-3 mb-3">
-                                    <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Armário</p>
-                                        <p className="text-xl font-black text-[#1A3351]">{selectedFolder.armario}</p>
-                                    </div>
-                                    <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
-                                        <p className="text-xl font-black text-[#1A3351]">{selectedFolder.gaveta}</p>
-                                    </div>
-                                    <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
-                                        <p className="text-xl font-black text-[#1A3351]">{selectedFolder.pasta}</p>
-                                    </div>
+                            <div className="p-6 space-y-4">
+                                <div className="bg-white p-4 rounded border-l-4 border-green-600">
+                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                    <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
+                                    <p className="text-xs text-slate-600 mt-2">Estava com: {selectedFolder.posse_nome}</p>
                                 </div>
-                                <p className="text-xs text-slate-600 mb-3">Ou realocar para novo endereço:</p>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <input
-                                        type="number"
-                                        placeholder="Armário"
-                                        className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
-                                        value={returnData.novo_armario}
-                                        onChange={(e) => setReturnData({ ...returnData, novo_armario: e.target.value })}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Gaveta"
-                                        className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
-                                        value={returnData.nova_gaveta}
-                                        onChange={(e) => setReturnData({ ...returnData, nova_gaveta: e.target.value })}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Pasta"
-                                        className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
-                                        value={returnData.nova_pasta}
-                                        onChange={(e) => setReturnData({ ...returnData, nova_pasta: e.target.value })}
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-black uppercase text-slate-700">Anotações/Mudanças durante a posse*</label>
+                                    <textarea
+                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
+                                        rows={4}
+                                        value={returnData.anotacoes}
+                                        onChange={(e) => setReturnData({ ...returnData, anotacoes: e.target.value })}
+                                        placeholder="Ex: Adicionados 3 novos laudos de exames complementares"
                                     />
                                 </div>
-                            </div>
-                        </div>
 
-                        <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
-                            <button
-                                onClick={() => setShowReturnModal(false)}
-                                className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleReturn}
-                                className="px-8 py-2 bg-green-600 text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
-                            >
-                                Confirmar Devolução
-                            </button>
+                                <div className="border-t pt-4">
+                                    <p className="text-sm font-black text-slate-700 uppercase mb-3">A pasta retornará para o local original?</p>
+                                    <div className="grid grid-cols-3 gap-3 mb-3">
+                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase">Armário</p>
+                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.armario}</p>
+                                        </div>
+                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
+                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.gaveta}</p>
+                                        </div>
+                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
+                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.pasta}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-600 mb-3">Ou realocar para novo endereço:</p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <input
+                                            type="number"
+                                            placeholder="Armário"
+                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            value={returnData.novo_armario}
+                                            onChange={(e) => setReturnData({ ...returnData, novo_armario: e.target.value })}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Gaveta"
+                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            value={returnData.nova_gaveta}
+                                            onChange={(e) => setReturnData({ ...returnData, nova_gaveta: e.target.value })}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Pasta"
+                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            value={returnData.nova_pasta}
+                                            onChange={(e) => setReturnData({ ...returnData, nova_pasta: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
+                                <button
+                                    onClick={() => setShowReturnModal(false)}
+                                    className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleReturn}
+                                    className="px-8 py-2 bg-green-600 text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                >
+                                    Confirmar Devolução
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* MODAL: HISTÓRICO */}
-            {showHistoryModal && selectedFolder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[#D3D3D3] w-full max-w-3xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden max-h-[90vh] flex flex-col">
-                        <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                            <h3 className="text-xl font-black uppercase tracking-tight text-white">Histórico de Movimentações</h3>
-                            <button onClick={() => setShowHistoryModal(false)} className="text-white/70 hover:text-white transition-colors">
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 flex-1 overflow-y-auto">
-                            <div className="bg-white p-4 rounded border-l-4 border-[#1A3351] mb-6">
-                                <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
-                                <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
+            {
+                showHistoryModal && selectedFolder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                        <div className="bg-[#D3D3D3] w-full max-w-3xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden max-h-[90vh] flex flex-col">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
+                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Histórico de Movimentações</h3>
+                                <button onClick={() => setShowHistoryModal(false)} className="text-white/70 hover:text-white transition-colors">
+                                    <X className="w-6 h-6" />
+                                </button>
                             </div>
 
-                            {folderLogs.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400">
-                                    <Clock className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                                    <p className="font-bold uppercase">Nenhuma movimentação registrada</p>
+                            <div className="p-6 flex-1 overflow-y-auto">
+                                <div className="bg-white p-4 rounded border-l-4 border-[#1A3351] mb-6">
+                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                    <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
                                 </div>
-                            ) : (
-                                <div className="relative">
-                                    <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-300"></div>
-                                    <div className="space-y-6">
-                                        {folderLogs.map((log, index) => (
-                                            <div key={log.id} className="relative pl-16">
-                                                <div className={`absolute left-0 w-12 h-12 rounded-full flex items-center justify-center ${log.tipo_acao === 'RETIRADA'
-                                                    ? 'bg-orange-600'
-                                                    : 'bg-green-600'
-                                                    }`}>
-                                                    {log.tipo_acao === 'RETIRADA' ? (
-                                                        <ArrowUpDown className="w-6 h-6 text-white" />
-                                                    ) : (
-                                                        <CheckCircle className="w-6 h-6 text-white" />
-                                                    )}
-                                                </div>
-                                                <div className="bg-white p-4 rounded-lg shadow border border-slate-200">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <div>
-                                                            <p className={`text-sm font-black uppercase ${log.tipo_acao === 'RETIRADA' ? 'text-orange-700' : 'text-green-700'
-                                                                }`}>
-                                                                {log.tipo_acao === 'RETIRADA' ? '⬆ Retirada' : '⬇ Devolução'}
-                                                            </p>
-                                                            <p className="text-xs text-slate-500 mt-1">
-                                                                {new Date(log.data_hora).toLocaleString('pt-BR')}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-2 text-sm">
-                                                        <p><span className="font-bold text-slate-700">Servidor:</span> {log.servidor_nome}</p>
-                                                        <p><span className="font-bold text-slate-700">Motivo:</span> {log.motivo}</p>
-                                                        {log.anotacoes_devolucao && (
-                                                            <div className="bg-green-50 p-3 rounded border-l-2 border-green-600 mt-2">
-                                                                <p className="font-bold text-green-900 text-xs uppercase mb-1">Anotações da Devolução:</p>
-                                                                <p className="text-slate-700">{log.anotacoes_devolucao}</p>
-                                                            </div>
+
+                                {folderLogs.length === 0 ? (
+                                    <div className="text-center py-12 text-slate-400">
+                                        <Clock className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                                        <p className="font-bold uppercase">Nenhuma movimentação registrada</p>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-300"></div>
+                                        <div className="space-y-6">
+                                            {folderLogs.map((log, index) => (
+                                                <div key={log.id} className="relative pl-16">
+                                                    <div className={`absolute left-0 w-12 h-12 rounded-full flex items-center justify-center ${log.tipo_acao === 'RETIRADA'
+                                                        ? 'bg-orange-600'
+                                                        : 'bg-green-600'
+                                                        }`}>
+                                                        {log.tipo_acao === 'RETIRADA' ? (
+                                                            <ArrowUpDown className="w-6 h-6 text-white" />
+                                                        ) : (
+                                                            <CheckCircle className="w-6 h-6 text-white" />
                                                         )}
                                                     </div>
+                                                    <div className="bg-white p-4 rounded-lg shadow border border-slate-200">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <p className={`text-sm font-black uppercase ${log.tipo_acao === 'RETIRADA' ? 'text-orange-700' : 'text-green-700'
+                                                                    }`}>
+                                                                    {log.tipo_acao === 'RETIRADA' ? '⬆ Retirada' : '⬇ Devolução'}
+                                                                </p>
+                                                                <p className="text-xs text-slate-500 mt-1">
+                                                                    {new Date(log.data_hora).toLocaleString('pt-BR')}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-2 text-sm">
+                                                            <p><span className="font-bold text-slate-700">Servidor:</span> {log.servidor_nome}</p>
+                                                            <p><span className="font-bold text-slate-700">Motivo:</span> {log.motivo}</p>
+                                                            {log.anotacoes_devolucao && (
+                                                                <div className="bg-green-50 p-3 rounded border-l-2 border-green-600 mt-2">
+                                                                    <p className="font-bold text-green-900 text-xs uppercase mb-1">Anotações da Devolução:</p>
+                                                                    <p className="text-slate-700">{log.anotacoes_devolucao}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
-                        <div className="p-4 bg-[#B0B0B0] border-t border-slate-400">
-                            <button
-                                onClick={() => setShowHistoryModal(false)}
-                                className="w-full px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
-                            >
-                                Fechar
-                            </button>
+                            <div className="p-4 bg-[#B0B0B0] border-t border-slate-400">
+                                <button
+                                    onClick={() => setShowHistoryModal(false)}
+                                    className="w-full px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                >
+                                    Fechar
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

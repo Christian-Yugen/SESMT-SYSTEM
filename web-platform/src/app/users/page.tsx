@@ -27,6 +27,8 @@ export default function UsersPage() {
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const router = useRouter();
@@ -35,6 +37,7 @@ export default function UsersPage() {
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteRole, setInviteRole] = useState("admin");
     const [inviteLoading, setInviteLoading] = useState(false);
+    const [userName, setUserName] = useState<string>("Usuário");
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -47,19 +50,21 @@ export default function UsersPage() {
                     return;
                 }
 
-                if (!session) {
+                if (session) {
+                    // Verifica se é administrador
+                    const { data: prof } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+                    if (!prof || prof.role !== 'admin') {
+                        router.push("/");
+                        return;
+                    }
+
+                    const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Administrador";
+                    setUserName(name);
+                    loadProfiles();
+                } else {
                     router.push("/login");
                     return;
                 }
-
-                // Verifica se é administrador
-                const { data: prof } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-                if (!prof || prof.role !== 'admin') {
-                    router.push("/");
-                    return;
-                }
-
-                loadProfiles();
             } catch (err) {
                 console.error("Fatal auth error:", err);
                 await supabase.auth.signOut();
@@ -190,7 +195,7 @@ export default function UsersPage() {
 
             {/* SIDEBAR */}
             <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
+                fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="mb-8 flex flex-col items-center">
@@ -200,10 +205,15 @@ export default function UsersPage() {
                             <X className="w-6 h-6 text-white" />
                         </button>
                     </div>
-                    <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
+                    <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
                         <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
                     </div>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
+                    <div className="text-center w-full px-1 mt-2">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
+                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
+                            Olá, <span className="text-white">{userName}</span>
+                        </p>
+                    </div>
                 </div>
 
                 <nav className="flex-1 space-y-1">
@@ -217,51 +227,82 @@ export default function UsersPage() {
                         <span>Central de Evidências</span>
                     </button>
 
-                    <div className="group">
-                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HeartPulse className="w-4 h-4 shrink-0" />
-                            <span>Benefícios</span>
+                    <div className="space-y-1">
+                        <button
+                            onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                            className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                        >
+                            <div className="flex items-center gap-1.5">
+                                <HeartPulse className="w-4 h-4 shrink-0" />
+                                <span>Benefícios</span>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <Database className="w-3.5 h-3.5 shrink-0" />
-                            <span>Auxílio Doença</span>
-                        </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                            <span>Readaptação</span>
-                        </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                            <span>Abono Salarial</span>
-                        </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                            <span>Redução de Jornada</span>
-                        </button>
+
+                        {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                            <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <Database className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Auxílio Doença</span>
+                                </button>
+                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Readaptação</span>
+                                </button>
+                                <button
+                                    onClick={() => router.push('/abono')}
+                                    className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Abono Salarial</span>
+                                </button>
+                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Redução de Jornada</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="group">
-                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HistoryIcon className="w-4 h-4 shrink-0" />
-                            <span>Histórico</span>
+                    <div className="space-y-1">
+                        <button
+                            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                            className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                        >
+                            <div className="flex items-center gap-1.5">
+                                <HistoryIcon className="w-4 h-4 shrink-0" />
+                                <span>Histórico</span>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                            <span>Indicadores</span>
-                        </button>
+
+                        {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                            <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Log Principal</span>
+                                </button>
+                                <button onClick={() => router.push('/analytics')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Indicadores</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    <button
-                        onClick={() => router.push('/archive')}
-                        className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                    >
+                    <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                         <FolderOpen className="w-4 h-4 shrink-0" />
                         <span>Arquivo Médico</span>
                     </button>
 
-                    <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all hover:bg-white/20 whitespace-nowrap">
+                    <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
                         <UsersIcon className="w-4 h-4 shrink-0" />
                         <span>Usuários</span>
+                    </button>
+
+                    <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                        <Trash2 className="w-4 h-4 shrink-0" />
+                        <span>Exclusões Pendentes</span>
                     </button>
                 </nav>
 
@@ -278,36 +319,47 @@ export default function UsersPage() {
                 </div>
             </aside>
 
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* ÁREA PRINCIPAL */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
 
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-3">
-                            <Shield className="w-6 h-6 text-[#1A3351]" />
-                            <h2 className="text-xl font-black leading-none uppercase tracking-tight">Gestão de Operadores</h2>
+                        <div className="flex items-center gap-3 text-[#1A3351]">
+                            <Shield className="w-5 lg:w-6 h-5 lg:h-6" />
+                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Operadores</h2>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 lg:gap-3">
                             <button
                                 onClick={() => setIsInviteModalOpen(true)}
-                                className="hidden md:flex items-center justify-center gap-2 w-64 h-10 bg-[#E31E24] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                className="p-2.5 lg:px-6 lg:h-10 bg-[#E31E24] text-white font-black rounded-lg lg:rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10 flex items-center gap-2"
                             >
-                                <UserPlus className="w-4 h-4" />
-                                Novo Operador
+                                <UserPlus className="w-5 h-5 lg:w-4 lg:h-4" />
+                                <span className="hidden lg:inline">Novo Operador</span>
                             </button>
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-                                <Menu className="w-6 h-6" />
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                            >
+                                <Menu className="w-5 h-5" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                             </button>
                         </div>
                     </div>
 
                     <div className="relative w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
                             type="text"
-                            placeholder="PESQUISAR POR NOME OU E-MAIL DO USUÁRIO..."
-                            className="w-full px-10 py-2 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase"
+                            placeholder="PESQUISAR USUÁRIO..."
+                            className="w-full px-11 py-3 lg:py-2 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase rounded-lg lg:rounded-none"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -323,7 +375,7 @@ export default function UsersPage() {
                             <div className="text-[9px] font-black text-slate-600 uppercase">Total: {filteredProfiles.length} Usuários</div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-slate-50 border-b border-slate-200">
                                     <tr>
@@ -393,12 +445,68 @@ export default function UsersPage() {
                                     ))}
                                 </tbody>
                             </table>
-                            {filteredProfiles.length === 0 && (
-                                <div className="py-20 text-center">
-                                    <p className="text-slate-400 uppercase font-black text-xs tracking-widest italic">Nenhum operador encontrado com este critério.</p>
-                                </div>
-                            )}
                         </div>
+
+                        {/* MOBILE LIST */}
+                        <div className="lg:hidden divide-y divide-slate-200">
+                            {filteredProfiles.map((user) => (
+                                <div key={user.id} className="p-4 flex flex-col gap-4">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+                                                <UserRound className="w-5 h-5 text-slate-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-[#1A3351] uppercase leading-tight mb-1">
+                                                    {user.full_name || user.email.split('@')[0]}
+                                                </p>
+                                                <p className="text-[10px] font-bold text-slate-400 truncate max-w-[180px]">{user.email}</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteProfile(user.id)}
+                                            className="p-2 text-red-500/20 hover:text-red-500 transition-colors bg-red-50 rounded"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Acesso:</p>
+                                        <select
+                                            value={user.role || 'operator'}
+                                            onChange={(e) => handleUpdateRole(user.id, e.target.value)}
+                                            className={`
+                                                w-full px-4 py-3 rounded-lg text-[10px] font-black uppercase 
+                                                ${user.role === 'admin' ? 'bg-red-50 text-[#E31E24] border border-[#E31E24]/20' :
+                                                    user.role === 'nurse' ? 'bg-green-50 text-green-700 border border-green-200' :
+                                                        user.role === 'operator' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                                            'bg-slate-50 text-slate-500 border border-slate-200'}
+                                                outline-none
+                                            `}
+                                        >
+                                            <option value="admin">ADMINISTRADOR</option>
+                                            <option value="nurse">ENFERMAGEM</option>
+                                            <option value="social_assistant">ASSIST. SOCIAL</option>
+                                            <option value="analytic_manager">GERENTE BI</option>
+                                            <option value="operator">OPERADOR</option>
+                                            <option value="viewer">VISUALIZADOR</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase bg-slate-50 p-2 rounded-lg">
+                                        <span>Cadastro:</span>
+                                        <span>{new Date(user.created_at).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {filteredProfiles.length === 0 && (
+                            <div className="py-20 text-center">
+                                <p className="text-slate-400 uppercase font-black text-xs tracking-widest italic">Nenhum operador encontrado.</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-[#B0B0B0] p-4 text-center border-2 border-slate-300 shadow-md">

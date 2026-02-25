@@ -104,6 +104,8 @@ export default function AnalyticsPage() {
     const router = useRouter();
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     // Filtros
     const [searchTerm] = useState("");
@@ -428,7 +430,7 @@ export default function AnalyticsPage() {
 
             <aside
                 className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
+          fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
             >
@@ -471,59 +473,85 @@ export default function AnalyticsPage() {
                     )}
 
                     {userRole !== 'viewer' && (
-                        <div className="group">
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HeartPulse className="w-4 h-4 shrink-0" />
-                                <span>Benefícios</span>
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <HeartPulse className="w-4 h-4 shrink-0" />
+                                    <span>Benefícios</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            {userRole !== 'social_assistant' && (
-                                <>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <Database className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Auxílio Doença</span>
-                                    </button>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Readaptação</span>
-                                    </button>
-                                </>
-                            )}
-                            {/* Abono Salarial - Restrito para nurse e operator */}
-                            {userRole !== 'nurse' && userRole !== 'operator' && (
-                                <button
-                                    onClick={() => router.push('/abono')}
-                                    className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                                >
-                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Abono Salarial</span>
-                                </button>
-                            )}
-                            {userRole !== 'social_assistant' && (
-                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Redução de Jornada</span>
-                                </button>
+
+                            {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                    {userRole !== 'social_assistant' && (
+                                        <>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <Database className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Auxílio Doença</span>
+                                            </button>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Readaptação</span>
+                                            </button>
+                                        </>
+                                    )}
+                                    {/* Abono Salarial - Restrito para nurse e operator */}
+                                    {userRole !== 'nurse' && userRole !== 'operator' && (
+                                        <button
+                                            onClick={() => router.push('/abono')}
+                                            className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
+                                        >
+                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Abono Salarial</span>
+                                        </button>
+                                    )}
+                                    {userRole !== 'social_assistant' && (
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Redução de Jornada</span>
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}
 
                     {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <>
-                            <div className="group">
-                                <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                    <HistoryIcon className="w-4 h-4 shrink-0" />
-                                    <span>Histórico</span>
+                        <div className="space-y-1">
+                            <div className="space-y-1">
+                                <button
+                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                    className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        <HistoryIcon className="w-4 h-4 shrink-0" />
+                                        <span>Histórico</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                                 </button>
-                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
-                                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Indicadores</span>
-                                </button>
+
+                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                    <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                        <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Log Principal</span>
+                                        </button>
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
+                                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Indicadores</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                             <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <FolderOpen className="w-4 h-4 shrink-0" />
                                 <span>Arquivo Médico</span>
                             </button>
-                        </>
+                        </div>
                     )}
 
                     {userRole === "admin" && (
@@ -557,16 +585,16 @@ export default function AnalyticsPage() {
             {/* MAIN */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
-                            <BarChart3 className="w-6 h-6 text-[#1A3351]" />
+                            <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
                             <div>
-                                <h1 className="text-xl font-black uppercase tracking-tighter leading-none text-[#1A3351]">
+                                <h1 className="text-lg lg:text-xl font-black uppercase tracking-tighter leading-none text-[#1A3351]">
                                     SESMT <span className="text-blue-700">Analytics</span>
                                 </h1>
                                 <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mt-1">
-                                    Business Intelligence System
+                                    Business Intelligence
                                 </p>
                             </div>
                         </div>
@@ -577,13 +605,14 @@ export default function AnalyticsPage() {
                                 className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
                                 <Printer className="w-3.5 h-3.5" />
-                                Relatório Geral (PDF)
+                                Relatório
                             </button>
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform"
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                             >
-                                <Menu className="w-6 h-6" />
+                                <Menu className="w-5 h-5" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                             </button>
                         </div>
                     </div>
@@ -613,16 +642,16 @@ export default function AnalyticsPage() {
                             <option value="Encaminhamento">Encaminhamento</option>
                         </select>
 
-                        <div className="relative flex-1 md:flex-none min-w-[180px]">
+                        <div className="relative flex-1 lg:flex-none lg:min-w-[180px]">
                             <button
                                 onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
-                                className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-blue-700" : ""
+                                className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2.5 lg:py-2 text-[10px] font-black uppercase flex items-center justify-between gap-2 rounded-lg lg:rounded-none ${startDate || endDate ? "text-blue-700" : ""
                                     }`}
                             >
                                 <span className="flex items-center gap-2">
-                                    <Calendar className="w-3 h-3" /> PERÍODO
+                                    <Calendar className="w-3.5 h-3.5" /> PERÍODO
                                 </span>
-                                <Filter className="w-3 h-3" />
+                                <Filter className="w-3.5 h-3.5" />
                             </button>
 
                             {isDateFilterOpen && (
@@ -673,37 +702,37 @@ export default function AnalyticsPage() {
                 {/* CONTENT */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {/* BIG NUMBERS */}
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="bg-white p-3 border-l-4 border-blue-600 shadow-md flex items-center justify-between">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
                                     Documentos
                                 </p>
-                                <h3 className="text-xl font-black text-[#1A3351] leading-none mt-1">
+                                <h3 className="text-xl lg:text-2xl font-black text-[#1A3351] leading-none mt-1">
                                     {filteredHistory.length}
                                 </h3>
                             </div>
-                            <ClipboardList className="w-4 h-4 text-blue-100" />
+                            <ClipboardList className="w-4 h-4 text-blue-100 hidden sm:block" />
                         </div>
 
-                        <div className="bg-white p-3 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between">
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
                                     ASOs
                                 </p>
-                                <h3 className="text-xl font-black text-[#1A3351] leading-none mt-1">
+                                <h3 className="text-xl lg:text-2xl font-black text-[#1A3351] leading-none mt-1">
                                     {filteredHistory.filter((h) => h.aso_type?.toLowerCase?.().includes("aso")).length}
                                 </h3>
                             </div>
-                            <HistoryIcon className="w-4 h-4 text-slate-200" />
+                            <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
                         </div>
 
-                        <div className="bg-white p-3 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between">
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
                                     Encaminhamentos
                                 </p>
-                                <h3 className="text-xl font-black text-[#E31E24] leading-none mt-1">
+                                <h3 className="text-xl lg:text-2xl font-black text-[#E31E24] leading-none mt-1">
                                     {
                                         filteredHistory.filter((h) =>
                                             h.aso_type?.toLowerCase?.().includes("encaminhamento")
@@ -711,19 +740,19 @@ export default function AnalyticsPage() {
                                     }
                                 </h3>
                             </div>
-                            <FileSearch className="w-4 h-4 text-red-100" />
+                            <FileSearch className="w-4 h-4 text-red-100 hidden sm:block" />
                         </div>
 
-                        <div className="bg-white p-3 border-l-4 border-emerald-500 shadow-md flex items-center justify-between">
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-emerald-500 shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
                                     Secretarias
                                 </p>
-                                <h3 className="text-xl font-black text-emerald-600 leading-none mt-1">
+                                <h3 className="text-xl lg:text-2xl font-black text-emerald-600 leading-none mt-1">
                                     {new Set(filteredHistory.map((h) => h.secretaria)).size}
                                 </h3>
                             </div>
-                            <Building2 className="w-4 h-4 text-emerald-100" />
+                            <Building2 className="w-4 h-4 text-emerald-100 hidden sm:block" />
                         </div>
                     </div>
 

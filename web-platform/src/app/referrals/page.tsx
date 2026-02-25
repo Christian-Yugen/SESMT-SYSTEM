@@ -34,6 +34,8 @@ export default function ReferralsPage() {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     // Filtros
     const [filterUser, setFilterUser] = useState("all");
@@ -187,7 +189,12 @@ export default function ReferralsPage() {
                     <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
                         <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
                     </div>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] -mt-2">SESMT SYSTEM</p>
+                    <div className="text-center w-full px-1 mt-2">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
+                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
+                            Olá, <span className="text-white">{userName}</span>
+                        </p>
+                    </div>
                 </div>
 
                 <nav className="flex-1 space-y-1">
@@ -199,7 +206,7 @@ export default function ReferralsPage() {
                             </button>
 
                             {userRole !== 'viewer' && (
-                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
+                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all">
                                     <ClipboardList className="w-4 h-4 shrink-0" />
                                     <span>Central de Evidências</span>
                                 </button>
@@ -208,63 +215,87 @@ export default function ReferralsPage() {
                     )}
 
                     {userRole !== 'viewer' && (
-                        <div className="group">
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HeartPulse className="w-4 h-4 shrink-0" />
-                                <span>Benefícios</span>
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <HeartPulse className="w-4 h-4 shrink-0" />
+                                    <span>Benefícios</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
                             </button>
 
-                            {userRole !== 'social_assistant' && (
-                                <>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <Database className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Auxílio Doença</span>
-                                    </button>
-                                    <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                        <span>Readaptação</span>
-                                    </button>
-                                </>
-                            )}
+                            {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                    {userRole !== 'social_assistant' && (
+                                        <>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <Database className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Auxílio Doença</span>
+                                            </button>
+                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Readaptação</span>
+                                            </button>
+                                        </>
+                                    )}
 
-                            {/* Abono Salarial - Restrito para nurse e operator */}
-                            {userRole !== 'nurse' && userRole !== 'operator' && (
-                                <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Abono Salarial</span>
-                                </button>
-                            )}
+                                    {/* Abono Salarial - Restrito para nurse e operator */}
+                                    {userRole !== 'nurse' && userRole !== 'operator' && (
+                                        <button onClick={() => router.push('/abono')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Abono Salarial</span>
+                                        </button>
+                                    )}
 
-                            {userRole !== 'social_assistant' && (
-                                <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Redução de Jornada</span>
-                                </button>
+                                    {userRole !== 'social_assistant' && (
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Redução de Jornada</span>
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}
 
                     {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <div className="group">
-                            <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <HistoryIcon className="w-4 h-4 shrink-0" />
-                                <span>Histórico</span>
-                            </button>
-                            <button onClick={() => router.push('/analytics')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                <span>Indicadores</span>
+                        <div className="space-y-1">
+                            <div className="space-y-1">
+                                <button
+                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                    className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        <HistoryIcon className="w-4 h-4 shrink-0" />
+                                        <span>Histórico</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                    <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Log Principal</span>
+                                        </button>
+                                        <button onClick={() => router.push('/analytics')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Indicadores</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => router.push('/archive')}
+                                className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                            >
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
                             </button>
                         </div>
-                    )}
-
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <button
-                            onClick={() => router.push('/archive')}
-                            className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                        >
-                            <FolderOpen className="w-4 h-4 shrink-0" />
-                            <span>Arquivo Médico</span>
-                        </button>
                     )}
 
                     {userRole === 'admin' && (
@@ -292,30 +323,34 @@ export default function ReferralsPage() {
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
 
                 {/* HEADER COM DESIGN SESMT-SYSTEM */}
-                <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
-                            <ClipboardList className="w-6 h-6 text-[#1A3351]" />
+                            <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
                             <div>
-                                <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Evidências de Encaminhamento</h2>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em] mt-1">SESMT Ledger • Sem Papel</p>
+                                <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Evidências</h2>
+                                <p className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em] mt-1">Digital Ledger • Audit</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
-                                <Menu className="w-6 h-6" />
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                            >
+                                <Menu className="w-5 h-5" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                             </button>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 lg:gap-3">
                             <div className="md:col-span-5 relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
-                                    placeholder="BUSCAR NOME DO SERVIDOR..."
-                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase"
+                                    placeholder="NOME DO SERVIDOR..."
+                                    className="w-full px-10 py-2.5 lg:py-2 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase rounded-lg lg:rounded-none"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -324,8 +359,8 @@ export default function ReferralsPage() {
                                 <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
-                                    placeholder="BUSCAR POR CPF..."
-                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase"
+                                    placeholder="CPF..."
+                                    className="w-full px-10 py-2.5 lg:py-2 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase rounded-lg lg:rounded-none"
                                     value={searchCpf}
                                     onChange={(e) => setSearchCpf(e.target.value)}
                                 />
@@ -396,9 +431,9 @@ export default function ReferralsPage() {
                             <select
                                 value={filterUser}
                                 onChange={(e) => setFilterUser(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 lg:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] rounded-lg lg:rounded-none"
                             >
-                                <option value="all">TODOS OPERADORES</option>
+                                <option value="all">OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
                                     <option key={uid} value={uid}>
                                         {referrals.find(h => h.generated_by === uid)?.operator_name || operatorsMap[uid] || `ID: ${uid.substring(0, 8)}`}
@@ -409,9 +444,9 @@ export default function ReferralsPage() {
                             <select
                                 value={filterSecretaria}
                                 onChange={(e) => setFilterSecretaria(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px]"
+                                className="flex-1 lg:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px] rounded-lg lg:rounded-none"
                             >
-                                <option value="all">TODAS SECRETARIAS</option>
+                                <option value="all">SECRETARIAS</option>
                                 {uniqueSecretarias.map(sec => (
                                     <option key={sec} value={sec}>{sec}</option>
                                 ))}
@@ -420,12 +455,12 @@ export default function ReferralsPage() {
                             <select
                                 value={filterAsoType}
                                 onChange={(e) => setFilterAsoType(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 lg:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] rounded-lg lg:rounded-none"
                             >
-                                <option value="all">TODOS TIPOS DE ASO</option>
+                                <option value="all">TIPOS ASO</option>
                                 <option value="ADMISS">ADMISSIONAL</option>
                                 <option value="DEMISS">DEMISSIONAL</option>
-                                <option value="RETORNO">RETORNO AO TRABALHO</option>
+                                <option value="RETORNO">RETORNO</option>
                             </select>
 
                             {(searchTerm || searchCpf || filterUser !== "all" || filterSecretaria !== "all" || filterAsoType !== "all" || startDate || endDate) && (
@@ -439,7 +474,7 @@ export default function ReferralsPage() {
                                         setStartDate("");
                                         setEndDate("");
                                     }}
-                                    className="px-4 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                                    className="px-4 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all rounded-lg lg:rounded-none w-full lg:w-auto mt-2 lg:mt-0"
                                 >
                                     Zerar Filtros
                                 </button>
@@ -452,23 +487,23 @@ export default function ReferralsPage() {
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 space-y-8">
 
                     {/* STATS CARDS */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="bg-white p-6 border-b-4 border-[#1A3351] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Encaminhamentos Digitais</p>
-                            <h3 className="text-3xl font-black text-[#1A3351]">{stats.total} <span className="text-xs font-normal">registros</span></h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                        <div className="bg-white p-4 lg:p-6 border-b-4 border-[#1A3351] shadow-md flex flex-col gap-1 rounded-lg">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">Registros</p>
+                            <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351]">{stats.total} <span className="text-[10px] lg:text-xs font-normal">itens</span></h3>
                         </div>
-                        <div className="bg-white p-6 border-b-4 border-[#E31E24] shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Economia de Papel Est.</p>
-                            <h3 className="text-3xl font-black text-[#E31E24]">{stats.total} <span className="text-xs font-normal">folhas</span></h3>
+                        <div className="bg-white p-4 lg:p-6 border-b-4 border-[#E31E24] shadow-md flex flex-col gap-1 rounded-lg">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">Sustentabilidade</p>
+                            <h3 className="text-2xl lg:text-3xl font-black text-[#E31E24]">{stats.total} <span className="text-[10px] lg:text-xs font-normal">folhas</span></h3>
                         </div>
-                        <div className="bg-white p-6 border-b-4 border-slate-300 shadow-md flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auditores Ativos</p>
-                            <h3 className="text-3xl font-black text-[#1A3351]">{stats.uniqueUsers}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-b-4 border-slate-300 shadow-md flex flex-col gap-1 rounded-lg">
+                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest">Auditores</p>
+                            <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351]">{stats.uniqueUsers}</h3>
                         </div>
                     </div>
 
                     {/* LISTA DE REGISTROS (DIGITAL LEDGER) */}
-                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-xl">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 className="text-sm font-black uppercase tracking-widest text-[#1A3351]">Registro Digital de Emissões</h3>
@@ -495,67 +530,67 @@ export default function ReferralsPage() {
                                 <div key={entry.id} className="group">
                                     <div
                                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className={`px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:bg-slate-50 cursor-pointer transition-all border-l-[6px] ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
+                                        className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-slate-50 cursor-pointer transition-all border-l-[6px] ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
                                     >
-                                        <div className="flex items-center gap-6 flex-1">
-                                            <div className={`p-2.5 rounded shadow-sm transition-all duration-300 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                                <ClipboardList className={`${expandedId === entry.id ? 'w-6 h-6' : 'w-5 h-5'}`} />
+                                        <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
+                                            <div className={`p-2 lg:p-2.5 rounded shadow-sm transition-all duration-300 shrink-0 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                                <ClipboardList className={`${expandedId === entry.id ? 'w-5 lg:w-6 h-5 lg:h-6' : 'w-4 lg:w-5 h-4 lg:h-5'}`} />
                                             </div>
-                                            <div className="flex flex-col">
-                                                <div className="flex items-baseline gap-4">
-                                                    <h4 className={`font-black uppercase text-[#1A3351] leading-none transition-all duration-300 ${expandedId === entry.id ? 'text-xl' : 'text-base'}`}>
+                                            <div className="flex flex-col min-w-0 flex-1">
+                                                <div className="flex items-baseline gap-2 lg:gap-4 overflow-hidden">
+                                                    <h4 className={`font-black uppercase text-[#1A3351] leading-none transition-all duration-300 truncate ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm lg:text-base'}`}>
                                                         {entry.servidor_nome}
                                                     </h4>
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 border border-slate-200">
+                                                    <span className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-1.5 lg:px-2 py-0.5 border border-slate-200 shrink-0">
                                                         #{entry.id}
                                                     </span>
                                                 </div>
-                                                <div className="flex gap-4 mt-2">
-                                                    <span className="text-[10px] font-black text-[#E31E24] uppercase bg-red-50 px-2 py-0.5 border border-red-100">
+                                                <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2">
+                                                    <span className="text-[8px] lg:text-[10px] font-black text-[#E31E24] uppercase bg-red-50 px-1.5 lg:px-2 py-0.5 border border-red-100 truncate">
                                                         {entry.aso_type.split('{')[0].split('<')[0].split('[')[0].trim()}
                                                     </span>
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase flex items-center gap-1">
-                                                        <CreditCard className="w-3 h-3" /> {entry.servidor_cpf || "---"}
+                                                    <span className="text-[8px] lg:text-[10px] font-black text-slate-500 uppercase flex items-center gap-1">
+                                                        <CreditCard className="w-3 h-3 shrink-0" /> {entry.servidor_cpf || "---"}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className={`flex items-center gap-8 shrink-0 md:text-right transition-all ${expandedId === entry.id ? 'opacity-100' : 'opacity-70'}`}>
+                                        <div className={`flex items-center justify-between lg:justify-end gap-4 lg:gap-8 w-full lg:w-auto shrink-0 transition-all ${expandedId === entry.id ? 'opacity-100' : 'opacity-70'}`}>
                                             <div className="flex flex-col">
-                                                <span className="font-black text-[9px] text-slate-400 uppercase mb-1">Data de Solicitação</span>
-                                                <span className={`font-black text-slate-800 transition-all ${expandedId === entry.id ? 'text-base' : 'text-xs'}`}>
-                                                    {new Date(entry.generated_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                <span className="font-black text-[8px] lg:text-[9px] text-slate-400 uppercase mb-0.5 block">Data</span>
+                                                <span className={`font-black text-slate-800 transition-all ${expandedId === entry.id ? 'text-sm lg:text-base' : 'text-[10px] lg:text-xs'}`}>
+                                                    {new Date(entry.generated_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
-                                            {expandedId === entry.id ? <ChevronUp className="w-6 h-6 text-[#1A3351]" /> : <ChevronDown className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />}
+                                            {expandedId === entry.id ? <ChevronUp className="w-6 h-6 text-[#1A3351]" /> : <ChevronDown className="w-5 h-5 text-slate-300" />}
                                         </div>
                                     </div>
 
                                     {/* DETALHES DA EVIDÊNCIA */}
                                     {expandedId === entry.id && (
-                                        <div className="px-8 pb-8 pt-4 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-4 duration-300">
-                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-2">
+                                        <div className="px-4 lg:px-8 pb-8 pt-4 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-4 duration-300">
+                                            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 mt-2">
                                                 <div className="md:col-span-8 space-y-4">
                                                     <div>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Cargo / Secretaria</span>
-                                                        <p className="text-sm font-black text-[#1A3351] uppercase leading-tight">{entry.cargo || "Não registrado"}</p>
-                                                        <p className="text-sm font-black text-slate-700 uppercase mt-1 leading-tight">{entry.secretaria || "Não registrado"}</p>
+                                                        <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Cargo / Secretaria</span>
+                                                        <p className="text-xs lg:text-sm font-black text-[#1A3351] uppercase leading-tight">{entry.cargo || "Não registrado"}</p>
+                                                        <p className="text-xs lg:text-sm font-black text-slate-700 uppercase mt-1 leading-tight">{entry.secretaria || "Não registrado"}</p>
                                                     </div>
                                                     <div>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Identificação Função / GHE</span>
-                                                        <p className="text-xs font-black text-[#1A3351] uppercase leading-tight">
+                                                        <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Função / GHE</span>
+                                                        <p className="text-[11px] lg:text-xs font-black text-[#1A3351] uppercase leading-tight">
                                                             {(() => {
                                                                 const match = entry.aso_type.match(/\{([\s\S]*?)\}/);
                                                                 return match ? match[1] : "---";
                                                             })()}
                                                         </p>
-                                                        <p className="text-xs font-black text-[#1A3351] uppercase mt-1">GHE: {entry.ghe_conj || "---"}</p>
+                                                        <p className="text-[11px] lg:text-xs font-black text-[#1A3351] uppercase mt-1">GHE: {entry.ghe_conj || "---"}</p>
                                                     </div>
 
                                                     <div className="pt-2">
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Riscos Ocupacionais</span>
-                                                        <p className="text-[11px] font-bold text-slate-700 uppercase leading-relaxed bg-white/50 p-2 border border-slate-200 rounded">
+                                                        <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Riscos Ocupacionais</span>
+                                                        <p className="text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase leading-relaxed bg-white/50 p-3 border border-slate-200 rounded-lg">
                                                             {(() => {
                                                                 const match = entry.aso_type.match(/<([\s\S]*?)>/);
                                                                 return match ? match[1] : "Riscos não detalhados nesta evidência.";
@@ -564,9 +599,9 @@ export default function ReferralsPage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="md:col-span-4 bg-white p-5 border border-slate-200 shadow-inner">
-                                                    <span className="text-[11px] font-black text-[#1A3351] uppercase mb-3 block flex items-center gap-2">
-                                                        <Activity className="w-4 h-4 text-[#E31E24]" /> Exames Solicitados na Evidência
+                                                <div className="md:col-span-4 bg-white p-4 lg:p-5 border border-slate-200 shadow-inner rounded-xl">
+                                                    <span className="text-[10px] lg:text-[11px] font-black text-[#1A3351] uppercase mb-3 block flex items-center gap-2">
+                                                        <Activity className="w-4 h-4 text-[#E31E24]" /> Exames Solicitados
                                                     </span>
                                                     <div className="space-y-2">
                                                         {(() => {
@@ -578,91 +613,83 @@ export default function ReferralsPage() {
 
                                                                 if (exams.length === 0) {
                                                                     return (
-                                                                        <div className="py-2 text-center">
-                                                                            <p className="text-[10px] font-bold text-slate-400 uppercase italic">Apenas exames complementares indisponíveis ou não registrados.</p>
+                                                                        <div className="py-2 text-center text-slate-400 text-[10px] uppercase italic">
+                                                                            Apenas clínicos registrados.
                                                                         </div>
                                                                     );
                                                                 }
 
                                                                 return exams.map((exam, i) => (
-                                                                    <div key={i} className="flex items-center gap-2 text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0">
-                                                                        <div className="w-1.5 h-1.5 bg-[#E31E24] rounded-full" />
+                                                                    <div key={i} className="flex items-center gap-2 text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight">
+                                                                        <div className="w-1.5 h-1.5 bg-[#E31E24] rounded-full shrink-0" />
                                                                         {exam}
                                                                     </div>
                                                                 ));
                                                             }
-                                                            return (
-                                                                <div className="py-4 text-center">
-                                                                    <p className="text-[10px] font-bold text-slate-400 uppercase italic">Acesse o documento PDF para visualizar a lista completa de exames desta solicitação.</p>
-                                                                </div>
-                                                            );
+                                                            return <p className="text-[10px] text-slate-400 uppercase italic text-center">Consulte o PDF oficial.</p>;
                                                         })()}
                                                     </div>
                                                 </div>
 
-                                                <div className="md:col-span-12 flex flex-col md:flex-row justify-between items-center bg-slate-100/50 p-4 border border-slate-200 mt-2">
-                                                    <div className="flex items-center gap-10">
+                                                <div className="md:col-span-12 flex flex-col lg:flex-row justify-between items-stretch lg:items-center bg-slate-100/50 p-4 border border-slate-200 mt-2 gap-4 lg:gap-10 rounded-lg">
+                                                    <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-10">
                                                         <div>
-                                                            <span className="text-[9px] font-black text-slate-400 uppercase mb-0.5 block">Operador Responsável</span>
-                                                            <p className="text-[11px] font-black text-[#1A3351] uppercase">{entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}</p>
+                                                            <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase mb-0.5 block tracking-widest">Auditor emitente</span>
+                                                            <p className="text-[10px] lg:text-[11px] font-black text-[#1A3351] uppercase">{entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}</p>
                                                         </div>
-                                                        <div className="h-8 w-px bg-slate-300 hidden md:block" />
+                                                        <div className="h-0.5 lg:h-8 w-full lg:w-px bg-slate-200" />
                                                         <div>
-                                                            <span className="text-[9px] font-black text-slate-400 uppercase mb-0.5 block">Status de Registro</span>
-                                                            <p className="text-[11px] font-black text-[#28A745] uppercase flex items-center gap-1">✓ REGISTRADO E AUDITADO</p>
+                                                            <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase mb-0.5 block tracking-widest">Status de Auditoria</span>
+                                                            <p className="text-[10px] lg:text-[11px] font-black text-[#28A745] uppercase flex items-center gap-1">✓ REGISTRADO</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="mt-4 md:mt-0 px-4 py-2 border-2 border-[#1A3351] text-center">
-                                                        <p className="text-[10px] font-black text-[#1A3351] uppercase leading-none">CÓDIGO DE EVIDÊNCIA: {entry.id}</p>
+                                                    <div className="px-4 py-2 bg-white border-2 border-[#1A3351] text-center shadow-sm">
+                                                        <p className="text-[9px] lg:text-[10px] font-black text-[#1A3351] uppercase leading-none">REF: {entry.id}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="mt-8 pt-4 border-t border-slate-200 flex justify-between items-center">
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => {
-                                                            const asoTypeMatch = entry.aso_type.match(/\((.*?)\)/);
-                                                            const asoType = asoTypeMatch ? asoTypeMatch[1] : "Encaminhamento";
+                                            <div className="mt-8 pt-4 border-t border-slate-200 flex flex-col lg:flex-row justify-between items-center gap-4">
+                                                <button
+                                                    onClick={() => {
+                                                        const asoTypeMatch = entry.aso_type.match(/\((.*?)\)/);
+                                                        const asoType = asoTypeMatch ? asoTypeMatch[1] : "Encaminhamento";
 
-                                                            const examsMatch = entry.aso_type.match(/\[([\s\S]*?)\]/);
-                                                            const exams = examsMatch ? examsMatch[1].split(',').map(e => e.trim()) : [];
+                                                        const examsMatch = entry.aso_type.match(/\[([\s\S]*?)\]/);
+                                                        const exams = examsMatch ? examsMatch[1].split(',').map(e => e.trim()) : [];
 
-                                                            const risksMatch = entry.aso_type.match(/<([\s\S]*?)>/);
-                                                            const details = risksMatch ? risksMatch[1] : "";
+                                                        const risksMatch = entry.aso_type.match(/<([\s\S]*?)>/);
+                                                        const details = risksMatch ? risksMatch[1] : "";
 
-                                                            const docData = {
-                                                                Nome: entry.servidor_nome,
-                                                                CPF: entry.servidor_cpf,
-                                                                Cargo: entry.cargo,
-                                                                Secretaria: entry.secretaria,
-                                                                // Nota: Dt.Nascimento não é armazenado no histórico resumido, 
-                                                                // então o PDF mostrará --- para este campo na reemissão.
-                                                            };
+                                                        const docData = {
+                                                            Nome: entry.servidor_nome,
+                                                            CPF: entry.servidor_cpf,
+                                                            Cargo: entry.cargo,
+                                                            Secretaria: entry.secretaria,
+                                                        };
 
-                                                            const examConfig = {
-                                                                exames: exams,
-                                                                riscos: "",
-                                                                detalhes: details
-                                                            };
+                                                        const examConfig = {
+                                                            exames: exams,
+                                                            riscos: "",
+                                                            detalhes: details
+                                                        };
 
-                                                            import("@/lib/pdf-generator").then(m => {
-                                                                m.generateReferralPDF(
-                                                                    docData,
-                                                                    examConfig,
-                                                                    asoType,
-                                                                    exams.map(() => new Date(entry.generated_at).toLocaleDateString('pt-BR')),
-                                                                    entry.operator_name || operatorsMap[entry.generated_by] || "SISTEMA"
-                                                                );
-                                                            });
-                                                        }}
-                                                        className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-md transition-all flex items-center gap-2"
-                                                    >
-                                                        <Printer className="w-3.5 h-3.5" /> Reemitir PDF Oficial
-                                                    </button>
-                                                </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Hash de Segurança: {Math.random().toString(36).substring(7).toUpperCase()}-{entry.id}</span>
+                                                        import("@/lib/pdf-generator").then(m => {
+                                                            m.generateReferralPDF(
+                                                                docData,
+                                                                examConfig,
+                                                                asoType,
+                                                                exams.map(() => new Date(entry.generated_at).toLocaleDateString('pt-BR')),
+                                                                entry.operator_name || operatorsMap[entry.generated_by] || "SISTEMA"
+                                                            );
+                                                        });
+                                                    }}
+                                                    className="w-full lg:w-auto px-8 lg:px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                >
+                                                    <Printer className="w-3.5 h-3.5" /> Reemitir PDF Oficial
+                                                </button>
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-full">Audit-Hash: {Math.random().toString(36).substring(7).toUpperCase()}-{entry.id}</span>
                                             </div>
                                         </div>
                                     )}
