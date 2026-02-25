@@ -130,7 +130,6 @@ export default function NewAbonoPage() {
                     inicio: formData.inicio,
                     quant: 12,
                     observacoes: formData.observacoes,
-                    status: 'active',
                     updated_at: new Date().toISOString()
                 });
 

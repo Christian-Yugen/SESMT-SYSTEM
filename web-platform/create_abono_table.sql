@@ -29,7 +29,7 @@ INSERT WITH CHECK (
             SELECT 1
             FROM public.profiles
             WHERE profiles.id = auth.uid()
-                AND profiles.role IN ('admin', 'nurse', 'operator')
+                AND profiles.role IN ('admin', 'nurse', 'operator', 'social_assistant')
         )
     );
 DROP POLICY IF EXISTS "Admins e enfermeiros podem atualizar abonos" ON public.abono_salarial;
@@ -39,7 +39,7 @@ UPDATE USING (
             SELECT 1
             FROM public.profiles
             WHERE profiles.id = auth.uid()
-                AND profiles.role IN ('admin', 'nurse', 'operator')
+                AND profiles.role IN ('admin', 'nurse', 'operator', 'social_assistant')
         )
     );
 -- 4. PERMISSÕES
