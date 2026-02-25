@@ -74,6 +74,33 @@ export async function syncProfile(session: any): Promise<string> {
 }
 
 /**
+ * Trata erros de autenticação, especialmente o erro de Refresh Token inválido.
+ * Força o logout local para limpar o estado corrompido em caso de falha crítica.
+ */
+export async function handleAuthError(error: any) {
+    if (!error) return;
+
+    console.error("Erro crítico de autenticação:", error.message || error);
+
+    // Se for erro de refresh token, precisamos garantir que o estado local seja limpo
+    const isRefreshError = error.message?.includes('Refresh Token Not Found') ||
+        error.message?.includes('invalid refresh token') ||
+        error.status === 400;
+
+    if (isRefreshError) {
+        console.warn("Detectado erro de token inválido. Limpando sessão local...");
+        if (typeof window !== 'undefined') {
+            // Em v2, signOut limpa o storage local mesmo que a chamada ao servidor falhe
+            await supabase.auth.signOut();
+            // Redirecionamento forçado se o signOut não disparar onAuthStateChange corretamente
+            window.location.href = '/login';
+        }
+    } else {
+        await supabase.auth.signOut();
+    }
+}
+
+/**
  * Gera um UUID v4 compatível com todos os navegadores (incluindo ambientes não-secure).
  */
 export function generateUUID() {

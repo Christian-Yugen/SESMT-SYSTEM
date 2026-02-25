@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 
 import { Servidor, Funcao, ExameData } from "@/types";
 import { generateASOPDF, generateReferralPDF } from "@/lib/pdf-generator";
-import { syncProfile } from "@/lib/auth-utils";
+import { syncProfile, handleAuthError } from "@/lib/auth-utils";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -35,8 +35,7 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
-        console.error("Erro ao obter sessão:", error.message);
-        supabase.auth.signOut().then(() => router.push("/login"));
+        handleAuthError(error);
         return;
       }
 
@@ -50,8 +49,7 @@ export default function Home() {
         router.push("/login");
       }
     }).catch(err => {
-      console.error("Erro fatal de autenticação:", err);
-      supabase.auth.signOut().then(() => router.push("/login"));
+      handleAuthError(err);
     });
 
     const {

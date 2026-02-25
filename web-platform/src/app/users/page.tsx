@@ -12,7 +12,7 @@ import {
     FolderOpen
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { handleAuthError } from "@/lib/auth-utils";
 import { generateUUID } from "@/lib/auth-utils";
 
 interface Profile {
@@ -44,9 +44,7 @@ export default function UsersPage() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
-                    console.error("Auth error:", error.message);
-                    await supabase.auth.signOut();
-                    router.push("/login");
+                    await handleAuthError(error);
                     return;
                 }
 
@@ -66,9 +64,7 @@ export default function UsersPage() {
                     return;
                 }
             } catch (err) {
-                console.error("Fatal auth error:", err);
-                await supabase.auth.signOut();
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();

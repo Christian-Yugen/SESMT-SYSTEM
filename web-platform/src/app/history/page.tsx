@@ -9,7 +9,7 @@ import {
     Building2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { handleAuthError } from "@/lib/auth-utils";
 
 interface HistoryEntry {
     id: number;
@@ -60,9 +60,7 @@ export default function HistoryPage() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) {
-                    console.error("Auth error:", error.message);
-                    await supabase.auth.signOut();
-                    router.push("/login");
+                    await handleAuthError(error);
                     return;
                 }
 
@@ -79,9 +77,7 @@ export default function HistoryPage() {
                 }
                 loadHistory();
             } catch (err) {
-                console.error("Fatal auth error:", err);
-                await supabase.auth.signOut();
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();

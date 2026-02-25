@@ -40,6 +40,7 @@ import {
     FolderOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { handleAuthError } from "@/lib/auth-utils";
 
 /** Utilitário: Verifica se o benefício está ativo (1 ano de vigência) */
 const isBenefitActive = (inicio: string) => {
@@ -117,7 +118,11 @@ export default function AbonoAnalyticsPage() {
         const checkAuth = async () => {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
-                if (error || !session) {
+                if (error) {
+                    await handleAuthError(error);
+                    return;
+                }
+                if (!session) {
                     router.push("/login");
                     return;
                 }
@@ -127,7 +132,7 @@ export default function AbonoAnalyticsPage() {
                 setUserName(name);
                 loadData();
             } catch (err) {
-                router.push("/login");
+                await handleAuthError(err);
             }
         };
         checkAuth();
