@@ -21,7 +21,7 @@ ALTER TABLE public.abono_salarial ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Usuários autenticados podem ver todos os abonos" ON public.abono_salarial;
 CREATE POLICY "Usuários autenticados podem ver todos os abonos" ON public.abono_salarial FOR
 SELECT USING (auth.role() = 'authenticated');
--- Apenas admins e enfermeiros podem inserir/editar abonos
+-- Apenas admins, enfermeiros e operadores podem inserir/editar abonos
 DROP POLICY IF EXISTS "Admins e enfermeiros podem inserir abonos" ON public.abono_salarial;
 CREATE POLICY "Admins e enfermeiros podem inserir abonos" ON public.abono_salarial FOR
 INSERT WITH CHECK (
@@ -29,7 +29,7 @@ INSERT WITH CHECK (
             SELECT 1
             FROM public.profiles
             WHERE profiles.id = auth.uid()
-                AND profiles.role IN ('admin', 'nurse')
+                AND profiles.role IN ('admin', 'nurse', 'operator')
         )
     );
 DROP POLICY IF EXISTS "Admins e enfermeiros podem atualizar abonos" ON public.abono_salarial;
@@ -39,7 +39,7 @@ UPDATE USING (
             SELECT 1
             FROM public.profiles
             WHERE profiles.id = auth.uid()
-                AND profiles.role IN ('admin', 'nurse')
+                AND profiles.role IN ('admin', 'nurse', 'operator')
         )
     );
 -- 4. PERMISSÕES

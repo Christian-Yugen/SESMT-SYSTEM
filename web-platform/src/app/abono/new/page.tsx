@@ -25,7 +25,8 @@ export default function NewAbonoPage() {
         portaria: "",
         assomasul_data: "",
         inicio: "",
-        quant: "1"
+        quant: "12",
+        observacoes: ""
     });
 
     useEffect(() => {
@@ -89,10 +90,14 @@ export default function NewAbonoPage() {
                 .insert({
                     cpf: selectedServidor.CPF || selectedServidor["CPF."],
                     nome: selectedServidor.Nome,
+                    secretaria: selectedServidor.Secretaria,
                     portaria: formData.portaria,
                     assomasul_data: formData.assomasul_data || null,
                     inicio: formData.inicio,
-                    quant: parseInt(formData.quant) || 1
+                    quant: 12,
+                    observacoes: formData.observacoes,
+                    status: 'active',
+                    updated_at: new Date().toISOString()
                 });
 
             if (error) throw error;
@@ -205,8 +210,8 @@ export default function NewAbonoPage() {
                     </div>
                 </section>
 
-                <div className="flex-1 p-6 lg:p-10 overflow-y-auto">
-                    <div className="max-w-4xl mx-auto space-y-8">
+                <div className="flex-1 p-4 lg:p-8 overflow-y-auto">
+                    <div className="max-w-[1400px] mx-auto space-y-6">
 
                         {/* BUSCAR SERVIDOR */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
@@ -233,20 +238,20 @@ export default function NewAbonoPage() {
                             {selectedServidor && (
                                 <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded grid grid-cols-2 gap-4 animate-in fade-in duration-300">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase">Nome</p>
-                                        <p className="font-bold uppercase">{selectedServidor.Nome}</p>
+                                        <p className="text-[11px] font-black text-slate-400 uppercase">Nome</p>
+                                        <p className="text-xl font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase">Cargo</p>
-                                        <p className="font-bold uppercase text-xs">{selectedServidor.Cargo}</p>
+                                        <p className="text-[11px] font-black text-slate-400 uppercase">Cargo</p>
+                                        <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Cargo}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase">Matrícula</p>
-                                        <p className="font-bold">{selectedServidor.Matrícula}</p>
+                                        <p className="text-[11px] font-black text-slate-400 uppercase">Matrícula</p>
+                                        <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase">Secretaria</p>
-                                        <p className="font-bold uppercase text-xs">{selectedServidor.Secretaria}</p>
+                                        <p className="text-[11px] font-black text-slate-400 uppercase">Secretaria</p>
+                                        <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Secretaria}</p>
                                     </div>
                                 </div>
                             )}
@@ -258,43 +263,53 @@ export default function NewAbonoPage() {
                                 <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados do Benefício</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Número da Portaria *</label>
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número da Portaria *</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-normal bg-[#fcfcfc] uppercase"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
                                             value={formData.portaria}
                                             onChange={(e) => setFormData({ ...formData, portaria: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-normal bg-[#fcfcfc]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
                                             value={formData.assomasul_data}
                                             onChange={(e) => setFormData({ ...formData, assomasul_data: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-normal bg-[#fcfcfc]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
                                             value={formData.inicio}
                                             onChange={(e) => setFormData({ ...formData, inicio: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Quantidade de meses</label>
-                                        <select
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-normal bg-[#fcfcfc]"
-                                            value={formData.quant}
-                                            onChange={(e) => setFormData({ ...formData, quant: e.target.value })}
-                                        >
-                                            {[1, 2, 3, 4, 5, 6, 12, 24].map(q => (
-                                                <option key={q} value={q}>{q} meses</option>
-                                            ))}
-                                        </select>
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data de Término (Automático)</label>
+                                        <div className="w-full px-4 py-3 border border-slate-200 rounded font-black bg-slate-50 text-xl text-[#E31E24]">
+                                            {formData.inicio ? (
+                                                (() => {
+                                                    const date = new Date(formData.inicio + 'T00:00:00');
+                                                    date.setFullYear(date.getFullYear() + 1);
+                                                    return date.toLocaleDateString('pt-BR');
+                                                })()
+                                            ) : '---'}
+                                        </div>
+                                    </div>
+                                    <div className="md:col-span-2 space-y-1">
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Informações Adicionais / Observações</label>
+                                        <textarea
+                                            rows={3}
+                                            placeholder="INSIRA AQUI OBSERVAÇÕES RELEVANTES SOBRE ESTE BENEFÍCIO..."
+                                            className="w-full px-4 py-4 border border-slate-300 rounded font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] uppercase text-base text-[#1A3351]"
+                                            value={formData.observacoes}
+                                            onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                                        />
                                     </div>
                                 </div>
 
