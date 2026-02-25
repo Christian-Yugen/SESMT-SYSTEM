@@ -32,7 +32,7 @@ export default function HistoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
-    const [currentUserId, setCurrentUserId] = useState<string>((null));
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [printLayout, setPrintLayout] = useState<'portrait' | 'landscape'>('landscape');
     const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
 
