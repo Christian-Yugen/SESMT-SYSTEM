@@ -6,7 +6,7 @@ import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2,
-    CreditCard, Loader2
+    CreditCard, Loader2, Scale
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError } from "@/lib/auth-utils";
@@ -244,6 +244,12 @@ export default function ReferralsPage() {
                                         <button onClick={() => router.push('/abono')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                                             <span>Abono Salarial</span>
+                                        </button>
+                                    )}
+                                    {userRole !== 'nurse' && userRole !== 'operator' && (
+                                        <button onClick={() => router.push('/abono/lei')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <Scale className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Legislação Abono</span>
                                         </button>
                                     )}
 

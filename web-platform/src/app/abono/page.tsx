@@ -6,7 +6,7 @@ import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight,
-    Building2
+    Building2, Scale
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -42,8 +42,14 @@ export default function AbonoPage() {
     const [tempEndDate, setTempEndDate] = useState<string>("");
     const [printLayout, setPrintLayout] = useState<'portrait' | 'landscape'>('landscape');
     const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
-    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
+    const [isBenefitsOpen, setIsBenefitsOpen] = useState(true);
+    const [isAbonoOpen, setIsAbonoOpen] = useState(true);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -354,10 +360,31 @@ export default function AbonoPage() {
                                         </>
                                     )}
                                     {userRole !== 'nurse' && userRole !== 'operator' && (
-                                        <button onClick={() => router.push('/abono')} className={`w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname === '/abono' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
-                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Abono Salarial</span>
-                                        </button>
+                                        <div className="space-y-1">
+                                            <button
+                                                onClick={() => setIsAbonoOpen(!isAbonoOpen)}
+                                                className={`w-full flex items-center justify-between p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider group ${pathname.startsWith('/abono') ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <ClipboardList className="w-3.5 h-3.5 shrink-0 group-hover:text-indigo-400 transition-colors" />
+                                                    <span>Abono Salarial</span>
+                                                </div>
+                                                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAbonoOpen ? 'rotate-180' : ''}`} />
+                                            </button>
+
+                                            {isAbonoOpen && (
+                                                <div className="flex flex-col space-y-1 pl-4">
+                                                    <button onClick={() => router.push('/abono')} className={`w-full flex items-center gap-2 p-2 pl-9 rounded-lg font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group ${pathname === '/abono' ? 'bg-white/5 text-white border-l-2 border-indigo-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}>
+                                                        <LayoutDashboard className="w-3 h-3 shrink-0" />
+                                                        <span>Painel de Gestão</span>
+                                                    </button>
+                                                    <button onClick={() => router.push('/abono/lei')} className={`w-full flex items-center gap-2 p-2 pl-9 rounded-lg font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group ${pathname === '/abono/lei' ? 'bg-white/5 text-sky-400 border-l-2 border-sky-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}>
+                                                        <Scale className="w-3 h-3 shrink-0" />
+                                                        <span>Legislação e Regras</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                     {userRole !== 'social_assistant' && (
                                         <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
@@ -384,7 +411,7 @@ export default function AbonoPage() {
                                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
-                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                                {(isHistoryOpen || (mounted && window.innerWidth >= 1024)) && (
                                     <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
                                         <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                                             <HistoryIcon className="w-3.5 h-3.5 shrink-0" />

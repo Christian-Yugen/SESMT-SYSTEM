@@ -7,7 +7,7 @@ import { handleAuthError } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
-    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp
+    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale
 } from "lucide-react";
 import { Servidor } from "@/types";
 
@@ -207,6 +207,10 @@ export default function NewAbonoPage() {
                         <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
+                        </button>
+                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <Scale className="w-3.5 h-3.5 shrink-0" />
+                            <span>Legislação Abono</span>
                         </button>
                         <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
