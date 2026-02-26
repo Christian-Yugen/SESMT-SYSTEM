@@ -369,7 +369,7 @@ export default function AbonoLeiPage() {
                         <div className="bg-white shadow-2xl shadow-slate-200 border border-slate-200 rounded-3xl overflow-hidden relative z-10 law-paper">
 
                             {/* PAPER HEADER */}
-                            <div className="bg-slate-50 border-b border-slate-200 p-8 lg:p-12 text-center space-y-4 law-paper-header">
+                            <div className="bg-slate-50 border-b border-slate-200 pt-8 pb-4 lg:pt-10 lg:pb-6 text-center space-y-2 law-paper-header">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4 shadow-sm print-hidden">
                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                                     Documento Integrado e Atualizado
@@ -377,13 +377,13 @@ export default function AbonoLeiPage() {
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-tight uppercase underline decoration-4 decoration-blue-500 underline-offset-8 law-title">
                                     LEI Nº 1562, DE 14/09/1999
                                 </h2>
-                                <p className="text-base font-serif italic text-slate-600 max-w-2xl mx-auto leading-relaxed pt-4">
+                                <p className="text-base font-serif italic text-slate-600 max-w-2xl mx-auto leading-relaxed pt-2">
                                     "Disciplina o abono salarial para servidores com filhos deficientes."
                                 </p>
                             </div>
 
                             {/* PAPER BODY */}
-                            <div className="p-6 lg:p-10 space-y-4 font-serif text-slate-800 text-lg leading-snug text-justify law-paper-body">
+                            <div className="px-6 py-6 lg:px-10 lg:pt-4 lg:pb-10 space-y-3 font-serif text-slate-800 text-lg leading-snug text-justify law-paper-body">
 
                                 {/* INTRO */}
                                 <div className="border-l-4 border-slate-200 pl-6 py-2 italic text-slate-700 bg-slate-50/50 rounded-r-lg law-intro">
