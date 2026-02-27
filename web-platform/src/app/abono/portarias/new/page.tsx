@@ -12,7 +12,7 @@ import {
 import { Servidor } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 import { generatePortariaDOCX } from "@/lib/portaria-docx";
-import { getLotadoGrammar } from "@/lib/portaria-utils";
+import { getLotadoGrammar, capitalizeName } from "@/lib/portaria-utils";
 
 export default function NewPortariaPage() {
     const router = useRouter();
@@ -224,11 +224,11 @@ export default function NewPortariaPage() {
                 .insert({
                     numero: parseInt(formData.numero),
                     ano: new Date().getFullYear(),
-                    servidor_nome: selectedServidor.Nome,
+                    servidor_nome: capitalizeName(selectedServidor.Nome || ""),
                     servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
                     servidor_matricula: selectedServidor.Matrícula,
-                    servidor_cargo: selectedServidor.Cargo,
-                    servidor_lotacao: formData.lotacao,
+                    servidor_cargo: capitalizeName(selectedServidor.Cargo || ""),
+                    servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero,
                     periodo_inicio: formData.periodo_inicio,
                     periodo_fim: formData.periodo_fim,
@@ -538,9 +538,13 @@ export default function NewPortariaPage() {
                                                 // Auto-calcular fim (+1 ano)
                                                 if (inicio) {
                                                     const date = new Date(inicio + 'T00:00:00');
-                                                    date.setFullYear(date.getFullYear() + 1);
-                                                    const fimStr = date.toISOString().split('T')[0];
-                                                    setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: fimStr });
+                                                    if (!isNaN(date.getTime())) {
+                                                        date.setFullYear(date.getFullYear() + 1);
+                                                        const fimStr = date.toISOString().split('T')[0];
+                                                        setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: fimStr });
+                                                    } else {
+                                                        setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: "" });
+                                                    }
                                                 } else {
                                                     setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: "" });
                                                 }

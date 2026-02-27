@@ -12,7 +12,7 @@ import {
 import { Servidor } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 import { generatePortariaDOCX } from "@/lib/portaria-docx";
-import { getLotadoGrammar } from "@/lib/portaria-utils";
+import { getLotadoGrammar, capitalizeName } from "@/lib/portaria-utils";
 
 interface PortariaRecord {
     id: number;
@@ -210,7 +210,7 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     periodo_inicio: formData.periodo_inicio,
                     periodo_fim: formData.periodo_fim,
                     data_portaria: formData.data_portaria,
-                    servidor_lotacao: formData.lotacao,
+                    servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero,
                     motivo_alteracao: formData.motivo_alteracao,
                     alterado_por: operatorName,
@@ -231,7 +231,7 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     periodo_inicio: formData.periodo_inicio,
                     periodo_fim: formData.periodo_fim,
                     data_portaria: formData.data_portaria,
-                    servidor_lotacao: formData.lotacao,
+                    servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero
                 }
             });
@@ -461,9 +461,13 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                                             const inicio = e.target.value;
                                             if (inicio) {
                                                 const date = new Date(inicio + 'T00:00:00');
-                                                date.setFullYear(date.getFullYear() + 1);
-                                                const fimStr = date.toISOString().split('T')[0];
-                                                setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: fimStr });
+                                                if (!isNaN(date.getTime())) {
+                                                    date.setFullYear(date.getFullYear() + 1);
+                                                    const fimStr = date.toISOString().split('T')[0];
+                                                    setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: fimStr });
+                                                } else {
+                                                    setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: "" });
+                                                }
                                             } else {
                                                 setFormData({ ...formData, periodo_inicio: inicio, periodo_fim: "" });
                                             }

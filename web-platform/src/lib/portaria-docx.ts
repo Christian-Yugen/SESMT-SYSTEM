@@ -1,7 +1,7 @@
 import { Document, Paragraph, TextRun, AlignmentType, Packer, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
 import { PortariaData } from './portaria-pdf';
-import { getLotadoGrammar } from './portaria-utils';
+import { getLotadoGrammar, capitalizeName } from './portaria-utils';
 
 function formatDateExtended(dateStr: string): string {
     const parts = dateStr.split('/');
@@ -19,9 +19,13 @@ function formatDateExtended(dateStr: string): string {
 }
 
 export async function generatePortariaDOCX(data: PortariaData) {
+    const nomeFormatado = capitalizeName(data.servidor_nome);
+    const cargoFormatado = capitalizeName(data.servidor_cargo);
+    const lotacaoFormatada = capitalizeName(data.servidor_lotacao);
+
     const generoArtigo = data.servidor_genero === 'F' ? 'a servidora' : 'o servidor';
     const generoPublica = data.servidor_genero === 'F' ? 'Pública Municipal' : 'Público Municipal';
-    const lotadoGrammar = getLotadoGrammar(data.servidor_genero, data.servidor_lotacao);
+    const lotadoGrammar = getLotadoGrammar(data.servidor_genero, lotacaoFormatada);
     const dataFormatada = formatDateExtended(data.data_portaria);
 
     const doc = new Document({
@@ -38,37 +42,37 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     spacing: { after: 300 },
                     children: [
                         new TextRun({
-                            text: `PORTARIA Nº ${data.numero}/SEGP/DGP/${data.ano}`,
+                            text: `PORTARIA Nº ${data.numero.toString().padStart(4, '0')}/SEGP/DGP/${data.ano}`,
                             bold: true,
                             size: 26,
-                            font: 'Arial'
+                            font: 'Times New Roman'
                         })
                     ]
                 }),
 
-                // Preâmbulo
+                // Preâmbulo (pontos 7, 8)
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { after: 200 },
-                    indent: { left: 720 },
+                    indent: { left: 4000 }, // Recuo para a direita
                     children: [
                         new TextRun({
-                            text: 'VANESSA DOS SANTOS SÊNA, Secretária Municipal de Administração da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.',
+                            text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
                             bold: true,
                             italics: true,
-                            size: 22,
-                            font: 'Arial'
+                            size: 22, // 11pt
+                            font: 'Times New Roman'
                         })
                     ]
                 }),
 
-                // CONSIDERANDO
+                // CONSIDERANDO (ponto 9)
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { after: 200 },
                     children: [
-                        new TextRun({ text: 'CONSIDERANDO', bold: true, underline: { type: 'single' }, size: 22, font: 'Arial' }),
-                        new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de perícia (Sesmt);', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'CONSIDERANDO', bold: true, underline: { type: 'single' }, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de perícia (SESMT);', size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
@@ -77,73 +81,73 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     alignment: AlignmentType.LEFT,
                     spacing: { after: 200 },
                     children: [
-                        new TextRun({ text: 'RESOLVE:', bold: true, size: 22, font: 'Arial' })
+                        new TextRun({ text: 'RESOLVE:', bold: true, size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
-                // Art. 1
+                // Art. 1 (pontos 5, 10, 11)
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { after: 200 },
+                    spacing: { before: 200, after: 300 }, // Aumentado
                     indent: { left: 720 },
                     children: [
-                        new TextRun({ text: 'Art. 1º - ', bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: 'Fica concedido pelo período de ', size: 22, font: 'Arial' }),
-                        new TextRun({ text: `${data.periodo_inicio} a ${data.periodo_fim}`, bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: ` o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} `, size: 22, font: 'Arial' }),
-                        new TextRun({ text: `${data.servidor_nome},`, bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: ` matrícula ${data.servidor_matricula}, no cargo de ${data.servidor_cargo}, ${lotadoGrammar} ${data.servidor_lotacao}.`, size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Art. 1º - ', bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'Fica concedido pelo período de ', size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: `${data.periodo_inicio} a ${data.periodo_fim}`, bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: ` o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} `, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: `${nomeFormatado}, `, bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: `matrícula ${data.servidor_matricula}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`, size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
                 // Art. 2
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { after: 200 },
+                    spacing: { before: 200, after: 300 }, // Aumentado
                     indent: { left: 720 },
                     children: [
-                        new TextRun({ text: 'Art. 2º - ', bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: 'Fará jus ao abono, o servidor municipal, estável ou ocupante de cargo efetivo, inativos e contratados, que comprovar anualmente os requisitos previstos na lei.', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Art. 2º - ', bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'Fará jus ao abono, o servidor municipal, estável ou ocupante de cargo efetivo, inativos e contratados, que comprovar anualmente os requisitos previstos na lei.', size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
                 // Art. 3
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { after: 200 },
+                    spacing: { before: 200, after: 300 }, // Aumentado
                     indent: { left: 720 },
                     children: [
-                        new TextRun({ text: 'Art. 3°', bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: 'O pagamento do Abono Salarial poderá ser revisto a qualquer momento, caso sejam constatados irregularidades, erro material, vício procedimental ou descumprimento dos requisitos legais, sendo adotadas as providências cabíveis para a correção da concessão, nos termos da Súmula nº 346 e Súmula nº 473 do Supremo Tribunal Federal (STF).', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Art. 3º - ', bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'O pagamento do Abono Salarial poderá ser revisto a qualquer momento, caso sejam constatados irregularidades, erro material, vício procedimental ou descumprimento dos requisitos legais, sendo adotadas as providências cabíveis para a correção da concessão, nos termos da Súmula nº 346 e Súmula nº 473 do Supremo Tribunal Federal (STF).', size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
                 // Art. 4
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { after: 200 },
+                    spacing: { before: 200, after: 300 }, // Aumentado
                     indent: { left: 720 },
                     children: [
-                        new TextRun({ text: 'Art. 4º - ', bold: true, size: 22, font: 'Arial' }),
-                        new TextRun({ text: 'Esta Portaria entrará em vigor na data de sua publicação.', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Art. 4º - ', bold: true, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'Esta Portaria entrará em vigor na data de sua publicação.', size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
                 // Registre-se
                 new Paragraph({
                     alignment: AlignmentType.LEFT,
-                    spacing: { after: 200 },
+                    spacing: { before: 400, after: 200 }, // Aumentado
                     children: [
-                        new TextRun({ text: 'Registre-se, Divulgue-se.', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Registre-se, Divulgue-se.', size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
-                // Data
+                // Data (ponto 6)
                 new Paragraph({
                     alignment: AlignmentType.LEFT,
                     spacing: { after: 600 },
                     children: [
-                        new TextRun({ text: `Paço Municipal de Três Lagoas, aos ${dataFormatada}.`, size: 22, font: 'Arial' })
+                        new TextRun({ text: `Três Lagoas, ao ${dataFormatada}.`, size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
@@ -152,14 +156,14 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     alignment: AlignmentType.CENTER,
                     spacing: { after: 100 },
                     children: [
-                        new TextRun({ text: 'VANESSA DOS SANTOS SÊNA', bold: true, size: 24, font: 'Arial' })
+                        new TextRun({ text: 'VANESSA DOS SANTOS SÊNA', bold: true, size: 24, font: 'Times New Roman' })
                     ]
                 }),
 
                 new Paragraph({
                     alignment: AlignmentType.CENTER,
                     children: [
-                        new TextRun({ text: 'Secretária Municipal de Administração', size: 22, font: 'Arial' })
+                        new TextRun({ text: 'Secretária Municipal de Gestão de Pessoas', size: 22, font: 'Times New Roman' })
                     ]
                 })
             ]

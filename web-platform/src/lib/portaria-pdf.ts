@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { getLotadoGrammar } from './portaria-utils';
+import { getLotadoGrammar, capitalizeName } from './portaria-utils';
 
 export interface PortariaData {
     numero: number;
@@ -36,6 +36,11 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
         format: 'a4'
     });
 
+    // Formatação de dados para Title Case (ponto 1, 2, 3)
+    const nomeFormatado = capitalizeName(data.servidor_nome);
+    const cargoFormatado = capitalizeName(data.servidor_cargo);
+    const lotacaoFormatada = capitalizeName(data.servidor_lotacao);
+
     const pageWidth = doc.internal.pageSize.getWidth();
     const marginLeft = 25;
     const marginRight = 25;
@@ -43,195 +48,162 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     let y = 30;
 
     // === TÍTULO ===
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('times', 'bold');
     doc.setFontSize(13);
-    const titulo = `PORTARIA Nº ${data.numero}/SEGP/DGP/${data.ano}`;
+    const titulo = `PORTARIA Nº ${data.numero.toString().padStart(4, '0')}/SEGP/DGP/${data.ano}`;
     doc.text(titulo, pageWidth / 2, y, { align: 'center' });
     y += 14;
 
-    // === PREÂMBULO (itálico) ===
-    doc.setFont('helvetica', 'bolditalic');
-    doc.setFontSize(10.5);
-    const preambulo = 'VANESSA DOS SANTOS SÊNA, Secretária Municipal de Administração da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.';
-    const preambuloLines = doc.splitTextToSize(preambulo, contentWidth);
-    doc.text(preambuloLines, marginLeft, y);
-    y += preambuloLines.length * 5.5 + 8;
+    // === PREÂMBULO (itálico e recuado à direita - ponto 7, 8) ===
+    doc.setFont('times', 'bolditalic');
+    doc.setFontSize(11); // Aumentado levemente
+    const preambulo = `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`;
 
-    // === CONSIDERANDO ===
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10.5);
+    // Recuo de 1/3 da página para a esquerda (ficando na direita)
+    const preambuloIndent = 70;
+    const preambuloWidth = pageWidth - marginLeft - marginRight - preambuloIndent; // Corrigido: adicionado marginRight
+    const preambuloLines = doc.splitTextToSize(preambulo, preambuloWidth);
+
+    doc.text(preambuloLines, marginLeft + preambuloIndent, y, { align: 'justify', maxWidth: preambuloWidth });
+    y += preambuloLines.length * 6 + 10; // Aumentado espaçamento
+
+    // === CONSIDERANDO (ponto 9) ===
+    doc.setFont('times', 'bold');
+    doc.setFontSize(12); // Aumentado para 12
     doc.text('CONSIDERANDO', marginLeft, y);
-    doc.setFont('helvetica', 'normal');
-    const considerandoResto = ' os requisitos exigidos em lei e avaliação realizada pelo órgão de perícia (Sesmt);';
+    doc.setFont('times', 'normal');
+    const considerandoResto = ' os requisitos exigidos em lei e avaliação realizada pelo órgão de perícia (SESMT);';
     const considerandoWidth = doc.getTextWidth('CONSIDERANDO');
     doc.text(considerandoResto, marginLeft + considerandoWidth, y);
-    y += 10;
+    y += 12; // Aumentado espaçamento
 
     // === RESOLVE ===
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10.5);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(12); // Aumentado para 12
     doc.text('RESOLVE:', marginLeft, y);
-    y += 10;
+    y += 12; // Aumentado espaçamento
 
-    // === ARTIGO 1 ===
+    // === ARTIGO 1 (ponto 5, 10, 11) ===
     const indentLeft = marginLeft + 12;
     const indentWidth = contentWidth - 12;
 
-    doc.setFont('helvetica', 'bold');
+    const generoArtigo = data.servidor_genero === 'F' ? 'a servidora' : 'o servidor';
+    const generoPublica = data.servidor_genero === 'F' ? 'Pública Municipal' : 'Público Municipal';
+    const lotadoGrammar = getLotadoGrammar(data.servidor_genero, lotacaoFormatada);
+
+    doc.setFontSize(12); // Aumentado para 12pt
+    doc.setFont('times', 'bold');
     doc.text('Art. 1º - ', indentLeft, y);
     const art1LabelWidth = doc.getTextWidth('Art. 1º - ');
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('times', 'normal');
+    // Adicionado espaço após a vírgula (ponto 10)
+    const art1Text = `Fica concedido pelo período de ${data.periodo_inicio} a ${data.periodo_fim} o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} ${nomeFormatado}, matrícula ${data.servidor_matricula}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`;
 
-    const generoArtigo = data.servidor_genero === 'F' ? 'a servidora' : 'o servidor';
-    const generoPublica = data.servidor_genero === 'F' ? 'Pública Municipal' : 'Público Municipal';
-    const lotadoGrammar = getLotadoGrammar(data.servidor_genero, data.servidor_lotacao);
+    // Reduzimos a largura para compensar a largura extra do negrito de forma mais segura
+    const art1Lines = doc.splitTextToSize(art1Text, indentWidth - 4);
 
-    const art1Text = `Fica concedido pelo período de ${data.periodo_inicio} a ${data.periodo_fim} o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} ${data.servidor_nome}, matrícula ${data.servidor_matricula}, no cargo de ${data.servidor_cargo}, ${lotadoGrammar} ${data.servidor_lotacao}.`;
+    // Função auxiliar para renderizar linhas justificadas com suporte a negrito
+    const renderJustifiedWithBold = (lines: string[], startY: number, fullWidth: number, startX: number, labelWidth: number = 0, boldParts: string[] = []) => {
+        let currentY = startY;
+        doc.setFont('times', 'normal');
+        const spaceWidthNormal = doc.getTextWidth(' ');
 
-    // First line starts after "Art. 1º - "
-    const firstLineWidth = indentWidth - art1LabelWidth;
-    const firstLineWords = art1Text.split(' ');
-    let firstLine = '';
-    let remainingText = '';
-    let usedFirstLine = false;
+        lines.forEach((line, index) => {
+            const isFirstLine = index === 0;
+            const currentX = isFirstLine ? startX + labelWidth : startX;
+            const activeWidth = isFirstLine ? fullWidth - labelWidth : fullWidth;
+            const isLastLine = index === lines.length - 1;
 
-    for (let i = 0; i < firstLineWords.length; i++) {
-        const testLine = firstLine ? firstLine + ' ' + firstLineWords[i] : firstLineWords[i];
-        if (doc.getTextWidth(testLine) <= firstLineWidth && !usedFirstLine) {
-            firstLine = testLine;
-        } else {
-            if (!usedFirstLine) {
-                usedFirstLine = true;
-                remainingText = firstLineWords.slice(i).join(' ');
-                break;
-            }
-        }
-    }
-
-    if (!usedFirstLine) {
-        firstLine = art1Text;
-        remainingText = '';
-    }
-
-    // Draw first line with bold parts inline
-    doc.setFont('helvetica', 'normal');
-    doc.text(firstLine, indentLeft + art1LabelWidth, y);
-    y += 5.5;
-
-    if (remainingText) {
-        // Now handle remaining text with bold parts
-        const remainingLines = doc.splitTextToSize(remainingText, indentWidth);
-
-        for (const line of remainingLines) {
-            // Check if this line contains bold parts (dates or name)
-            let currentX = indentLeft;
-            const boldParts = [
-                data.periodo_inicio,
-                data.periodo_fim,
-                data.servidor_nome + ','
-            ];
-
-            let lineText = line;
-            let segments: { text: string; bold: boolean }[] = [];
-
-            // Simple approach: render whole line, then overlay bold parts
-            let tempLine = lineText;
-            let foundBold = false;
-
-            for (const bp of boldParts) {
-                const idx = tempLine.indexOf(bp);
-                if (idx >= 0) {
-                    foundBold = true;
-                    if (idx > 0) {
-                        segments.push({ text: tempLine.substring(0, idx), bold: false });
-                    }
-                    segments.push({ text: bp, bold: true });
-                    tempLine = tempLine.substring(idx + bp.length);
-                }
-            }
-
-            if (foundBold && tempLine.length > 0) {
-                segments.push({ text: tempLine, bold: false });
-            }
-
-            if (foundBold && segments.length > 0) {
-                for (const seg of segments) {
-                    doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
-                    doc.text(seg.text, currentX, y);
-                    currentX += doc.getTextWidth(seg.text);
-                }
+            const words = line.trim().split(/\s+/);
+            if (words.length <= 1 || isLastLine) {
+                // Linha única ou última linha: alinhamento à esquerda
+                let xOffset = currentX;
+                words.forEach((word) => {
+                    const isBold = boldParts.some(bp => word.includes(bp));
+                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    doc.text(word, xOffset, currentY);
+                    xOffset += doc.getTextWidth(word) + spaceWidthNormal;
+                });
             } else {
-                doc.setFont('helvetica', 'normal');
-                doc.text(lineText, indentLeft, y);
-            }
-            y += 5.5;
-        }
-    }
+                // Justificar linha
+                const totalWordsWidth = words.reduce((acc, word) => {
+                    const isBold = boldParts.some(bp => word.includes(bp));
+                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    return acc + doc.getTextWidth(word);
+                }, 0);
 
-    y += 6;
+                const totalSpaceWidth = activeWidth - totalWordsWidth;
+                const spaceWidth = totalSpaceWidth / (words.length - 1);
+
+                let xOffset = currentX;
+                words.forEach((word) => {
+                    const isBold = boldParts.some(bp => word.includes(bp));
+                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    doc.text(word, xOffset, currentY);
+                    xOffset += doc.getTextWidth(word) + spaceWidth;
+                });
+            }
+            currentY += 6.5; // Espaçamento entre linhas ajustado para fonte 12
+        });
+        return currentY;
+    };
+
+    const ABONO_SALARIAL_LABEL = 'ABONO SALARIAL';
+    const boldParts = [data.periodo_inicio, data.periodo_fim, ABONO_SALARIAL_LABEL, nomeFormatado];
+    y = renderJustifiedWithBold(art1Lines, y, indentWidth, indentLeft, art1LabelWidth, boldParts);
+    y += 4; // Espaço entre artigos
 
     // === ARTIGO 2 ===
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10.5);
+    doc.setFontSize(12);
+    doc.setFont('times', 'bold');
     doc.text('Art. 2º - ', indentLeft, y);
     const art2LabelWidth = doc.getTextWidth('Art. 2º - ');
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('times', 'normal');
     const art2Text = 'Fará jus ao abono, o servidor municipal, estável ou ocupante de cargo efetivo, inativos e contratados, que comprovar anualmente os requisitos previstos na lei.';
-    const art2Lines = doc.splitTextToSize(art2Text, indentWidth - art2LabelWidth);
-
-    // First line
-    doc.text(art2Lines[0], indentLeft + art2LabelWidth, y);
-    y += 5.5;
-    // Remaining lines
-    for (let i = 1; i < art2Lines.length; i++) {
-        doc.text(art2Lines[i], indentLeft, y);
-        y += 5.5;
-    }
-    y += 6;
+    const art2Lines = doc.splitTextToSize(art2Text, indentWidth - 4);
+    y = renderJustifiedWithBold(art2Lines, y, indentWidth, indentLeft, art2LabelWidth, []);
+    y += 4;
 
     // === ARTIGO 3 ===
-    doc.setFont('helvetica', 'bold');
-    doc.text('Art. 3°', indentLeft, y);
-    const art3LabelWidth = doc.getTextWidth('Art. 3°');
-    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setFont('times', 'bold');
+    doc.text('Art. 3º - ', indentLeft, y);
+    const art3LabelWidth = doc.getTextWidth('Art. 3º - ');
+    doc.setFont('times', 'normal');
     const art3Text = 'O pagamento do Abono Salarial poderá ser revisto a qualquer momento, caso sejam constatados irregularidades, erro material, vício procedimental ou descumprimento dos requisitos legais, sendo adotadas as providências cabíveis para a correção da concessão, nos termos da Súmula nº 346 e Súmula nº 473 do Supremo Tribunal Federal (STF).';
-    const art3Lines = doc.splitTextToSize(art3Text, indentWidth - art3LabelWidth);
-
-    doc.text(art3Lines[0], indentLeft + art3LabelWidth, y);
-    y += 5.5;
-    for (let i = 1; i < art3Lines.length; i++) {
-        doc.text(art3Lines[i], indentLeft, y);
-        y += 5.5;
-    }
-    y += 6;
+    const art3Lines = doc.splitTextToSize(art3Text, indentWidth - 4);
+    y = renderJustifiedWithBold(art3Lines, y, indentWidth, indentLeft, art3LabelWidth, []);
+    y += 4;
 
     // === ARTIGO 4 ===
-    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setFont('times', 'bold');
     doc.text('Art. 4º - ', indentLeft, y);
     const art4LabelWidth = doc.getTextWidth('Art. 4º - ');
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('times', 'normal');
     doc.text('Esta Portaria entrará em vigor na data de sua publicação.', indentLeft + art4LabelWidth, y);
-    y += 12;
+    y += 14;
 
     // === Registre-se ===
-    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setFont('times', 'normal');
     doc.text('Registre-se, Divulgue-se.', marginLeft, y);
     y += 10;
 
-    // === Local e Data ===
-    const dataFormatada = formatDateExtended(data.data_portaria);
-    doc.text(`Paço Municipal de Três Lagoas, aos ${dataFormatada}.`, marginLeft, y);
+    // === Local e Data (ponto 6) ===
+    const dataFormatadaExtended = formatDateExtended(data.data_portaria);
+    doc.text(`Três Lagoas, ao ${dataFormatadaExtended}.`, marginLeft, y);
     y += 25;
 
     // === Assinatura ===
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(12);
     doc.text('VANESSA DOS SANTOS SÊNA', pageWidth / 2, y, { align: 'center' });
-    y += 5.5;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text('Secretária Municipal de Administração', pageWidth / 2, y, { align: 'center' });
+    y += 6;
+    doc.setFont('times', 'normal');
+    doc.setFontSize(11);
+    doc.text('Secretária Municipal de Gestão de Pessoas', pageWidth / 2, y, { align: 'center' });
 
     // === Output ===
     if (action === 'download') {

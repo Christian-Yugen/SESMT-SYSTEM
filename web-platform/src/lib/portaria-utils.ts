@@ -49,6 +49,27 @@ export function getWorkplacePreposition(workplace: string): string {
 }
 
 /**
+ * Formata um nome ou cargo para "Proper Case" (Cada Palavra Maiúscula)
+ * com exceção de conjunções (de, da, do, dos, das) que ficam minúsculas.
+ */
+export function capitalizeName(text: string): string {
+    if (!text) return "";
+    const exceptions = ['de', 'da', 'do', 'dos', 'das', 'e'];
+
+    return text
+        .toLowerCase()
+        .trim()
+        .split(/\s+/)
+        .map((word, index) => {
+            if (index > 0 && exceptions.includes(word)) {
+                return word;
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+}
+
+/**
  * Retorna a frase completa "lotado(a) no/na/em"
  */
 export function getLotadoGrammar(genero: 'M' | 'F', workplace: string): string {
