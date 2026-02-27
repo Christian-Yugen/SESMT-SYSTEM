@@ -7,10 +7,11 @@ import { handleAuthError } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
-    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, FileText, Eye, ChevronDown
+    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, FileText, Eye, ChevronDown, Download
 } from "lucide-react";
 import { Servidor } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
+import { generatePortariaDOCX } from "@/lib/portaria-docx";
 import { getLotadoGrammar } from "@/lib/portaria-utils";
 
 export default function NewPortariaPage() {
@@ -177,6 +178,30 @@ export default function NewPortariaPage() {
             data_portaria: formatDateBR(formData.data_portaria)
         };
         generatePortariaPDF(portariaData, 'view');
+    };
+
+    const handleDownloadDOCX = async () => {
+        if (!selectedServidor) {
+            alert("Selecione um servidor primeiro.");
+            return;
+        }
+        if (!formData.numero || !formData.periodo_inicio || !formData.periodo_fim) {
+            alert("Preencha todos os campos obrigatórios.");
+            return;
+        }
+        const portariaData: PortariaData = {
+            numero: parseInt(formData.numero),
+            ano: new Date().getFullYear(),
+            servidor_nome: selectedServidor.Nome || "",
+            servidor_matricula: selectedServidor.Matrícula || "",
+            servidor_cargo: selectedServidor.Cargo || "",
+            servidor_lotacao: formData.lotacao,
+            servidor_genero: formData.genero,
+            periodo_inicio: formatDateBR(formData.periodo_inicio),
+            periodo_fim: formatDateBR(formData.periodo_fim),
+            data_portaria: formatDateBR(formData.data_portaria)
+        };
+        await generatePortariaDOCX(portariaData);
     };
 
     const handleSave = async () => {
@@ -445,30 +470,38 @@ export default function NewPortariaPage() {
                             )}
 
                             {selectedServidor && (
-                                <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in duration-300">
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Nome</p>
-                                        <p className="text-lg font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
+                                <div className="mt-6 p-5 bg-white border-2 border-slate-200 rounded-lg shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="flex items-center gap-4 pb-2 border-b border-slate-100">
+                                        <div className="w-12 h-12 bg-[#1A3351] rounded flex items-center justify-center text-white shrink-0">
+                                            <User className="w-6 h-6" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servidor Selecionado</p>
+                                            <p className="text-xl font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Cargo</p>
-                                        <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Cargo}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Matrícula</p>
-                                        <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Secretaria</p>
-                                        <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Secretaria}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Sexo</p>
-                                        <p className="font-bold uppercase text-sm text-pink-600">{selectedServidor.Sexo || "---"}</p>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Lotação (Excel)</p>
-                                        <p className="font-bold uppercase text-sm text-amber-600">{selectedServidor["Local de Trabalho"] || "---"}</p>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 pt-2 text-sm">
+                                        <div className="flex items-center gap-2 md:col-span-2">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Cargo:</p>
+                                            <p className="font-bold uppercase text-[#1A3351]">{selectedServidor.Cargo}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 md:col-span-2">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Secretaria:</p>
+                                            <p className="font-bold uppercase text-[#1A3351]">{selectedServidor.Secretaria}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 md:col-span-2">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Lotação:</p>
+                                            <p className="font-bold uppercase text-[#1A3351]">{selectedServidor["Local de Trabalho"] || "---"}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Matrícula:</p>
+                                            <p className="font-bold text-slate-700">{selectedServidor.Matrícula}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Sexo:</p>
+                                            <p className="font-bold uppercase text-slate-700">{selectedServidor.Sexo === 'F' ? 'Feminino' : 'Masculino'}</p>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -478,62 +511,27 @@ export default function NewPortariaPage() {
                         {selectedServidor && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-amber-500 animate-in slide-in-from-bottom-4 duration-500">
                                 <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados da Portaria</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                                     {/* Número da Portaria */}
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Nº da Portaria *</label>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="number"
-                                                className="w-full px-4 py-3 border border-slate-300 rounded font-black bg-[#fcfcfc] uppercase text-2xl text-[#1A3351] text-center"
-                                                value={formData.numero}
-                                                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                                            />
-                                        </div>
-                                        <p className="text-[9px] font-bold text-amber-600 uppercase pl-1">PORTARIA Nº {formData.numero || "---"}/SEMAD/DRH/{new Date().getFullYear()}</p>
-                                    </div>
-
-                                    {/* Gênero */}
-                                    <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Gênero do Servidor *</label>
-                                        <div className="flex gap-2 h-[52px]">
-                                            <button
-                                                onClick={() => setFormData({ ...formData, genero: "F" })}
-                                                className={`flex-1 px-4 py-3 rounded font-black uppercase text-sm transition-all border-2 ${formData.genero === "F" ? 'bg-pink-50 border-pink-500 text-pink-700' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-400'}`}
-                                            >
-                                                Feminino
-                                            </button>
-                                            <button
-                                                onClick={() => setFormData({ ...formData, genero: "M" })}
-                                                className={`flex-1 px-4 py-3 rounded font-black uppercase text-sm transition-all border-2 ${formData.genero === "M" ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-400'}`}
-                                            >
-                                                Masculino
-                                            </button>
-                                        </div>
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase pl-1">
-                                            Usará: "{formData.genero === 'F' ? 'a servidora Pública Municipal' : 'o servidor Público Municipal'}"
-                                        </p>
-                                    </div>
-
-                                    {/* Lotação */}
-                                    <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Lotação (Local de Trabalho) *</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Nº da Portaria *</label>
                                         <input
-                                            type="text"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-sm text-[#1A3351]"
-                                            value={formData.lotacao}
-                                            onChange={(e) => setFormData({ ...formData, lotacao: e.target.value })}
-                                            placeholder="EX: ESCOLA MARIA DE LOURDES LOPES"
+                                            type="number"
+                                            readOnly
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-black bg-slate-100 uppercase text-xl text-[#1A3351] text-center cursor-not-allowed"
+                                            value={formData.numero}
                                         />
+                                        <p className="text-[8px] font-bold text-amber-600 uppercase pl-1 leading-none">Nº {formData.numero || "---"}/SEGP/DGP/{new Date().getFullYear()}</p>
                                     </div>
+
 
                                     {/* Período Início */}
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Período Início do Benefício *</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Período Início *</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351]"
                                             value={formData.periodo_inicio}
                                             onChange={(e) => {
                                                 const inicio = e.target.value;
@@ -552,30 +550,36 @@ export default function NewPortariaPage() {
 
                                     {/* Período Fim */}
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Período Fim do Benefício *</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Período Fim *</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
+                                            readOnly
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                             value={formData.periodo_fim}
-                                            onChange={(e) => setFormData({ ...formData, periodo_fim: e.target.value })}
                                         />
-                                        <p className="text-[9px] font-bold text-emerald-600 uppercase pl-1">
-                                            {formData.periodo_inicio && formData.periodo_fim
-                                                ? `${formatDateBR(formData.periodo_inicio)} → ${formatDateBR(formData.periodo_fim)}`
-                                                : "Selecione o início para calcular automaticamente"
-                                            }
-                                        </p>
                                     </div>
 
                                     {/* Data da Portaria */}
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data de Emissão da Portaria</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Data Emissão</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
+                                            readOnly
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                             value={formData.data_portaria}
-                                            onChange={(e) => setFormData({ ...formData, data_portaria: e.target.value })}
                                         />
+                                    </div>
+
+                                    <div className="lg:col-span-2 flex items-center">
+                                        <div className="bg-emerald-50 border border-emerald-100 px-3 py-2 rounded w-full">
+                                            <p className="text-[8px] font-black text-emerald-700 uppercase mb-0.5">Vigência Calculada</p>
+                                            <p className="text-[10px] font-bold text-emerald-600 uppercase">
+                                                {formData.periodo_inicio && formData.periodo_fim
+                                                    ? `${formatDateBR(formData.periodo_inicio)} até ${formatDateBR(formData.periodo_fim)}`
+                                                    : "Defina a data inicial"
+                                                }
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -583,7 +587,7 @@ export default function NewPortariaPage() {
                                 <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                                     <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Prévia do Cabeçalho</p>
                                     <p className="text-sm font-black text-[#1A3351] uppercase">
-                                        PORTARIA Nº {formData.numero || "---"}/SEGP/DRH/{new Date().getFullYear()}
+                                        PORTARIA Nº {formData.numero || "---"}/SEGP/DGP/{new Date().getFullYear()}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                                         ...{formData.genero === 'F' ? 'a servidora Pública Municipal' : 'o servidor Público Municipal'}{' '}
@@ -603,7 +607,14 @@ export default function NewPortariaPage() {
                                         className="px-8 py-3 bg-[#1A3351] text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                                     >
                                         <Eye className="w-4 h-4" />
-                                        Pré-Visualizar PDF
+                                        PDF
+                                    </button>
+                                    <button
+                                        onClick={handleDownloadDOCX}
+                                        className="px-8 py-3 bg-blue-600 text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Word
                                     </button>
                                     <button
                                         onClick={handleSave}

@@ -6,7 +6,7 @@ import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, X, Menu,
     ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2,
-    Loader2, Scale, FileText, PlusCircle, Download, Eye, Building2
+    Loader2, Scale, FileText, PlusCircle, Download, Eye, Building2, PencilLine
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { handleAuthError } from "@/lib/auth-utils";
@@ -45,6 +45,7 @@ export default function PortariasPage() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [sortOrder, setSortOrder] = useState("date-desc");
+    const [logs, setLogs] = useState<Record<number, any[]>>({});
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -78,6 +79,22 @@ export default function PortariasPage() {
         return () => subscription.unsubscribe();
     }, [router]);
 
+    async function loadLogs() {
+        const { data: logsData } = await supabase
+            .from('portarias_abono_logs')
+            .select('*')
+            .order('data_alteracao', { ascending: false });
+
+        if (logsData) {
+            const logsMap: Record<number, any[]> = {};
+            logsData.forEach((log: any) => {
+                if (!logsMap[log.portaria_id]) logsMap[log.portaria_id] = [];
+                logsMap[log.portaria_id].push(log);
+            });
+            setLogs(logsMap);
+        }
+    }
+
     async function loadRecords() {
         setLoading(true);
         const { data, error } = await supabase
@@ -87,6 +104,7 @@ export default function PortariasPage() {
 
         if (!error && data) {
             setRecords(data);
+            await loadLogs();
         } else if (error) {
             console.error("Erro ao carregar portarias:", error);
         }
@@ -137,6 +155,82 @@ export default function PortariasPage() {
             if (parts.length !== 3) return dateStr;
             return `${parts[2]}/${parts[1]}/${parts[0]}`;
         } catch { return dateStr; }
+    };
+
+    const formatDateTime = (dateStr: string | null | undefined) => {
+        if (!dateStr) return '---';
+        try {
+            return new Date(dateStr).toLocaleString('pt-BR');
+        } catch { return dateStr; }
+    };
+
+    const getDiff = (prev: any, next: any) => {
+        if (!prev || !next) return null;
+        const changes: string[] = [];
+
+        // Mapeamento de chaves para labels amigáveis
+        // Incluímos variações para suportar logs antigos (lotacao/servidor_lotacao)
+        const fieldMapping: Record<string, { label: string, formatter?: (val: any) => string }> = {
+            numero: { label: "NÚMERO" },
+            servidor_genero: {
+                label: "GÊNERO",
+                formatter: (val) => val === 'M' ? 'Masculino' : val === 'F' ? 'Feminino' : val
+            },
+            genero: {
+                label: "GÊNERO",
+                formatter: (val) => val === 'M' ? 'Masculino' : val === 'F' ? 'Feminino' : val
+            }, // Suporte para logs antigos
+            periodo_inicio: { label: "DATA INÍCIO", formatter: formatDate },
+            periodo_fim: { label: "DATA FIM", formatter: formatDate },
+            data_portaria: { label: "DATA EMISSÃO", formatter: formatDate },
+            servidor_lotacao: { label: "LOTAÇÃO" },
+            lotacao: { label: "LOTAÇÃO" } // Suporte para logs antigos
+        };
+
+        // Para evitar duplicidade com aliases (como lotacao vs servidor_lotacao)
+        // rastreamos quais labels já foram processadas
+        const processedLabels = new Set<string>();
+
+        // Chaves principais que queremos comparar
+        const primaryKeys = ["numero", "servidor_genero", "periodo_inicio", "periodo_fim", "data_portaria", "servidor_lotacao"];
+
+        primaryKeys.forEach(key => {
+            const config = fieldMapping[key];
+            if (!config) return;
+
+            // Busca o valor anterior e o novo
+            // Tenta a chave principal e tenta o alias se necessário
+            let pValInput = prev[key];
+            let nValInput = next[key];
+
+            // Fallback para aliases em logs antigos
+            if (key === 'servidor_lotacao') {
+                if (pValInput === undefined) pValInput = prev['lotacao'];
+                if (nValInput === undefined) nValInput = next['lotacao'];
+            }
+            if (key === 'servidor_genero') {
+                if (pValInput === undefined) pValInput = prev['genero'];
+                if (nValInput === undefined) nValInput = next['genero'];
+            }
+
+            let pVal = pValInput ?? "---";
+            let nVal = nValInput ?? "---";
+
+            // Se for igual (ou ambos nulos/indefinidos), não registra mudança
+            if (pVal === nVal) return;
+
+            // Aplicar formatadores
+            const formattedPrev = config.formatter ? config.formatter(pVal) : pVal;
+            const formattedNext = config.formatter ? config.formatter(nVal) : nVal;
+
+            // Se após formatação for igual, ignora (ex: datas em formatos diferentes mas mesmo valor)
+            if (formattedPrev === formattedNext) return;
+
+            changes.push(`${config.label}: "${formattedPrev}" ➞ "${formattedNext}"`);
+            processedLabels.add(config.label);
+        });
+
+        return changes;
     };
 
     const handleViewPDF = (record: PortariaRecord) => {
@@ -499,7 +593,7 @@ export default function PortariasPage() {
                                                 </div>
                                                 <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2">
                                                     <span className="text-[8px] lg:text-[10px] font-black text-[#1A3351] uppercase bg-blue-50 px-1.5 lg:px-2 py-0.5 border border-blue-100 truncate">
-                                                        PORTARIA {entry.numero}/SEGP/DRH/{entry.ano}
+                                                        PORTARIA {entry.numero}/SEGP/DGP/{entry.ano}
                                                     </span>
                                                     <span className="text-[8px] lg:text-[10px] font-black text-slate-500 uppercase flex items-center gap-1">
                                                         <Building2 className="w-3 h-3 shrink-0" /> {entry.servidor_lotacao || "---"}
@@ -558,7 +652,7 @@ export default function PortariasPage() {
                                                         <FileText className="w-4 h-4 text-amber-500" /> Documento Oficial
                                                     </span>
                                                     <div className="space-y-2">
-                                                        <p className="text-[10px] font-bold text-slate-600 uppercase">PORTARIA Nº {entry.numero}/SEGP/DRH/{entry.ano}</p>
+                                                        <p className="text-[10px] font-bold text-slate-600 uppercase">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase">Data: {formatDate(entry.data_portaria)}</p>
                                                     </div>
                                                 </div>
@@ -601,9 +695,50 @@ export default function PortariasPage() {
                                                     >
                                                         <Download className="w-3.5 h-3.5" /> Exportar Word
                                                     </button>
+                                                    <button
+                                                        onClick={() => router.push(`/abono/portarias/edit/${entry.id}`)}
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-amber-500 text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                    >
+                                                        <PencilLine className="w-3.5 h-3.5" /> Editar Portaria
+                                                    </button>
                                                 </div>
                                                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-full">Audit-Hash: {Math.random().toString(36).substring(7).toUpperCase()}-{entry.id}</span>
                                             </div>
+
+                                            {/* SEÇÃO DE LOGS DE AUDITORIA */}
+                                            {logs[entry.id] && logs[entry.id].length > 0 && (
+                                                <div className="mt-8 pt-6 border-t border-slate-200">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <HistoryIcon className="w-4 h-4 text-slate-400" />
+                                                        <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Histórico de Alterações</h5>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {logs[entry.id].map((log, idx) => {
+                                                            const changes = getDiff(log.dados_anteriores, log.dados_novos);
+                                                            return (
+                                                                <div key={log.id} className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm">
+                                                                    <div className="flex justify-between items-start mb-2">
+                                                                        <div>
+                                                                            <p className="text-[10px] font-black text-[#1A3351] uppercase">Motivo: {log.motivo}</p>
+                                                                            <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Por: {log.usuario_email} • {formatDateTime(log.data_alteracao)}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    {changes && changes.length > 0 && (
+                                                                        <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
+                                                                            {changes.map((change, cIdx) => (
+                                                                                <p key={cIdx} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
+                                                                                    <span className="w-1 h-1 bg-amber-400 rounded-full" />
+                                                                                    {change}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

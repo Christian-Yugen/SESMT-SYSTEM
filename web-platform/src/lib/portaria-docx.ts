@@ -38,7 +38,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     spacing: { after: 300 },
                     children: [
                         new TextRun({
-                            text: `PORTARIA Nº ${data.numero}/SEGP/DRH/${data.ano}`,
+                            text: `PORTARIA Nº ${data.numero}/SEGP/DGP/${data.ano}`,
                             bold: true,
                             size: 26,
                             font: 'Arial'

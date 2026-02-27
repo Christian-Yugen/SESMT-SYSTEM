@@ -45,7 +45,7 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     // === TÍTULO ===
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(13);
-    const titulo = `PORTARIA Nº ${data.numero}/SEGP/DRH/${data.ano}`;
+    const titulo = `PORTARIA Nº ${data.numero}/SEGP/DGP/${data.ano}`;
     doc.text(titulo, pageWidth / 2, y, { align: 'center' });
     y += 14;
 
