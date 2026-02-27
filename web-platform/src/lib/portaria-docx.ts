@@ -1,7 +1,7 @@
 import { Document, Paragraph, TextRun, AlignmentType, Packer, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
 import { PortariaData } from './portaria-pdf';
-import { getLotadoGrammar, capitalizeName } from './portaria-utils';
+import { getLotadoGrammar, capitalizeName, fixOrthography } from './portaria-utils';
 
 function formatDateExtended(dateStr: string): string {
     const parts = dateStr.split('/');
@@ -49,22 +49,24 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         })
                     ]
                 }),
+                new Paragraph({ children: [] }), // Espaçamento
 
-                // Preâmbulo (pontos 7, 8)
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { after: 200 },
-                    indent: { left: 4000 }, // Recuo para a direita
+                    spacing: { line: 276 }, // 1.15 spacing
+                    indent: { left: 4000 },
                     children: [
                         new TextRun({
                             text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
                             bold: true,
                             italics: false,
-                            size: 22, // 11pt
+                            size: 22,
                             font: 'Times New Roman'
                         })
                     ]
                 }),
+                new Paragraph({ children: [] }), // Espaçamento 1
+                new Paragraph({ children: [] }), // Espaçamento 2
 
                 // CONSIDERANDO (ponto 9)
                 new Paragraph({
@@ -72,9 +74,10 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     spacing: { after: 200 },
                     children: [
                         new TextRun({ text: 'CONSIDERANDO', bold: true, underline: { type: 'single' }, size: 24, font: 'Times New Roman' }),
-                        new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de perícia (SESMT);', size: 24, font: 'Times New Roman' })
+                        new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de Perícia (SESMT);', size: 24, font: 'Times New Roman' })
                     ]
                 }),
+                new Paragraph({ children: [] }), // Espaçamento
 
                 // RESOLVE
                 new Paragraph({
@@ -84,11 +87,12 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         new TextRun({ text: 'RESOLVE:', bold: true, size: 24, font: 'Times New Roman' })
                     ]
                 }),
+                new Paragraph({ children: [] }), // Espaçamento
 
                 // Art. 1 (pontos 5, 10, 11)
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { before: 200, after: 200 }, // Aumentado
+                    spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
                     indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 1º - ', bold: true, size: 24, font: 'Times New Roman' }),
@@ -103,7 +107,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 // Art. 2
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { before: 200, after: 200 }, // Aumentado
+                    spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
                     indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 2º - ', bold: true, size: 24, font: 'Times New Roman' }),
@@ -114,7 +118,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 // Art. 3
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { before: 200, after: 200 }, // Aumentado
+                    spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
                     indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 3º - ', bold: true, size: 24, font: 'Times New Roman' }),
@@ -125,7 +129,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 // Art. 4
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
-                    spacing: { before: 200, after: 200 }, // Aumentado
+                    spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing (1.5 * 240 = 360)
                     indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 4º - ', bold: true, size: 24, font: 'Times New Roman' }),
@@ -136,7 +140,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 // Registre-se
                 new Paragraph({
                     alignment: AlignmentType.LEFT,
-                    spacing: { before: 400, after: 200 }, // Aumentado
+                    spacing: { before: 400, after: 300 }, // Aumentado
                     children: [
                         new TextRun({ text: 'Registre-se, Divulgue-se.', size: 24, font: 'Times New Roman' })
                     ]
@@ -150,6 +154,8 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         new TextRun({ text: `Três Lagoas, ao ${dataFormatada}.`, size: 24, font: 'Times New Roman' })
                     ]
                 }),
+                new Paragraph({ children: [] }), // Espaçamento
+                new Paragraph({ children: [] }), // Espaçamento adicional para assinatura
 
                 // Assinatura
                 new Paragraph({

@@ -185,7 +185,7 @@ export const generateASOPDF = (
     doc.text(lgpdLines, 14, y, { align: 'justify', maxWidth: 182 });
     y += (lgpdLines.length * 5) + 2; // Espaçamento ainda menor para aproximar a declaração
 
-    doc.text('Declaro que estou ciente dos resultados dos exames acima, e que recebi a 2º via deste Atestado de Saude Ocupacional', 14, y);
+    doc.text('Declaro que estou ciente dos resultados dos exames acima, e que recebi a 2º via deste Atestado de Saúde Ocupacional', 14, y);
     y += 7; // Espaçamento reduzido e consistente
 
     // 9. Assinatura e Observações
@@ -214,7 +214,7 @@ export const generateASOPDF = (
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
     doc.text('COORDENADOR DO PCMSO', 59.5, boxY + 5, { align: 'center' });
-    doc.text('MEDICO EXAMINADOR', 150.5, boxY + 5, { align: 'center' });
+    doc.text('MÉDICO EXAMINADOR', 150.5, boxY + 5, { align: 'center' });
 
     doc.setFont('times', 'normal');
     doc.setFontSize(12); // Aumentado para 12 conforme solicitado
@@ -273,7 +273,7 @@ export const generateReferralPDF = (
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 62, 13.5);
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.text('SECRETARIA MUNICIPAL DE GESTÃO DE PESSOAS', 62, 18);
+    doc.text('SECRETÁRIA MUNICIPAL DE GESTÃO DE PESSOAS', 62, 18);
     doc.text('SESMT - SERVIÇOS ESPECIALIZADOS EM SEGURANÇA E MEDICINA DO TRABALHO', 62, 22.5);
 
     // 2. Título do Documento
