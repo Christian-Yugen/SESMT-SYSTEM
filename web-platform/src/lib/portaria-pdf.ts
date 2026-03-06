@@ -48,9 +48,9 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     let y = 30;
 
     // Função auxiliar para renderizar linhas justificadas com suporte a negrito
-    const renderJustifiedWithBold = (lines: string[], startY: number, fullWidth: number, startX: number, labelWidth: number = 0, boldParts: string[] = [], lineHeight: number = 6.5) => {
+    const renderJustifiedWithBold = (lines: string[], startY: number, fullWidth: number, startX: number, labelWidth: number = 0, boldParts: string[] = [], lineHeight: number = 6.5, fontStyle: string = 'normal') => {
         let currentY = startY;
-        doc.setFont('times', 'normal');
+        doc.setFont('times', fontStyle);
         const spaceWidthNormal = doc.getTextWidth(' ');
 
         lines.forEach((line, index) => {
@@ -65,7 +65,8 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
                 let xOffset = currentX;
                 words.forEach((word) => {
                     const isBold = boldParts.some(bp => word.includes(bp));
-                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    const currentStyle = isBold ? (fontStyle === 'italic' ? 'bolditalic' : 'bold') : fontStyle;
+                    doc.setFont('times', currentStyle);
                     doc.text(word, xOffset, currentY);
                     xOffset += doc.getTextWidth(word) + spaceWidthNormal;
                 });
@@ -73,7 +74,8 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
                 // Justificar linha
                 const totalWordsWidth = words.reduce((acc, word) => {
                     const isBold = boldParts.some(bp => word.includes(bp));
-                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    const currentStyle = isBold ? (fontStyle === 'italic' ? 'bolditalic' : 'bold') : fontStyle;
+                    doc.setFont('times', currentStyle);
                     return acc + doc.getTextWidth(word);
                 }, 0);
 
@@ -83,7 +85,8 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
                 let xOffset = currentX;
                 words.forEach((word) => {
                     const isBold = boldParts.some(bp => word.includes(bp));
-                    doc.setFont('times', isBold ? 'bold' : 'normal');
+                    const currentStyle = isBold ? (fontStyle === 'italic' ? 'bolditalic' : 'bold') : fontStyle;
+                    doc.setFont('times', currentStyle);
                     doc.text(word, xOffset, currentY);
                     xOffset += doc.getTextWidth(word) + spaceWidth;
                 });
@@ -111,7 +114,7 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     const preambuloLines = doc.splitTextToSize(preambulo, preambuloWidth);
 
     // Usar renderJustifiedWithBold para o preâmbulo com espaçamento de 1,15 (aprox 5.2mm para fonte 11)
-    y = renderJustifiedWithBold(preambuloLines, y, preambuloWidth, marginLeft + preambuloIndent, 0, [preambulo], 5.2);
+    y = renderJustifiedWithBold(preambuloLines, y, preambuloWidth, marginLeft + preambuloIndent, 0, [preambulo], 5.2, 'italic');
     y += 10;
 
     // === CONSIDERANDO (ponto 9) ===
