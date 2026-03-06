@@ -875,8 +875,8 @@ export default function AbonoPage() {
                                                         <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-lg hover:border-[#1A3351]/30 transition-colors relative overflow-hidden group/card">
                                                             <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-full group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
-                                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10">
-                                                                <div className="space-y-1">
+                                                            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
+                                                                <div className="space-y-1 md:col-span-2">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Vigência</p>
                                                                     <div className="flex flex-col gap-1.5">
                                                                         <div className="flex items-center gap-2">
@@ -925,9 +925,9 @@ export default function AbonoPage() {
                                                                         <p className="text-[11px] font-bold text-slate-600 uppercase">{formatDate(record.assomasul_data)}</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="space-y-1 text-center md:text-left">
+                                                                <div className="space-y-1 md:col-span-2 text-center md:text-left">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário</p>
-                                                                    <p className="text-sm font-bold text-[#E31E24] uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
+                                                                    <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
                                                                     <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
                                                                 <div className="flex flex-col gap-2 items-end justify-center">
