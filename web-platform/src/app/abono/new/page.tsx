@@ -62,7 +62,13 @@ export default function NewAbonoPage() {
 
                     if (renewFrom && cpfParam) {
                         setSearching(true);
-                        const { data: servidor } = await supabase.from('servidores').select('*').eq('cpf', cpfParam).single();
+                        const cleanCpf = cpfParam.replace(/\D/g, "");
+                        const { data: servidor } = await supabase
+                            .from('servidores')
+                            .select('*')
+                            .or(`cpf.eq.${cleanCpf},cpf.eq.${cpfParam}`)
+                            .maybeSingle();
+
                         if (servidor) {
                             setSelectedServidor({
                                 Nome: servidor.nome,
