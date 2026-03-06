@@ -7,7 +7,7 @@ import { handleAuthError } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
-    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale
+    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, FileText
 } from "lucide-react";
 import { Servidor } from "@/types";
 
@@ -28,7 +28,9 @@ export default function NewAbonoPage() {
         assomasul_data: "",
         inicio: "",
         quant: "12",
-        observacoes: ""
+        observacoes: "",
+        beneficiario_nome: "",
+        renew_from_id: null as number | null
     });
 
     useEffect(() => {
@@ -51,6 +53,39 @@ export default function NewAbonoPage() {
                     }
                     const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Usuário";
                     setUserName(name);
+
+                    // Lógica de Renovação via URL Params
+                    const params = new URLSearchParams(window.location.search);
+                    const renewFrom = params.get('renew_from');
+                    const cpfParam = params.get('cpf');
+                    const beneficiarioParam = params.get('beneficiario');
+
+                    if (renewFrom && cpfParam) {
+                        setSearching(true);
+                        const cleanCpf = cpfParam.replace(/\D/g, "");
+                        const { data: servidor } = await supabase
+                            .from('servidores')
+                            .select('*')
+                            .or(`cpf.eq.${cleanCpf},cpf.eq.${cpfParam}`)
+                            .maybeSingle();
+
+                        if (servidor) {
+                            setSelectedServidor({
+                                Nome: servidor.nome,
+                                CPF: servidor.cpf,
+                                "CPF.": servidor.cpf,
+                                Cargo: servidor.cargo,
+                                Matrícula: servidor.matricula,
+                                Secretaria: servidor.secretaria
+                            });
+                            setFormData(prev => ({
+                                ...prev,
+                                beneficiario_nome: beneficiarioParam || "",
+                                renew_from_id: parseInt(renewFrom)
+                            }));
+                        }
+                        setSearching(false);
+                    }
                 } else {
                     router.push("/login");
                 }
@@ -128,7 +163,8 @@ export default function NewAbonoPage() {
 
         setSaving(true);
         try {
-            const { error } = await supabase
+            // 1. Inserir o novo Abono
+            const { data: newAbono, error } = await supabase
                 .from('abono_salarial')
                 .insert({
                     cpf: selectedServidor.CPF || selectedServidor["CPF."],
@@ -139,12 +175,25 @@ export default function NewAbonoPage() {
                     inicio: formData.inicio,
                     quant: 12,
                     observacoes: formData.observacoes,
+                    beneficiario_nome: formData.beneficiario_nome.toUpperCase() || 'PRÓPRIO',
                     updated_at: new Date().toISOString()
-                });
+                })
+                .select()
+                .single();
 
             if (error) throw error;
 
-            alert("Abono salarial registrado com sucesso!");
+            // 2. Se for uma renovação, vincular no registro antigo
+            if (formData.renew_from_id && newAbono) {
+                const { error: updateError } = await supabase
+                    .from('abono_salarial')
+                    .update({ renovado_por_id: newAbono.id })
+                    .eq('id', formData.renew_from_id);
+
+                if (updateError) console.error("Erro ao vincular renovação:", updateError);
+            }
+
+            alert(formData.renew_from_id ? "Benefício renovado com sucesso!" : "Abono salarial registrado com sucesso!");
             router.push('/abono');
         } catch (error: any) {
             console.error("Erro ao salvar abono:", error);
@@ -210,7 +259,11 @@ export default function NewAbonoPage() {
                         </button>
                         <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Scale className="w-3.5 h-3.5 shrink-0" />
-                            <span>Legislação Abono</span>
+                            <span>Legislação e Regras</span>
+                        </button>
+                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <FileText className="w-3.5 h-3.5 shrink-0" />
+                            <span>Portarias</span>
                         </button>
                         <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
@@ -218,17 +271,21 @@ export default function NewAbonoPage() {
                         </button>
                     </div>
 
-                    <div className="group">
-                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HistoryIcon className="w-4 h-4 shrink-0" />
-                            <span>Histórico</span>
-                        </button>
-                    </div>
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
+                        <>
+                            <div className="group">
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                    <HistoryIcon className="w-4 h-4 shrink-0" />
+                                    <span>Histórico</span>
+                                </button>
+                            </div>
 
-                    <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
+                            </button>
+                        </>
+                    )}
                 </nav>
 
                 <div className="mt-auto space-y-4">
@@ -352,6 +409,25 @@ export default function NewAbonoPage() {
                                             onChange={(e) => setFormData({ ...formData, portaria: e.target.value })}
                                         />
                                     </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
+                                        <input
+                                            type="text"
+                                            placeholder="EX: PRÓPRIO, FILHO 1, CÔNJUGE..."
+                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
+                                            value={formData.beneficiario_nome}
+                                            onChange={(e) => setFormData({ ...formData, beneficiario_nome: e.target.value })}
+                                        />
+                                    </div>
+                                    {formData.renew_from_id && (
+                                        <div className="md:col-span-2 bg-amber-50 border-l-4 border-amber-500 p-4 mb-2 flex items-center gap-3">
+                                            <TrendingUp className="w-5 h-5 text-amber-600" />
+                                            <div>
+                                                <p className="text-[10px] font-black text-amber-600 uppercase">Atenção: Modo de Renovação</p>
+                                                <p className="text-xs font-bold text-amber-800">Este novo lançamento dará continuidade ao benefício selecionado.</p>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="space-y-1">
                                         <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                         <input

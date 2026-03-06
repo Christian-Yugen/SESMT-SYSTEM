@@ -32,7 +32,7 @@ export default function AbonoPage() {
     const [userName, setUserName] = useState<string>("Usuário");
     const [logs, setLogs] = useState<Record<number, any[]>>({});
     const [expandedLogId, setExpandedLogId] = useState<number | null>(null);
-    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'finished'>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired' | 'finished'>('all');
     const [sortBy, setSortBy] = useState<'alphabetical' | 'newest' | 'oldest'>('alphabetical');
     const [secretariaFilter, setSecretariaFilter] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>("");
@@ -200,22 +200,52 @@ export default function AbonoPage() {
         return changes;
     };
 
+    // IDs de registros que nasceram de uma renovação
+    const renewalTargetIds = useMemo(() => {
+        return new Set(records.map(r => r.renovado_por_id).filter((id): id is number => !!id));
+    }, [records]);
+
     // Utility to check if a benefit is active
-    const isBenefitActive = (inicioStr: string | undefined) => {
-        if (!inicioStr) return false;
+    const getBenefitStatus = (record: AbonoRecord, rIds: Set<number>) => {
+        if (!record.inicio) return 'inactive';
         try {
-            const parts = inicioStr.split('-');
+            const parts = record.inicio.split('-');
             const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             endDate.setFullYear(endDate.getFullYear() + 1);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            return endDate >= today;
-        } catch (e) { return false; }
+
+            // 1. Se já foi substituído por uma nova renovação -> FINALIZADO (Histórico)
+            if (record.renovado_por_id) return 'finished';
+
+            // 2. Se a vigência acabou e NÃO foi renovado -> VENCIDO
+            if (today > endDate) return 'expired';
+
+            // 3. Se está na vigência:
+            // É fruto de uma renovação recente (< 90 dias)?
+            const isRenewalResult = rIds.has(record.id);
+            const createdAt = new Date(record.created_at);
+            const ninetyDaysAgo = new Date();
+            ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+            if (isRenewalResult && createdAt > ninetyDaysAgo) return 'renewed';
+
+            // Novo lançamento ou renovação antiga -> ATIVO
+            return 'active';
+        } catch (e) { return 'inactive'; }
     };
 
     const groupedRecords = useMemo(() => {
         const groups: Record<string, { nome: string, cpf: string, benefits: AbonoRecord[] }> = {};
+
         filteredRecords.forEach(record => {
+            const status = getBenefitStatus(record, renewalTargetIds);
+
+            // Filter by Status individualmente
+            if (statusFilter === 'active' && status !== 'active' && status !== 'renewed') return;
+            if (statusFilter === 'expired' && status !== 'expired') return;
+            if (statusFilter === 'finished' && status !== 'finished') return;
+
             if (!groups[record.cpf]) {
                 groups[record.cpf] = {
                     nome: record.nome,
@@ -226,21 +256,14 @@ export default function AbonoPage() {
             groups[record.cpf].benefits.push(record);
         });
 
-        // Sort individual benefits within each group by date (always descending)
+        // Ordenar benefícios dentro de cada grupo
         Object.values(groups).forEach(group => {
             group.benefits.sort((a, b) => (b.inicio || "").localeCompare(a.inicio || ""));
         });
 
         let result = Object.values(groups);
 
-        // Filter by Status
-        if (statusFilter === 'active') {
-            result = result.filter(group => group.benefits.some(b => isBenefitActive(b.inicio)));
-        } else if (statusFilter === 'finished') {
-            result = result.filter(group => group.benefits.every(b => !isBenefitActive(b.inicio)));
-        }
-
-        // Apply Sorting
+        // Apply Sorting do grupo (baseado no benefício mais recente do grupo filtrado)
         if (sortBy === 'alphabetical') {
             result.sort((a, b) => a.nome.localeCompare(b.nome));
         } else if (sortBy === 'newest') {
@@ -250,35 +273,48 @@ export default function AbonoPage() {
         }
 
         return result;
-    }, [filteredRecords, statusFilter, sortBy]);
+    }, [filteredRecords, statusFilter, sortBy, renewalTargetIds]);
 
     const stats = useMemo(() => {
-        // As estatísticas refletem exatamente o que está sendo filtrado na tela (incluindo o filtro de status)
-        let finalRecords = [...filteredRecords];
+        // finalRecords para a lista e PDF (aplica o filtro de status atual sobre o que já foi filtrado por busca/sec/data)
+        const finalRecords = filteredRecords.filter(r => {
+            if (statusFilter === 'all') return true;
+            const s = getBenefitStatus(r, renewalTargetIds);
+            if (statusFilter === 'active') return s === 'active' || s === 'renewed';
+            return s === statusFilter;
+        });
 
-        // Se houver filtro de status, aplicamos para que os cards (como o Total) acompanhem a lista
-        if (statusFilter === 'active') {
-            finalRecords = finalRecords.filter(r => isBenefitActive(r.inicio));
-        } else if (statusFilter === 'finished') {
-            finalRecords = finalRecords.filter(r => !isBenefitActive(r.inicio));
-        }
-
+        // Totais Dinâmicos: Respondem a TODOS os filtros (Search, Sec, Date E Status)
         const totalBenefits = finalRecords.length;
         const totalServidores = new Set(finalRecords.map(r => r.cpf)).size;
 
-        const ativos = finalRecords.filter(r => isBenefitActive(r.inicio)).length;
-        const finalizados = finalRecords.filter(r => !isBenefitActive(r.inicio)).length;
+        // Contadores de Categoria: Respondem a Busca, Sec e Data, mas mostram o total daquela categoria
+        // Isso permite que o usuário veja quantos existem de cada antes de clicar
+        const ativosCount = filteredRecords.filter(r => {
+            const s = getBenefitStatus(r, renewalTargetIds);
+            return s === 'active' || s === 'renewed';
+        }).length;
+        const vencidosCount = filteredRecords.filter(r => getBenefitStatus(r, renewalTargetIds) === 'expired').length;
+        const finalizadosCount = filteredRecords.filter(r => getBenefitStatus(r, renewalTargetIds) === 'finished').length;
 
         // Dados formatados para o cabeçalho do PDF
         const printFilters = [
             searchTerm ? `Busca: "${searchTerm}"` : null,
             secretariaFilter !== 'all' ? `Secretaria: ${secretariaFilter}` : 'Todas as Secretarias',
             (startDate || endDate) ? `Período: ${formatDate(startDate)} até ${formatDate(endDate)}` : 'Início até Hoje',
-            statusFilter !== 'all' ? `Status: ${statusFilter === 'active' ? 'Ativos' : 'Finalizados'}` : 'Todos os Status'
+            statusFilter !== 'all' ? `Status: ${statusFilter.toUpperCase() === 'ACTIVE' ? 'ATIVOS (E RENOVADOS)' : statusFilter.toUpperCase()}` : 'Todos os Status'
         ].filter(Boolean).join(' | ');
 
-        return { totalBenefits, totalServidores, ativos, finalizados, finalRecords, printFilters };
-    }, [filteredRecords, statusFilter, searchTerm, secretariaFilter, startDate, endDate]);
+        return {
+            totalBenefits,
+            totalServidores,
+            ativos: ativosCount,
+            vencidos: vencidosCount,
+            finalizados: finalizadosCount,
+            finalRecords,
+            printFilters
+        };
+    }, [filteredRecords, statusFilter, searchTerm, secretariaFilter, startDate, endDate, renewalTargetIds]);
 
     if (loading) {
         return (
@@ -316,19 +352,17 @@ export default function AbonoPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    {userRole !== 'social_assistant' && (
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <>
                             <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                                 <span>Criar documentos</span>
                             </button>
 
-                            {userRole !== 'viewer' && (
-                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-4 h-4 shrink-0" />
-                                    <span>Central de Evidências</span>
-                                </button>
-                            )}
+                            <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <ClipboardList className="w-4 h-4 shrink-0" />
+                                <span>Central de Evidências</span>
+                            </button>
                         </>
                     )}
 
@@ -347,18 +381,16 @@ export default function AbonoPage() {
 
                             {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
                                 <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                    {userRole !== 'social_assistant' && (
-                                        <>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <Database className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Auxílio Doença</span>
-                                            </button>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Readaptação</span>
-                                            </button>
-                                        </>
-                                    )}
+                                    <>
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <Database className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Auxílio Doença</span>
+                                        </button>
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Readaptação</span>
+                                        </button>
+                                    </>
                                     {userRole !== 'nurse' && userRole !== 'operator' && (
                                         <div className="space-y-1">
                                             <button
@@ -390,18 +422,16 @@ export default function AbonoPage() {
                                             )}
                                         </div>
                                     )}
-                                    {userRole !== 'social_assistant' && (
-                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Redução de Jornada</span>
-                                        </button>
-                                    )}
+                                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                        <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                        <span>Redução de Jornada</span>
+                                    </button>
                                 </div>
                             )}
                         </div>
                     )}
 
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <div className="space-y-1">
                             <div className="space-y-1">
                                 <button
@@ -463,12 +493,14 @@ export default function AbonoPage() {
                 </div>
             </aside>
 
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
+            {
+                isSidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )
+            }
 
             {/* ÁREA PRINCIPAL */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden print:hidden">
@@ -524,7 +556,6 @@ export default function AbonoPage() {
                                 <BarChart3 className="w-4 h-4" />
                                 Indicadores BI
                             </button>
-
                             {userRole !== 'analytic_manager' && (
                                 <button
                                     onClick={() => router.push('/abono/new')}
@@ -680,23 +711,42 @@ export default function AbonoPage() {
                 {/* CONTEÚDO */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
 
-                    {/* STATS CARDS - DINÂMICOS E PADRONIZADOS */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 shrink-0">
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#1A3351] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Total Servidores</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-[#1A3351]">{stats.totalServidores}</h3>
+                    {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
+                        <div
+                            onClick={() => setStatusFilter('all')}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-[#1A3351] border-white text-white' : 'bg-white border-[#1A3351] text-[#1A3351]'}`}
+                        >
+                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Total Servidores</p>
+                            <h3 className="text-xl lg:text-3xl font-black">{stats.totalServidores}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-slate-300 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Benefícios</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-slate-500">{stats.totalBenefits}</h3>
+                        <div
+                            onClick={() => setStatusFilter('all')}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-slate-500 border-white text-white' : 'bg-white border-slate-300 text-slate-500'}`}
+                        >
+                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Benefícios</p>
+                            <h3 className="text-xl lg:text-3xl font-black">{stats.totalBenefits}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Abonos Ativos</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-emerald-600">{stats.ativos}</h3>
+                        <div
+                            onClick={() => setStatusFilter('active')}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'active' ? 'bg-emerald-600 border-white text-white' : 'bg-white border-emerald-500 text-emerald-600'}`}
+                        >
+                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'active' ? 'text-white/60' : 'text-slate-400'}`}>Abonos Ativos</p>
+                            <h3 className="text-xl lg:text-3xl font-black">{stats.ativos}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Finalizados</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-[#E31E24]">{stats.finalizados}</h3>
+                        <div
+                            onClick={() => setStatusFilter('expired')}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'expired' ? 'bg-[#E31E24] border-white text-white' : 'bg-white border-[#E31E24] text-[#E31E24]'}`}
+                        >
+                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'expired' ? 'text-white/60' : 'text-slate-400'}`}>Vencidos</p>
+                            <h3 className="text-xl lg:text-3xl font-black">{stats.vencidos}</h3>
+                        </div>
+                        <div
+                            onClick={() => setStatusFilter('finished')}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'finished' ? 'bg-blue-600 border-white text-white' : 'bg-white border-blue-600 text-blue-600'}`}
+                        >
+                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'finished' ? 'text-white/60' : 'text-slate-400'}`}>Finalizados</p>
+                            <h3 className="text-xl lg:text-3xl font-black">{stats.finalizados}</h3>
                         </div>
                     </div>
 
@@ -723,8 +773,14 @@ export default function AbonoPage() {
                                         Ativos
                                     </button>
                                     <button
+                                        onClick={() => setStatusFilter('expired')}
+                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'expired' ? 'bg-[#E31E24] text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
+                                    >
+                                        Vencidos
+                                    </button>
+                                    <button
                                         onClick={() => setStatusFilter('finished')}
-                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'finished' ? 'bg-[#E31E24] text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
+                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'finished' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
                                     >
                                         Finalizados
                                     </button>
@@ -819,7 +875,7 @@ export default function AbonoPage() {
                                                         <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-lg hover:border-[#1A3351]/30 transition-colors relative overflow-hidden group/card">
                                                             <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-full group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
-                                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
+                                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10">
                                                                 <div className="space-y-1">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Vigência</p>
                                                                     <div className="flex flex-col gap-1.5">
@@ -837,18 +893,22 @@ export default function AbonoPage() {
 
                                                                                     const today = new Date();
                                                                                     today.setHours(0, 0, 0, 0);
-                                                                                    const isFinished = endDate < today;
+                                                                                    const status = getBenefitStatus(record, renewalTargetIds);
 
                                                                                     return (
                                                                                         <span className="flex items-center gap-2 translate-y-[1px]">
-                                                                                            <span className={isFinished ? 'text-[#E31E24]' : 'text-green-600'}>
+                                                                                            <span className={status === 'active' || status === 'renewed' ? 'text-green-600' : status === 'expired' ? 'text-[#E31E24]' : 'text-slate-500'}>
                                                                                                 {endDate.toLocaleDateString('pt-BR')}
                                                                                             </span>
-                                                                                            <span className={`text-[10px] px-2 py-0.5 rounded shadow-sm border font-black ${isFinished
-                                                                                                ? 'bg-slate-200 text-slate-600 border-slate-300'
-                                                                                                : 'bg-green-500 text-white border-green-600 animate-pulse'
+                                                                                            <span className={`text-[10px] px-2 py-0.5 rounded shadow-sm border font-black ${status === 'active'
+                                                                                                ? 'bg-green-500 text-white border-green-600 animate-pulse'
+                                                                                                : status === 'renewed'
+                                                                                                    ? 'bg-blue-600 text-white border-blue-700'
+                                                                                                    : status === 'finished'
+                                                                                                        ? 'bg-slate-300 text-slate-600 border-slate-400'
+                                                                                                        : 'bg-[#E31E24] text-white border-[#E31E24]'
                                                                                                 }`}>
-                                                                                                {isFinished ? 'FINALIZADO' : 'ATIVO'}
+                                                                                                {status === 'active' ? 'VIGENTE' : status === 'renewed' ? 'RENOVADO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
                                                                                             </span>
                                                                                         </span>
                                                                                     );
@@ -860,22 +920,35 @@ export default function AbonoPage() {
                                                                 <div className="space-y-1">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Portaria</p>
                                                                     <p className="text-sm font-bold text-slate-700 uppercase">{record.portaria || '---'}</p>
-                                                                    <div className="flex items-center gap-2">
+                                                                    <div className="flex items-center gap-1">
                                                                         <p className="text-[9px] font-black text-slate-400 uppercase">Assomasul:</p>
-                                                                        <p className="text-sm font-bold text-slate-600 uppercase">{formatDate(record.assomasul_data)}</p>
+                                                                        <p className="text-[11px] font-bold text-slate-600 uppercase">{formatDate(record.assomasul_data)}</p>
                                                                     </div>
                                                                 </div>
                                                                 <div className="space-y-1 text-center md:text-left">
-                                                                    <p className="text-[8px] text-slate-400 italic">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
+                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário</p>
+                                                                    <p className="text-sm font-bold text-[#E31E24] uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
+                                                                    <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
-                                                                <div className="flex items-center justify-end">
+                                                                <div className="flex flex-col gap-2 items-end justify-center">
                                                                     {userRole !== 'analytic_manager' && (
-                                                                        <button
-                                                                            onClick={() => router.push(`/abono/edit/${record.id}`)}
-                                                                            className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-auto"
-                                                                        >
-                                                                            Editar Dados
-                                                                        </button>
+                                                                        <>
+                                                                            <button
+                                                                                onClick={() => router.push(`/abono/edit/${record.id}`)}
+                                                                                className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32"
+                                                                            >
+                                                                                Editar Dados
+                                                                            </button>
+                                                                            {getBenefitStatus(record, renewalTargetIds) === 'expired' && !record.renovado_por_id && (
+                                                                                <button
+                                                                                    onClick={() => router.push(`/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ''}`)}
+                                                                                    className="px-6 py-2 bg-green-600 text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32 flex items-center justify-center gap-1"
+                                                                                >
+                                                                                    <TrendingUp className="w-3 h-3" />
+                                                                                    Renovar
+                                                                                </button>
+                                                                            )}
+                                                                        </>
                                                                     )}
                                                                 </div>
                                                             </div>

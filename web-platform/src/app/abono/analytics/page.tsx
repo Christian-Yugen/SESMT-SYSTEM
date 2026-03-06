@@ -38,6 +38,8 @@ import {
     TrendingUp,
     Printer,
     FolderOpen,
+    Scale,
+    FileText
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError } from "@/lib/auth-utils";
@@ -152,6 +154,11 @@ export default function AbonoAnalyticsPage() {
         Array.from(new Set(records.map(r => r.secretaria).filter(Boolean))).sort() as string[]
         , [records]);
 
+    // IDs de registros que nasceram de uma renovação
+    const renewalTargetIds = useMemo(() => {
+        return new Set(records.map(r => r.renovado_por_id).filter(Boolean));
+    }, [records]);
+
     const filteredRecords = useMemo(() => {
         return records.filter(r => {
             const matchesSecretaria = filterSecretaria === "all" || r.secretaria === filterSecretaria;
@@ -159,14 +166,33 @@ export default function AbonoAnalyticsPage() {
             const matchesStartDate = !startDate || entryDate >= startDate;
             const matchesEndDate = !endDate || entryDate <= endDate;
 
-            const isActive = isBenefitActive(r.inicio);
+            if (!r.inicio) return false;
+            const startDateObj = new Date(r.inicio + 'T00:00:00');
+            const endDateObj = new Date(startDateObj);
+            endDateObj.setFullYear(startDateObj.getFullYear() + 1);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Identidade do status
+            const isFinished = !!r.renovado_por_id;
+            const isExpired = today > endDateObj && !isFinished;
+
+            // Lógica de 90 dias para Renovados
+            const isRenewal = renewalTargetIds.has(r.id);
+            const ninetyDaysAgo = new Date();
+            ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+            const isRecent = new Date(r.created_at) > ninetyDaysAgo;
+            const isRenovado = isRenewal && isRecent && today <= endDateObj && !isFinished;
+            const isAtivo = today <= endDateObj && !isFinished && !isRenovado;
+
             const matchesStatus = filterStatus === "all" ||
-                (filterStatus === "active" && isActive) ||
-                (filterStatus === "finished" && !isActive);
+                (filterStatus === "active" && (isAtivo || isRenovado)) ||
+                (filterStatus === "expired" && isExpired) ||
+                (filterStatus === "finished" && isFinished);
 
             return matchesSecretaria && matchesStatus && matchesStartDate && matchesEndDate;
         });
-    }, [records, filterSecretaria, filterStatus, startDate, endDate]);
+    }, [records, filterSecretaria, filterStatus, startDate, endDate, renewalTargetIds]);
 
     // Processamento para Gráficos
     const chartData = useMemo(() => {
@@ -184,15 +210,39 @@ export default function AbonoAnalyticsPage() {
 
         // Status
         let ativos = 0;
+        let renovados = 0;
+        let vencidos = 0;
         let finalizados = 0;
         filteredRecords.forEach(r => {
-            if (isBenefitActive(r.inicio)) ativos++;
-            else finalizados++;
+            if (!r.inicio) return;
+            const startDate = new Date(r.inicio + 'T00:00:00');
+            const endDate = new Date(startDate);
+            endDate.setFullYear(startDate.getFullYear() + 1);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (r.renovado_por_id) {
+                finalizados++;
+            } else if (today > endDate) {
+                vencidos++;
+            } else {
+                // Lógica de 90 dias para Renovados
+                const isRenewal = renewalTargetIds.has(r.id);
+                const ninetyDaysAgo = new Date();
+                ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+                if (isRenewal && new Date(r.created_at) > ninetyDaysAgo) {
+                    renovados++;
+                } else {
+                    ativos++;
+                }
+            }
         });
         const byStatus = [
             { name: "Ativos", value: ativos, color: "#10b981" },
-            { name: "Finalizados", value: finalizados, color: "#E31E24" }
-        ];
+            { name: "Renovados", value: renovados, color: "#2563eb" },
+            { name: "Vencidos", value: vencidos, color: "#ef4444" },
+            { name: "Finalizados", value: finalizados, color: "#94a3b8" }
+        ].filter(s => s.value > 0);
 
         // Ranking Secretarias
         const secMap: Record<string, number> = {};
@@ -309,22 +359,30 @@ export default function AbonoAnalyticsPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <LayoutDashboard className="w-4 h-4 shrink-0" />
-                        <span>Criar documentos</span>
-                    </button>
-                    <button onClick={() => router.push("/abono")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <ClipboardList className="w-4 h-4 shrink-0" />
-                        <span>Abono Salarial</span>
-                    </button>
-                    <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
-                        <BarChart3 className="w-4 h-4 shrink-0" />
-                        <span>Indicadores BI</span>
-                    </button>
-                    <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <HistoryIcon className="w-4 h-4 shrink-0" />
-                        <span>Histórico</span>
-                    </button>
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
+                        <>
+                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                                <span>Criar documentos</span>
+                            </button>
+                            <button onClick={() => router.push("/abono")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <ClipboardList className="w-4 h-4 shrink-0" />
+                                <span>Abono Salarial</span>
+                            </button>
+                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
+                                <BarChart3 className="w-4 h-4 shrink-0" />
+                                <span>Indicadores BI</span>
+                            </button>
+                            <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <HistoryIcon className="w-4 h-4 shrink-0" />
+                                <span>Histórico</span>
+                            </button>
+                            <button onClick={() => router.push("/archive")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
+                            </button>
+                        </>
+                    )}
                 </nav>
 
                 <div className="mt-auto space-y-4 px-4">
@@ -368,6 +426,7 @@ export default function AbonoAnalyticsPage() {
                         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODOS STATUS</option>
                             <option value="active">ATIVOS</option>
+                            <option value="expired">VENCIDOS</option>
                             <option value="finished">FINALIZADOS</option>
                         </select>
                         <div className="relative flex-1 md:flex-none min-w-[180px]">

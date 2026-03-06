@@ -7,7 +7,7 @@ import { handleAuthError } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
-    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp
+    BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, FileText
 } from "lucide-react";
 import { Servidor, AbonoRecord } from "@/types";
 
@@ -28,7 +28,8 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
         inicio: "",
         quant: "12",
         observacoes: "",
-        motivo_alteracao: ""
+        motivo_alteracao: "",
+        beneficiario_nome: ""
     });
     const [originalData, setOriginalData] = useState<any>(null);
     const [changeLogs, setChangeLogs] = useState<any[]>([]);
@@ -86,7 +87,8 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 inicio: abono.inicio || "",
                 quant: abono.quant?.toString() || "12",
                 observacoes: abono.observacoes || "",
-                motivo_alteracao: ""
+                motivo_alteracao: "",
+                beneficiario_nome: abono.beneficiario_nome || ""
             });
             setOriginalData(abono);
 
@@ -159,6 +161,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                     observacoes: formData.observacoes,
                     motivo_alteracao: formData.motivo_alteracao,
                     alterado_por: userEmail,
+                    beneficiario_nome: formData.beneficiario_nome.toUpperCase() || 'PRÓPRIO',
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', id);
@@ -252,23 +255,35 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
+                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <Scale className="w-3.5 h-3.5 shrink-0" />
+                            <span>Legislação e Regras</span>
+                        </button>
+                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                            <FileText className="w-3.5 h-3.5 shrink-0" />
+                            <span>Portarias</span>
+                        </button>
                         <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                         </button>
                     </div>
 
-                    <div className="group">
-                        <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                            <HistoryIcon className="w-4 h-4 shrink-0" />
-                            <span>Histórico</span>
-                        </button>
-                    </div>
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
+                        <>
+                            <div className="group">
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                    <HistoryIcon className="w-4 h-4 shrink-0" />
+                                    <span>Histórico</span>
+                                </button>
+                            </div>
 
-                    <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
+                            </button>
+                        </>
+                    )}
                 </nav>
 
                 <div className="mt-auto space-y-4">
@@ -341,6 +356,25 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                                         onChange={(e) => setFormData({ ...formData, portaria: e.target.value })}
                                     />
                                 </div>
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
+                                    <input
+                                        type="text"
+                                        placeholder="EX: PRÓPRIO, FILHO 1..."
+                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        value={formData.beneficiario_nome}
+                                        onChange={(e) => setFormData({ ...formData, beneficiario_nome: e.target.value })}
+                                    />
+                                </div>
+                                {originalData?.renovado_por_id && (
+                                    <div className="md:col-span-2 bg-blue-50 border-l-4 border-blue-500 p-4 mb-2 flex items-center gap-3">
+                                        <TrendingUp className="w-5 h-5 text-blue-600" />
+                                        <div>
+                                            <p className="text-[10px] font-black text-blue-600 uppercase">Status: Renovado</p>
+                                            <p className="text-xs font-bold text-blue-800">Este benefício já possui uma renovação vinculada.</p>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                     <input

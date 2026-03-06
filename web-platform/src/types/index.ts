@@ -41,6 +41,9 @@ export interface AbonoRecord {
     observacoes?: string;
     motivo_alteracao?: string;
     alterado_por?: string;
+    beneficiario_nome?: string;
+    status_manual?: string;
+    renovado_por_id?: number | null;
     created_at: string;
     updated_at: string;
 }
