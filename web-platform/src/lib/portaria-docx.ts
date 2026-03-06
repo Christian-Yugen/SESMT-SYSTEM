@@ -38,7 +38,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
             children: [
                 // Título
                 new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     spacing: { after: 300 },
                     children: [
                         new TextRun({
@@ -59,7 +59,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         new TextRun({
                             text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
                             bold: true,
-                            italics: false,
+                            italics: true,
                             size: 22,
                             font: 'Times New Roman'
                         })
@@ -73,7 +73,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { after: 200 },
                     children: [
-                        new TextRun({ text: 'CONSIDERANDO', bold: true, underline: { type: 'single' }, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'CONSIDERANDO', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de Perícia (SESMT);', size: 24, font: 'Times New Roman' })
                     ]
                 }),

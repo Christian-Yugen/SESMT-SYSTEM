@@ -97,11 +97,11 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     doc.setFont('times', 'bold');
     doc.setFontSize(13);
     const titulo = `PORTARIA Nº ${data.numero.toString().padStart(4, '0')}/SEGP/DGP/${data.ano}`;
-    doc.text(titulo, pageWidth / 2, y, { align: 'center' });
+    doc.text(titulo, marginLeft, y);
     y += 14;
 
-    // === PREÂMBULO (itálico e recuado à direita - ponto 7, 8) ===
-    doc.setFont('times', 'bold');
+    // === PREÂMBULO (itálico e recuado à direita) ===
+    doc.setFont('times', 'bolditalic');
     doc.setFontSize(11); // Aumentado levemente
     const preambulo = `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`;
 
