@@ -67,28 +67,8 @@ export default function NewPortariaPage() {
             } catch (err) { await handleAuthError(err); }
         };
         checkAuth();
-        loadNextNumero();
     }, [router]);
 
-    async function loadNextNumero() {
-        const currentYear = new Date().getFullYear();
-        const { data, error } = await supabase
-            .from('portarias_abono')
-            .select('numero')
-            .eq('ano', currentYear)
-            .order('numero', { ascending: false })
-            .limit(1);
-
-        if (!error && data && data.length > 0) {
-            const next = data[0].numero + 1;
-            setNextNumero(next);
-            setFormData(prev => ({ ...prev, numero: next.toString() }));
-        } else {
-            // Se não houver nenhuma portaria no banco, usa 1934 como padrão
-            setNextNumero(1934);
-            setFormData(prev => ({ ...prev, numero: "1934" }));
-        }
-    }
 
     // Busca Automática (Autocomplete)
     useEffect(() => {
@@ -522,9 +502,9 @@ export default function NewPortariaPage() {
                                         <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Nº da Portaria *</label>
                                         <input
                                             type="number"
-                                            readOnly
-                                            className="w-full px-3 py-2 border border-slate-300 rounded font-black bg-slate-100 uppercase text-xl text-[#1A3351] text-center cursor-not-allowed"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-black bg-white uppercase text-xl text-[#1A3351] text-center focus:border-amber-500 outline-none"
                                             value={formData.numero}
+                                            onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
                                         />
                                         <p className="text-[8px] font-bold text-amber-600 uppercase pl-1 leading-none">Nº {formData.numero || "---"}/SEGP/DGP/{new Date().getFullYear()}</p>
                                     </div>

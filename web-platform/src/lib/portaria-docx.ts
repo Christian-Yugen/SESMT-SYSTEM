@@ -38,7 +38,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
             children: [
                 // Título
                 new Paragraph({
-                    alignment: AlignmentType.CENTER,
+                    alignment: AlignmentType.LEFT,
                     spacing: { after: 300 },
                     children: [
                         new TextRun({
@@ -59,7 +59,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         new TextRun({
                             text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
                             bold: true,
-                            italics: false,
+                            italics: true,
                             size: 22,
                             font: 'Times New Roman'
                         })
@@ -73,7 +73,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { after: 200 },
                     children: [
-                        new TextRun({ text: 'CONSIDERANDO', bold: true, underline: { type: 'single' }, size: 24, font: 'Times New Roman' }),
+                        new TextRun({ text: 'CONSIDERANDO', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: ' os requisitos exigidos em lei e avaliação realizada pelo órgão de Perícia (SESMT);', size: 24, font: 'Times New Roman' })
                     ]
                 }),
@@ -93,7 +93,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 1º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Fica concedido pelo período de ', size: 24, font: 'Times New Roman' }),
@@ -108,7 +107,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 2º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Fará jus ao abono, o servidor municipal, estável ou ocupante de cargo efetivo, inativos e contratados, que comprovar anualmente os requisitos previstos na lei.', size: 24, font: 'Times New Roman' })
@@ -119,7 +117,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 3º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'O pagamento do Abono Salarial poderá ser revisto a qualquer momento, caso sejam constatados irregularidades, erro material, vício procedimental ou descumprimento dos requisitos legais, sendo adotadas as providências cabíveis para a correção da concessão, nos termos da Súmula nº 346 e Súmula nº 473 do Supremo Tribunal Federal (STF).', size: 24, font: 'Times New Roman' })
@@ -130,7 +127,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing (1.5 * 240 = 360)
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 4º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Esta Portaria entrará em vigor na data de sua publicação.', size: 24, font: 'Times New Roman' })
