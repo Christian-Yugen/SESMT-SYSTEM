@@ -202,7 +202,7 @@ export default function AbonoPage() {
 
     // IDs de registros que nasceram de uma renovação
     const renewalTargetIds = useMemo(() => {
-        return new Set(records.map(r => r.renovado_por_id).filter(Boolean));
+        return new Set(records.map(r => r.renovado_por_id).filter((id): id is number => !!id));
     }, [records]);
 
     // Utility to check if a benefit is active
@@ -273,7 +273,7 @@ export default function AbonoPage() {
         }
 
         return result;
-    }, [filteredRecords, statusFilter, sortBy]);
+    }, [filteredRecords, statusFilter, sortBy, renewalTargetIds]);
 
     const stats = useMemo(() => {
         // finalRecords para a lista e PDF (aplica o filtro de status atual sobre o que já foi filtrado por busca/sec/data)
@@ -1130,6 +1130,6 @@ export default function AbonoPage() {
                 `}</style>
             </div>
 
-        </div >
+        </div>
     );
 }
