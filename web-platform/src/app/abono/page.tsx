@@ -177,6 +177,7 @@ export default function AbonoPage() {
 
         const labels: Record<string, string> = {
             portaria: "PORTARIA",
+            assomasul_numero: "Nº ASSOMASUL",
             assomasul_data: "DATA ASSOMASUL",
             inicio: "DATA INÍCIO",
             observacoes: "OBSERVAÇÕES"
@@ -917,18 +918,25 @@ export default function AbonoPage() {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Portaria</p>
-                                                                    <p className="text-sm font-bold text-slate-700 uppercase">{record.portaria || '---'}</p>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <p className="text-[9px] font-black text-slate-400 uppercase">Assomasul:</p>
-                                                                        <p className="text-[11px] font-bold text-slate-600 uppercase">{formatDate(record.assomasul_data)}</p>
-                                                                    </div>
-                                                                </div>
                                                                 <div className="space-y-1 md:col-span-2 text-center md:text-left">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário</p>
                                                                     <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
                                                                     <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[9px] font-black text-slate-400 uppercase border-b border-slate-100 pb-0.5 mb-1.5">Documento Oficial</p>
+                                                                    <div className="space-y-0.5">
+                                                                        {record.assomasul_data && (
+                                                                            <p className="text-[10px] font-black text-[#1A3351] uppercase tracking-tighter whitespace-nowrap">
+                                                                                Pub. Assomasul: {formatDate(record.assomasul_data)}
+                                                                            </p>
+                                                                        )}
+                                                                        {record.assomasul_numero && (
+                                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {record.assomasul_numero}</p>
+                                                                        )}
+                                                                        <div className="h-px bg-slate-100 my-1" />
+                                                                        <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter leading-tight">{record.portaria || '---'}</p>
+                                                                    </div>
                                                                 </div>
                                                                 <div className="flex flex-col gap-2 items-end justify-center">
                                                                     {userRole !== 'analytic_manager' && (
@@ -1089,7 +1097,16 @@ export default function AbonoPage() {
                                     <td className="p-0.5 px-2 border border-slate-100 font-medium">
                                         <p className="text-[9px] text-slate-600 uppercase leading-tight">{record.nome}</p>
                                     </td>
-                                    <td className="p-0.5 px-2 text-[8px] font-normal text-slate-500 border border-slate-100 uppercase">{record.portaria}</td>
+                                    <td className="p-0.5 px-2 border border-slate-100 uppercase">
+                                        <div className="flex flex-col leading-tight">
+                                            <span className="text-[9px] font-bold text-[#1A3351]">{record.portaria}</span>
+                                            {(record.assomasul_numero || record.assomasul_data) && (
+                                                <span className="text-[7.5px] text-slate-400 font-medium">
+                                                    AS: {record.assomasul_numero || '---'} {record.assomasul_data ? `(${formatDate(record.assomasul_data)})` : ''}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td className="p-0.5 text-[8px] font-bold text-[#1A3351] border border-slate-100 text-center whitespace-nowrap">{formatDate(record.inicio)}</td>
                                     <td className="p-0.5 text-[8px] font-bold text-[#E31E24] border border-slate-100 text-center whitespace-nowrap">{formatDate(endDate)}</td>
                                     <td className="p-0.5 px-2 text-[8px] font-normal text-slate-400 border border-slate-100 uppercase leading-tight truncate max-w-[180px]">{record.secretaria || '---'}</td>

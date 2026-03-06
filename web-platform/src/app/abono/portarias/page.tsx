@@ -25,6 +25,8 @@ interface PortariaRecord {
     periodo_inicio: string;
     periodo_fim: string;
     data_portaria: string;
+    assomasul_numero?: string;
+    assomasul_data?: string;
     criado_por: string;
     criado_por_nome: string;
     created_at: string;
@@ -244,7 +246,9 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            assomasul_numero: record.assomasul_numero,
+            assomasul_data: formatDate(record.assomasul_data)
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -260,7 +264,9 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            assomasul_numero: record.assomasul_numero,
+            assomasul_data: formatDate(record.assomasul_data)
         };
         generatePortariaPDF(portariaData, 'download');
     };
@@ -277,7 +283,9 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            assomasul_numero: record.assomasul_numero,
+            assomasul_data: formatDate(record.assomasul_data)
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -642,12 +650,19 @@ export default function PortariasPage() {
                                                 </div>
 
                                                 <div className="md:col-span-4 bg-white p-4 lg:p-5 border border-slate-200 shadow-inner rounded-xl">
-                                                    <span className="text-[10px] lg:text-[11px] font-black text-[#1A3351] uppercase mb-3 block flex items-center gap-2">
+                                                    <span className="text-xs lg:text-sm font-black text-[#1A3351] uppercase mb-3 block flex items-center gap-2 border-b border-slate-100 pb-2">
                                                         <FileText className="w-4 h-4 text-amber-500" /> Documento Oficial
                                                     </span>
-                                                    <div className="space-y-2">
-                                                        <p className="text-[10px] font-bold text-slate-600 uppercase">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
-                                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Data: {formatDate(entry.data_portaria)}</p>
+                                                    <div className="space-y-1">
+                                                        {entry.assomasul_data && (
+                                                            <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter">Data Publicação Assomasul: {formatDate(entry.assomasul_data)}</p>
+                                                        )}
+                                                        {entry.assomasul_numero && (
+                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {entry.assomasul_numero}</p>
+                                                        )}
+                                                        <div className="h-px bg-slate-100 my-1.5" />
+                                                        <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
+                                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Data Emissão: {formatDate(entry.data_portaria)}</p>
                                                     </div>
                                                 </div>
 

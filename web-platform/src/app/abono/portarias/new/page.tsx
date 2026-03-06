@@ -39,7 +39,9 @@ export default function NewPortariaPage() {
         periodo_fim: "",
         data_portaria: todayStr,
         genero: "F" as "M" | "F",
-        lotacao: ""
+        lotacao: "",
+        assomasul_numero: "",
+        assomasul_data: ""
     });
 
     useEffect(() => { setMounted(true); }, []);
@@ -155,7 +157,9 @@ export default function NewPortariaPage() {
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            assomasul_numero: formData.assomasul_numero,
+            assomasul_data: formatDateBR(formData.assomasul_data)
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -179,7 +183,9 @@ export default function NewPortariaPage() {
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            assomasul_numero: formData.assomasul_numero,
+            assomasul_data: formatDateBR(formData.assomasul_data)
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -213,6 +219,8 @@ export default function NewPortariaPage() {
                     periodo_inicio: formData.periodo_inicio,
                     periodo_fim: formData.periodo_fim,
                     data_portaria: formData.data_portaria,
+                    assomasul_numero: formData.assomasul_numero,
+                    assomasul_data: formData.assomasul_data,
                     criado_por: session?.user?.id,
                     criado_por_nome: operatorName
                 });
@@ -230,7 +238,9 @@ export default function NewPortariaPage() {
                 servidor_genero: formData.genero,
                 periodo_inicio: formatDateBR(formData.periodo_inicio),
                 periodo_fim: formatDateBR(formData.periodo_fim),
-                data_portaria: formatDateBR(formData.data_portaria)
+                data_portaria: formatDateBR(formData.data_portaria),
+                assomasul_numero: formData.assomasul_numero,
+                assomasul_data: formatDateBR(formData.assomasul_data)
             };
             generatePortariaPDF(portariaData, 'view');
 
@@ -555,6 +565,29 @@ export default function NewPortariaPage() {
                                             readOnly
                                             className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                             value={formData.data_portaria}
+                                        />
+                                    </div>
+
+                                    {/* Número do Assomasul */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Nº Assomasul</label>
+                                        <input
+                                            type="text"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                            value={formData.assomasul_numero}
+                                            onChange={(e) => setFormData({ ...formData, assomasul_numero: e.target.value })}
+                                            placeholder="Ex: 3450"
+                                        />
+                                    </div>
+
+                                    {/* Data do Assomasul */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Data Assomasul</label>
+                                        <input
+                                            type="date"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                            value={formData.assomasul_data}
+                                            onChange={(e) => setFormData({ ...formData, assomasul_data: e.target.value })}
                                         />
                                     </div>
 

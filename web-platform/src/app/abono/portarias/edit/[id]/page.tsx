@@ -27,6 +27,8 @@ interface PortariaRecord {
     periodo_inicio: string;
     periodo_fim: string;
     data_portaria: string;
+    assomasul_numero?: string;
+    assomasul_data?: string;
     criado_por: string;
     criado_por_nome: string;
     created_at: string;
@@ -55,7 +57,9 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
         data_portaria: "",
         genero: "F" as "M" | "F",
         lotacao: "",
-        motivo_alteracao: ""
+        motivo_alteracao: "",
+        assomasul_numero: "",
+        assomasul_data: ""
     });
 
     useEffect(() => { setMounted(true); }, []);
@@ -109,7 +113,9 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                 data_portaria: portaria.data_portaria,
                 genero: portaria.servidor_genero,
                 lotacao: portaria.servidor_lotacao,
-                motivo_alteracao: ""
+                motivo_alteracao: "",
+                assomasul_numero: portaria.assomasul_numero || "",
+                assomasul_data: portaria.assomasul_data || ""
             });
             setOriginalData(portaria);
 
@@ -161,7 +167,9 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            assomasul_numero: formData.assomasul_numero,
+            assomasul_data: formatDateBR(formData.assomasul_data)
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -181,7 +189,9 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            assomasul_numero: formData.assomasul_numero,
+            assomasul_data: formatDateBR(formData.assomasul_data)
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -213,6 +223,8 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero,
                     motivo_alteracao: formData.motivo_alteracao,
+                    assomasul_numero: formData.assomasul_numero,
+                    assomasul_data: formData.assomasul_data,
                     alterado_por: operatorName,
                     updated_at: new Date().toISOString()
                 })
@@ -232,7 +244,9 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     periodo_fim: formData.periodo_fim,
                     data_portaria: formData.data_portaria,
                     servidor_lotacao: capitalizeName(formData.lotacao),
-                    servidor_genero: formData.genero
+                    servidor_genero: formData.genero,
+                    assomasul_numero: formData.assomasul_numero,
+                    assomasul_data: formData.assomasul_data
                 }
             });
 
@@ -498,6 +512,29 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                                         className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
                                         value={formData.data_portaria}
                                         onChange={(e) => setFormData({ ...formData, data_portaria: e.target.value })}
+                                    />
+                                </div>
+
+                                {/* Número do Assomasul */}
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Nº Assomasul</label>
+                                    <input
+                                        type="text"
+                                        placeholder="EX: 3450"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                        value={formData.assomasul_numero}
+                                        onChange={(e) => setFormData({ ...formData, assomasul_numero: e.target.value })}
+                                    />
+                                </div>
+
+                                {/* Data do Assomasul */}
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Data Assomasul</label>
+                                    <input
+                                        type="date"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                        value={formData.assomasul_data}
+                                        onChange={(e) => setFormData({ ...formData, assomasul_data: e.target.value })}
                                     />
                                 </div>
 
