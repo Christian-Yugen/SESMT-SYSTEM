@@ -927,7 +927,7 @@ export default function AbonoPage() {
                                                                 </div>
                                                                 <div className="space-y-1 md:col-span-2 text-center md:text-left">
                                                                     <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário</p>
-                                                                    <p className="text-sm font-bold text-[#E31E24] uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
+                                                                    <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
                                                                     <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
                                                                 <div className="flex flex-col gap-2 items-end justify-center">
