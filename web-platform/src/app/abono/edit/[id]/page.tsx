@@ -24,6 +24,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
     // Form data
     const [formData, setFormData] = useState({
         portaria: "",
+        assomasul_numero: "",
         assomasul_data: "",
         inicio: "",
         quant: "12",
@@ -83,6 +84,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
 
             setFormData({
                 portaria: abono.portaria || "",
+                assomasul_numero: abono.assomasul_numero || "",
                 assomasul_data: abono.assomasul_data || "",
                 inicio: abono.inicio || "",
                 quant: abono.quant?.toString() || "12",
@@ -155,6 +157,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 .from('abono_salarial')
                 .update({
                     portaria: formData.portaria,
+                    assomasul_numero: formData.assomasul_numero || null,
                     assomasul_data: formData.assomasul_data || null,
                     inicio: formData.inicio,
                     quant: 12,
@@ -176,6 +179,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 dados_anteriores: originalData,
                 dados_novos: {
                     portaria: formData.portaria,
+                    assomasul_numero: formData.assomasul_numero,
                     assomasul_data: formData.assomasul_data,
                     inicio: formData.inicio,
                     observacoes: formData.observacoes
@@ -375,6 +379,16 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                                         </div>
                                     </div>
                                 )}
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número Assomasul</label>
+                                    <input
+                                        type="text"
+                                        placeholder="EX: 4041"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        value={formData.assomasul_numero}
+                                        onChange={(e) => setFormData({ ...formData, assomasul_numero: e.target.value })}
+                                    />
+                                </div>
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                     <input

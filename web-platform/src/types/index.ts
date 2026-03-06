@@ -35,6 +35,7 @@ export interface AbonoRecord {
     nome: string;
     secretaria?: string;
     portaria?: string;
+    assomasul_numero?: string;
     assomasul_data?: string;
     inicio?: string;
     quant?: number;
