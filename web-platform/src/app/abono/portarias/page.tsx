@@ -318,20 +318,18 @@ export default function PortariasPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    {userRole !== 'social_assistant' && (
-                        <>
-                            <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                                <span>Criar documentos</span>
+                    <>
+                        <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                            <LayoutDashboard className="w-4 h-4 shrink-0" />
+                            <span>Criar documentos</span>
+                        </button>
+                        {userRole !== 'viewer' && (
+                            <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <ClipboardList className="w-4 h-4 shrink-0" />
+                                <span>Central de Evidências</span>
                             </button>
-                            {userRole !== 'viewer' && (
-                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-4 h-4 shrink-0" />
-                                    <span>Central de Evidências</span>
-                                </button>
-                            )}
-                        </>
-                    )}
+                        )}
+                    </>
 
                     {userRole !== 'viewer' && (
                         <div className="space-y-1">
@@ -345,18 +343,16 @@ export default function PortariasPage() {
 
                             {(isBenefitsOpen || (mounted && window.innerWidth >= 1024)) && (
                                 <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                    {userRole !== 'social_assistant' && (
-                                        <>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <Database className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Auxílio Doença</span>
-                                            </button>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Readaptação</span>
-                                            </button>
-                                        </>
-                                    )}
+                                    <>
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <Database className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Auxílio Doença</span>
+                                        </button>
+                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Readaptação</span>
+                                        </button>
+                                    </>
                                     {userRole !== 'nurse' && userRole !== 'operator' && (
                                         <div className="space-y-1">
                                             <button onClick={() => setIsAbonoOpen(!isAbonoOpen)} className={`w-full flex items-center justify-between p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider group ${pathname.startsWith('/abono') ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}>
@@ -385,18 +381,16 @@ export default function PortariasPage() {
                                             )}
                                         </div>
                                     )}
-                                    {userRole !== 'social_assistant' && (
-                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Redução de Jornada</span>
-                                        </button>
-                                    )}
+                                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                        <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                                        <span>Redução de Jornada</span>
+                                    </button>
                                 </div>
                             )}
                         </div>
                     )}
 
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <div className="space-y-1">
                             <div className="space-y-1">
                                 <button onClick={() => setIsHistoryOpen(!isHistoryOpen)} className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">

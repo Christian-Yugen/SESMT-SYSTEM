@@ -353,14 +353,18 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                         )}
                     </div>
 
-                    <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <HistoryIcon className="w-4 h-4 shrink-0" />
-                        <span>Histórico</span>
-                    </button>
-                    <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
+                        <>
+                            <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <HistoryIcon className="w-4 h-4 shrink-0" />
+                                <span>Histórico</span>
+                            </button>
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <FolderOpen className="w-4 h-4 shrink-0" />
+                                <span>Arquivo Médico</span>
+                            </button>
+                        </>
+                    )}
                 </nav>
 
                 <div className="mt-auto space-y-4">

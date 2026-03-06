@@ -131,88 +131,77 @@ export default function AbonoLeiPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    {userRole !== 'social_assistant' && (
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <>
                             <button onClick={() => router.push('/')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                                 <LayoutDashboard className="w-4 h-4 shrink-0 text-sky-400" />
                                 <span>Criar documentos</span>
                             </button>
 
-                            {userRole !== 'viewer' && (
-                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-4 h-4 shrink-0 text-emerald-400" />
-                                    <span>Central de Evidências</span>
-                                </button>
-                            )}
+                            <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-2 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                <ClipboardList className="w-4 h-4 shrink-0 text-emerald-400" />
+                                <span>Central de Evidências</span>
+                            </button>
                         </>
                     )}
 
-                    {userRole !== 'viewer' && (
-                        <div className="space-y-1">
-                            <button
-                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
-                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <HeartPulse className="w-4 h-4 shrink-0 text-red-400" />
-                                    <span>Benefícios</span>
-                                </div>
-                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
-                            </button>
+                    <div className="space-y-1">
+                        <button
+                            onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
+                            className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                        >
+                            <div className="flex items-center gap-2">
+                                <HeartPulse className="w-4 h-4 shrink-0 text-red-400" />
+                                <span>Benefícios</span>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
+                        </button>
 
-                            {(isBenefitsOpen || (mounted && window.innerWidth >= 1024)) && (
-                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                    {userRole !== 'social_assistant' && (
-                                        <>
-                                            <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
-                                                <Database className="w-3.5 h-3.5 shrink-0 group-hover:text-amber-400 transition-colors" />
-                                                <span>Auxílio Doença</span>
-                                            </button>
-                                            <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
-                                                <FileSearch className="w-3.5 h-3.5 shrink-0 group-hover:text-purple-400 transition-colors" />
-                                                <span>Readaptação</span>
-                                            </button>
-                                        </>
-                                    )}
-                                    {userRole !== 'nurse' && userRole !== 'operator' && (
-                                        <div className="space-y-1">
-                                            <button
-                                                onClick={() => setIsAbonoOpen(!isAbonoOpen)}
-                                                className="w-full flex items-center justify-between p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider group"
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <ClipboardList className="w-3.5 h-3.5 shrink-0 group-hover:text-indigo-400 transition-colors" />
-                                                    <span>Abono Salarial</span>
-                                                </div>
-                                                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAbonoOpen ? 'rotate-180' : ''}`} />
-                                            </button>
+                        {(isBenefitsOpen || (mounted && typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                            <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
+                                <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
+                                    <Database className="w-3.5 h-3.5 shrink-0 group-hover:text-amber-400 transition-colors" />
+                                    <span>Auxílio Doença</span>
+                                </button>
+                                <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
+                                    <FileSearch className="w-3.5 h-3.5 shrink-0 group-hover:text-purple-400 transition-colors" />
+                                    <span>Readaptação</span>
+                                </button>
 
-                                            {isAbonoOpen && (
-                                                <div className="flex flex-col space-y-1 pl-4">
-                                                    <button onClick={() => router.push('/abono')} className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group">
-                                                        <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                                        <span>Painel de Gestão</span>
-                                                    </button>
-                                                    <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg bg-white/5 text-sky-400 font-bold text-[9px] uppercase tracking-wider whitespace-nowrap shadow-inner border-l-2 border-sky-500/50">
-                                                        <Scale className="w-3 h-3 shrink-0" />
-                                                        <span>Legislação e Regras</span>
-                                                    </button>
-                                                </div>
-                                            )}
+                                <div className="space-y-1">
+                                    <button
+                                        onClick={() => setIsAbonoOpen(!isAbonoOpen)}
+                                        className="w-full flex items-center justify-between p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider group"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <ClipboardList className="w-3.5 h-3.5 shrink-0 group-hover:text-indigo-400 transition-colors" />
+                                            <span>Abono Salarial</span>
+                                        </div>
+                                        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAbonoOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isAbonoOpen && (
+                                        <div className="flex flex-col space-y-1 pl-4">
+                                            <button onClick={() => router.push('/abono')} className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group">
+                                                <LayoutDashboard className="w-3 h-3 shrink-0" />
+                                                <span>Painel de Gestão</span>
+                                            </button>
+                                            <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg bg-white/5 text-sky-400 font-bold text-[9px] uppercase tracking-wider whitespace-nowrap shadow-inner border-l-2 border-sky-500/50">
+                                                <Scale className="w-3 h-3 shrink-0" />
+                                                <span>Legislação e Regras</span>
+                                            </button>
                                         </div>
                                     )}
-                                    {userRole !== 'social_assistant' && (
-                                        <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
-                                            <TrendingUp className="w-3.5 h-3.5 shrink-0 group-hover:text-cyan-400 transition-colors" />
-                                            <span>Redução de Jornada</span>
-                                        </button>
-                                    )}
                                 </div>
-                            )}
-                        </div>
-                    )}
+                                <button className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap group">
+                                    <TrendingUp className="w-3.5 h-3.5 shrink-0 group-hover:text-cyan-400 transition-colors" />
+                                    <span>Redução de Jornada</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
+                    {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <div className="space-y-1">
                             <div className="space-y-1">
                                 <button
@@ -226,13 +215,13 @@ export default function AbonoLeiPage() {
                                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
-                                {(isHistoryOpen || (mounted && window.innerWidth >= 1024)) && (
+                                {(isHistoryOpen || (mounted && typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
                                     <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
                                         <button onClick={() => router.push('/history')} className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                                             <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
                                             <span>Log Principal</span>
                                         </button>
-                                        <button onClick={() => router.push('/analytics')} className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                                        <button onClick={() => router.push('/abono/analytics')} className="w-full flex items-center gap-2 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                                             <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                                             <span>Indicadores</span>
                                         </button>
