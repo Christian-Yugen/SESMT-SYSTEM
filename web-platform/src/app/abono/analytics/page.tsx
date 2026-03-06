@@ -480,7 +480,7 @@ export default function AbonoAnalyticsPage() {
                         <div className="bg-white p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between">
                             <div>
                                 <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Secretarias</p>
-                                <h3 className="text-2xl font-black text-[#E31E24] mt-1">{uniqueSecretarias.length}</h3>
+                                <h3 className="text-2xl font-black text-[#E31E24] mt-1">{new Set(filteredRecords.map(r => r.secretaria).filter(Boolean)).size}</h3>
                             </div>
                             <Building2 className="w-6 h-6 text-red-500/10" />
                         </div>
