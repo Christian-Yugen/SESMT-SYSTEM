@@ -93,7 +93,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 1º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Fica concedido pelo período de ', size: 24, font: 'Times New Roman' }),
@@ -108,7 +107,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 2º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Fará jus ao abono, o servidor municipal, estável ou ocupante de cargo efetivo, inativos e contratados, que comprovar anualmente os requisitos previstos na lei.', size: 24, font: 'Times New Roman' })
@@ -119,7 +117,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 3º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'O pagamento do Abono Salarial poderá ser revisto a qualquer momento, caso sejam constatados irregularidades, erro material, vício procedimental ou descumprimento dos requisitos legais, sendo adotadas as providências cabíveis para a correção da concessão, nos termos da Súmula nº 346 e Súmula nº 473 do Supremo Tribunal Federal (STF).', size: 24, font: 'Times New Roman' })
@@ -130,7 +127,6 @@ export async function generatePortariaDOCX(data: PortariaData) {
                 new Paragraph({
                     alignment: AlignmentType.JUSTIFIED,
                     spacing: { before: 200, after: 300, line: 360 }, // 1.5 spacing (1.5 * 240 = 360)
-                    indent: { left: 360 },
                     children: [
                         new TextRun({ text: 'Art. 4º - ', bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: 'Esta Portaria entrará em vigor na data de sua publicação.', size: 24, font: 'Times New Roman' })

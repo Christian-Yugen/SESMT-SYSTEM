@@ -134,8 +134,8 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     y += 12; // Aumentado espaçamento
 
     // === ARTIGO 1 (ponto 5, 10, 11) ===
-    const indentLeft = marginLeft + 8;
-    const indentWidth = contentWidth - 8;
+    const indentLeft = marginLeft;
+    const indentWidth = contentWidth;
 
     const generoArtigo = data.servidor_genero === 'F' ? 'a servidora' : 'o servidor';
     const generoPublica = data.servidor_genero === 'F' ? 'Pública Municipal' : 'Público Municipal';
