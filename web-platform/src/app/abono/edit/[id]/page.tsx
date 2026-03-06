@@ -116,7 +116,8 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                     Cargo: servidor.cargo,
                     Matrícula: servidor.matricula,
                     "Dt.Nascimento": servidor.nascimento,
-                    Secretaria: servidor.secretaria
+                    Secretaria: servidor.secretaria,
+                    natureza_cargo: servidor.natureza_cargo
                 });
             } else {
                 // Fallback if servidor deleted but abono remains
@@ -165,6 +166,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                     motivo_alteracao: formData.motivo_alteracao,
                     alterado_por: userEmail,
                     beneficiario_nome: formData.beneficiario_nome.toUpperCase() || 'PRÓPRIO',
+                    natureza_cargo: selectedServidor?.natureza_cargo || null,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', id);

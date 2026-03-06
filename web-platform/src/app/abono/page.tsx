@@ -45,6 +45,7 @@ export default function AbonoPage() {
     const [isBenefitsOpen, setIsBenefitsOpen] = useState(true);
     const [isAbonoOpen, setIsAbonoOpen] = useState(true);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [naturezaCargoFilter, setNaturezaCargoFilter] = useState<string>('all');
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -134,12 +135,18 @@ export default function AbonoPage() {
         return Array.from(unique).sort();
     }, [records]);
 
+    const naturezas = useMemo(() => {
+        const unique = new Set(records.map(r => r.natureza_cargo).filter(Boolean));
+        return Array.from(unique).sort();
+    }, [records]);
+
     const filteredRecords = useMemo(() => {
         return records.filter(record => {
             const matchesSearch = record.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 record.cpf.includes(searchTerm);
 
             const matchesSecretaria = secretariaFilter === 'all' || record.secretaria === secretariaFilter;
+            const matchesNatureza = naturezaCargoFilter === 'all' || record.natureza_cargo === naturezaCargoFilter;
 
             let matchesPeriod = true;
             if (startDate || endDate) {
@@ -152,9 +159,9 @@ export default function AbonoPage() {
                 }
             }
 
-            return matchesSearch && matchesSecretaria && matchesPeriod;
+            return matchesSearch && matchesSecretaria && matchesNatureza && matchesPeriod;
         });
-    }, [records, searchTerm, secretariaFilter, startDate, endDate]);
+    }, [records, searchTerm, secretariaFilter, naturezaCargoFilter, startDate, endDate]);
 
     const formatDate = (dateStr: string | undefined | null) => {
         if (!dateStr || dateStr === 'None' || dateStr === 'null') return '---';
@@ -302,6 +309,7 @@ export default function AbonoPage() {
         const printFilters = [
             searchTerm ? `Busca: "${searchTerm}"` : null,
             secretariaFilter !== 'all' ? `Secretaria: ${secretariaFilter}` : 'Todas as Secretarias',
+            naturezaCargoFilter !== 'all' ? `Natureza: ${naturezaCargoFilter}` : 'Todas as Naturezas',
             (startDate || endDate) ? `Período: ${formatDate(startDate)} até ${formatDate(endDate)}` : 'Início até Hoje',
             statusFilter !== 'all' ? `Status: ${statusFilter.toUpperCase() === 'ACTIVE' ? 'ATIVOS (E RENOVADOS)' : statusFilter.toUpperCase()}` : 'Todos os Status'
         ].filter(Boolean).join(' | ');
@@ -315,7 +323,7 @@ export default function AbonoPage() {
             finalRecords,
             printFilters
         };
-    }, [filteredRecords, statusFilter, searchTerm, secretariaFilter, startDate, endDate, renewalTargetIds]);
+    }, [filteredRecords, statusFilter, searchTerm, secretariaFilter, naturezaCargoFilter, startDate, endDate, renewalTargetIds]);
 
     if (loading) {
         return (
@@ -673,11 +681,10 @@ export default function AbonoPage() {
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-2 mt-1">
-                            {/* Dropdown Secretaria - Mais compacto */}
-                            <div className="flex-1 md:max-w-md relative">
+                            <div className="flex-[3] relative">
                                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <select
-                                    className="w-full px-10 py-2 border border-[#888] shadow-inner text-xs font-black bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
+                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
                                     value={secretariaFilter}
                                     onChange={(e) => setSecretariaFilter(e.target.value)}
                                 >
@@ -689,8 +696,24 @@ export default function AbonoPage() {
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                             </div>
 
-                            {/* Botão Global Zerar Filtros - Padrao Historico Vermelho */}
-                            {(secretariaFilter !== 'all' || searchTerm || startDate || endDate) && (
+                            {/* Filtro por Natureza do Cargo */}
+                            <div className="flex-1 relative min-w-[200px]">
+                                <Activity className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                <select
+                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
+                                    value={naturezaCargoFilter}
+                                    onChange={(e) => setNaturezaCargoFilter(e.target.value)}
+                                >
+                                    <option value="all">NATUREZA DO CARGO: TODAS</option>
+                                    {naturezas.map(nat => (
+                                        <option key={nat} value={nat}>{nat}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                            </div>
+
+                            {/* Botão Global Zerar Filtros */}
+                            {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || searchTerm || startDate || endDate) && (
                                 <button
                                     onClick={() => {
                                         setStartDate("");
@@ -698,11 +721,12 @@ export default function AbonoPage() {
                                         setTempStartDate("");
                                         setTempEndDate("");
                                         setSecretariaFilter("all");
+                                        setNaturezaCargoFilter("all");
                                         setSearchTerm("");
                                     }}
                                     className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
                                 >
-                                    ZERAR FILTROS
+                                    <X className="w-4 h-4" /> ZERAR FILTROS
                                 </button>
                             )}
                         </div>
@@ -827,6 +851,11 @@ export default function AbonoPage() {
                                                             <Building2 className="w-3 h-3 text-slate-400" /> {group.benefits[0].secretaria}
                                                         </p>
                                                     )}
+                                                    {group.benefits[0].natureza_cargo && (
+                                                        <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                                                            <Activity className="w-3 h-3 text-slate-400" /> {group.benefits[0].natureza_cargo}
+                                                        </p>
+                                                    )}
                                                     <span className="text-[10px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase">
                                                         {group.benefits.length} {group.benefits.length === 1 ? 'Benefício' : 'Benefícios'}
                                                     </span>
@@ -919,8 +948,13 @@ export default function AbonoPage() {
                                                                     </div>
                                                                 </div>
                                                                 <div className="space-y-1 md:col-span-2 text-center md:text-left">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário</p>
+                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário e Natureza</p>
                                                                     <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
+                                                                    {record.natureza_cargo && (
+                                                                        <span className="text-[10px] font-black text-[#1A3351] bg-[#1A3351]/5 px-2 py-0.5 rounded uppercase border border-[#1A3351]/10">
+                                                                            {record.natureza_cargo}
+                                                                        </span>
+                                                                    )}
                                                                     <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
                                                                 <div className="space-y-1">
@@ -974,54 +1008,55 @@ export default function AbonoPage() {
                                                                 </div>
                                                             )}
 
-                                                            {logs[record.id] && logs[record.id].length > 0 && (
-                                                                <div className="mt-4 pt-4 border-t border-slate-100">
-                                                                    <button
-                                                                        onClick={() => setExpandedLogId(expandedLogId === record.id ? null : record.id)}
-                                                                        className={`w-full flex items-center justify-between p-3 rounded border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
-                                                                    >
-                                                                        <div className="flex items-center gap-2">
-                                                                            <HistoryIcon className={`w-4 h-4 ${expandedLogId === record.id ? 'text-white' : 'text-[#E31E24]'}`} />
-                                                                            <span className="text-[10px] font-black uppercase tracking-wider">
-                                                                                {expandedLogId === record.id ? 'Ocultar Histórico de Auditoria' : `Ver Histórico de Auditoria (${logs[record.id].length})`}
-                                                                            </span>
-                                                                        </div>
-                                                                        {expandedLogId === record.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                                                    </button>
+                                                            {
+                                                                logs[record.id] && logs[record.id].length > 0 && (
+                                                                    <div className="mt-4 pt-4 border-t border-slate-100">
+                                                                        <button
+                                                                            onClick={() => setExpandedLogId(expandedLogId === record.id ? null : record.id)}
+                                                                            className={`w-full flex items-center justify-between p-3 rounded border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
+                                                                        >
+                                                                            <div className="flex items-center gap-2">
+                                                                                <HistoryIcon className={`w-4 h-4 ${expandedLogId === record.id ? 'text-white' : 'text-[#E31E24]'}`} />
+                                                                                <span className="text-[10px] font-black uppercase tracking-wider">
+                                                                                    {expandedLogId === record.id ? 'Ocultar Histórico de Auditoria' : `Ver Histórico de Auditoria (${logs[record.id].length})`}
+                                                                                </span>
+                                                                            </div>
+                                                                            {expandedLogId === record.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                                        </button>
 
-                                                                    {expandedLogId === record.id && (
-                                                                        <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
-                                                                            {logs[record.id].map((log) => {
-                                                                                const diff = getDiff(log.dados_anteriores, log.dados_novos);
-                                                                                return (
-                                                                                    <div key={log.id} className="text-[10px] p-3 bg-white rounded border border-slate-200 shadow-sm relative overflow-hidden group/log">
-                                                                                        <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
-                                                                                        <div className="flex justify-between font-black uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
-                                                                                            <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
-                                                                                            <span className="text-slate-400">{new Date(log.data_alteracao).toLocaleDateString('pt-BR')} {new Date(log.data_alteracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                                        {expandedLogId === record.id && (
+                                                                            <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                                                                {logs[record.id].map((log) => {
+                                                                                    const diff = getDiff(log.dados_anteriores, log.dados_novos);
+                                                                                    return (
+                                                                                        <div key={log.id} className="text-[10px] p-3 bg-white rounded border border-slate-200 shadow-sm relative overflow-hidden group/log">
+                                                                                            <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
+                                                                                            <div className="flex justify-between font-black uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
+                                                                                                <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
+                                                                                                <span className="text-slate-400">{new Date(log.data_alteracao).toLocaleDateString('pt-BR')} {new Date(log.data_alteracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                                                            </div>
+                                                                                            <div className="space-y-2">
+                                                                                                <p className="font-black text-[#1A3351] uppercase leading-tight">
+                                                                                                    <span className="text-amber-600">MOTIVO:</span> {log.motivo}
+                                                                                                </p>
+                                                                                                {diff && diff.length > 0 && (
+                                                                                                    <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
+                                                                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
+                                                                                                        {diff.map((change, i) => (
+                                                                                                            <p key={i} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
+                                                                                                                <ArrowRight className="w-2.5 h-2.5 text-amber-500" /> {change}
+                                                                                                            </p>
+                                                                                                        ))}
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <div className="space-y-2">
-                                                                                            <p className="font-black text-[#1A3351] uppercase leading-tight">
-                                                                                                <span className="text-amber-600">MOTIVO:</span> {log.motivo}
-                                                                                            </p>
-                                                                                            {diff && diff.length > 0 && (
-                                                                                                <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
-                                                                                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
-                                                                                                    {diff.map((change, i) => (
-                                                                                                        <p key={i} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
-                                                                                                            <ArrowRight className="w-2.5 h-2.5 text-amber-500" /> {change}
-                                                                                                        </p>
-                                                                                                    ))}
-                                                                                                </div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                );
-                                                                            })}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
                                                         </div>
                                                     ))}
                                                 </div>
@@ -1041,9 +1076,9 @@ export default function AbonoPage() {
             </main>
 
             {/* RELATÓRIO PDF (OCULTO NA TELA, VISÍVEL NA IMPRESSÃO) */}
-            <div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto">
+            < div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto" >
                 {/* CABEÇALHO OFICIAL - ULTRA COMPACTO */}
-                <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
+                < div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2" >
                     <div className="flex items-center gap-3">
                         <img src="/images/logo.png" alt="Logo" className="h-12 w-auto object-contain" />
                         <div className="h-10 w-[1px] bg-slate-200 mx-1" />
@@ -1058,10 +1093,10 @@ export default function AbonoPage() {
                             OP: {userName} | {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* RESUMO DOS FILTROS - MAIS DISCRETO */}
-                <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded">
+                < div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded" >
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-3.5 bg-[#E31E24]" />
                         <p className="text-[8px] font-black uppercase text-[#1A3351]">
@@ -1071,10 +1106,10 @@ export default function AbonoPage() {
                     <p className="text-[7.5px] font-medium uppercase text-slate-400 truncate max-w-[60%] italic">
                         FILTROS: {stats.printFilters}
                     </p>
-                </div>
+                </div >
 
                 {/* TABELA DE DADOS - MÁXIMA COMPACTAÇÃO E SEM NEGRITOS DESNECESSÁRIOS */}
-                <table className="w-full border-collapse">
+                < table className="w-full border-collapse" >
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-300">
                             <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
@@ -1114,13 +1149,13 @@ export default function AbonoPage() {
                             );
                         })}
                     </tbody>
-                </table>
+                </table >
 
 
                 {/* RODAPÉ DO PDF */}
-                <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
+                < div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60" >
                     <p className="text-[7.5px] font-normal text-slate-500">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
-                </div>
+                </div >
 
                 <style jsx global>{`
                     @media print {
@@ -1145,8 +1180,7 @@ export default function AbonoPage() {
                         }
                     }
                 `}</style>
-            </div>
-
-        </div>
+            </div >
+        </div >
     );
 }

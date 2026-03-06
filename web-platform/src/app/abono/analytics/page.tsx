@@ -114,6 +114,7 @@ export default function AbonoAnalyticsPage() {
     const [filterStatus, setFilterStatus] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [filterNatureza, setFilterNatureza] = useState("all");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
     useEffect(() => {
@@ -162,6 +163,7 @@ export default function AbonoAnalyticsPage() {
     const filteredRecords = useMemo(() => {
         return records.filter(r => {
             const matchesSecretaria = filterSecretaria === "all" || r.secretaria === filterSecretaria;
+            const matchesNatureza = filterNatureza === "all" || r.natureza_cargo === filterNatureza;
             const entryDate = r.inicio;
             const matchesStartDate = !startDate || entryDate >= startDate;
             const matchesEndDate = !endDate || entryDate <= endDate;
@@ -190,13 +192,13 @@ export default function AbonoAnalyticsPage() {
                 (filterStatus === "expired" && isExpired) ||
                 (filterStatus === "finished" && isFinished);
 
-            return matchesSecretaria && matchesStatus && matchesStartDate && matchesEndDate;
+            return matchesSecretaria && matchesNatureza && matchesStatus && matchesStartDate && matchesEndDate;
         });
-    }, [records, filterSecretaria, filterStatus, startDate, endDate, renewalTargetIds]);
+    }, [records, filterSecretaria, filterNatureza, filterStatus, startDate, endDate, renewalTargetIds]);
 
     // Processamento para Gráficos
     const chartData = useMemo(() => {
-        if (!filteredRecords.length) return { byMonth: [], byStatus: [], bySecretaria: [] };
+        if (!filteredRecords.length) return { byMonth: [], byStatus: [], bySecretaria: [], byNatureza: [] };
 
         // Volume por Mês
         const monthMap: Record<string, number> = {};
@@ -255,7 +257,15 @@ export default function AbonoAnalyticsPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 8);
 
-        return { byMonth, byStatus, bySecretaria };
+        // Natureza do Cargo
+        const natMap: Record<string, number> = {};
+        filteredRecords.forEach(r => {
+            const n = r.natureza_cargo || "NÃO INFORMADA";
+            natMap[n] = (natMap[n] || 0) + 1;
+        });
+        const byNatureza = Object.keys(natMap).map(k => ({ name: k, value: natMap[k] }));
+
+        return { byMonth, byStatus, bySecretaria, byNatureza };
     }, [filteredRecords]);
 
     const handlePrintReport = () => {
@@ -429,6 +439,12 @@ export default function AbonoAnalyticsPage() {
                             <option value="expired">VENCIDOS</option>
                             <option value="finished">FINALIZADOS</option>
                         </select>
+                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                            <option value="all">TODAS NATUREZAS</option>
+                            {Array.from(new Set(records.map(r => r.natureza_cargo).filter(Boolean))).sort().map(n => (
+                                <option key={n} value={n}>{String(n).toUpperCase()}</option>
+                            ))}
+                        </select>
                         <div className="relative flex-1 md:flex-none min-w-[180px]">
                             <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-blue-700" : ""}`}>
                                 <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> PERÍODO</span>
@@ -445,8 +461,8 @@ export default function AbonoAnalyticsPage() {
                                 </div>
                             )}
                         </div>
-                        {(filterSecretaria !== "all" || filterStatus !== "all" || startDate || endDate) && (
-                            <button onClick={() => { setFilterSecretaria("all"); setFilterStatus("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
+                        {(filterSecretaria !== "all" || filterStatus !== "all" || filterNatureza !== "all" || startDate || endDate) && (
+                            <button onClick={() => { setFilterSecretaria("all"); setFilterStatus("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
                                 <X className="w-3 h-3" /> Reset
                             </button>
                         )}
@@ -535,8 +551,29 @@ export default function AbonoAnalyticsPage() {
                             </div>
                         </div>
 
-                        {/* CHART 3: SECRETARIA BAR RANKING */}
-                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-12 rounded-xl">
+                        {/* CHART 3: NATUREZA DO CARGO PIE */}
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-xl relative">
+                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                                <TrendingUp className="w-4 h-4" /> Natureza do Cargo
+                            </h4>
+                            <div className="h-[280px] w-full flex items-center justify-center">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie data={chartData.byNatureza} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value">
+                                            {chartData.byNatureza.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={['#1e293b', '#3b82f6', '#f59e0b', '#10b981', '#6366f1'][index % 5]} />
+                                            ))}
+                                            <LabelList dataKey="value" position="outside" style={{ fontSize: "11px", fontWeight: 900, fill: "#1A3351" }} />
+                                        </Pie>
+                                        <Tooltip formatter={(value: any) => [`${value}`, "Registros"]} />
+                                        <Legend verticalAlign="bottom" align="center" iconSize={10} wrapperStyle={{ fontSize: "9px", fontWeight: "black", textTransform: "uppercase", paddingTop: "20px" }} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* CHART 4: SECRETARIA BAR RANKING */}
+                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8 rounded-xl">
                             <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Building2 className="w-4 h-4" /> Distribuição por Secretaria (Ranking)
                             </h4>

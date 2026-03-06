@@ -146,7 +146,8 @@ export default function NewAbonoPage() {
             Cargo: s.cargo,
             Matrícula: s.matricula,
             "Dt.Nascimento": s.nascimento,
-            Secretaria: s.secretaria
+            Secretaria: s.secretaria,
+            natureza_cargo: s.natureza_cargo
         });
         setFoundServidores([]);
     };
@@ -178,6 +179,7 @@ export default function NewAbonoPage() {
                     quant: 12,
                     observacoes: formData.observacoes,
                     beneficiario_nome: formData.beneficiario_nome.toUpperCase() || 'PRÓPRIO',
+                    natureza_cargo: selectedServidor.natureza_cargo || null,
                     updated_at: new Date().toISOString()
                 })
                 .select()

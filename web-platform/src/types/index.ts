@@ -6,6 +6,7 @@ export interface Servidor {
     Matrícula?: string;
     Cargo?: string;
     Secretaria?: string;
+    natureza_cargo?: string;
     "Dt.Nascimento"?: string;
     [key: string]: string | undefined;
 }
@@ -43,6 +44,7 @@ export interface AbonoRecord {
     motivo_alteracao?: string;
     alterado_por?: string;
     beneficiario_nome?: string;
+    natureza_cargo?: string;
     status_manual?: string;
     renovado_por_id?: number | null;
     created_at: string;
