@@ -20,6 +20,16 @@ interface PrintData {
     filters: string;
 }
 
+// Normaliza CPF removendo caracteres não numéricos para agrupamento consistente
+const normalizeCpf = (cpf: string) => cpf.replace(/\D/g, '');
+
+// Formata CPF para exibição: xxx.xxx.xxx-xx
+const formatCpf = (cpf: string) => {
+    const digits = cpf.replace(/\D/g, '');
+    if (digits.length !== 11) return cpf;
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+};
+
 export default function AbonoPage() {
     const [records, setRecords] = useState<AbonoRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -142,8 +152,10 @@ export default function AbonoPage() {
 
     const filteredRecords = useMemo(() => {
         return records.filter(record => {
+            const normalizedSearch = searchTerm.replace(/\D/g, '');
             const matchesSearch = record.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                record.cpf.includes(searchTerm);
+                record.cpf.includes(searchTerm) ||
+                (normalizedSearch && normalizeCpf(record.cpf).includes(normalizedSearch));
 
             const matchesSecretaria = secretariaFilter === 'all' || record.secretaria === secretariaFilter;
             const matchesNatureza = naturezaCargoFilter === 'all' || record.natureza_cargo === naturezaCargoFilter;
@@ -254,14 +266,15 @@ export default function AbonoPage() {
             if (statusFilter === 'expired' && status !== 'expired') return;
             if (statusFilter === 'finished' && status !== 'finished') return;
 
-            if (!groups[record.cpf]) {
-                groups[record.cpf] = {
+            const key = normalizeCpf(record.cpf);
+            if (!groups[key]) {
+                groups[key] = {
                     nome: record.nome,
                     cpf: record.cpf,
                     benefits: []
                 };
             }
-            groups[record.cpf].benefits.push(record);
+            groups[key].benefits.push(record);
         });
 
         // Ordenar benefícios dentro de cada grupo
@@ -294,7 +307,7 @@ export default function AbonoPage() {
 
         // Totais Dinâmicos: Respondem a TODOS os filtros (Search, Sec, Date E Status)
         const totalBenefits = finalRecords.length;
-        const totalServidores = new Set(finalRecords.map(r => r.cpf)).size;
+        const totalServidores = new Set(finalRecords.map(r => normalizeCpf(r.cpf))).size;
 
         // Contadores de Categoria: Respondem a Busca, Sec e Data, mas mostram o total daquela categoria
         // Isso permite que o usuário veja quantos existem de cada antes de clicar
@@ -845,7 +858,7 @@ export default function AbonoPage() {
                                                     {group.nome}
                                                 </h4>
                                                 <div className="flex flex-wrap gap-4 mt-1">
-                                                    <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {group.cpf}</p>
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
                                                     {group.benefits[0].secretaria && (
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
                                                             <Building2 className="w-3 h-3 text-slate-400" /> {group.benefits[0].secretaria}
