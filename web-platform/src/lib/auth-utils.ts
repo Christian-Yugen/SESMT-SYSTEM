@@ -90,12 +90,17 @@ export async function handleAuthError(error: any) {
     if (isRefreshError) {
         console.warn("Detectado erro de token inválido. Limpando sessão local...");
         if (typeof window !== 'undefined') {
+            // Limpar storage corrompido antes do signOut
+            localStorage.removeItem('sesmt-auth-session');
             // Em v2, signOut limpa o storage local mesmo que a chamada ao servidor falhe
-            await supabase.auth.signOut();
+            try { await supabase.auth.signOut(); } catch (_) { /* ignora erro no signOut */ }
             // Redirecionamento forçado se o signOut não disparar onAuthStateChange corretamente
             window.location.href = '/login';
         }
     } else {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('sesmt-auth-session');
+        }
         await supabase.auth.signOut();
     }
 }
