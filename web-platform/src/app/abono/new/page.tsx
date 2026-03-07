@@ -166,10 +166,15 @@ export default function NewAbonoPage() {
         setSaving(true);
         try {
             // 1. Inserir o novo Abono
+            const rawCpf = (selectedServidor.CPF || selectedServidor["CPF."]).replace(/\D/g, '');
+            const formattedCpf = rawCpf.length === 11
+                ? `${rawCpf.slice(0, 3)}.${rawCpf.slice(3, 6)}.${rawCpf.slice(6, 9)}-${rawCpf.slice(9, 11)}`
+                : selectedServidor.CPF || selectedServidor["CPF."];
+
             const { data: newAbono, error } = await supabase
                 .from('abono_salarial')
                 .insert({
-                    cpf: selectedServidor.CPF || selectedServidor["CPF."],
+                    cpf: formattedCpf,
                     nome: selectedServidor.Nome,
                     secretaria: selectedServidor.Secretaria,
                     portaria: formData.portaria,

@@ -102,12 +102,14 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 .order('data_alteracao', { ascending: false });
             if (logs) setChangeLogs(logs);
 
-            // 2. Fetch Servidor info by CPF
+            // 2. Fetch Servidor info by CPF (busca com e sem máscara)
+            const cleanCpf = abono.cpf.replace(/\D/g, '');
             const { data: servidor, error: servError } = await supabase
                 .from('servidores')
                 .select('*')
-                .eq('cpf', abono.cpf)
-                .single();
+                .or(`cpf.eq.${abono.cpf},cpf.eq.${cleanCpf}`)
+                .limit(1)
+                .maybeSingle();
 
             if (servidor) {
                 setSelectedServidor({
