@@ -80,27 +80,29 @@ export async function syncProfile(session: any): Promise<string> {
 export async function handleAuthError(error: any) {
     if (!error) return;
 
-    console.error("Erro crítico de autenticação:", error.message || error);
-
-    // Se for erro de refresh token, precisamos garantir que o estado local seja limpo
-    const isRefreshError = error.message?.includes('Refresh Token Not Found') ||
-        error.message?.includes('invalid refresh token') ||
-        error.status === 400;
+    // Se for erro de refresh token, tratamos como aviso e limpamos pro-ativamente
+    const errorMessage = error.message || (typeof error === 'string' ? error : '');
+    const isRefreshError = errorMessage.includes('Refresh Token Not Found') ||
+        errorMessage.includes('invalid refresh token') ||
+        error.status === 400 || 
+        error.code === 'refresh_token_not_found';
 
     if (isRefreshError) {
-        console.warn("Detectado erro de token inválido. Limpando sessão local...");
+        console.warn("Sessão expirada ou Refresh Token inválido. Redirecionando para login...");
+        
         if (typeof window !== 'undefined') {
-            // Limpar storage corrompido antes do signOut
-            localStorage.removeItem('sesmt-auth-session');
-            // Em v2, signOut limpa o storage local mesmo que a chamada ao servidor falhe
-            try { await supabase.auth.signOut(); } catch (_) { /* ignora erro no signOut */ }
-            // Redirecionamento forçado se o signOut não disparar onAuthStateChange corretamente
+            // Limpa explicitamente o storage para evitar loops de tentativa do Supabase
+            const storageKey = 'sesmt-auth-session';
+            localStorage.removeItem(storageKey);
+            
+            // Tenta o signOut mas não aguarda se falhar (pode falhar sem rede ou com token podre)
+            supabase.auth.signOut().catch(() => {});
+            
+            // Redirecionamento forçado para garantir saída do estado de erro
             window.location.href = '/login';
         }
     } else {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem('sesmt-auth-session');
-        }
+        console.error("Erro crítico de autenticação:", errorMessage);
         await supabase.auth.signOut();
     }
 }
