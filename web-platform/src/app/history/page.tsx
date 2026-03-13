@@ -767,7 +767,7 @@ export default function HistoryPage() {
 
                 {/* HEADER COM DASHBOARD E FILTROS DE DATA */}
                 <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
-                    <div className="flex justify-between items-center mb-3">
+                    <div className={`flex justify-between items-center mb-3 relative ${isPrintPopoverOpen ? 'z-50' : 'z-20'}`}>
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <HistoryIcon className="w-5 lg:w-6 h-5 lg:h-6" />
                             <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Histórico</h2>
@@ -781,7 +781,7 @@ export default function HistoryPage() {
                                 Indicadores BI
                             </button>
                             {(userRole === 'admin' || userRole === 'nurse') && (
-                                <div className="relative hidden md:block">
+                                <div className={`relative hidden md:block ${isPrintPopoverOpen ? 'z-[120]' : 'z-10'}`}>
                                     <button
                                         onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
                                         className="flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
@@ -792,8 +792,42 @@ export default function HistoryPage() {
                                     </button>
 
                                     {isPrintPopoverOpen && (
-                                        <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
-                                            {/* ... content remains same ... */}
+                                        <div className="absolute top-full right-0 mt-2 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[200] animate-in fade-in slide-in-from-top-2 rounded-lg overflow-hidden">
+                                            <div className="p-4 flex flex-col gap-3">
+                                                <h3 className="text-[11px] font-black text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
+                                                    <Printer className="w-4 h-4 text-[#E31E24]" />
+                                                    Opções de Relatório
+                                                </h3>
+                                                
+                                                <button
+                                                    onClick={() => handlePrintRequest('portrait')}
+                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all rounded-lg group border border-transparent hover:border-slate-200"
+                                                >
+                                                    <div className="p-2 bg-slate-100 rounded group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                                        <FileSearch className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black uppercase leading-none mb-1">Vertical</p>
+                                                        <p className="text-[9px] text-slate-400 font-bold uppercase">Formato Retrato (A4)</p>
+                                                    </div>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handlePrintRequest('landscape')}
+                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all rounded-lg group border border-transparent hover:border-slate-200"
+                                                >
+                                                    <div className="p-2 bg-slate-100 rounded group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                                        <Printer className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-[10px] font-black uppercase leading-none mb-1">Horizontal</p>
+                                                        <p className="text-[9px] text-slate-400 font-bold uppercase">Formato Paisagem (A4)</p>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            <div className="bg-[#1A3351]/5 px-4 py-2 border-t border-slate-100 italic text-[8px] text-slate-500 text-center font-bold">
+                                                SELECIONE A ORIENTAÇÃO PARA IMPRIMIR
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -808,7 +842,7 @@ export default function HistoryPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 relative z-10">
                         <div className="flex flex-col lg:flex-row gap-3">
                             <div className="flex-1 relative">
                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
