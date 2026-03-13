@@ -52,7 +52,8 @@ export default function HistoryPage() {
     const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [filterAsoSubtype, setFilterAsoSubtype] = useState("all");
+    const [selectedAsoSubtypes, setSelectedAsoSubtypes] = useState<string[]>([]);
+    const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState("date-desc");
 
     useEffect(() => {
@@ -155,7 +156,12 @@ export default function HistoryPage() {
         const matchesSecretaria = filterSecretaria === "all" || entry.secretaria === filterSecretaria;
         const entryType = entry.aso_type.toLowerCase().includes('aso') ? 'ASO' : (entry.aso_type.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
         const matchesType = filterType === "all" || entryType === filterType;
-        const matchesAsoSubtype = filterAsoSubtype === "all" || (entryType === 'ASO' && entry.aso_type.toUpperCase().includes(filterAsoSubtype.toUpperCase()));
+        
+        const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || (
+            entryType === 'ASO' && selectedAsoSubtypes.some(sub => 
+                entry.aso_type.toUpperCase().includes(sub.toUpperCase())
+            )
+        );
 
         // Filtro de Data
         const entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
@@ -940,18 +946,79 @@ export default function HistoryPage() {
                             </select>
 
                             {filterType === 'ASO' && (
-                                <select
-                                    value={filterAsoSubtype}
-                                    onChange={(e) => setFilterAsoSubtype(e.target.value)}
-                                    className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#1A3351] text-[10px] font-black uppercase outline-none animate-in fade-in slide-in-from-left-2"
-                                >
-                                    <option value="all">TODOS TIPOS DE ASO</option>
-                                    <option value="ADMISS">ADMISSIONAL</option>
-                                    <option value="DEMISS">DEMISSIONAL</option>
-                                    <option value="RETORNO">RETORNO AO TRABALHO</option>
-                                    <option value="MUDANÇA">MUDANÇA DE FUNÇÃO</option>
-                                    <option value="PERIÓDIC">PERIÓDICO</option>
-                                </select>
+                                <div className="relative flex-1 md:flex-none">
+                                    <button
+                                        onClick={() => setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)}
+                                        className={`flex items-center justify-between gap-2 px-4 py-2 bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
+                                    >
+                                        <span className="truncate">
+                                            {selectedAsoSubtypes.length === 0 
+                                                ? "TODOS TIPOS DE ASO" 
+                                                : `ASO: ${selectedAsoSubtypes.length} SELEC.`}
+                                        </span>
+                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isAsoSubtypeFilterOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isAsoSubtypeFilterOpen && (
+                                        <>
+                                            <div 
+                                                className="fixed inset-0 z-[140]" 
+                                                onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                            />
+                                            <div className="absolute top-full left-0 mt-1 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[150] p-3 animate-in fade-in slide-in-from-top-2">
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                                                        <span className="text-[9px] font-black text-[#1A3351] uppercase">Selecionar Tipos</span>
+                                                        {selectedAsoSubtypes.length > 0 && (
+                                                            <button 
+                                                                onClick={() => setSelectedAsoSubtypes([])}
+                                                                className="text-[8px] font-black text-[#E31E24] hover:underline uppercase"
+                                                            >
+                                                                Limpar
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    {[
+                                                        { id: 'ADMISS', label: 'ADMISSIONAL' },
+                                                        { id: 'DEMISS', label: 'DEMISSIONAL' },
+                                                        { id: 'RETORNO', label: 'RETORNO AO TRABALHO' },
+                                                        { id: 'MUDANÇA', label: 'MUDANÇA DE FUNÇÃO' },
+                                                        { id: 'PERIÓDIC', label: 'PERIÓDICO' }
+                                                    ].map((type) => (
+                                                        <label 
+                                                            key={type.id} 
+                                                            className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded transition-colors group"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                                                checked={selectedAsoSubtypes.includes(type.id)}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        setSelectedAsoSubtypes([...selectedAsoSubtypes, type.id]);
+                                                                    } else {
+                                                                        setSelectedAsoSubtypes(selectedAsoSubtypes.filter(s => s !== type.id));
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <span className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? 'text-[#1A3351]' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                                                                {type.label}
+                                                            </span>
+                                                        </label>
+                                                    ))}
+
+                                                    <button
+                                                        onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                                        className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 rounded transition-all"
+                                                    >
+                                                        Fechar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             )}
 
                             <select
@@ -965,13 +1032,13 @@ export default function HistoryPage() {
                                 ))}
                             </select>
 
-                            {(searchTerm || filterUser !== "all" || filterType !== "all" || filterAsoSubtype !== "all" || filterSecretaria !== "all" || startDate || endDate) && (
+                            {(searchTerm || filterUser !== "all" || filterType !== "all" || selectedAsoSubtypes.length > 0 || filterSecretaria !== "all" || startDate || endDate) && (
                                 <button
                                     onClick={() => {
                                         setSearchTerm("");
                                         setFilterUser("all");
                                         setFilterType("all");
-                                        setFilterAsoSubtype("all");
+                                        setSelectedAsoSubtypes([]);
                                         setFilterSecretaria("all");
                                         setStartDate("");
                                         setEndDate("");
