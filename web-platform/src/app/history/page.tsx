@@ -55,6 +55,7 @@ export default function HistoryPage() {
     const [selectedAsoSubtypes, setSelectedAsoSubtypes] = useState<string[]>([]);
     const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState("date-desc");
+    const [filterShift, setFilterShift] = useState("all");
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -168,7 +169,21 @@ export default function HistoryPage() {
         const matchesStartDate = !startDate || entryDate >= startDate;
         const matchesEndDate = !endDate || entryDate <= endDate;
 
-        return matchesSearch && matchesUser && matchesType && matchesAsoSubtype && matchesSecretaria && matchesStartDate && matchesEndDate;
+        // Filtro de Turno (Manhã: 07:00-12:59, Tarde: 13:00-18:00)
+        let matchesShift = true;
+        if (filterShift !== "all") {
+            const date = new Date(entry.generated_at);
+            // Ajustar para o fuso horário local se necessário, mas o Supabase retorna UTC.
+            // Para simplicidade e conforme pedido, vamos checar a hora bruta.
+            const hour = date.getHours();
+            if (filterShift === "morning") {
+                matchesShift = hour >= 7 && hour < 13;
+            } else if (filterShift === "afternoon") {
+                matchesShift = hour >= 13 && hour <= 18;
+            }
+        }
+
+        return matchesSearch && matchesUser && matchesType && matchesAsoSubtype && matchesSecretaria && matchesStartDate && matchesEndDate && matchesShift;
     });
 
     // Estatísticas Dinâmicas (Baseadas no Histórico Filtrado)
@@ -943,6 +958,16 @@ export default function HistoryPage() {
                                 <option value="all">TODOS DOCUMENTOS</option>
                                 <option value="ASO">ASOs</option>
                                 <option value="Encaminhamento">ENCAMINHAMENTOS</option>
+                            </select>
+
+                            <select
+                                value={filterShift}
+                                onChange={(e) => setFilterShift(e.target.value)}
+                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                            >
+                                <option value="all">TODOS OS TURNOS</option>
+                                <option value="morning">MANHÃ (07h - 13h)</option>
+                                <option value="afternoon">TARDE (13h - 18h)</option>
                             </select>
 
                             {filterType === 'ASO' && (
