@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 interface MedicalFolder {
     id: string;
@@ -95,7 +95,7 @@ export default function ArchivePage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;
@@ -186,7 +186,7 @@ export default function ArchivePage() {
         }
 
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await safeGetSession();
             if (!session) return;
 
             // Atualizar status da pasta
@@ -234,7 +234,7 @@ export default function ArchivePage() {
         }
 
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await safeGetSession();
             if (!session) return;
 
             const updateData: any = {

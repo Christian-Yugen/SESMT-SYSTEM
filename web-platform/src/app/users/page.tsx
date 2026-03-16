@@ -13,7 +13,7 @@ import {
     Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateUUID } from "@/lib/auth-utils";
 
 interface Profile {
@@ -43,7 +43,7 @@ export default function UsersPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;

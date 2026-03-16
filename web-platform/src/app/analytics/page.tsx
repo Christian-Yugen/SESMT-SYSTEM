@@ -41,7 +41,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;

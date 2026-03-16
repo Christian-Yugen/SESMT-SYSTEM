@@ -9,7 +9,7 @@ import {
     Loader2, Scale, FileText, PlusCircle, Download, Eye, Building2, PencilLine
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 
 interface PortariaRecord {
@@ -54,7 +54,7 @@ export default function PortariasPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) { await handleAuthError(error); return; }
                 if (session) {
                     const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();

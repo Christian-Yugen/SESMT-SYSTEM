@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
@@ -38,7 +38,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;
@@ -152,7 +152,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
 
         setSaving(true);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await safeGetSession();
             const userEmail = session?.user?.email || "desconhecido";
 
             // 1. Update main record

@@ -8,7 +8,7 @@ import {
     BarChart3, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, CheckCircle, XCircle, AlertTriangle, ClipboardList, Eye, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 interface DeletionRequest {
     id: number;
@@ -52,7 +52,11 @@ export default function DeletionRequestsPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
+                if (error) {
+                    // Aqui omitimos erro de refresh token silenciosamente
+                    return;
+                }
                 if (session) {
                     const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
                     if (!data || data.role !== 'admin') {
@@ -127,14 +131,17 @@ export default function DeletionRequestsPage() {
                 .eq('id', selectedRequest.history_record_id);
 
             if (deleteError) {
-                alert('Erro ao excluir registro do histórico: ' + deleteError.message);
+                // Se o erro for de permissão, avisamos especificamente sobre o script SQL
+                const isPermissionError = deleteError.message.includes('permission denied') || deleteError.code === '42501';
+                alert('Erro ao excluir registro do histórico: ' + deleteError.message + 
+                      (isPermissionError ? '\n\nIMPORTANTE: Verifique se as políticas SQL de DELETE foram aplicadas no Supabase (fix_deletion_policies.sql).' : ''));
                 setProcessingAction(false);
                 return;
             }
 
             if (count === 0) {
                 console.warn("Nenhum registro encontrado em aso_history com ID:", selectedRequest.history_record_id);
-                // Mesmo que o registro não exista (talvez já deletado), vamos proceder para limpar a solicitação
+                // Mesmo que o registro não exista (talvez já deletado), procedemos para manter a solicitação sincronizada
             }
 
             // 3. Atualizar a solicitação como aprovada
@@ -149,10 +156,9 @@ export default function DeletionRequestsPage() {
                 .eq('id', selectedRequest.id);
 
             if (updateError) {
-                alert('Erro ao atualizar solicitação: ' + updateError.message);
+                alert('Erro ao atualizar status da solicitação: ' + updateError.message);
             } else {
                 alert('Registro excluído definitivamente com sucesso!');
-                router.refresh(); // Força a revalidação do cache do roteador do Next.js
                 loadRequests();
             }
         } catch (err) {
@@ -163,6 +169,45 @@ export default function DeletionRequestsPage() {
         setProcessingAction(false);
         setShowApprovalModal(false);
         setSelectedRequest(null);
+    };
+
+    const handleRetroactiveCleanup = async () => {
+        const approvedRequests = requests.filter(r => r.status === 'approved');
+        if (approvedRequests.length === 0) {
+            alert('Não foram encontradas solicitações aprovadas para limpar.');
+            return;
+        }
+
+        if (!confirm(`Deseja tentar excluir os registros de histórico para as ${approvedRequests.length} solicitações já aprovadas? Isso ajudará a remover nomes que ainda aparecem no sistema.`)) return;
+
+        setProcessingAction(true);
+        let successCount = 0;
+        let failCount = 0;
+        let alreadyDeleted = 0;
+
+        for (const req of approvedRequests) {
+            try {
+                const { error, count } = await supabase
+                    .from('aso_history')
+                    .delete({ count: 'exact' })
+                    .eq('id', req.history_record_id);
+
+                if (error) {
+                    console.error(`Falha ao excluir ID ${req.history_record_id}:`, error.message);
+                    failCount++;
+                } else if (count === 0) {
+                    alreadyDeleted++;
+                } else {
+                    successCount++;
+                }
+            } catch (err) {
+                failCount++;
+            }
+        }
+
+        alert(`Processo concluído!\nExcluídos agora: ${successCount}\nJá haviam sido excluídos: ${alreadyDeleted}\nFalhas (verificar permissões): ${failCount}`);
+        loadRequests();
+        setProcessingAction(false);
     };
 
     const handleRejectRequest = async (requestId: number) => {
@@ -415,6 +460,18 @@ export default function DeletionRequestsPage() {
                         >
                             Rejeitadas ({rejectedCount})
                         </button>
+                        
+                        {approvedCount > 0 && (
+                            <button
+                                onClick={handleRetroactiveCleanup}
+                                disabled={processingAction}
+                                className="ml-auto px-4 py-2 bg-amber-500 text-white font-black text-[9px] uppercase rounded shadow-md hover:bg-amber-600 transition-all flex items-center gap-2 disabled:opacity-50"
+                                title="Processar solicitações aprovadas cujos registros ainda persistem no banco"
+                            >
+                                <HistoryIcon className="w-3 h-3" />
+                                Limpar Aprovados ({approvedCount})
+                            </button>
+                        )}
                     </div>
                 </section>
 

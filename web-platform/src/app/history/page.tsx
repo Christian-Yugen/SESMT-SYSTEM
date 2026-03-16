@@ -9,7 +9,7 @@ import {
     Building2, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 interface HistoryEntry {
     id: number;
@@ -59,7 +59,7 @@ export default function HistoryPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;
@@ -268,7 +268,7 @@ export default function HistoryPage() {
 
     // Função para gerar relatório de impressão (SEM CPF POR PRIVACIDADE)
     const handlePrintReport = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { session } = await safeGetSession();
         const userName = session?.user?.email?.split('@')[0].toUpperCase() || "SISTEMA";
 
         const printWindow = window.open('', '_blank');
@@ -449,7 +449,7 @@ export default function HistoryPage() {
     };
 
     const generatePrintReportWithLayout = async (layout: 'portrait' | 'landscape') => {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { session } = await safeGetSession();
         const userName = session?.user?.email?.split('@')[0].toUpperCase() || "SISTEMA";
 
         const printWindow = window.open('', '_blank');
