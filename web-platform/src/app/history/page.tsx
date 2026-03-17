@@ -960,16 +960,6 @@ export default function HistoryPage() {
                                 <option value="Encaminhamento">ENCAMINHAMENTOS</option>
                             </select>
 
-                            <select
-                                value={filterShift}
-                                onChange={(e) => setFilterShift(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
-                            >
-                                <option value="all">TODOS OS TURNOS</option>
-                                <option value="morning">MANHÃ (07h - 13h)</option>
-                                <option value="afternoon">TARDE (13h - 18h)</option>
-                            </select>
-
                             {filterType === 'ASO' && (
                                 <div className="relative flex-1 md:flex-none">
                                     <button
@@ -1047,6 +1037,16 @@ export default function HistoryPage() {
                             )}
 
                             <select
+                                value={filterShift}
+                                onChange={(e) => setFilterShift(e.target.value)}
+                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                            >
+                                <option value="all">TODOS OS TURNOS</option>
+                                <option value="morning">MANHÃ (07h - 13h)</option>
+                                <option value="afternoon">TARDE (13h - 18h)</option>
+                            </select>
+
+                            <select
                                 value={filterSecretaria}
                                 onChange={(e) => setFilterSecretaria(e.target.value)}
                                 className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
@@ -1057,7 +1057,7 @@ export default function HistoryPage() {
                                 ))}
                             </select>
 
-                            {(searchTerm || filterUser !== "all" || filterType !== "all" || selectedAsoSubtypes.length > 0 || filterSecretaria !== "all" || startDate || endDate) && (
+                            {(searchTerm || filterUser !== "all" || filterType !== "all" || selectedAsoSubtypes.length > 0 || filterSecretaria !== "all" || filterShift !== "all" || startDate || endDate) && (
                                 <button
                                     onClick={() => {
                                         setSearchTerm("");
