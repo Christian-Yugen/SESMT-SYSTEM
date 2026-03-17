@@ -1023,13 +1023,13 @@ export default function AnalyticsPage() {
                                                 color: '#fff',
                                                 textTransform: 'uppercase'
                                             }}
-                                            itemStyle={{ color: '#E31E24' }}
+                                            itemStyle={{ color: '#3b82f6' }}
                                             cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
                                         />
                                         <Area 
                                             type="monotone" 
                                             dataKey="total" 
-                                            stroke="#E31E24" 
+                                            stroke="#3b82f6" 
                                             strokeWidth={4}
                                             fillOpacity={1} 
                                             fill="url(#colorHour)" 
