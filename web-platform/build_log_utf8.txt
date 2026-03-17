@@ -1,0 +1,63 @@
+﻿
+> web-platform@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 9.7s
+  Running TypeScript ...
+node.exe : Failed to compile.
+No linha:1 caractere:1
++ & "C:\Dev\Nodejs/node.exe" 
+"C:\Dev\Nodejs/node_modules/npm/bin/npm-cl ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Faile 
+   d to compile.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+./src/app/analytics/page.tsx:933:42
+Type error: 'chartData.byHour' is possibly 
+'undefined'.
+
+[0m [90m 931 |[39m                              
+       [33m<[39m[33mp[39m 
+className[33m=[39m[32m"text-white/40 text-[8px] 
+font-black uppercase tracking-widest mb-1 
+text-center 
+lg:text-right"[39m[33m>[39m[33mHor├írio[39m 
+de [33mMaior[39m [33mFluxo[39m[33m<[39m[33m/
+[39m[33mp[39m[33m>[39m
+ [90m 932 |[39m                                  
+   [33m<[39m[33mp[39m 
+className[33m=[39m[32m"text-blue-400 text-lg 
+font-black text-center lg:text-right 
+leading-none"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 933 |[39m               
+                          {chartData[33m.[39mbyHo
+ur[33m.[39mreduce((prev[33m,[39m curr) 
+[33m=>[39m (curr[33m.[39mtotal [33m>[39m 
+prev[33m.[39mtotal [33m?[39m curr [33m:[39m 
+prev)[33m,[39m { hour[33m:[39m 
+[32m'--'[39m[33m,[39m total[33m:[39m 
+[35m0[39m })[33m.[39mtotal [33m>[39m 
+[35m0[39m
+ [90m     |[39m                                  
+        [31m[1m^[22m[39m
+ [90m 934 |[39m                                  
+           [33m?[39m chartData[33m.[39mbyHour[
+33m.[39mreduce((prev[33m,[39m curr) 
+[33m=>[39m (curr[33m.[39mtotal [33m>[39m 
+prev[33m.[39mtotal [33m?[39m curr [33m:[39m 
+prev)[33m,[39m { hour[33m:[39m 
+[32m'--'[39m[33m,[39m total[33m:[39m 
+[35m0[39m })[33m.[39mhour
+ [90m 935 |[39m                                  
+           [33m:[39m [32m'--'[39m}
+ [90m 936 |[39m                                  
+   [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and 
+signal: null

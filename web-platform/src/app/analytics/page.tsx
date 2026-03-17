@@ -122,6 +122,7 @@ export default function AnalyticsPage() {
     const [endDate, setEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
+    const [showHourAnalysis, setShowHourAnalysis] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -281,7 +282,28 @@ export default function AnalyticsPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 10);
 
-        return { byDate, byType, bySecretaria };
+        // Fluxo por Hora (07h às 18h)
+        const hourMap: Record<number, number> = {};
+        for (let i = 7; i <= 18; i++) hourMap[i] = 0;
+        
+        filteredHistory.forEach((h) => {
+            const hDate = new Date(h.generated_at);
+            const hour = hDate.getHours();
+            if (hour >= 7 && hour <= 18) {
+                hourMap[hour] = (hourMap[hour] || 0) + 1;
+            }
+        });
+
+        const byHour = Object.keys(hourMap).map((h) => {
+            const hNum = parseInt(h);
+            const hourLabel = hNum < 10 ? `0${hNum}h` : `${hNum}h`;
+            return {
+                hour: hourLabel,
+                total: hourMap[hNum],
+            };
+        });
+
+        return { byDate, byType, bySecretaria, byHour };
     }, [filteredHistory]);
 
     const COLORS = ["#1A3351", "#E31E24", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
@@ -847,6 +869,22 @@ export default function AnalyticsPage() {
                             <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
                         </div>
 
+                        <div 
+                            onClick={() => setShowHourAnalysis(!showHourAnalysis)}
+                            className={`p-3 lg:p-4 border-l-4 shadow-md flex items-center justify-between rounded-lg lg:rounded-none cursor-pointer transition-all active:scale-95 ${showHourAnalysis ? 'bg-[#1A3351] border-white' : 'bg-white border-blue-400 group hover:bg-slate-50'}`}
+                        >
+                            <div className="flex-1">
+                                <p className={`text-[8px] lg:text-[10px] font-black uppercase tracking-widest leading-tight ${showHourAnalysis ? 'text-white/60' : 'text-black/40'}`}>
+                                    Análise de Pico
+                                </p>
+                                <h3 className={`text-xs lg:text-sm font-black leading-none mt-2 flex items-center gap-2 ${showHourAnalysis ? 'text-white' : 'text-[#1A3351]'}`}>
+                                    {showHourAnalysis ? 'FECHAR INSIGHTS' : 'VER FLUXO HORÁRIO'}
+                                    <TrendingUp className={`w-3.5 h-3.5 ${showHourAnalysis ? 'text-blue-400' : 'text-blue-600'}`} />
+                                </h3>
+                            </div>
+                            <Activity className={`w-4 h-4 hidden sm:block ${showHourAnalysis ? 'text-white/20' : 'text-blue-100'}`} />
+                        </div>
+
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
                                 <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
@@ -875,6 +913,85 @@ export default function AnalyticsPage() {
                             <Building2 className="w-4 h-4 text-emerald-100 hidden sm:block" />
                         </div>
                     </div>
+
+                    {/* EXPANDABLE INSIGHTS: FLUXO HORÁRIO */}
+                    {showHourAnalysis && (
+                        <div className="bg-[#1A3351] p-4 lg:p-6 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500 rounded-xl lg:rounded-none border-b-4 border-blue-500/30">
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                                <div>
+                                    <h3 className="text-white font-black text-sm lg:text-base uppercase tracking-tight flex items-center gap-2">
+                                        <TrendingUp className="w-5 h-5 text-blue-400" />
+                                        Fluxo Operacional por Hora
+                                    </h3>
+                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">
+                                        Identificação de Gargalos e Picos de Atendimento (07:00 - 18:00)
+                                    </p>
+                                </div>
+                                <div className="bg-white/5 p-3 border border-white/10 rounded-lg">
+                                    <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Maior Fluxo</p>
+                                    <p className="text-blue-400 text-lg font-black text-center lg:text-right leading-none">
+                                        {chartData?.byHour && chartData.byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 }).total > 0
+                                            ? chartData.byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 }).hour
+                                            : '--'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="h-[250px] lg:h-[300px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData.byHour} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorHour" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                        <XAxis 
+                                            dataKey="hour" 
+                                            stroke="rgba(255,255,255,0.3)" 
+                                            fontSize={10} 
+                                            fontWeight={900}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'rgba(255,255,255,0.5)' }}
+                                            dy={10}
+                                        />
+                                        <YAxis 
+                                            stroke="rgba(255,255,255,0.3)" 
+                                            fontSize={10} 
+                                            fontWeight={900}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'rgba(255,255,255,0.5)' }}
+                                        />
+                                        <Tooltip 
+                                            contentStyle={{ 
+                                                backgroundColor: '#1A3351', 
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                borderRadius: '8px',
+                                                fontSize: '10px',
+                                                fontWeight: '900',
+                                                color: '#fff',
+                                                textTransform: 'uppercase'
+                                            }}
+                                            itemStyle={{ color: '#3b82f6' }}
+                                            cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
+                                        />
+                                        <Area 
+                                            type="monotone" 
+                                            dataKey="total" 
+                                            stroke="#3b82f6" 
+                                            strokeWidth={4}
+                                            fillOpacity={1} 
+                                            fill="url(#colorHour)" 
+                                            animationDuration={1500}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    )}
 
                     {/* GRID DE GRÁFICOS (Ranking maior / Tipo menor) */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
