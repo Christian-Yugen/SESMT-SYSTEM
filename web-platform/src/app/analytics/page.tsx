@@ -939,27 +939,27 @@ export default function AnalyticsPage() {
 
                     {/* EXPANDABLE INSIGHTS: FLUXO HORÁRIO */}
                     {showHourAnalysis && (
-                        <div className="bg-[#1A3351] p-4 lg:p-6 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500 rounded-xl lg:rounded-none border-b-4 border-blue-500/30">
+                        <div className="bg-white p-4 lg:p-6 shadow-xl animate-in fade-in slide-in-from-top-4 duration-500 rounded-xl lg:rounded-none border-y-4 border-[#1A3351]/5 border-b-[#1A3351]/10">
                             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
                                 <div>
-                                    <h3 className="text-white font-black text-sm lg:text-base uppercase tracking-tight flex items-center gap-2">
-                                        <TrendingUp className="w-5 h-5 text-blue-400" />
+                                    <h3 className="text-[#1A3351] font-black text-sm lg:text-base uppercase tracking-tight flex items-center gap-2">
+                                        <TrendingUp className="w-5 h-5 text-blue-600" />
                                         Fluxo Operacional por Hora
                                     </h3>
-                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">
+                                    <p className="text-black/40 text-[10px] font-bold uppercase tracking-widest mt-1">
                                         Identificação de Gargalos e Picos de Atendimento (07:00 - 18:00)
                                     </p>
                                 </div>
                                 <div className="flex flex-col lg:flex-row gap-3 items-end">
-                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
-                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Dia de Maior Fluxo</p>
-                                        <p className="text-emerald-400 text-lg font-black text-center lg:text-right leading-none">
+                                    <div className="bg-slate-50 p-3 border border-slate-100 rounded-lg min-w-[140px] shadow-sm">
+                                        <p className="text-black/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Dia de Maior Fluxo</p>
+                                        <p className="text-emerald-600 text-lg font-black text-center lg:text-right leading-none">
                                             {chartData?.peakDay || '--'}
                                         </p>
                                     </div>
-                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
-                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Pico</p>
-                                        <p className="text-blue-400 text-lg font-black text-center lg:text-right leading-none">
+                                    <div className="bg-slate-50 p-3 border border-slate-100 rounded-lg min-w-[140px] shadow-sm">
+                                        <p className="text-black/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Pico</p>
+                                        <p className="text-blue-600 text-lg font-black text-center lg:text-right leading-none">
                                             {chartData?.peakHour || '--'}
                                         </p>
                                     </div>
@@ -967,10 +967,10 @@ export default function AnalyticsPage() {
                             </div>
 
                             {/* SELETOR DE DIA DA SEMANA */}
-                            <div className="flex flex-wrap gap-2 mb-6 border-b border-white/5 pb-4">
+                            <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-100 pb-4">
                                 <button
                                     onClick={() => setSelectedDay('all')}
-                                    className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === 'all' ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                    className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all shadow-sm ${selectedDay === 'all' ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                                 >
                                     Visão Geral
                                 </button>
@@ -978,7 +978,7 @@ export default function AnalyticsPage() {
                                     <button
                                         key={day.dayNum}
                                         onClick={() => setSelectedDay(day.dayNum)}
-                                        className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === day.dayNum ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                        className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all shadow-sm ${selectedDay === day.dayNum ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                                     >
                                         {day.name}
                                     </button>
@@ -990,46 +990,40 @@ export default function AnalyticsPage() {
                                     <AreaChart data={chartData.byHour} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorHour" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#E31E24" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="#E31E24" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#E31E24" stopOpacity={0.6} />
+                                                <stop offset="95%" stopColor="#E31E24" stopOpacity={0.01} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                                        <XAxis 
-                                            dataKey="hour" 
-                                            stroke="rgba(255,255,255,0.3)" 
-                                            fontSize={10} 
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
+                                        <XAxis
+                                            dataKey="hour"
+                                            stroke="rgba(0,0,0,0.1)"
+                                            fontSize={10}
                                             fontWeight={900}
                                             axisLine={false}
                                             tickLine={false}
-                                            tick={{ fill: 'rgba(255,255,255,0.5)' }}
+                                            tick={{ fill: 'rgba(0,0,0,0.4)' }}
                                             dy={10}
                                         />
-                                        <YAxis 
-                                            stroke="rgba(255,255,255,0.3)" 
-                                            fontSize={10} 
-                                            fontWeight={900}
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fill: 'rgba(255,255,255,0.5)' }}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: '#1A3351', 
-                                                border: '1px solid rgba(255,255,255,0.1)',
+                                        <YAxis hide />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #e2e8f0',
                                                 borderRadius: '8px',
                                                 fontSize: '10px',
                                                 fontWeight: '900',
-                                                color: '#fff',
-                                                textTransform: 'uppercase'
+                                                color: '#1A3351',
+                                                textTransform: 'uppercase',
+                                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                             }}
                                             itemStyle={{ color: '#3b82f6' }}
-                                            cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
+                                            cursor={{ stroke: 'rgba(0,0,0,0.05)', strokeWidth: 2 }}
                                         />
-                                        <Area 
-                                            type="monotone" 
-                                            dataKey="total" 
-                                            stroke="#3b82f6" 
+                                        <Area
+                                            type="monotone"
+                                            dataKey="total"
+                                            stroke="#3b82f6"
                                             strokeWidth={4}
                                             fillOpacity={1} 
                                             fill="url(#colorHour)" 
