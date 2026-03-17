@@ -112,7 +112,24 @@ export default function AnalyticsPage() {
 
     // Filtros
     const [searchTerm] = useState("");
-    const [filterUser] = useState("all");
+    const [filterUser, setFilterUser] = useState("all");
+    const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
+
+    // Extrair operadores únicos presentes no histórico
+    const uniqueOperators = useMemo(() => {
+        const operatorsMapLocal: Record<string, string> = {};
+        history.forEach(h => {
+            if (h.generated_by && h.operator_name) {
+                operatorsMapLocal[h.generated_by] = h.operator_name;
+            }
+        });
+
+        const ids = Array.from(new Set(history.map(h => h.generated_by).filter(Boolean)));
+        return ids.map(id => ({
+            id,
+            name: (operatorsMapLocal[id as string] || operatorsMap[id as string] || id).toUpperCase()
+        })).sort((a, b) => a.name.localeCompare(b.name));
+    }, [history, operatorsMap]);
     const [filterType, setFilterType] = useState("all");
     const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [filterShift, setFilterShift] = useState("all");
@@ -121,7 +138,6 @@ export default function AnalyticsPage() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
-    const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
     const [showHourAnalysis, setShowHourAnalysis] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | 'all'>('all');
 
@@ -283,9 +299,16 @@ export default function AnalyticsPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 10);
 
-        // Fluxo por Hora (07h às 18h) - Respeitando o dia selecionado
-        const hourMap: Record<number, number> = {};
-        for (let i = 7; i <= 18; i++) hourMap[i] = 0;
+        // Fluxo por Intervalo (30 min - 07h às 18h) - Respeitando o dia selecionado
+        const hourMap: Record<string, number> = {};
+        for (let i = 7; i <= 18; i++) {
+            const hStr = i.toString().padStart(2, '0');
+            hourMap[`${hStr}:00`] = 0;
+            // Só adiciona 30 min se não for 18h
+            if (i < 18) {
+                hourMap[`${hStr}:30`] = 0;
+            }
+        }
 
         // Fluxo por Dia da Semana (1-5: Seg-Sex)
         const dayMap: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
@@ -294,23 +317,33 @@ export default function AnalyticsPage() {
             const hDate = new Date(h.generated_at);
             const day = hDate.getDay();
             const hour = hDate.getHours();
+            const minutes = hDate.getMinutes();
 
             if (day >= 1 && day <= 5) {
                 dayMap[day] = (dayMap[day] || 0) + 1;
             }
 
+            // Considerar das 07:00:00 até 18:00:59
             if (hour >= 7 && hour <= 18) {
+                let slot = "";
+                if (hour === 18) {
+                    slot = "18:00"; // Agrupa qualquer registro das 18h no ponto final
+                } else {
+                    slot = `${hour.toString().padStart(2, '0')}:${minutes < 30 ? '00' : '30'}`;
+                }
+
                 if (selectedDay === 'all' || day === selectedDay) {
-                    hourMap[hour] = (hourMap[hour] || 0) + 1;
+                    if (hourMap.hasOwnProperty(slot)) {
+                        hourMap[slot] = (hourMap[slot] || 0) + 1;
+                    }
                 }
             }
         });
 
-        const byHour = Object.keys(hourMap).map((h) => {
-            const hNum = parseInt(h);
-            const hourLabel = hNum < 10 ? `0${hNum}h` : `${hNum}h`;
-            return { hour: hourLabel, total: hourMap[hNum] };
-        });
+        const byHour = Object.keys(hourMap).sort().map((slot) => ({
+            hour: slot,
+            total: hourMap[slot]
+        }));
 
         const weekDays = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
         const byDayOfWeek = Object.keys(dayMap).map((d) => ({
@@ -321,7 +354,30 @@ export default function AnalyticsPage() {
 
         // Cálculos de Pico para evitar erros no render
         const peakHourObj = byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 });
-        const peakDayObj = byDayOfWeek.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { name: '--', total: 0 });
+        
+        // Define o peakDay: se for 'all', busca o real pico. Se houver seleção, mostra o selecionado.
+        let peakDay = '--';
+        let peakDayTotal = 0;
+
+        if (selectedDay === 'all') {
+            const peakDayObj = byDayOfWeek.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { name: '--', total: 0 });
+            peakDay = peakDayObj.name;
+            peakDayTotal = peakDayObj.total;
+        } else {
+            peakDay = weekDays[selectedDay as number] || '--';
+            peakDayTotal = dayMap[selectedDay as number] || 0;
+        }
+
+        // Totais por Turno (Manhã: 07-12h, Tarde: 13-18h)
+        const morningTotal = filteredHistory.filter(h => {
+            const hHour = new Date(h.generated_at).getHours();
+            return hHour >= 7 && hHour < 13;
+        }).length;
+
+        const afternoonTotal = filteredHistory.filter(h => {
+            const hHour = new Date(h.generated_at).getHours();
+            return hHour >= 13 && hHour <= 18;
+        }).length;
 
         return { 
             byDate, 
@@ -329,8 +385,11 @@ export default function AnalyticsPage() {
             bySecretaria, 
             byHour, 
             byDayOfWeek,
-            peakHour: peakHourObj.total > 0 ? peakHourObj.hour : '--',
-            peakDay: peakDayObj.total > 0 ? peakDayObj.name : '--'
+            peakHour: peakHourObj.total > 0 ? `${peakHourObj.hour} (${peakHourObj.total})` : '--',
+            peakDay: peakDayTotal > 0 ? `${peakDay} (${peakDayTotal})` : peakDay,
+            peakValue: peakHourObj.total,
+            morningTotal,
+            afternoonTotal
         };
     }, [filteredHistory, selectedDay]);
 
@@ -690,6 +749,13 @@ export default function AnalyticsPage() {
                                 Relatório
                             </button>
                             <button
+                                onClick={() => setShowHourAnalysis(!showHourAnalysis)}
+                                className={`hidden md:flex items-center justify-center gap-2 px-6 h-10 font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10 ${showHourAnalysis ? 'bg-blue-600 text-white border-blue-400' : 'bg-[#1A3351] text-white'}`}
+                            >
+                                <TrendingUp className="w-3.5 h-3.5" />
+                                {showHourAnalysis ? "Ocultar Pico" : "Análise Pico"}
+                            </button>
+                            <button
                                 onClick={() => setIsSidebarOpen(true)}
                                 className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                             >
@@ -710,6 +776,19 @@ export default function AnalyticsPage() {
                             {uniqueSecretarias.map((s) => (
                                 <option key={s} value={s}>
                                     {s}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={filterUser}
+                            onChange={(e) => setFilterUser(e.target.value)}
+                            className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none cursor-pointer focus:border-[#1A3351]"
+                        >
+                            <option value="all">TODOS OPERADORES</option>
+                            {uniqueOperators.map((op) => (
+                                <option key={op.id} value={op.id}>
+                                    {op.name}
                                 </option>
                             ))}
                         </select>
@@ -851,10 +930,11 @@ export default function AnalyticsPage() {
                             )}
                         </div>
 
-                        {(filterSecretaria !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
+                        {(filterSecretaria !== "all" || filterUser !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
                             <button
                                 onClick={() => {
                                     setFilterSecretaria("all");
+                                    setFilterUser("all");
                                     setFilterType("all");
                                     setFilterShift("all");
                                     setSelectedAsoSubtypes([]);
@@ -867,22 +947,13 @@ export default function AnalyticsPage() {
                             </button>
                         )}
 
-                        <div className="ml-auto">
-                            <button
-                                onClick={() => setShowHourAnalysis(!showHourAnalysis)}
-                                className={`px-6 py-2.5 lg:py-2 text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 whitespace-nowrap ${showHourAnalysis ? 'bg-blue-600 text-white border-blue-400' : 'bg-[#1A3351] text-white hover:brightness-110'}`}
-                            >
-                                <TrendingUp className="w-3.5 h-3.5" />
-                                {showHourAnalysis ? "Ocultar Análise" : "Análise de Pico"}
-                            </button>
-                        </div>
                     </div>
                 </section>
 
                 {/* CONTENT */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {/* BIG NUMBERS */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
                                 <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
@@ -906,7 +977,6 @@ export default function AnalyticsPage() {
                             </div>
                             <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
                         </div>
-
 
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
@@ -935,6 +1005,30 @@ export default function AnalyticsPage() {
                             </div>
                             <Building2 className="w-4 h-4 text-emerald-100 hidden sm:block" />
                         </div>
+
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-orange-500 shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
+                            <div>
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                    Período Manhã
+                                </p>
+                                <h3 className="text-xl lg:text-2xl font-black text-orange-600 leading-none mt-1">
+                                    {chartData.morningTotal}
+                                </h3>
+                            </div>
+                            <Activity className="w-4 h-4 text-orange-100 hidden sm:block" />
+                        </div>
+
+                        <div className="bg-white p-3 lg:p-4 border-l-4 border-purple-500 shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
+                            <div>
+                                <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
+                                    Período Tarde
+                                </p>
+                                <h3 className="text-xl lg:text-2xl font-black text-purple-600 leading-none mt-1">
+                                    {chartData.afternoonTotal}
+                                </h3>
+                            </div>
+                            <Activity className="w-4 h-4 text-purple-100 hidden sm:block" />
+                        </div>
                     </div>
 
                     {/* EXPANDABLE INSIGHTS: FLUXO HORÁRIO */}
@@ -944,15 +1038,17 @@ export default function AnalyticsPage() {
                                 <div>
                                     <h3 className="text-white font-black text-sm lg:text-base uppercase tracking-tight flex items-center gap-2">
                                         <TrendingUp className="w-5 h-5 text-blue-400" />
-                                        Fluxo Operacional por Hora
+                                        Fluxo Operacional (30 min)
                                     </h3>
                                     <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">
-                                        Identificação de Gargalos e Picos de Atendimento (07:00 - 18:00)
+                                        Análise detalhada de picos a cada 30 minutos (07:00 - 18:00)
                                     </p>
                                 </div>
                                 <div className="flex flex-col lg:flex-row gap-3 items-end">
                                     <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
-                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Dia de Maior Fluxo</p>
+                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">
+                                            {selectedDay === 'all' ? 'Dia de Maior Fluxo' : 'Dia em Análise'}
+                                        </p>
                                         <p className="text-emerald-400 text-lg font-black text-center lg:text-right leading-none">
                                             {chartData?.peakDay || '--'}
                                         </p>
@@ -998,12 +1094,13 @@ export default function AnalyticsPage() {
                                         <XAxis
                                             dataKey="hour"
                                             stroke="rgba(255,255,255,0.3)"
-                                            fontSize={10}
+                                            fontSize={9}
                                             fontWeight={900}
                                             axisLine={false}
                                             tickLine={false}
                                             tick={{ fill: 'rgba(255,255,255,0.5)' }}
                                             dy={10}
+                                            minTickGap={5}
                                         />
                                         <YAxis hide />
                                         <Tooltip
@@ -1027,7 +1124,26 @@ export default function AnalyticsPage() {
                                             fillOpacity={1} 
                                             fill="url(#colorHour)" 
                                             animationDuration={1500}
-                                        />
+                                        >
+                                            <LabelList
+                                                dataKey="total"
+                                                position="top"
+                                                content={(props: any) => {
+                                                    const { x, y, value } = props;
+                                                    if (value === chartData.peakValue && value > 0) {
+                                                        return (
+                                                            <g transform={`translate(${x},${y - 10})`}>
+                                                                <rect x="-12" y="-12" width="24" height="16" rx="4" fill="#1A3351" stroke="#3b82f6" strokeWidth="1" />
+                                                                <text x="0" y="0" dy="-1" fill="#fff" fontSize={9} fontWeight={900} textAnchor="middle">
+                                                                    {value}
+                                                                </text>
+                                                            </g>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }}
+                                            />
+                                        </Area>
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
