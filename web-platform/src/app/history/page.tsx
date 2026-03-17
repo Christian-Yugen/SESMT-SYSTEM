@@ -23,6 +23,12 @@ interface HistoryEntry {
     generated_at: string;
     generated_by: string;
     deletion_pending?: boolean;
+    // Campos ASO 2.0
+    servidor_nascimento?: string;
+    exams_json?: { name: string; date: string }[];
+    risks?: string;
+    function_name?: string;
+    edit_history?: any[];
 }
 
 export default function HistoryPage() {
@@ -56,6 +62,172 @@ export default function HistoryPage() {
     const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState("date-desc");
     const [filterShift, setFilterShift] = useState("all");
+
+    // Estados para Edição ASO 2.0
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingEntry, setEditingEntry] = useState<HistoryEntry | null>(null);
+    const [editFormData, setEditFormData] = useState<any>(null);
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+    // Estados de busca (UI) e carregamento
+    const [cargoSearch, setCargoSearch] = useState("");
+    const [filteredCargosSearch, setFilteredCargosSearch] = useState<string[]>([]);
+    const [isSearchingCargo, setIsSearchingCargo] = useState(false);
+
+    const [secretariaSearch, setSecretariaSearch] = useState("");
+    const [filteredSecretariasSearch, setFilteredSecretariasSearch] = useState<string[]>([]);
+    const [isSearchingSecretaria, setIsSearchingSecretaria] = useState(false);
+
+    const [funcoesSearch, setFuncoesSearch] = useState("");
+    const [filteredFuncoes, setFilteredFuncoes] = useState<any[]>([]);
+    const [isSearchingFuncao, setIsSearchingFuncao] = useState(false);
+
+    // Busca de Cargo no Servidor com Debounce
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (!cargoSearch || cargoSearch.length < 2) {
+                setFilteredCargosSearch([]);
+                return;
+            }
+
+            setIsSearchingCargo(true);
+            try {
+                const { data } = await supabase
+                    .from('servidores')
+                    .select('cargo')
+                    .ilike('cargo', `%${cargoSearch}%`)
+                    .not('cargo', 'is', null)
+                    .limit(50);
+
+                if (data) {
+                    const unique = Array.from(new Set(data.map(s => s.cargo))).filter(Boolean) as string[];
+                    // Ordenação inteligente: prefixo primeiro
+                    const term = cargoSearch.toUpperCase();
+                    unique.sort((a, b) => {
+                        const aStart = a.toUpperCase().startsWith(term);
+                        const bStart = b.toUpperCase().startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return a.localeCompare(b);
+                    });
+                    setFilteredCargosSearch(unique.slice(0, 20));
+                }
+            } finally {
+                setIsSearchingCargo(false);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [cargoSearch]);
+
+    // Busca de Secretaria no Servidor com Debounce
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (!secretariaSearch || secretariaSearch.length < 2) {
+                setFilteredSecretariasSearch([]);
+                return;
+            }
+
+            setIsSearchingSecretaria(true);
+            try {
+                const { data } = await supabase
+                    .from('servidores')
+                    .select('secretaria')
+                    .ilike('secretaria', `%${secretariaSearch}%`)
+                    .not('secretaria', 'is', null)
+                    .limit(50);
+
+                if (data) {
+                    const unique = Array.from(new Set(data.map(s => s.secretaria))).filter(Boolean) as string[];
+                    const term = secretariaSearch.toUpperCase();
+                    unique.sort((a, b) => {
+                        const aStart = a.toUpperCase().startsWith(term);
+                        const bStart = b.toUpperCase().startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return a.localeCompare(b);
+                    });
+                    setFilteredSecretariasSearch(unique.slice(0, 20));
+                }
+            } finally {
+                setIsSearchingSecretaria(false);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [secretariaSearch]);
+
+    // Busca de Função no Servidor com Debounce
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (!funcoesSearch || funcoesSearch.length < 1) {
+                setFilteredFuncoes([]);
+                return;
+            }
+
+            setIsSearchingFuncao(true);
+            try {
+                const { data } = await supabase
+                    .from('funcoes')
+                    .select('*')
+                    .or(`nome.ilike.%${funcoesSearch}%,cod.ilike.%${funcoesSearch}%`)
+                    .limit(100);
+
+                if (data) {
+                    const term = funcoesSearch.toUpperCase();
+                    data.sort((a, b) => {
+                        const aName = (a.nome || "").toUpperCase();
+                        const bName = (b.nome || "").toUpperCase();
+                        const aStart = aName.startsWith(term);
+                        const bStart = bName.startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return aName.localeCompare(bName);
+                    });
+                    setFilteredFuncoes(data.slice(0, 30));
+                }
+            } finally {
+                setIsSearchingFuncao(false);
+            }
+        }, 400); 
+        return () => clearTimeout(timer);
+    }, [funcoesSearch]);
+
+// Efeito para sincronizar riscos e exames quando muda o Tipo de ASO ou a Função
+useEffect(() => {
+    async function syncExamsAndRisks() {
+        if (!isEditModalOpen || !editFormData?.function_ghe || !editFormData?.aso_type) return;
+
+        // Mapeia tipo do formulário para o tipo no exames_config
+        let typeInternal = "admissional";
+        const formType = editFormData.aso_type;
+        if (formType === "Demissional") typeInternal = "demissional";
+        else if (formType === "Periódico") typeInternal = "admissional"; // Geralmente segue admissional ou tem campo próprio? page.tsx usa admissional/demissional
+        else if (formType === "Mudança de Função") typeInternal = "admissional";
+        else if (formType === "Retorno ao Trabalho") typeInternal = "admissional";
+
+        const { data, error } = await supabase
+            .from('exames_config')
+            .select('*')
+            .eq('aso_type', typeInternal)
+            .eq('ghe', editFormData.function_ghe)
+            .single();
+
+        if (data && !error) {
+            // Só atualiza se o usuário realmente trocou algo (para não sobrescrever datas já editadas se apenas abrir o modal)
+            // Mas aqui o gatilho é a mudança de GHE ou Tipo, então é seguro.
+            const newExams = data.exames.map((name: string) => ({
+                name: name,
+                date: new Date().toLocaleDateString('pt-BR')
+            }));
+
+            setEditFormData((prev: any) => ({
+                ...prev,
+                risks: data.riscos + (data.detalhes ? `\n${data.detalhes}` : ''),
+                exams: newExams
+            }));
+        }
+    }
+    syncExamsAndRisks();
+}, [editFormData?.aso_type, editFormData?.function_ghe, isEditModalOpen]);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -1230,6 +1402,39 @@ export default function HistoryPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                                    {/* Botão de Edição ASO 2.0 */}
+                                                    {!entry.deletion_pending && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const rawType = entry.aso_type || "";
+                                                                let simplifiedType = "Admissional";
+                                                                if (rawType.includes("Periódico")) simplifiedType = "Periódico";
+                                                                else if (rawType.includes("Demissional")) simplifiedType = "Demissional";
+                                                                else if (rawType.includes("Mudança de Função")) simplifiedType = "Mudança de Função";
+                                                                else if (rawType.includes("Retorno ao Trabalho")) simplifiedType = "Retorno ao Trabalho";
+
+                                                                setEditingEntry(entry);
+                                                                setEditFormData({
+                                                                    servidor_nome: entry.servidor_nome,
+                                                                    servidor_cpf: entry.servidor_cpf,
+                                                                    servidor_nascimento: entry.servidor_nascimento || "",
+                                                                    cargo: entry.cargo,
+                                                                    secretaria: entry.secretaria,
+                                                                    aso_type: simplifiedType,
+                                                                    function_name: entry.function_name || "",
+                                                                    function_ghe: entry.ghe_conj || "", // Usa o que está salvo originalmente como base
+                                                                    risks: entry.risks || "",
+                                                                    exams: entry.exams_json || []
+                                                                });
+                                                                setIsEditModalOpen(true);
+                                                            }}
+                                                            className="flex items-center gap-2 px-4 py-3 lg:py-2 bg-[#1A3351] text-white font-black text-[10px] uppercase rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all"
+                                                        >
+                                                            <Activity className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-blue-400" />
+                                                            <span>Editar / Reemitir</span>
+                                                        </button>
+                                                    )}
                                                     <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
                                                     {currentUserId === entry.generated_by && userRole !== 'analytic_manager' && (
                                                         entry.deletion_pending ? (
@@ -1345,6 +1550,367 @@ export default function HistoryPage() {
                                     <>
                                         <Trash2 className="w-4 h-4" />
                                         Enviar Solicitação
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* MODAL DE EDIÇÃO ASO 2.0 */}
+            {isEditModalOpen && editingEntry && editFormData && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[250] p-4 backdrop-blur-sm">
+                    <div className="bg-[#D3D3D3] rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 border-4 border-[#1A3351]">
+                        {/* Header do Modal */}
+                        <div className="bg-[#1A3351] p-6 flex justify-between items-center shrink-0">
+                            <div className="flex items-center gap-3">
+                                <Activity className="w-8 h-8 text-[#E31E24]" />
+                                <div>
+                                    <h3 className="text-xl font-black uppercase text-white tracking-tighter">Editor de Evidência Digital</h3>
+                                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">Ajuste de dados para reemissão • ID #{editingEntry.id}</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsEditModalOpen(false)} className="text-white/50 hover:text-white transition-colors">
+                                <X className="w-8 h-8" />
+                            </button>
+                        </div>
+
+                        {/* Corpo do Modal (Scrollable) */}
+                        <div className="flex-1 overflow-y-auto p-6 lg:p-10 space-y-8 bg-white/20">
+                            {/* Sessão 1: Dados Pessoais */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <User className="w-4 h-4 text-[#1A3351]" />
+                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Dados do Servidor</span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <div className="md:col-span-6 space-y-1">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Nome Completo</label>
+                                        <input
+                                            type="text"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                            value={editFormData.servidor_nome}
+                                            onChange={(e) => setEditFormData({ ...editFormData, servidor_nome: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-1">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">CPF</label>
+                                        <input
+                                            type="text"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                            value={editFormData.servidor_cpf}
+                                            onChange={(e) => setEditFormData({ ...editFormData, servidor_cpf: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="md:col-span-3 space-y-1">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Data de Nascimento</label>
+                                        <input
+                                            type="date"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2 text-sm font-bold outline-none focus:border-[#E31E24] rounded-lg h-[46px]"
+                                            value={editFormData.servidor_nascimento}
+                                            onChange={(e) => setEditFormData({ ...editFormData, servidor_nascimento: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="md:col-span-12 space-y-1">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de ASO</label>
+                                        <select
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
+                                            value={editFormData.aso_type}
+                                            onChange={(e) => setEditFormData({ ...editFormData, aso_type: e.target.value })}
+                                        >
+                                            <option value="Admissional">Admissional</option>
+                                            <option value="Periódico">Periódico</option>
+                                            <option value="Mudança de Função">Mudança de Função</option>
+                                            <option value="Demissional">Demissional</option>
+                                            <option value="Retorno ao Trabalho">Retorno ao Trabalho</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sessão 2: Dados Profissionais */}
+                            <div className="space-y-4 pt-4 border-t border-black/5">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Building2 className="w-4 h-4 text-[#1A3351]" />
+                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Dados Profissionais</span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Cargo</span>
+                                            {isSearchingCargo && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Digite para buscar..."
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            value={cargoSearch || (editFormData?.cargo || "")}
+                                            onChange={(e) => {
+                                                const val = e.target.value.toUpperCase();
+                                                setCargoSearch(val);
+                                                setEditFormData({ ...editFormData, cargo: val });
+                                            }}
+                                        />
+                                        {filteredCargosSearch.length > 0 && (
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                                {filteredCargosSearch.map((c) => (
+                                                    <div
+                                                        key={c}
+                                                        onClick={() => {
+                                                            setEditFormData({ ...editFormData, cargo: c });
+                                                            setCargoSearch("");
+                                                            setFilteredCargosSearch([]);
+                                                        }}
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                    >
+                                                        {c}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Secretaria</span>
+                                            {isSearchingSecretaria && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Digite para buscar..."
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            value={secretariaSearch || (editFormData?.secretaria || "")}
+                                            onChange={(e) => {
+                                                const val = e.target.value.toUpperCase();
+                                                setSecretariaSearch(val);
+                                                setEditFormData({ ...editFormData, secretaria: val });
+                                            }}
+                                        />
+                                        {filteredSecretariasSearch.length > 0 && (
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                                {filteredSecretariasSearch.map((s) => (
+                                                    <div
+                                                        key={s}
+                                                        onClick={() => {
+                                                            setEditFormData({ ...editFormData, secretaria: s });
+                                                            setSecretariaSearch("");
+                                                            setFilteredSecretariasSearch([]);
+                                                        }}
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                    >
+                                                        {s}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                                    <div className="space-y-1 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Função / GHE (Busque para atualizar riscos)</span>
+                                            {isSearchingFuncao && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Digite para buscar..."
+                                                className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                                value={funcoesSearch || (editFormData?.function_name || "")}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setFuncoesSearch(val);
+                                                    setEditFormData({ ...editFormData, function_name: val });
+                                                }}
+                                            />
+                                            {(funcoesSearch || (editFormData?.function_name)) && (
+                                                <button 
+                                                    onClick={() => {
+                                                        setFuncoesSearch("");
+                                                        setFilteredFuncoes([]);
+                                                        setEditFormData({ ...editFormData, function_name: "", function_ghe: "", risks: "", exams_json: [] });
+                                                    }}
+                                                    className="px-3 bg-white border-2 border-slate-200 rounded-lg text-[9px] font-black uppercase hover:bg-slate-50 transition-colors"
+                                                >
+                                                    Limpar
+                                                </button>
+                                            )}
+                                        </div>
+                                        {filteredFuncoes.length > 0 && (
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+                                                {filteredFuncoes.map((f) => (
+                                                    <div
+                                                        key={f.id}
+                                                        onClick={() => {
+                                                            setEditFormData({ 
+                                                                ...editFormData, 
+                                                                function_name: f.nome,
+                                                                function_ghe: f.ghe 
+                                                            });
+                                                            setFuncoesSearch("");
+                                                            setFilteredFuncoes([]);
+                                                        }}
+                                                        className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 group transition-colors"
+                                                    >
+                                                        <div className="flex justify-between items-center mb-0.5">
+                                                            <span className="text-xs font-black text-[#1A3351] uppercase group-hover:text-[#E31E24]">{f.nome}</span>
+                                                            <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">GHE: {f.ghe}</span>
+                                                        </div>
+                                                        {f.cod && <div className="text-[9px] font-bold text-slate-400">CÓD: {f.cod}</div>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Riscos Ocupacionais (Automático - Não Editável)</label>
+                                        <textarea
+                                            readOnly
+                                            className="w-full bg-slate-50 border-2 border-slate-200 px-4 py-3 rounded-lg text-sm font-bold uppercase outline-none min-h-[80px] resize-none text-slate-500 italic"
+                                            value={editFormData.risks}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sessão 3: Exames e Datas */}
+                            <div className="space-y-4 pt-4 border-t border-black/5">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Activity className="w-4 h-4 text-[#1A3351]" />
+                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Exames e Prazos</span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {editFormData.exams.map((exam: any, idx: number) => (
+                                        <div key={idx} className="flex gap-2 p-3 bg-white border-2 border-slate-100 rounded-xl shadow-sm">
+                                            <div className="flex-1">
+                                                <p className="text-[9px] font-black text-[#E31E24] uppercase mb-1">{exam.name}</p>
+                                                <input
+                                                    type="date"
+                                                    className="w-full bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-black outline-none focus:border-[#E31E24] rounded"
+                                                    value={exam.date.split('/').reverse().join('-')}
+                                                    onChange={(e) => {
+                                                        const newExams = [...editFormData.exams];
+                                                        const [y, m, d] = e.target.value.split('-');
+                                                        newExams[idx].date = `${d}/${m}/${y}`;
+                                                        setEditFormData({ ...editFormData, exams: newExams });
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {editFormData.exams.length === 0 && (
+                                        <p className="col-span-2 text-center py-4 text-slate-400 text-[10px] font-black uppercase italic italic">Registro legado: O sistema usará o mapeamento original.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer do Modal */}
+                        <div className="bg-[#B0B0B0] p-6 flex flex-col sm:flex-row gap-4 shrink-0">
+                            <button
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="flex-1 py-4 px-6 bg-slate-300 text-slate-700 font-black text-xs uppercase rounded-xl hover:bg-slate-400 transition-all active:scale-95"
+                            >
+                                Cancelar Alterações
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (isSavingEdit) return;
+                                    setIsSavingEdit(true);
+
+                                    try {
+                                        const { session } = await safeGetSession();
+                                        const userEmail = session?.user?.email || "desconhecido";
+
+                                        // 1. Registrar Auditoria no edit_history
+                                        const newAudit = {
+                                            timestamp: new Date().toISOString(),
+                                            user: userEmail,
+                                            changes: {
+                                                old: {
+                                                    nome: editingEntry.servidor_nome,
+                                                    cpf: editingEntry.servidor_cpf,
+                                                    cargo: editingEntry.cargo,
+                                                    secretaria: editingEntry.secretaria
+                                                },
+                                                new: {
+                                                    nome: editFormData.servidor_nome,
+                                                    cpf: editFormData.servidor_cpf,
+                                                    cargo: editFormData.cargo,
+                                                    secretaria: editFormData.secretaria
+                                                }
+                                            }
+                                        };
+
+                                        const updatedHistory = [...(editingEntry.edit_history || []), newAudit];
+
+                                        // Detecta tipo ASO selecionado no form
+                                        const asoTypeLabel = editFormData.aso_type;
+                                        
+                                        // 2. Salvar no Banco
+                                        const { error } = await supabase
+                                            .from('aso_history')
+                                            .update({
+                                                aso_type: `ASO (${asoTypeLabel})`, // Novo campo aso_type se tiver mudado
+                                                servidor_nome: editFormData.servidor_nome,
+                                                servidor_cpf: editFormData.servidor_cpf,
+                                                servidor_nascimento: editFormData.servidor_nascimento || null,
+                                                cargo: editFormData.cargo,
+                                                secretaria: editFormData.secretaria,
+                                                ghe_conj: editFormData.function_ghe, // Atualiza GHE
+                                                function_name: editFormData.function_name,
+                                                risks: editFormData.risks,
+                                                exams_json: editFormData.exams,
+                                                edit_history: updatedHistory
+                                            })
+                                            .eq('id', editingEntry.id);
+
+                                        if (error) throw error;
+
+                                        // 3. Reemitir PDF
+                                        const { generateASOPDF } = await import("@/lib/pdf-generator");
+
+                                        const servidorMock = {
+                                            Nome: editFormData.servidor_nome,
+                                            CPF: editFormData.servidor_cpf,
+                                            "CPF.": editFormData.servidor_cpf,
+                                            "Dt.Nascimento": editFormData.servidor_nascimento,
+                                            Cargo: editFormData.cargo,
+                                            Secretaria: editFormData.secretaria
+                                        };
+
+                                        const currentExamsMock = {
+                                            exames: editFormData.exams.map((e: any) => e.name),
+                                            riscos: "", 
+                                            detalhes: editFormData.risks
+                                        };
+
+                                        const datesMock = editFormData.exams.map((e: any) => e.date);
+                                        const operatorName = editingEntry.operator_name || "SISTEMA";
+
+                                        generateASOPDF(servidorMock, currentExamsMock, asoTypeLabel, datesMock, operatorName);
+
+                                        alert("Alterações salvas com sucesso! O novo PDF foi gerado.");
+                                        setIsEditModalOpen(false);
+                                        loadHistory();
+                                    } catch (err) {
+                                        console.error("Erro ao salvar edição:", err);
+                                        alert("Erro ao salvar as alterações no banco de dados.");
+                                    } finally {
+                                        setIsSavingEdit(false);
+                                    }
+                                }}
+                                disabled={isSavingEdit}
+                                className="flex-[2] py-4 px-6 bg-[#1A3351] text-white font-black text-xs uppercase rounded-xl shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                            >
+                                {isSavingEdit ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Processando Registro...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Printer className="w-5 h-5" />
+                                        Salvar e Reemitir PDF Oficial
                                     </>
                                 )}
                             </button>

@@ -292,28 +292,39 @@ export default function Home() {
         generateReferralPDF(selectedServidor, currentExams, asoType, dates || examDates, operatorName);
       }
 
-      // Salva Histórico no Supabase (Processo Online)
-      try {
-        // Prepara lista de exames para o histórico (Evidência Digital) - Filtra Exame Clínico para Encaminhamentos
-        const examsList = currentExams.exames
-          .filter(ex => ex.toUpperCase() !== "EXAME CLÍNICO")
-          .join(', ');
-        const functionName = selectedFuncao?.Nome || selectedFuncao?.FUNÇÃO || "Função não identificada";
-        const risksText = selectedFuncao ? currentExams.detalhes : "";
+        // Salva Histórico no Supabase (Processo Online)
+        try {
+          // Prepara lista de exames para o histórico (Evidência Digital) - Filtra Exame Clínico para Encaminhamentos
+          const examsList = currentExams.exames
+            .filter(ex => ex.toUpperCase() !== "EXAME CLÍNICO")
+            .join(', ');
+          const functionName = selectedFuncao?.Nome || selectedFuncao?.FUNÇÃO || "Função não identificada";
+          const risksText = selectedFuncao ? currentExams.detalhes : "";
 
-        await supabase.from('aso_history').insert({
-          servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
-          servidor_nome: selectedServidor.Nome,
-          aso_type: endpoint.includes('referral')
-            ? `Encaminhamento (${asoType}) {${functionName}} <${risksText}> [${examsList}]`
-            : `ASO (${asoType})`,
-          cargo: selectedServidor.Cargo,
-          secretaria: selectedServidor.Secretaria,
-          ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
-          generated_by: session?.user?.id,
-          operator_name: operatorName
-        });
-      } catch (histError) {
+          // Novo: Formata exames e datas para o JSONB
+          const examsJson = currentExams.exames.map((exam, idx) => ({
+            name: exam,
+            date: (dates || examDates)[idx] || new Date().toLocaleDateString('pt-BR')
+          }));
+
+          await supabase.from('aso_history').insert({
+            servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
+            servidor_nome: selectedServidor.Nome,
+            servidor_nascimento: selectedServidor["Dt.Nascimento"] ? selectedServidor["Dt.Nascimento"].split(' ')[0].split('T')[0] : null,
+            aso_type: endpoint.includes('referral')
+              ? `Encaminhamento (${asoType}) {${functionName}} <${risksText}> [${examsList}]`
+              : `ASO (${asoType})`,
+            cargo: selectedServidor.Cargo,
+            secretaria: selectedServidor.Secretaria,
+            ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
+            generated_by: session?.user?.id,
+            operator_name: operatorName,
+            // Novos Campos Estruturados
+            function_name: functionName,
+            risks: risksText,
+            exams_json: examsJson
+          });
+        } catch (histError) {
         console.error("Erro ao gravar histórico:", histError);
       }
 
