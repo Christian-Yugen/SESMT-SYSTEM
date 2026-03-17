@@ -990,8 +990,8 @@ export default function AnalyticsPage() {
                                     <AreaChart data={chartData.byHour} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorHour" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#E31E24" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#E31E24" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -1023,13 +1023,13 @@ export default function AnalyticsPage() {
                                                 color: '#fff',
                                                 textTransform: 'uppercase'
                                             }}
-                                            itemStyle={{ color: '#3b82f6' }}
+                                            itemStyle={{ color: '#E31E24' }}
                                             cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
                                         />
                                         <Area 
                                             type="monotone" 
                                             dataKey="total" 
-                                            stroke="#3b82f6" 
+                                            stroke="#E31E24" 
                                             strokeWidth={4}
                                             fillOpacity={1} 
                                             fill="url(#colorHour)" 
