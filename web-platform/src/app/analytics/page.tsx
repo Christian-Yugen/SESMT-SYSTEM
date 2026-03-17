@@ -838,6 +838,16 @@ export default function AnalyticsPage() {
                                 <X className="w-3 h-3" /> Zerar Filtros
                             </button>
                         )}
+
+                        <div className="ml-auto">
+                            <button
+                                onClick={() => setShowHourAnalysis(!showHourAnalysis)}
+                                className={`px-6 py-2.5 lg:py-2 text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 whitespace-nowrap ${showHourAnalysis ? 'bg-blue-600 text-white border-blue-400' : 'bg-[#1A3351] text-white hover:brightness-110'}`}
+                            >
+                                <TrendingUp className="w-3.5 h-3.5" />
+                                {showHourAnalysis ? "Ocultar Análise" : "Análise de Pico"}
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -869,21 +879,6 @@ export default function AnalyticsPage() {
                             <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
                         </div>
 
-                        <div 
-                            onClick={() => setShowHourAnalysis(!showHourAnalysis)}
-                            className={`p-3 lg:p-4 border-l-4 shadow-md flex items-center justify-between rounded-lg lg:rounded-none cursor-pointer transition-all active:scale-95 ${showHourAnalysis ? 'bg-[#1A3351] border-white' : 'bg-white border-blue-400 group hover:bg-slate-50'}`}
-                        >
-                            <div className="flex-1">
-                                <p className={`text-[8px] lg:text-[10px] font-black uppercase tracking-widest leading-tight ${showHourAnalysis ? 'text-white/60' : 'text-black/40'}`}>
-                                    Análise de Pico
-                                </p>
-                                <h3 className={`text-xs lg:text-sm font-black leading-none mt-2 flex items-center gap-2 ${showHourAnalysis ? 'text-white' : 'text-[#1A3351]'}`}>
-                                    {showHourAnalysis ? 'FECHAR INSIGHTS' : 'VER FLUXO HORÁRIO'}
-                                    <TrendingUp className={`w-3.5 h-3.5 ${showHourAnalysis ? 'text-blue-400' : 'text-blue-600'}`} />
-                                </h3>
-                            </div>
-                            <Activity className={`w-4 h-4 hidden sm:block ${showHourAnalysis ? 'text-white/20' : 'text-blue-100'}`} />
-                        </div>
 
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
