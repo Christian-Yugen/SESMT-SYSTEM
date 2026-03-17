@@ -214,7 +214,7 @@ export default function AnalyticsPage() {
             const matchesStartDate = !startDate || entryDate >= startDate;
             const matchesEndDate = !endDate || entryDate <= endDate;
 
-            // Filtro de Turno (Manhã: 07:00-12:59, Tarde: 13:00-18:00)
+            // Filtro de Turno (Manhã: 07:00-12:59, Tarde: 13:00-18h)
             let matchesShift = true;
             if (filterShift !== 'all') {
                 const hour = new Date(entry.generated_at).getHours();
@@ -225,9 +225,9 @@ export default function AnalyticsPage() {
                 }
             }
 
-            // Filtro de Subtipo de ASO (id do tipo)
+            // Filtro de Subtipo de ASO (procura na string aso_type)
             const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || 
-                                     (entry.aso_id && selectedAsoSubtypes.includes(entry.aso_id));
+                                     (entry.aso_type && selectedAsoSubtypes.some(subtype => entry.aso_type.toUpperCase().includes(subtype)));
 
             return (
                 !!matchesSearch &&
