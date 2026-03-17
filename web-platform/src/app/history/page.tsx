@@ -69,42 +69,127 @@ export default function HistoryPage() {
     const [editFormData, setEditFormData] = useState<any>(null);
     const [isSavingEdit, setIsSavingEdit] = useState(false);
 
-    // Dados Mestres para Dropdowns
-    const [secretariasList, setSecretariasList] = useState<string[]>([]);
-    const [cargosList, setCargosList] = useState<string[]>([]);
+    // Estados de busca (UI) e carregamento
+    const [cargoSearch, setCargoSearch] = useState("");
+    const [filteredCargosSearch, setFilteredCargosSearch] = useState<string[]>([]);
+    const [isSearchingCargo, setIsSearchingCargo] = useState(false);
+
+    const [secretariaSearch, setSecretariaSearch] = useState("");
+    const [filteredSecretariasSearch, setFilteredSecretariasSearch] = useState<string[]>([]);
+    const [isSearchingSecretaria, setIsSearchingSecretaria] = useState(false);
+
     const [funcoesSearch, setFuncoesSearch] = useState("");
     const [filteredFuncoes, setFilteredFuncoes] = useState<any[]>([]);
+    const [isSearchingFuncao, setIsSearchingFuncao] = useState(false);
 
+    // Busca de Cargo no Servidor com Debounce
     useEffect(() => {
-        async function loadMasterData() {
-            const { data: secData } = await supabase.from('servidores').select('secretaria').not('secretaria', 'is', null);
-            if (secData) setSecretariasList(Array.from(new Set(secData.map(s => s.secretaria))).sort() as string[]);
+        const timer = setTimeout(async () => {
+            if (!cargoSearch || cargoSearch.length < 2) {
+                setFilteredCargosSearch([]);
+                return;
+            }
 
-            const { data: cargoData } = await supabase.from('servidores').select('cargo').not('cargo', 'is', null);
-            if (cargoData) setCargosList(Array.from(new Set(cargoData.map(s => s.cargo))).sort() as string[]);
-        }
-        loadMasterData();
-    }, []);
+            setIsSearchingCargo(true);
+            try {
+                const { data } = await supabase
+                    .from('servidores')
+                    .select('cargo')
+                    .ilike('cargo', `%${cargoSearch}%`)
+                    .not('cargo', 'is', null)
+                    .limit(50);
 
-    // Busca de funções dinâmica quando o usuário digita no modal
+                if (data) {
+                    const unique = Array.from(new Set(data.map(s => s.cargo))).filter(Boolean) as string[];
+                    // Ordenação inteligente: prefixo primeiro
+                    const term = cargoSearch.toUpperCase();
+                    unique.sort((a, b) => {
+                        const aStart = a.toUpperCase().startsWith(term);
+                        const bStart = b.toUpperCase().startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return a.localeCompare(b);
+                    });
+                    setFilteredCargosSearch(unique.slice(0, 20));
+                }
+            } finally {
+                setIsSearchingCargo(false);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [cargoSearch]);
+
+    // Busca de Secretaria no Servidor com Debounce
     useEffect(() => {
-        async function searchFuncoes() {
-            if (!funcoesSearch || funcoesSearch.length < 2) {
+        const timer = setTimeout(async () => {
+            if (!secretariaSearch || secretariaSearch.length < 2) {
+                setFilteredSecretariasSearch([]);
+                return;
+            }
+
+            setIsSearchingSecretaria(true);
+            try {
+                const { data } = await supabase
+                    .from('servidores')
+                    .select('secretaria')
+                    .ilike('secretaria', `%${secretariaSearch}%`)
+                    .not('secretaria', 'is', null)
+                    .limit(50);
+
+                if (data) {
+                    const unique = Array.from(new Set(data.map(s => s.secretaria))).filter(Boolean) as string[];
+                    const term = secretariaSearch.toUpperCase();
+                    unique.sort((a, b) => {
+                        const aStart = a.toUpperCase().startsWith(term);
+                        const bStart = b.toUpperCase().startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return a.localeCompare(b);
+                    });
+                    setFilteredSecretariasSearch(unique.slice(0, 20));
+                }
+            } finally {
+                setIsSearchingSecretaria(false);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [secretariaSearch]);
+
+    // Busca de Função no Servidor com Debounce
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (!funcoesSearch || funcoesSearch.length < 1) {
                 setFilteredFuncoes([]);
                 return;
             }
 
-            const { data } = await supabase
-                .from('funcoes')
-                .select('*')
-                .or(`nome.ilike.%${funcoesSearch}%,cod.ilike.%${funcoesSearch}%`)
-                .limit(10);
+            setIsSearchingFuncao(true);
+            try {
+                const { data } = await supabase
+                    .from('funcoes')
+                    .select('*')
+                    .or(`nome.ilike.%${funcoesSearch}%,cod.ilike.%${funcoesSearch}%`)
+                    .limit(100);
 
-            if (data) setFilteredFuncoes(data);
-        }
-        const timer = setTimeout(searchFuncoes, 300);
-    return () => clearTimeout(timer);
-}, [funcoesSearch]);
+                if (data) {
+                    const term = funcoesSearch.toUpperCase();
+                    data.sort((a, b) => {
+                        const aName = (a.nome || "").toUpperCase();
+                        const bName = (b.nome || "").toUpperCase();
+                        const aStart = aName.startsWith(term);
+                        const bStart = bName.startsWith(term);
+                        if (aStart && !bStart) return -1;
+                        if (!aStart && bStart) return 1;
+                        return aName.localeCompare(bName);
+                    });
+                    setFilteredFuncoes(data.slice(0, 30));
+                }
+            } finally {
+                setIsSearchingFuncao(false);
+            }
+        }, 400); 
+        return () => clearTimeout(timer);
+    }, [funcoesSearch]);
 
 // Efeito para sincronizar riscos e exames quando muda o Tipo de ASO ou a Função
 useEffect(() => {
@@ -1550,50 +1635,108 @@ useEffect(() => {
                                     <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Dados Profissionais</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Cargo</label>
-                                        <select
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
-                                            value={editFormData.cargo}
-                                            onChange={(e) => setEditFormData({ ...editFormData, cargo: e.target.value })}
-                                        >
-                                            <option value="">Selecione o Cargo</option>
-                                            {cargosList.map(c => <option key={c} value={c}>{c}</option>)}
-                                        </select>
+                                    <div className="space-y-1 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Cargo</span>
+                                            {isSearchingCargo && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Digite para buscar..."
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            value={cargoSearch || (editFormData?.cargo || "")}
+                                            onChange={(e) => {
+                                                const val = e.target.value.toUpperCase();
+                                                setCargoSearch(val);
+                                                setEditFormData({ ...editFormData, cargo: val });
+                                            }}
+                                        />
+                                        {filteredCargosSearch.length > 0 && (
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                                {filteredCargosSearch.map((c) => (
+                                                    <div
+                                                        key={c}
+                                                        onClick={() => {
+                                                            setEditFormData({ ...editFormData, cargo: c });
+                                                            setCargoSearch("");
+                                                            setFilteredCargosSearch([]);
+                                                        }}
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                    >
+                                                        {c}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Secretaria</label>
-                                        <select
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
-                                            value={editFormData.secretaria}
-                                            onChange={(e) => setEditFormData({ ...editFormData, secretaria: e.target.value })}
-                                        >
-                                            <option value="">Selecione a Secretaria</option>
-                                            {secretariasList.map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
+                                    <div className="space-y-1 relative">
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Secretaria</span>
+                                            {isSearchingSecretaria && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Digite para buscar..."
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            value={secretariaSearch || (editFormData?.secretaria || "")}
+                                            onChange={(e) => {
+                                                const val = e.target.value.toUpperCase();
+                                                setSecretariaSearch(val);
+                                                setEditFormData({ ...editFormData, secretaria: val });
+                                            }}
+                                        />
+                                        {filteredSecretariasSearch.length > 0 && (
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                                {filteredSecretariasSearch.map((s) => (
+                                                    <div
+                                                        key={s}
+                                                        onClick={() => {
+                                                            setEditFormData({ ...editFormData, secretaria: s });
+                                                            setSecretariaSearch("");
+                                                            setFilteredSecretariasSearch([]);
+                                                        }}
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                    >
+                                                        {s}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                     <div className="space-y-1 relative">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Função / GHE (Busque para atualizar riscos)</label>
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                            <span>Função / GHE (Busque para atualizar riscos)</span>
+                                            {isSearchingFuncao && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
+                                        </label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
-                                                placeholder="Digite para buscar nova função..."
-                                                className="flex-1 bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
-                                                value={funcoesSearch || editFormData.function_name}
-                                                onChange={(e) => setFuncoesSearch(e.target.value)}
+                                                placeholder="Digite para buscar..."
+                                                className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                                value={funcoesSearch || (editFormData?.function_name || "")}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setFuncoesSearch(val);
+                                                    setEditFormData({ ...editFormData, function_name: val });
+                                                }}
                                             />
-                                            {funcoesSearch && (
+                                            {(funcoesSearch || (editFormData?.function_name)) && (
                                                 <button 
-                                                    onClick={() => setFuncoesSearch("")}
-                                                    className="px-3 bg-slate-200 rounded-lg text-[10px] font-black uppercase"
-                                                >Limpar</button>
+                                                    onClick={() => {
+                                                        setFuncoesSearch("");
+                                                        setFilteredFuncoes([]);
+                                                        setEditFormData({ ...editFormData, function_name: "", function_ghe: "", risks: "", exams_json: [] });
+                                                    }}
+                                                    className="px-3 bg-white border-2 border-slate-200 rounded-lg text-[9px] font-black uppercase hover:bg-slate-50 transition-colors"
+                                                >
+                                                    Limpar
+                                                </button>
                                             )}
                                         </div>
-
                                         {filteredFuncoes.length > 0 && (
-                                            <div className="absolute z-[300] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-64 overflow-y-auto">
                                                 {filteredFuncoes.map((f) => (
                                                     <div
                                                         key={f.id}
@@ -1601,15 +1744,18 @@ useEffect(() => {
                                                             setEditFormData({ 
                                                                 ...editFormData, 
                                                                 function_name: f.nome,
-                                                                function_ghe: f.ghe // Isso vai disparar o useEffect de sincronização
+                                                                function_ghe: f.ghe 
                                                             });
                                                             setFuncoesSearch("");
                                                             setFilteredFuncoes([]);
                                                         }}
-                                                        className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 grow group"
+                                                        className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 group transition-colors"
                                                     >
-                                                        <p className="text-[10px] font-black text-[#1A3351] group-hover:text-[#E31E24]">{f.nome}</p>
-                                                        <p className="text-[8px] text-slate-400 font-bold truncate">{f.detalhe}</p>
+                                                        <div className="flex justify-between items-center mb-0.5">
+                                                            <span className="text-xs font-black text-[#1A3351] uppercase group-hover:text-[#E31E24]">{f.nome}</span>
+                                                            <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">GHE: {f.ghe}</span>
+                                                        </div>
+                                                        {f.cod && <div className="text-[9px] font-bold text-slate-400">CÓD: {f.cod}</div>}
                                                     </div>
                                                 ))}
                                             </div>
