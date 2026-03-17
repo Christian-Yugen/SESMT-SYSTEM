@@ -29,6 +29,8 @@ interface HistoryEntry {
     risks?: string;
     function_name?: string;
     edit_history?: any[];
+    // Campo virtual para permissões
+    creator_role?: string;
 }
 
 export default function HistoryPage() {
@@ -272,7 +274,7 @@ useEffect(() => {
         }
     }, [userRole, router]);
 
-    const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
+    const [profilesData, setProfilesData] = useState<Record<string, { email: string; role: string }>>({});
 
     async function loadHistory() {
         setLoading(true);
@@ -280,32 +282,38 @@ useEffect(() => {
         // Força o Next.js a atualizar o cache do roteador
         router.refresh();
 
-        // Carrega o histórico com um "cache breaker" manual para evitar cache agressivo em produção (Vercel)
+        // Carrega o histórico com um "cache breaker" manual
         const cacheBreaker = Date.now();
 
-        const { data: histData, error: histError } = await supabase
-            .from('aso_history')
-            .select('*')
-            .neq('id', -cacheBreaker) // Filtro inútil apenas para mudar a URL da requisição e evitar cache viciado
-            .order('generated_at', { ascending: false });
+        // Buscamos o histórico e os perfis em paralelo
+        const [histRes, profRes] = await Promise.all([
+            supabase
+                .from('aso_history')
+                .select('*')
+                .neq('id', -cacheBreaker)
+                .order('generated_at', { ascending: false }),
+            supabase
+                .from('profiles')
+                .select('id, email, role')
+        ]);
 
-        if (!histError && histData) {
-            setHistory(histData);
-        } else if (histError) {
-            console.error("Erro ao carregar histórico:", histError);
+        const profMap: Record<string, { email: string; role: string }> = {};
+        if (profRes.data) {
+            profRes.data.forEach(p => {
+                profMap[p.id] = { email: p.email, role: p.role };
+            });
+            setProfilesData(profMap);
         }
 
-        // Tenta carregar mapeamento de perfis para mostrar e-mails em vez de IDs
-        const { data: profData } = await supabase
-            .from('profiles')
-            .select('id, email');
-
-        if (profData) {
-            const map: Record<string, string> = {};
-            profData.forEach(p => {
-                map[p.id] = p.email;
-            });
-            setOperatorsMap(map);
+        if (!histRes.error && histRes.data) {
+            // Injetamos o creator_role para facilitar a lógica de UI
+            const enrichedHistory = histRes.data.map(h => ({
+                ...h,
+                creator_role: profMap[h.generated_by]?.role || 'unknown'
+            }));
+            setHistory(enrichedHistory);
+        } else if (histRes.error) {
+            console.error("Erro ao carregar histórico:", histRes.error);
         }
 
         setLoading(false);
@@ -1118,7 +1126,7 @@ useEffect(() => {
                                 <option value="all">TODOS OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
                                     <option key={uid} value={uid}>
-                                        {history.find(h => h.generated_by === uid)?.operator_name || operatorsMap[uid] || `ID: ${uid.substring(0, 8)}`}
+                                        {profilesData[uid]?.email || history.find(h => h.generated_by === uid)?.operator_name || `ID: ${uid.substring(0, 8)}`}
                                     </option>
                                 ))}
                             </select>
@@ -1398,21 +1406,25 @@ useEffect(() => {
                                                 <div className="flex flex-col gap-1 flex-1">
                                                     <span className="text-slate-400 font-bold text-[9px]">Operador Responsável:</span>
                                                     <span className="text-[11px] font-black text-[#1A3351]">
-                                                        {entry.operator_name || operatorsMap[entry.generated_by] || entry.generated_by}
+                                                        {entry.operator_name || profilesData[entry.generated_by]?.email || entry.generated_by}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
-                                                    {/* Botão de Edição ASO 2.0 */}
-                                                    {!entry.deletion_pending && (
+                                                    {/* Botão de Edição ASO / Encaminhamento */}
+                                                    {!entry.deletion_pending && (userRole === 'admin' || userRole === entry.creator_role) && (
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const rawType = entry.aso_type || "";
-                                                                let simplifiedType = "Admissional";
-                                                                if (rawType.includes("Periódico")) simplifiedType = "Periódico";
-                                                                else if (rawType.includes("Demissional")) simplifiedType = "Demissional";
-                                                                else if (rawType.includes("Mudança de Função")) simplifiedType = "Mudança de Função";
-                                                                else if (rawType.includes("Retorno ao Trabalho")) simplifiedType = "Retorno ao Trabalho";
+                                                                const isEncaminhamento = rawType.toLowerCase().includes("encaminhamento");
+                                                                
+                                                                let simplifiedType = isEncaminhamento ? "Encaminhamento" : "Admissional";
+                                                                if (!isEncaminhamento) {
+                                                                    if (rawType.includes("Periódico")) simplifiedType = "Periódico";
+                                                                    else if (rawType.includes("Demissional")) simplifiedType = "Demissional";
+                                                                    else if (rawType.includes("Mudança de Função")) simplifiedType = "Mudança de Função";
+                                                                    else if (rawType.includes("Retorno ao Trabalho")) simplifiedType = "Retorno ao Trabalho";
+                                                                }
 
                                                                 setEditingEntry(entry);
                                                                 setEditFormData({
@@ -1423,9 +1435,10 @@ useEffect(() => {
                                                                     secretaria: entry.secretaria,
                                                                     aso_type: simplifiedType,
                                                                     function_name: entry.function_name || "",
-                                                                    function_ghe: entry.ghe_conj || "", // Usa o que está salvo originalmente como base
+                                                                    function_ghe: entry.ghe_conj || "", 
                                                                     risks: entry.risks || "",
-                                                                    exams: entry.exams_json || []
+                                                                    exams: entry.exams_json || [],
+                                                                    motivo_alteracao: ""
                                                                 });
                                                                 setIsEditModalOpen(true);
                                                             }}
@@ -1457,6 +1470,47 @@ useEffect(() => {
                                                     )}
                                                 </div>
                                             </div>
+
+                                            {/* Histórico de Edições (Auditoria) */}
+                                            {entry.edit_history && entry.edit_history.length > 0 && (
+                                                <div className="mt-8 pt-4 border-t border-slate-200">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <HistoryIcon className="w-4 h-4 text-slate-400" />
+                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Histórico de Alterações (Auditoria)</span>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {entry.edit_history.map((log: any, idx: number) => (
+                                                            <div key={idx} className="bg-white/40 border border-slate-200 rounded-lg p-3 text-[10px] lg:text-[11px] animate-in fade-in slide-in-from-left-2 transition-all">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-black text-[#1A3351] uppercase">{log.user}</span>
+                                                                        <span className="text-slate-400">•</span>
+                                                                        <span className="font-bold text-slate-500 uppercase">{new Date(log.timestamp).toLocaleString('pt-BR')}</span>
+                                                                    </div>
+                                                                    <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-black uppercase text-[8px]">Reemitido</div>
+                                                                </div>
+                                                                <p className="font-black text-[#E31E24] uppercase mb-1">Motivo: <span className="text-slate-700 font-bold">{log.motivo || "Não informado"}</span></p>
+                                                                {log.changes && (
+                                                                    <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
+                                                                        {Object.keys(log.changes.new).map((key) => {
+                                                                            const oldVal = log.changes.old[key];
+                                                                            const newVal = log.changes.new[key];
+                                                                            if (oldVal !== newVal) {
+                                                                                return (
+                                                                                    <span key={key} className="text-[9px] font-bold text-slate-500">
+                                                                                        <span className="uppercase text-slate-400">{key}:</span> {String(oldVal || '---')} → <span className="text-[#1A3351] font-black">{String(newVal || '---')}</span>
+                                                                                    </span>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1612,17 +1666,18 @@ useEffect(() => {
                                         />
                                     </div>
                                     <div className="md:col-span-12 space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de ASO</label>
+                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de Documento</label>
                                         <select
                                             className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
                                             value={editFormData.aso_type}
                                             onChange={(e) => setEditFormData({ ...editFormData, aso_type: e.target.value })}
                                         >
-                                            <option value="Admissional">Admissional</option>
-                                            <option value="Periódico">Periódico</option>
-                                            <option value="Mudança de Função">Mudança de Função</option>
-                                            <option value="Demissional">Demissional</option>
-                                            <option value="Retorno ao Trabalho">Retorno ao Trabalho</option>
+                                            <option value="Admissional">ASO Admissional</option>
+                                            <option value="Periódico">ASO Periódico</option>
+                                            <option value="Mudança de Função">ASO Mudança de Função</option>
+                                            <option value="Demissional">ASO Demissional</option>
+                                            <option value="Retorno ao Trabalho">ASO Retorno ao Trabalho</option>
+                                            <option value="Encaminhamento">Encaminhamento de Exames</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1802,6 +1857,27 @@ useEffect(() => {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Sessão 4: Motivo da Alteração (Obrigatório para Auditoria) */}
+                            <div className="space-y-4 pt-4 border-t border-black/5">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <HistoryIcon className="w-4 h-4 text-amber-600" />
+                                    <span className="text-xs font-black uppercase text-amber-600 tracking-widest">Justificativa da Alteração (Auditoria)</span>
+                                </div>
+                                <div className="bg-amber-50 p-4 rounded-xl border-2 border-amber-200">
+                                    <textarea
+                                        rows={3}
+                                        placeholder="DESCREVA O MOTIVO DESTA ALTERAÇÃO (OBRIGATÓRIO PARA SEGURANÇA)..."
+                                        className="w-full bg-white border-2 border-amber-300 px-4 py-3 rounded-lg text-sm font-bold uppercase outline-none focus:border-amber-500 transition-all resize-none"
+                                        value={editFormData.motivo_alteracao}
+                                        onChange={(e) => setEditFormData({ ...editFormData, motivo_alteracao: e.target.value })}
+                                    />
+                                    <div className="flex items-center gap-2 mt-2 text-amber-700">
+                                        <AlertCircle className="w-3.5 h-3.5" />
+                                        <p className="text-[9px] font-black uppercase">Este registro será vinculado ao seu perfil para auditoria futura.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Footer do Modal */}
@@ -1815,48 +1891,58 @@ useEffect(() => {
                             <button
                                 onClick={async () => {
                                     if (isSavingEdit) return;
+                                    
+                                    if (!editFormData.motivo_alteracao || editFormData.motivo_alteracao.length < 5) {
+                                        alert("Por favor, informe o motivo da alteração (mínimo 5 caracteres) para auditoria.");
+                                        return;
+                                    }
+
                                     setIsSavingEdit(true);
 
                                     try {
                                         const { session } = await safeGetSession();
                                         const userEmail = session?.user?.email || "desconhecido";
 
-                                        // 1. Registrar Auditoria no edit_history
+                                        // 1. Registrar Auditoria no edit_history (Enriquecido com Motivo)
                                         const newAudit = {
                                             timestamp: new Date().toISOString(),
                                             user: userEmail,
+                                            motivo: editFormData.motivo_alteracao,
                                             changes: {
                                                 old: {
                                                     nome: editingEntry.servidor_nome,
                                                     cpf: editingEntry.servidor_cpf,
                                                     cargo: editingEntry.cargo,
-                                                    secretaria: editingEntry.secretaria
+                                                    secretaria: editingEntry.secretaria,
+                                                    tipo: editingEntry.aso_type
                                                 },
                                                 new: {
                                                     nome: editFormData.servidor_nome,
                                                     cpf: editFormData.servidor_cpf,
                                                     cargo: editFormData.cargo,
-                                                    secretaria: editFormData.secretaria
+                                                    secretaria: editFormData.secretaria,
+                                                    tipo: editFormData.aso_type === 'Encaminhamento' ? 'Encaminhamento' : `ASO (${editFormData.aso_type})`
                                                 }
                                             }
                                         };
 
                                         const updatedHistory = [...(editingEntry.edit_history || []), newAudit];
 
-                                        // Detecta tipo ASO selecionado no form
+                                        // Detecta tipo selecionado
                                         const asoTypeLabel = editFormData.aso_type;
+                                        const isEncaminhamento = asoTypeLabel === 'Encaminhamento';
                                         
                                         // 2. Salvar no Banco
                                         const { error } = await supabase
                                             .from('aso_history')
                                             .update({
-                                                aso_type: `ASO (${asoTypeLabel})`, // Novo campo aso_type se tiver mudado
+                                                aso_type: isEncaminhamento ? 'Encaminhamento' : `ASO (${asoTypeLabel})`,
                                                 servidor_nome: editFormData.servidor_nome,
                                                 servidor_cpf: editFormData.servidor_cpf,
                                                 servidor_nascimento: editFormData.servidor_nascimento || null,
                                                 cargo: editFormData.cargo,
                                                 secretaria: editFormData.secretaria,
-                                                ghe_conj: editFormData.function_ghe, // Atualiza GHE
+                                                ghe_conj: editFormData.function_ghe, 
                                                 function_name: editFormData.function_name,
                                                 risks: editFormData.risks,
                                                 exams_json: editFormData.exams,
@@ -1867,7 +1953,7 @@ useEffect(() => {
                                         if (error) throw error;
 
                                         // 3. Reemitir PDF
-                                        const { generateASOPDF } = await import("@/lib/pdf-generator");
+                                        const { generateASOPDF, generateReferralPDF } = await import("@/lib/pdf-generator");
 
                                         const servidorMock = {
                                             Nome: editFormData.servidor_nome,
@@ -1885,9 +1971,13 @@ useEffect(() => {
                                         };
 
                                         const datesMock = editFormData.exams.map((e: any) => e.date);
-                                        const operatorName = editingEntry.operator_name || "SISTEMA";
+                                        const operatorName = userName.toUpperCase(); 
 
-                                        generateASOPDF(servidorMock, currentExamsMock, asoTypeLabel, datesMock, operatorName);
+                                        if (isEncaminhamento) {
+                                            generateReferralPDF(servidorMock, currentExamsMock, asoTypeLabel, datesMock, operatorName);
+                                        } else {
+                                            generateASOPDF(servidorMock, currentExamsMock, asoTypeLabel, datesMock, operatorName);
+                                        }
 
                                         alert("Alterações salvas com sucesso! O novo PDF foi gerado.");
                                         setIsEditModalOpen(false);
