@@ -606,6 +606,13 @@ export default function AnalyticsPage() {
 
                         <div className="flex items-center gap-2">
                             <button
+                                onClick={() => router.push('/history')}
+                                className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                            >
+                                <HistoryIcon className="w-3.5 h-3.5" />
+                                Histórico
+                            </button>
+                            <button
                                 onClick={handlePrintReport}
                                 className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
