@@ -123,6 +123,7 @@ export default function AnalyticsPage() {
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
     const [showHourAnalysis, setShowHourAnalysis] = useState(false);
+    const [selectedDay, setSelectedDay] = useState<number | 'all'>('all');
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -282,29 +283,56 @@ export default function AnalyticsPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 10);
 
-        // Fluxo por Hora (07h às 18h)
+        // Fluxo por Hora (07h às 18h) - Respeitando o dia selecionado
         const hourMap: Record<number, number> = {};
         for (let i = 7; i <= 18; i++) hourMap[i] = 0;
-        
+
+        // Fluxo por Dia da Semana (1-5: Seg-Sex)
+        const dayMap: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
         filteredHistory.forEach((h) => {
             const hDate = new Date(h.generated_at);
+            const day = hDate.getDay();
             const hour = hDate.getHours();
+
+            if (day >= 1 && day <= 5) {
+                dayMap[day] = (dayMap[day] || 0) + 1;
+            }
+
             if (hour >= 7 && hour <= 18) {
-                hourMap[hour] = (hourMap[hour] || 0) + 1;
+                if (selectedDay === 'all' || day === selectedDay) {
+                    hourMap[hour] = (hourMap[hour] || 0) + 1;
+                }
             }
         });
 
         const byHour = Object.keys(hourMap).map((h) => {
             const hNum = parseInt(h);
             const hourLabel = hNum < 10 ? `0${hNum}h` : `${hNum}h`;
-            return {
-                hour: hourLabel,
-                total: hourMap[hNum],
-            };
+            return { hour: hourLabel, total: hourMap[hNum] };
         });
 
-        return { byDate, byType, bySecretaria, byHour };
-    }, [filteredHistory]);
+        const weekDays = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+        const byDayOfWeek = Object.keys(dayMap).map((d) => ({
+            dayNum: parseInt(d),
+            name: weekDays[parseInt(d)],
+            total: dayMap[parseInt(d)],
+        }));
+
+        // Cálculos de Pico para evitar erros no render
+        const peakHourObj = byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 });
+        const peakDayObj = byDayOfWeek.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { name: '--', total: 0 });
+
+        return { 
+            byDate, 
+            byType, 
+            bySecretaria, 
+            byHour, 
+            byDayOfWeek,
+            peakHour: peakHourObj.total > 0 ? peakHourObj.hour : '--',
+            peakDay: peakDayObj.total > 0 ? peakDayObj.name : '--'
+        };
+    }, [filteredHistory, selectedDay]);
 
     const COLORS = ["#1A3351", "#E31E24", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
@@ -922,14 +950,39 @@ export default function AnalyticsPage() {
                                         Identificação de Gargalos e Picos de Atendimento (07:00 - 18:00)
                                     </p>
                                 </div>
-                                <div className="bg-white/5 p-3 border border-white/10 rounded-lg">
-                                    <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Maior Fluxo</p>
-                                    <p className="text-blue-400 text-lg font-black text-center lg:text-right leading-none">
-                                        {chartData?.byHour && chartData.byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 }).total > 0
-                                            ? chartData.byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 }).hour
-                                            : '--'}
-                                    </p>
+                                <div className="flex flex-col lg:flex-row gap-3 items-end">
+                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
+                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Dia de Maior Fluxo</p>
+                                        <p className="text-emerald-400 text-lg font-black text-center lg:text-right leading-none">
+                                            {chartData?.peakDay || '--'}
+                                        </p>
+                                    </div>
+                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
+                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Pico</p>
+                                        <p className="text-blue-400 text-lg font-black text-center lg:text-right leading-none">
+                                            {chartData?.peakHour || '--'}
+                                        </p>
+                                    </div>
                                 </div>
+                            </div>
+
+                            {/* SELETOR DE DIA DA SEMANA */}
+                            <div className="flex flex-wrap gap-2 mb-6 border-b border-white/5 pb-4">
+                                <button
+                                    onClick={() => setSelectedDay('all')}
+                                    className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === 'all' ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                >
+                                    Visão Geral
+                                </button>
+                                {chartData?.byDayOfWeek?.map((day) => (
+                                    <button
+                                        key={day.dayNum}
+                                        onClick={() => setSelectedDay(day.dayNum)}
+                                        className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === day.dayNum ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                    >
+                                        {day.name}
+                                    </button>
+                                ))}
                             </div>
 
                             <div className="h-[250px] lg:h-[300px] w-full">
