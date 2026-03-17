@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 
 import { Servidor, Funcao, ExameData } from "@/types";
 import { generateASOPDF, generateReferralPDF } from "@/lib/pdf-generator";
-import { syncProfile, handleAuthError } from "@/lib/auth-utils";
+import { syncProfile, handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -33,7 +33,7 @@ export default function Home() {
 
   // Verificar autenticação e carregar perfil
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    safeGetSession().then(({ session, error }) => {
       if (error) {
         handleAuthError(error);
         return;
@@ -282,7 +282,7 @@ export default function Home() {
 
     setIsGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { session } = await safeGetSession();
       const operatorName = session?.user?.email?.split('@')[0].toUpperCase() || "USUARIO";
 
       // Geração de PDF Local (Online / Browser-side) - Removeu dependência do server.py

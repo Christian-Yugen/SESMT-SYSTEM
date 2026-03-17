@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, X, Menu,
     ClipboardList, Search, Save, ChevronLeft, Loader2, User, Calendar, History as HistoryIcon,
@@ -49,7 +49,7 @@ export default function NewPortariaPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) { await handleAuthError(error); return; }
                 if (session) {
                     const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
@@ -202,7 +202,7 @@ export default function NewPortariaPage() {
 
         setSaving(true);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await safeGetSession();
             const operatorName = session?.user?.email?.split('@')[0]?.toUpperCase() || "SISTEMA";
 
             const { error } = await supabase

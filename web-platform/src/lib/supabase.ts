@@ -19,29 +19,39 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 if (typeof window !== 'undefined') {
     supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_OUT') {
-            // Limpar storage key ao fazer logout
             localStorage.removeItem('sesmt-auth-session');
             console.log("Auth event: SIGNED_OUT");
         }
 
-        // Captura falha no refresh do token (sessão nula após tentativa de refresh)
+        // Se o refresh falhar (eventual TOKEN_REFRESHED sem sessão) ou se houver erro crítico
         if (event === 'TOKEN_REFRESHED' && !session) {
-            console.warn("Token refresh falhou. Limpando sessão corrompida...");
+            console.warn("Token refresh falhou. Limpando sessão...");
             localStorage.removeItem('sesmt-auth-session');
-            try { await supabase.auth.signOut(); } catch (_) { /* ignora erro no signOut */ }
-            window.location.href = '/login';
+            try { await supabase.auth.signOut(); } catch (_) {}
+            
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
         }
     });
 
     // Intercepta erros silenciosos do auto-refresh ao inicializar
     supabase.auth.getSession().then(({ error }) => {
-        if (error?.message?.includes('Refresh Token Not Found') ||
-            error?.message?.includes('invalid refresh token')) {
-            console.warn("Sessão inválida detectada na inicialização. Redirecionando...");
-            localStorage.removeItem('sesmt-auth-session');
-            supabase.auth.signOut().finally(() => {
-                window.location.href = '/login';
-            });
+        if (error) {
+            const isRefreshError = error.message?.includes('Refresh Token Not Found') || 
+                                 error.message?.includes('invalid refresh token') ||
+                                 error.status === 400;
+            
+            if (isRefreshError) {
+                console.warn("Sessão expirada detectada. Limpando storage...");
+                localStorage.removeItem('sesmt-auth-session');
+                // Não forçamos redirect aqui se já estivermos na login, o middleware/páginas tratam
+                if (!window.location.pathname.includes('/login')) {
+                    supabase.auth.signOut().finally(() => {
+                        window.location.href = '/login';
+                    });
+                }
+            }
         }
     });
 }

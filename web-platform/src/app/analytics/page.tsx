@@ -41,7 +41,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleAuthError } from "@/lib/auth-utils";
+import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -115,15 +115,20 @@ export default function AnalyticsPage() {
     const [filterUser] = useState("all");
     const [filterType, setFilterType] = useState("all");
     const [filterSecretaria, setFilterSecretaria] = useState("all");
+    const [filterShift, setFilterShift] = useState("all");
+    const [selectedAsoSubtypes, setSelectedAsoSubtypes] = useState<string[]>([]);
+    const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
+    const [showHourAnalysis, setShowHourAnalysis] = useState(false);
+    const [selectedDay, setSelectedDay] = useState<number | 'all'>('all');
 
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { session, error } = await safeGetSession();
                 if (error) {
                     await handleAuthError(error);
                     return;
@@ -211,16 +216,33 @@ export default function AnalyticsPage() {
             const matchesStartDate = !startDate || entryDate >= startDate;
             const matchesEndDate = !endDate || entryDate <= endDate;
 
+            // Filtro de Turno (Manhã: 07:00-12:59, Tarde: 13:00-18h)
+            let matchesShift = true;
+            if (filterShift !== 'all') {
+                const hour = new Date(entry.generated_at).getHours();
+                if (filterShift === 'morning') {
+                    matchesShift = hour >= 7 && hour < 13;
+                } else if (filterShift === 'afternoon') {
+                    matchesShift = hour >= 13 && hour <= 18;
+                }
+            }
+
+            // Filtro de Subtipo de ASO (procura na string aso_type)
+            const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || 
+                                     (entry.aso_type && selectedAsoSubtypes.some(subtype => entry.aso_type.toUpperCase().includes(subtype)));
+
             return (
                 !!matchesSearch &&
                 matchesUser &&
                 matchesType &&
                 matchesSecretaria &&
                 matchesStartDate &&
-                matchesEndDate
+                matchesEndDate &&
+                matchesShift &&
+                matchesAsoSubtype
             );
         });
-    }, [history, searchTerm, filterUser, filterType, filterSecretaria, startDate, endDate]);
+    }, [history, searchTerm, filterUser, filterType, filterSecretaria, startDate, endDate, filterShift, selectedAsoSubtypes]);
 
     // Processamento de dados para Gráficos
     const chartData = useMemo(() => {
@@ -261,8 +283,56 @@ export default function AnalyticsPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 10);
 
-        return { byDate, byType, bySecretaria };
-    }, [filteredHistory]);
+        // Fluxo por Hora (07h às 18h) - Respeitando o dia selecionado
+        const hourMap: Record<number, number> = {};
+        for (let i = 7; i <= 18; i++) hourMap[i] = 0;
+
+        // Fluxo por Dia da Semana (1-5: Seg-Sex)
+        const dayMap: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+        filteredHistory.forEach((h) => {
+            const hDate = new Date(h.generated_at);
+            const day = hDate.getDay();
+            const hour = hDate.getHours();
+
+            if (day >= 1 && day <= 5) {
+                dayMap[day] = (dayMap[day] || 0) + 1;
+            }
+
+            if (hour >= 7 && hour <= 18) {
+                if (selectedDay === 'all' || day === selectedDay) {
+                    hourMap[hour] = (hourMap[hour] || 0) + 1;
+                }
+            }
+        });
+
+        const byHour = Object.keys(hourMap).map((h) => {
+            const hNum = parseInt(h);
+            const hourLabel = hNum < 10 ? `0${hNum}h` : `${hNum}h`;
+            return { hour: hourLabel, total: hourMap[hNum] };
+        });
+
+        const weekDays = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+        const byDayOfWeek = Object.keys(dayMap).map((d) => ({
+            dayNum: parseInt(d),
+            name: weekDays[parseInt(d)],
+            total: dayMap[parseInt(d)],
+        }));
+
+        // Cálculos de Pico para evitar erros no render
+        const peakHourObj = byHour.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { hour: '--', total: 0 });
+        const peakDayObj = byDayOfWeek.reduce((prev, curr) => (curr.total > prev.total ? curr : prev), { name: '--', total: 0 });
+
+        return { 
+            byDate, 
+            byType, 
+            bySecretaria, 
+            byHour, 
+            byDayOfWeek,
+            peakHour: peakHourObj.total > 0 ? peakHourObj.hour : '--',
+            peakDay: peakDayObj.total > 0 ? peakDayObj.name : '--'
+        };
+    }, [filteredHistory, selectedDay]);
 
     const COLORS = ["#1A3351", "#E31E24", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
@@ -606,6 +676,13 @@ export default function AnalyticsPage() {
 
                         <div className="flex items-center gap-2">
                             <button
+                                onClick={() => router.push('/history')}
+                                className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                            >
+                                <HistoryIcon className="w-3.5 h-3.5" />
+                                Histórico
+                            </button>
+                            <button
                                 onClick={handlePrintReport}
                                 className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
@@ -645,6 +722,92 @@ export default function AnalyticsPage() {
                             <option value="all">TODOS DOCUMENTOS</option>
                             <option value="ASO">ASO</option>
                             <option value="Encaminhamento">Encaminhamento</option>
+                        </select>
+
+                        {filterType === 'ASO' && (
+                            <div className="relative flex-1 md:flex-none">
+                                <button
+                                    onClick={() => setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)}
+                                    className={`flex items-center justify-between gap-2 px-4 py-2 bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
+                                >
+                                    <span className="truncate">
+                                        {selectedAsoSubtypes.length === 0 
+                                            ? "TODOS TIPOS DE ASO" 
+                                            : `ASO: ${selectedAsoSubtypes.length} SELEC.`}
+                                    </span>
+                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isAsoSubtypeFilterOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {isAsoSubtypeFilterOpen && (
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-[140]" 
+                                            onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                        />
+                                        <div className="absolute top-full left-0 mt-1 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[150] p-3 animate-in fade-in slide-in-from-top-2 rounded-lg overflow-hidden text-black">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                                                    <span className="text-[9px] font-black text-[#1A3351] uppercase">Selecionar Tipos</span>
+                                                    {selectedAsoSubtypes.length > 0 && (
+                                                        <button 
+                                                            onClick={() => setSelectedAsoSubtypes([])}
+                                                            className="text-[8px] font-black text-[#E31E24] hover:underline uppercase"
+                                                        >
+                                                            Limpar
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                
+                                                {[
+                                                    { id: 'ADMISS', label: 'ADMISSIONAL' },
+                                                    { id: 'DEMISS', label: 'DEMISSIONAL' },
+                                                    { id: 'RETORNO', label: 'RETORNO AO TRABALHO' },
+                                                    { id: 'MUDANÇA', label: 'MUDANÇA DE FUNÇÃO' },
+                                                    { id: 'PERIÓDIC', label: 'PERIÓDICO' }
+                                                ].map((type) => (
+                                                    <label 
+                                                        key={type.id} 
+                                                        className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded transition-colors group"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                                            checked={selectedAsoSubtypes.includes(type.id)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedAsoSubtypes([...selectedAsoSubtypes, type.id]);
+                                                                } else {
+                                                                    setSelectedAsoSubtypes(selectedAsoSubtypes.filter(s => s !== type.id));
+                                                                }
+                                                            }}
+                                                        />
+                                                        <span className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? 'text-[#1A3351]' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                                                            {type.label}
+                                                        </span>
+                                                    </label>
+                                                ))}
+
+                                                <button
+                                                    onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                                    className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 rounded transition-all"
+                                                >
+                                                    Fechar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        <select
+                            value={filterShift}
+                            onChange={(e) => setFilterShift(e.target.value)}
+                            className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none cursor-pointer focus:border-[#1A3351]"
+                        >
+                            <option value="all">TODOS OS TURNOS</option>
+                            <option value="morning">MANHÃ (07h - 13h)</option>
+                            <option value="afternoon">TARDE (13h - 18h)</option>
                         </select>
 
                         <div className="relative flex-1 lg:flex-none lg:min-w-[180px]">
@@ -688,11 +851,13 @@ export default function AnalyticsPage() {
                             )}
                         </div>
 
-                        {(filterSecretaria !== "all" || filterType !== "all" || startDate || endDate) && (
+                        {(filterSecretaria !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
                             <button
                                 onClick={() => {
                                     setFilterSecretaria("all");
                                     setFilterType("all");
+                                    setFilterShift("all");
+                                    setSelectedAsoSubtypes([]);
                                     setStartDate("");
                                     setEndDate("");
                                 }}
@@ -701,6 +866,16 @@ export default function AnalyticsPage() {
                                 <X className="w-3 h-3" /> Zerar Filtros
                             </button>
                         )}
+
+                        <div className="ml-auto">
+                            <button
+                                onClick={() => setShowHourAnalysis(!showHourAnalysis)}
+                                className={`px-6 py-2.5 lg:py-2 text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 whitespace-nowrap ${showHourAnalysis ? 'bg-blue-600 text-white border-blue-400' : 'bg-[#1A3351] text-white hover:brightness-110'}`}
+                            >
+                                <TrendingUp className="w-3.5 h-3.5" />
+                                {showHourAnalysis ? "Ocultar Análise" : "Análise de Pico"}
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -732,6 +907,7 @@ export default function AnalyticsPage() {
                             <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
                         </div>
 
+
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-lg lg:rounded-none">
                             <div>
                                 <p className="text-[8px] lg:text-[10px] font-black text-black/40 uppercase tracking-widest leading-tight">
@@ -760,6 +936,103 @@ export default function AnalyticsPage() {
                             <Building2 className="w-4 h-4 text-emerald-100 hidden sm:block" />
                         </div>
                     </div>
+
+                    {/* EXPANDABLE INSIGHTS: FLUXO HORÁRIO */}
+                    {showHourAnalysis && (
+                        <div className="bg-[#1A3351] p-4 lg:p-6 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500 rounded-xl lg:rounded-none border-b-4 border-blue-500/30">
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                                <div>
+                                    <h3 className="text-white font-black text-sm lg:text-base uppercase tracking-tight flex items-center gap-2">
+                                        <TrendingUp className="w-5 h-5 text-blue-400" />
+                                        Fluxo Operacional por Hora
+                                    </h3>
+                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">
+                                        Identificação de Gargalos e Picos de Atendimento (07:00 - 18:00)
+                                    </p>
+                                </div>
+                                <div className="flex flex-col lg:flex-row gap-3 items-end">
+                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
+                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Dia de Maior Fluxo</p>
+                                        <p className="text-emerald-400 text-lg font-black text-center lg:text-right leading-none">
+                                            {chartData?.peakDay || '--'}
+                                        </p>
+                                    </div>
+                                    <div className="bg-white/5 p-3 border border-white/10 rounded-lg min-w-[140px]">
+                                        <p className="text-white/40 text-[8px] font-black uppercase tracking-widest mb-1 text-center lg:text-right">Horário de Pico</p>
+                                        <p className="text-blue-400 text-lg font-black text-center lg:text-right leading-none">
+                                            {chartData?.peakHour || '--'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SELETOR DE DIA DA SEMANA */}
+                            <div className="flex flex-wrap gap-2 mb-6 border-b border-white/5 pb-4">
+                                <button
+                                    onClick={() => setSelectedDay('all')}
+                                    className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === 'all' ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                >
+                                    Visão Geral
+                                </button>
+                                {chartData?.byDayOfWeek?.map((day) => (
+                                    <button
+                                        key={day.dayNum}
+                                        onClick={() => setSelectedDay(day.dayNum)}
+                                        className={`px-4 py-2 text-[9px] font-black uppercase rounded transition-all ${selectedDay === day.dayNum ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                    >
+                                        {day.name}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="h-[250px] lg:h-[300px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData.byHour} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorHour" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#E31E24" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#E31E24" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                        <XAxis
+                                            dataKey="hour"
+                                            stroke="rgba(255,255,255,0.3)"
+                                            fontSize={10}
+                                            fontWeight={900}
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'rgba(255,255,255,0.5)' }}
+                                            dy={10}
+                                        />
+                                        <YAxis hide />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#1A3351',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                borderRadius: '8px',
+                                                fontSize: '10px',
+                                                fontWeight: '900',
+                                                color: '#fff',
+                                                textTransform: 'uppercase'
+                                            }}
+                                            itemStyle={{ color: '#3b82f6' }}
+                                            cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="total"
+                                            stroke="#3b82f6"
+                                            strokeWidth={4}
+                                            fillOpacity={1} 
+                                            fill="url(#colorHour)" 
+                                            animationDuration={1500}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    )}
 
                     {/* GRID DE GRÁFICOS (Ranking maior / Tipo menor) */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
