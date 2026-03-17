@@ -115,6 +115,9 @@ export default function AnalyticsPage() {
     const [filterUser] = useState("all");
     const [filterType, setFilterType] = useState("all");
     const [filterSecretaria, setFilterSecretaria] = useState("all");
+    const [filterShift, setFilterShift] = useState("all");
+    const [selectedAsoSubtypes, setSelectedAsoSubtypes] = useState<string[]>([]);
+    const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
@@ -211,16 +214,33 @@ export default function AnalyticsPage() {
             const matchesStartDate = !startDate || entryDate >= startDate;
             const matchesEndDate = !endDate || entryDate <= endDate;
 
+            // Filtro de Turno (Manhã: 07:00-12:59, Tarde: 13:00-18:00)
+            let matchesShift = true;
+            if (filterShift !== 'all') {
+                const hour = new Date(entry.generated_at).getHours();
+                if (filterShift === 'morning') {
+                    matchesShift = hour >= 7 && hour < 13;
+                } else if (filterShift === 'afternoon') {
+                    matchesShift = hour >= 13 && hour <= 18;
+                }
+            }
+
+            // Filtro de Subtipo de ASO (id do tipo)
+            const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || 
+                                     (entry.aso_id && selectedAsoSubtypes.includes(entry.aso_id));
+
             return (
                 !!matchesSearch &&
                 matchesUser &&
                 matchesType &&
                 matchesSecretaria &&
                 matchesStartDate &&
-                matchesEndDate
+                matchesEndDate &&
+                matchesShift &&
+                matchesAsoSubtype
             );
         });
-    }, [history, searchTerm, filterUser, filterType, filterSecretaria, startDate, endDate]);
+    }, [history, searchTerm, filterUser, filterType, filterSecretaria, startDate, endDate, filterShift, selectedAsoSubtypes]);
 
     // Processamento de dados para Gráficos
     const chartData = useMemo(() => {
@@ -654,6 +674,92 @@ export default function AnalyticsPage() {
                             <option value="Encaminhamento">Encaminhamento</option>
                         </select>
 
+                        {filterType === 'ASO' && (
+                            <div className="relative flex-1 md:flex-none">
+                                <button
+                                    onClick={() => setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)}
+                                    className={`flex items-center justify-between gap-2 px-4 py-2 bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
+                                >
+                                    <span className="truncate">
+                                        {selectedAsoSubtypes.length === 0 
+                                            ? "TODOS TIPOS DE ASO" 
+                                            : `ASO: ${selectedAsoSubtypes.length} SELEC.`}
+                                    </span>
+                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isAsoSubtypeFilterOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {isAsoSubtypeFilterOpen && (
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-[140]" 
+                                            onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                        />
+                                        <div className="absolute top-full left-0 mt-1 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[150] p-3 animate-in fade-in slide-in-from-top-2 rounded-lg overflow-hidden text-black">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                                                    <span className="text-[9px] font-black text-[#1A3351] uppercase">Selecionar Tipos</span>
+                                                    {selectedAsoSubtypes.length > 0 && (
+                                                        <button 
+                                                            onClick={() => setSelectedAsoSubtypes([])}
+                                                            className="text-[8px] font-black text-[#E31E24] hover:underline uppercase"
+                                                        >
+                                                            Limpar
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                
+                                                {[
+                                                    { id: 'ADMISS', label: 'ADMISSIONAL' },
+                                                    { id: 'DEMISS', label: 'DEMISSIONAL' },
+                                                    { id: 'RETORNO', label: 'RETORNO AO TRABALHO' },
+                                                    { id: 'MUDANÇA', label: 'MUDANÇA DE FUNÇÃO' },
+                                                    { id: 'PERIÓDIC', label: 'PERIÓDICO' }
+                                                ].map((type) => (
+                                                    <label 
+                                                        key={type.id} 
+                                                        className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded transition-colors group"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                                            checked={selectedAsoSubtypes.includes(type.id)}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedAsoSubtypes([...selectedAsoSubtypes, type.id]);
+                                                                } else {
+                                                                    setSelectedAsoSubtypes(selectedAsoSubtypes.filter(s => s !== type.id));
+                                                                }
+                                                            }}
+                                                        />
+                                                        <span className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? 'text-[#1A3351]' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                                                            {type.label}
+                                                        </span>
+                                                    </label>
+                                                ))}
+
+                                                <button
+                                                    onClick={() => setIsAsoSubtypeFilterOpen(false)}
+                                                    className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 rounded transition-all"
+                                                >
+                                                    Fechar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        <select
+                            value={filterShift}
+                            onChange={(e) => setFilterShift(e.target.value)}
+                            className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none cursor-pointer focus:border-[#1A3351]"
+                        >
+                            <option value="all">TODOS OS TURNOS</option>
+                            <option value="morning">MANHÃ (07h - 13h)</option>
+                            <option value="afternoon">TARDE (13h - 18h)</option>
+                        </select>
+
                         <div className="relative flex-1 lg:flex-none lg:min-w-[180px]">
                             <button
                                 onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
@@ -695,11 +801,13 @@ export default function AnalyticsPage() {
                             )}
                         </div>
 
-                        {(filterSecretaria !== "all" || filterType !== "all" || startDate || endDate) && (
+                        {(filterSecretaria !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
                             <button
                                 onClick={() => {
                                     setFilterSecretaria("all");
                                     setFilterType("all");
+                                    setFilterShift("all");
+                                    setSelectedAsoSubtypes([]);
                                     setStartDate("");
                                     setEndDate("");
                                 }}
