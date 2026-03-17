@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2, Lock, User, ShieldCheck, Activity, Eye, EyeOff } from "lucide-react";
 import { syncProfile } from "@/lib/auth-utils";
 
 export default function LoginPage() {
-    const [mode, setMode] = useState<"login" | "signup">("login");
+    const [mode, setMode] = useState<"login" | "signup" | "forgot-password">("login");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,6 +17,16 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                router.push("/");
+            }
+        };
+        checkUser();
+    }, [router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,12 +62,12 @@ export default function LoginPage() {
                 await syncProfile(data.session);
                 router.push("/");
             }
-        } else {
+        } else if (mode === "signup") {
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: window.location.origin
+                    emailRedirectTo: `${window.location.origin}/login`
                 }
             });
 
@@ -77,6 +87,18 @@ export default function LoginPage() {
                     setConfirmPassword("");
                     setLoading(false);
                 }
+            }
+        } else if (mode === "forgot-password") {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            });
+
+            if (error) {
+                setError("Erro ao enviar e-mail de recuperação: " + error.message);
+                setLoading(false);
+            } else {
+                setSuccess("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
+                setLoading(false);
             }
         }
     };
@@ -98,7 +120,7 @@ export default function LoginPage() {
                         </h1>
                         <div className="h-1 w-20 bg-[#E31E24] rounded-full mx-auto mt-0.5"></div>
                         <p className="text-[11px] font-black text-[#1A3351]/70 uppercase tracking-[0.4em] mt-1.5">
-                            {mode === "login" ? "Acesso ao Sistema" : "Novo Cadastro"}
+                            {mode === "login" ? "Acesso ao Sistema" : mode === "signup" ? "Novo Cadastro" : "Recuperar Senha"}
                         </p>
                     </div>
                 </div>
@@ -139,27 +161,40 @@ export default function LoginPage() {
                             )}
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none text-left block">Senha de Acesso</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    placeholder="••••••••"
-                                    className="w-full px-10 py-2.5 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#E31E24] transition-colors"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#1A3351] transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                        {mode !== "forgot-password" && (
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-center ml-1">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none text-left block">Senha de Acesso</label>
+                                    {mode === "login" && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setMode("forgot-password")}
+                                            className="text-[9px] font-bold text-[#E31E24] hover:underline"
+                                        >
+                                            ESQUECI A SENHA
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        placeholder="••••••••"
+                                        className="w-full px-10 py-2.5 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#E31E24] transition-colors"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#1A3351] transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {mode === "signup" && (
                             <div className="space-y-1 animate-in slide-in-from-top-1 duration-300">
@@ -196,7 +231,13 @@ export default function LoginPage() {
                         ) : (
                             <>
                                 <Activity className="w-5 h-5" />
-                                <span>{mode === "login" ? "Entrar no Sistema" : "Finalizar Cadastro"}</span>
+                                <span>
+                                    {mode === "login" 
+                                        ? "Entrar no Sistema" 
+                                        : mode === "signup" 
+                                            ? "Finalizar Cadastro" 
+                                            : "Enviar E-mail de Recuperação"}
+                                </span>
                             </>
                         )}
                     </button>
