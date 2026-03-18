@@ -160,13 +160,13 @@ export default function Sidebar({
                             <LayoutDashboard className="w-3 h-3 shrink-0" />
                             <span>Painel de Gestão</span>
                           </button>
-                          <button onClick={() => router.push('/abono/lei')} className={`w-full flex items-center gap-2 p-2 pl-9 rounded-lg font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group ${pathname === '/abono/lei' ? 'bg-white/5 text-sky-400 border-l-2 border-sky-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}>
-                            <Scale className="w-3 h-3 shrink-0" />
-                            <span>Legislação e Regras</span>
-                          </button>
                           <button onClick={() => router.push('/abono/portarias')} className={`w-full flex items-center gap-2 p-2 pl-9 rounded-lg font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group ${pathname === '/abono/portarias' ? 'bg-white/5 text-amber-400 border-l-2 border-amber-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}>
                             <FileText className="w-3 h-3 shrink-0" />
                             <span>Portarias</span>
+                          </button>
+                          <button onClick={() => router.push('/abono/lei')} className={`w-full flex items-center gap-2 p-2 pl-9 rounded-lg font-bold text-[9px] uppercase tracking-wider whitespace-nowrap group ${pathname === '/abono/lei' ? 'bg-white/5 text-sky-400 border-l-2 border-sky-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}>
+                            <Scale className="w-3 h-3 shrink-0" />
+                            <span>Legislação e Regras</span>
                           </button>
                         </div>
                       )}

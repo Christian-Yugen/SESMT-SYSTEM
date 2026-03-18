@@ -26,8 +26,6 @@ interface PortariaRecord {
     periodo_inicio: string;
     periodo_fim: string;
     data_portaria: string;
-    assomasul_numero?: string;
-    assomasul_data?: string;
     criado_por: string;
     criado_por_nome: string;
     created_at: string;
@@ -244,9 +242,7 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria),
-            assomasul_numero: record.assomasul_numero,
-            assomasul_data: formatDate(record.assomasul_data)
+            data_portaria: formatDate(record.data_portaria)
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -262,9 +258,7 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria),
-            assomasul_numero: record.assomasul_numero,
-            assomasul_data: formatDate(record.assomasul_data)
+            data_portaria: formatDate(record.data_portaria)
         };
         generatePortariaPDF(portariaData, 'download');
     };
@@ -281,9 +275,7 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria),
-            assomasul_numero: record.assomasul_numero,
-            assomasul_data: formatDate(record.assomasul_data)
+            data_portaria: formatDate(record.data_portaria)
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -507,13 +499,6 @@ export default function PortariasPage() {
                                                         <FileText className="w-4 h-4 text-amber-500" /> Documento Oficial
                                                     </span>
                                                     <div className="space-y-1">
-                                                        {entry.assomasul_data && (
-                                                            <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter">Data Publicação Assomasul: {formatDate(entry.assomasul_data)}</p>
-                                                        )}
-                                                        {entry.assomasul_numero && (
-                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {entry.assomasul_numero}</p>
-                                                        )}
-                                                        <div className="h-px bg-slate-100 my-1.5" />
                                                         <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase">Data Emissão: {formatDate(entry.data_portaria)}</p>
                                                     </div>
@@ -547,19 +532,19 @@ export default function PortariasPage() {
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadPDF(entry)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
                                                     >
                                                         <Printer className="w-3.5 h-3.5" /> Baixar PDF
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadDOCX(entry)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-blue-600 text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#2B579A] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
                                                     >
                                                         <Download className="w-3.5 h-3.5" /> Exportar Word
                                                     </button>
                                                     <button
                                                         onClick={() => router.push(`/abono/portarias/edit/${entry.id}`)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-amber-500 text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
                                                     >
                                                         <PencilLine className="w-3.5 h-3.5" /> Editar Portaria
                                                     </button>
