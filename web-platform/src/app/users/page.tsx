@@ -38,6 +38,7 @@ export default function UsersPage() {
     const [inviteRole, setInviteRole] = useState("admin");
     const [inviteLoading, setInviteLoading] = useState(false);
     const [userName, setUserName] = useState<string>("Usuário");
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -55,6 +56,7 @@ export default function UsersPage() {
                         router.push("/");
                         return;
                     }
+                    setUserRole(prof.role);
 
                     const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || "Administrador";
                     setUserName(name);
