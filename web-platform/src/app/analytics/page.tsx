@@ -42,6 +42,11 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import WelcomeModal from "@/components/WelcomeModal";
+import GreetingsManagerModal from "@/components/GreetingsManagerModal";
+import Sidebar from "@/components/layout/Sidebar";
+import { MessageSquarePlus } from "lucide-react";
+
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -107,12 +112,13 @@ export default function AnalyticsPage() {
     const router = useRouter();
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
-    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
-    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [session, setSession] = useState<any>(null);
+
 
     // Filtros
     const [searchTerm] = useState("");
-    const [filterUser, setFilterUser] = useState("all");
+    const [filterOperator, setFilterOperator] = useState("all");
+    const [showGreetingsManager, setShowGreetingsManager] = useState(false);
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
 
     // Extrair operadores únicos presentes no histórico
@@ -138,6 +144,7 @@ export default function AnalyticsPage() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+    const [isAdminOpen, setIsAdminOpen] = useState(false);
     const [showHourAnalysis, setShowHourAnalysis] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | 'all'>('all');
 
@@ -151,6 +158,7 @@ export default function AnalyticsPage() {
                 }
 
                 if (session) {
+                    setSession(session); // Set session state
                     const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
                     if (data) setUserRole(data.role);
 
@@ -215,7 +223,7 @@ export default function AnalyticsPage() {
                 ?.toLowerCase()
                 ?.includes(searchTerm.toLowerCase());
 
-            const matchesUser = filterUser === "all" || entry.generated_by === filterUser;
+            const matchesUser = filterOperator === "all" || entry.generated_by === filterOperator;
 
             const matchesSecretaria =
                 filterSecretaria === "all" || entry.secretaria === filterSecretaria;
@@ -258,7 +266,7 @@ export default function AnalyticsPage() {
                 matchesAsoSubtype
             );
         });
-    }, [history, searchTerm, filterUser, filterType, filterSecretaria, startDate, endDate, filterShift, selectedAsoSubtypes]);
+    }, [history, searchTerm, filterOperator, filterType, filterSecretaria, startDate, endDate, filterShift, selectedAsoSubtypes]);
 
     // Processamento de dados para Gráficos
     const chartData = useMemo(() => {
@@ -555,166 +563,14 @@ export default function AnalyticsPage() {
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
-
-            <aside
-                className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
-            >
-                <div className="mb-8 flex flex-col items-center">
-                    <div className="flex justify-between items-center w-full lg:hidden mb-4">
-                        <span className="text-white font-bold text-xs uppercase">Menu</span>
-                        <button onClick={() => setIsSidebarOpen(false)}>
-                            <X className="w-6 h-6 text-white" />
-                        </button>
-                    </div>
-
-                    <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
-                        <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
-                    </div>
-
-                    <div className="text-center w-full px-1 mt-2">
-                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">
-                            SESMT SYSTEM
-                        </p>
-                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
-                            Olá, <span className="text-white">{userName}</span>
-                        </p>
-                    </div>
-                </div>
-
-                <nav className="flex-1 space-y-1">
-                    {userRole !== 'social_assistant' && (
-                        <>
-                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                                <span>Criar documentos</span>
-                            </button>
-                            {userRole !== 'viewer' && (
-                                <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                    <ClipboardList className="w-4 h-4 shrink-0" />
-                                    <span>Central de Evidências</span>
-                                </button>
-                            )}
-                        </>
-                    )}
-
-                    {userRole !== 'viewer' && (
-                        <div className="space-y-1">
-                            <button
-                                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
-                                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    <HeartPulse className="w-4 h-4 shrink-0" />
-                                    <span>Benefícios</span>
-                                </div>
-                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                    {userRole !== 'social_assistant' && (
-                                        <>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <Database className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Auxílio Doença</span>
-                                            </button>
-                                            <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                                <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                                <span>Readaptação</span>
-                                            </button>
-                                        </>
-                                    )}
-                                    {/* Abono Salarial - Restrito para nurse e operator */}
-                                    {userRole !== 'nurse' && userRole !== 'operator' && (
-                                        <button
-                                            onClick={() => router.push('/abono')}
-                                            className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                                        >
-                                            <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Abono Salarial</span>
-                                        </button>
-                                    )}
-                                    {userRole !== 'social_assistant' && (
-                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Redução de Jornada</span>
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-                        <div className="space-y-1">
-                            <div className="space-y-1">
-                                <button
-                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                                    className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                                >
-                                    <div className="flex items-center gap-1.5">
-                                        <HistoryIcon className="w-4 h-4 shrink-0" />
-                                        <span>Histórico</span>
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                                    <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                        <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                            <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Log Principal</span>
-                                        </button>
-                                        <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
-                                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Indicadores</span>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <FolderOpen className="w-4 h-4 shrink-0" />
-                                <span>Arquivo Médico</span>
-                            </button>
-                        </div>
-                    )}
-
-                    {userRole === "admin" && (
-                        <>
-                            <button onClick={() => router.push("/users")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <UsersIcon className="w-4 h-4 shrink-0" />
-                                <span>Usuários</span>
-                            </button>
-                            <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                                <Trash2 className="w-4 h-4 shrink-0" />
-                                <span>Exclusões Pendentes</span>
-                            </button>
-                        </>
-                    )}
-
-                </nav>
-
-                <div className="mt-auto space-y-4 px-4">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
-                    >
-                        <LogOut className="w-4 h-4" /> Sair
-                    </button>
-
-                    <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
-                        <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">
-                            Powered by
-                        </p>
-                        <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">
-                            UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span>
-                        </p>
-                    </div>
-                </div>
-            </aside>
+            {/* SIDEBAR */}
+            <Sidebar
+                userRole={userRole}
+                userName={userName}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
+                setShowGreetingsManager={setShowGreetingsManager}
+            />
 
             {/* MAIN */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
@@ -781,8 +637,8 @@ export default function AnalyticsPage() {
                         </select>
 
                         <select
-                            value={filterUser}
-                            onChange={(e) => setFilterUser(e.target.value)}
+                            value={filterOperator}
+                            onChange={(e) => setFilterOperator(e.target.value)}
                             className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none cursor-pointer focus:border-[#1A3351]"
                         >
                             <option value="all">TODOS OPERADORES</option>
@@ -930,11 +786,11 @@ export default function AnalyticsPage() {
                             )}
                         </div>
 
-                        {(filterSecretaria !== "all" || filterUser !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
+                        {(filterSecretaria !== "all" || filterOperator !== "all" || filterType !== "all" || filterShift !== "all" || selectedAsoSubtypes.length > 0 || startDate || endDate) && (
                             <button
                                 onClick={() => {
                                     setFilterSecretaria("all");
-                                    setFilterUser("all");
+                                    setFilterOperator("all");
                                     setFilterType("all");
                                     setFilterShift("all");
                                     setSelectedAsoSubtypes([]);
@@ -1239,6 +1095,7 @@ export default function AnalyticsPage() {
                                             }}
                                         />
                                     </PieChart>
+
                                 </ResponsiveContainer>
 
                                 <div className="absolute top-[40%] left-1/2 -translate-x-1/2 flex flex-col items-center">
@@ -1300,6 +1157,14 @@ export default function AnalyticsPage() {
                     </footer>
                 </div>
             </main>
-        </div >
+            {/* MODAL DE BOAS-VINDAS */}
+            <WelcomeModal userName={userName} />
+
+            <GreetingsManagerModal 
+                isOpen={showGreetingsManager} 
+                onClose={() => setShowGreetingsManager(false)} 
+                userId={session?.user?.id}
+            />
+        </div>
     );
 }
