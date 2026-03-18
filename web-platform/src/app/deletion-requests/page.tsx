@@ -8,6 +8,7 @@ import {
     BarChart3, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, CheckCircle, XCircle, AlertTriangle, ClipboardList, Eye, Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Sidebar from "@/components/layout/Sidebar";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
 interface DeletionRequest {
@@ -41,8 +42,6 @@ export default function DeletionRequestsPage() {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
     const [userName, setUserName] = useState<string>("Administrador");
-    const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
-    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     // Modal de confirmação para aprovar exclusão
     const [showApprovalModal, setShowApprovalModal] = useState(false);
@@ -275,140 +274,12 @@ export default function DeletionRequestsPage() {
     return (
         <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
             {/* SIDEBAR */}
-            <aside className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
-                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            `}>
-                <div className="mb-8 flex flex-col items-center">
-                    <div className="flex justify-between items-center w-full lg:hidden mb-4">
-                        <span className="text-white font-bold text-xs uppercase">Menu</span>
-                        <button onClick={() => setIsSidebarOpen(false)}>
-                            <X className="w-6 h-6 text-white" />
-                        </button>
-                    </div>
-                    <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
-                        <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
-                    </div>
-                    <div className="text-center w-full px-1 mt-2">
-                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
-                        <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
-                            Olá, <span className="text-white">{userName}</span>
-                        </p>
-                    </div>
-                </div>
-
-                <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <LayoutDashboard className="w-4 h-4 shrink-0" />
-                        <span>Criar documentos</span>
-                    </button>
-
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                        <ClipboardList className="w-4 h-4 shrink-0" />
-                        <span>Central de Evidências</span>
-                    </button>
-
-                    {/* BENEFÍCIOS COM SUBMENU */}
-                    <div className="space-y-1">
-                        <button
-                            onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
-                            className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                        >
-                            <div className="flex items-center gap-1.5">
-                                <HeartPulse className="w-4 h-4 shrink-0" />
-                                <span>Benefícios</span>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                            <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <Database className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Auxílio Doença</span>
-                                </button>
-                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Readaptação</span>
-                                </button>
-                                <button
-                                    onClick={() => router.push('/abono')}
-                                    className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                                >
-                                    <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Abono Salarial</span>
-                                </button>
-                                <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Redução de Jornada</span>
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="space-y-1">
-                        <button
-                            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                            className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                        >
-                            <div className="flex items-center gap-1.5">
-                                <HistoryIcon className="w-4 h-4 shrink-0" />
-                                <span>Histórico</span>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                            <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                                    <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Log Principal</span>
-                                </button>
-                                <button
-                                    onClick={() => router.push('/analytics')}
-                                    className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                                >
-                                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Indicadores</span>
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    <button
-                        onClick={() => router.push('/archive')}
-                        className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                    >
-                        <FolderOpen className="w-4 h-4 shrink-0" />
-                        <span>Arquivo Médico</span>
-                    </button>
-
-                    {userRole === 'admin' && (
-                        <>
-                            <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                                <UsersIcon className="w-4 h-4 shrink-0" />
-                                <span>Usuários</span>
-                            </button>
-                            <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 transition-all">
-                                <Trash2 className="w-4 h-4 shrink-0" />
-                                <span>Exclusões Pendentes</span>
-                            </button>
-                        </>
-                    )}
-                </nav>
-
-                <div className="mt-auto space-y-4">
-                    <button onClick={handleLogout} className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px] px-4">
-                        <LogOut className="w-4 h-4" /> Sair
-                    </button>
-                    <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
-                        <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">Powered by</p>
-                        <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">
-                            UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span>
-                        </p>
-                    </div>
-                </div>
-            </aside>
+            <Sidebar
+                userRole={userRole}
+                userName={userName}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
+            />
 
             {isSidebarOpen && (
                 <div

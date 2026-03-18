@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Sistema de Gestão de ASO e Exames",
 };
 
+import IdleLogout from "@/components/IdleLogout";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,6 +22,7 @@ export default function RootLayout({
         className={`${inter.className} antialiased`}
         suppressHydrationWarning
       >
+        <IdleLogout />
         {children}
       </body>
     </html>

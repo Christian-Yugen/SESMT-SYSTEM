@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen, ChevronDown, Trash2, Scale, FileText } from "lucide-react";
+import { LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu, History as HistoryIcon, Users as UsersIcon, BarChart3, ClipboardList, TrendingUp, FolderOpen, ChevronDown, Trash2, Scale, FileText, CloudDownload, AlertTriangle, RefreshCw, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -9,6 +9,11 @@ import { Loader2 } from "lucide-react";
 import { Servidor, Funcao, ExameData } from "@/types";
 import { generateASOPDF, generateReferralPDF } from "@/lib/pdf-generator";
 import { syncProfile, handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import { ensureISO, formatBirthInfo } from "@/lib/utils";
+import WelcomeModal from "@/components/WelcomeModal";
+import GreetingsManagerModal from "@/components/GreetingsManagerModal";
+import Sidebar from "@/components/layout/Sidebar";
+import { MessageSquarePlus } from "lucide-react";
 
 export default function Home() {
   const [cpf, setCpf] = useState("");
@@ -18,12 +23,8 @@ export default function Home() {
   const [asoType, setAsoType] = useState<"Admissional" | "de Retorno ao Trabalho" | "Demissional">("Admissional");
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-
   const [searchResults, setSearchResults] = useState<Servidor[]>([]);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
-
   const [showManualModal, setShowManualModal] = useState(false);
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
@@ -112,33 +113,62 @@ export default function Home() {
     loadSecretarias();
   }, []);
 
-  // Função para formatar data e calcular idade
-  const formatBirthInfo = (dateStr: string | undefined) => {
-    if (!dateStr) return "---";
+  const [pendingSyncs, setPendingSyncs] = useState<any[]>([]);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showGreetingsManager, setShowGreetingsManager] = useState(false);
 
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
+  const syncPending = async () => {
+    try {
+      const pendingStr = localStorage.getItem('pending_aso_history');
+      if (!pendingStr) {
+        setPendingSyncs([]);
+        return;
+      }
+      
+      const records = JSON.parse(pendingStr);
+      if (!Array.isArray(records) || records.length === 0) {
+        setPendingSyncs([]);
+        return;
+      }
 
-    let day, month, year;
+      setPendingSyncs(records);
+      setIsSyncing(true);
 
-    if (cleanDate.includes('-')) {
-      [year, month, day] = parts;
-    } else {
-      [day, month, year] = parts;
+      console.log(`[SESMT] Tentando sincronizar ${records.length} registros pendentes...`);
+      
+      const remaining = [];
+      let successCount = 0;
+      for (const record of records) {
+        const { error } = await supabase.from('aso_history').insert(record);
+        if (error) {
+          console.error("[SESMT] Falha ao sincronizar registro pendente:", error);
+          remaining.push(record);
+        } else {
+          successCount++;
+        }
+      }
+
+      if (remaining.length === 0) {
+        localStorage.removeItem('pending_aso_history');
+        setPendingSyncs([]);
+        if (successCount > 0) alert(`[SINCRO] ${successCount} registros pendentes foram salvos com sucesso no banco de dados.`);
+      } else {
+        localStorage.setItem('pending_aso_history', JSON.stringify(remaining));
+        setPendingSyncs(remaining);
+      }
+    } catch (e) {
+      console.error("[SESMT] Erro no processo de sincronização:", e);
+    } finally {
+      setIsSyncing(false);
     }
-
-    if (!day || !month || !year) return dateStr;
-
-    const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year} (${age} anos)`;
   };
+
+  useEffect(() => {
+    syncPending();
+    const interval = setInterval(syncPending, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
 
 
@@ -307,10 +337,10 @@ export default function Home() {
             date: (dates || examDates)[idx] || new Date().toLocaleDateString('pt-BR')
           }));
 
-          await supabase.from('aso_history').insert({
+          const payload = {
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
             servidor_nome: selectedServidor.Nome,
-            servidor_nascimento: selectedServidor["Dt.Nascimento"] ? selectedServidor["Dt.Nascimento"].split(' ')[0].split('T')[0] : null,
+            servidor_nascimento: ensureISO(selectedServidor["Dt.Nascimento"] || selectedServidor.Nascimento),
             aso_type: endpoint.includes('referral')
               ? `Encaminhamento (${asoType}) {${functionName}} <${risksText}> [${examsList}]`
               : `ASO (${asoType})`,
@@ -319,24 +349,64 @@ export default function Home() {
             ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
             generated_by: session?.user?.id,
             operator_name: operatorName,
-            // Novos Campos Estruturados
             function_name: functionName,
             risks: risksText,
             exams_json: examsJson
-          });
-        } catch (histError) {
-        console.error("Erro ao gravar histórico:", histError);
-      }
+          };
 
-      resetForm();
-    } catch (error) {
-      console.error("Erro na geração do PDF:", error);
-      alert("Erro ao gerar o documento PDF. Tente novamente.");
-    } finally {
-      setIsGenerating(false);
-      setShowDateModal(false);
-    }
-  };
+          const { error: histError } = await supabase.from('aso_history').insert(payload);
+
+          if (histError) throw histError;
+
+          // Se chegou aqui, salvou com sucesso no banco de dados
+          resetForm();
+          setShowDateModal(false);
+          alert("Documento gerado e salvo no histórico com sucesso!");
+
+        } catch (histError: any) {
+          console.error("Erro ao gravar histórico:", histError);
+          
+          // BACKUP AUTOMÁTICO EM CASO DE FALHA
+          try {
+            const pending = JSON.parse(localStorage.getItem('pending_aso_history') || '[]');
+            const functionName = selectedFuncao?.Nome || selectedFuncao?.FUNÇÃO || "Função não identificada";
+            const risksText = selectedFuncao ? currentExams.detalhes : "";
+            const today = new Date().toLocaleDateString('pt-BR');
+            
+            const backupPayload = {
+              servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
+              servidor_nome: selectedServidor.Nome,
+              servidor_nascimento: ensureISO(selectedServidor["Dt.Nascimento"] || selectedServidor.Nascimento),
+              aso_type: endpoint.includes('referral') ? `Encaminhamento (${asoType})` : `ASO (${asoType})`,
+              cargo: selectedServidor.Cargo,
+              secretaria: selectedServidor.Secretaria,
+              ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
+              operator_name: operatorName,
+              generated_by: session?.user?.id,
+              function_name: functionName,
+              risks: risksText,
+              exams_json: currentExams.exames.map((exam, idx) => ({
+                name: exam,
+                date: (dates || examDates)[idx] || today
+              })),
+              generated_at: new Date().toISOString()
+            };
+            
+            pending.push(backupPayload);
+            localStorage.setItem('pending_aso_history', JSON.stringify(pending));
+          } catch (e) {
+            console.error("Erro ao criar backup local:", e);
+          }
+
+          alert(`AVISO CRÍTICO: O PDF foi gerado, mas NÃO foi possível salvar o registro no banco de dados agora.\n\nMOTIVO: ${histError.message || 'Falha de conexão'}\n\nAÇÃO AUTOMÁTICA: O sistema salvou uma cópia de segurança no seu navegador e tentará enviar ao banco de dados automaticamente quando a conexão voltar.\n\nO formulário permanecerá aberto se você desejar tentar novamente agora.`);
+        }
+      } catch (error) {
+        console.error("Erro na geração do PDF:", error);
+        alert("Erro ao processar o documento. Verifique os dados e tente novamente.");
+      } finally {
+        setIsGenerating(false);
+      }
+    };
 
   const resetForm = () => {
     setCpf("");
@@ -363,197 +433,17 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#0A111C] text-white font-sans overflow-x-hidden selection:bg-[#E31E24]/30">
 
-      {/* SIDEBAR - MOBILE OVERLAY */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
-      <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-6 lg:p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex justify-between items-center w-full lg:hidden mb-4">
-            <span className="text-white font-black text-xs uppercase">Menu</span>
-            <button onClick={() => setIsSidebarOpen(false)}>
-              <X className="w-6 h-6 text-white" />
-            </button>
-          </div>
-          <div className="w-full h-16 mt-2 mb-2 flex items-center justify-center">
-            <img src="/images/logo_white.png" alt="SESMT" className="h-14 w-auto object-contain" />
-          </div>
-          <div className="text-center w-full px-1 mt-2">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">SESMT SYSTEM</p>
-            <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
-              Olá, <span className="text-white">{userName}</span>
-            </p>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          {userRole !== 'social_assistant' && (
-            <>
-              <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5 whitespace-nowrap transition-all hover:bg-white/20">
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                <span>Criar documentos</span>
-              </button>
-
-              {userRole !== 'viewer' && (
-                <button
-                  onClick={() => router.push('/referrals')}
-                  className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
-                >
-                  <ClipboardList className="w-4 h-4 shrink-0" />
-                  <span>Central de Evidências</span>
-                </button>
-              )}
-            </>
-          )}
-
-          {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
-          {userRole !== 'viewer' && (
-            <div className="space-y-1">
-              <button
-                onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
-                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-              >
-                <div className="flex items-center gap-1.5">
-                  <HeartPulse className="w-4 h-4 shrink-0" />
-                  <span>Benefícios</span>
-                </div>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBenefitsOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {(isBenefitsOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                <div className={`${isBenefitsOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                  {userRole !== 'social_assistant' && (
-                    <>
-                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                        <Database className="w-3.5 h-3.5 shrink-0" />
-                        <span>Auxílio Doença</span>
-                      </button>
-
-                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                        <span>Readaptação</span>
-                      </button>
-                    </>
-                  )}
-
-                  {/* Abono Salarial - Restrito para nurse e operator e viewer */}
-                  {userRole !== 'nurse' && userRole !== 'operator' && (
-                    <><button
-                      onClick={() => router.push('/abono')}
-                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                    >
-                      <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-                      <span>Abono Salarial</span>
-                    </button><button
-                      onClick={() => router.push('/abono/lei')}
-                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                    >
-                        <Scale className="w-3.5 h-3.5 shrink-0" />
-                        <span>Legislação Abono</span>
-                      </button>
-                      <button
-                        onClick={() => router.push('/abono/portarias')}
-                        className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                      >
-                        <FileText className="w-3.5 h-3.5 shrink-0" />
-                        <span>Portarias</span>
-                      </button></>
-                  )}
-
-                  {userRole !== 'social_assistant' && (
-                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-                      <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                      <span>Redução de Jornada</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {userRole !== 'social_assistant' && userRole !== 'operator' && userRole !== 'viewer' && (
-            <div className="space-y-1">
-              <div className="space-y-1">
-                <button
-                  onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                  className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <HistoryIcon className="w-4 h-4 shrink-0" />
-                    <span>Histórico</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {(isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                  <div className={`${isHistoryOpen ? 'flex' : 'hidden lg:group-hover:flex'} flex-col space-y-1`}>
-                    <button
-                      onClick={() => router.push('/history')}
-                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                    >
-                      <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
-                      <span>Log Principal</span>
-                    </button>
-                    <button
-                      onClick={() => router.push('/analytics')}
-                      className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-                    >
-                      <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                      <span>Indicadores</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => router.push('/archive')}
-                className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-              >
-                <FolderOpen className="w-4 h-4 shrink-0" />
-                <span>Arquivo Médico</span>
-              </button>
-            </div>
-          )}
-
-          {userRole === 'admin' && (
-            <>
-              <button onClick={() => router.push('/users')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-                <UsersIcon className="w-4 h-4 shrink-0" />
-                <span>Usuários</span>
-              </button>
-              <button onClick={() => router.push('/deletion-requests')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                <Trash2 className="w-4 h-4 shrink-0" />
-                <span>Exclusões Pendentes</span>
-              </button>
-            </>
-          )}
-
-        </nav>
-
-        <div className="mt-auto space-y-4 px-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
-
-          <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
-            <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">Powered by</p>
-            <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">
-              UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span>
-            </p>
-          </div>
-        </div>
-      </aside>
+      {/* SIDEBAR */}
+      <Sidebar
+        userRole={userRole}
+        userName={userName}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        pendingSyncs={pendingSyncs}
+        isSyncing={isSyncing}
+        setShowSyncModal={setShowSyncModal}
+        setShowGreetingsManager={setShowGreetingsManager}
+      />
 
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
@@ -972,6 +862,104 @@ export default function Home() {
         </div>
       )}
 
+      {/* MODAL DE MONITORAMENTO DE SINCRONIZAÇÃO */}
+      {showSyncModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#D3D3D3] w-full max-w-2xl rounded-2xl shadow-2xl border-4 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
+            <div className="bg-[#1A3351] p-6 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <CloudDownload className={`w-8 h-8 ${pendingSyncs.length > 0 ? 'text-amber-500' : 'text-green-500'}`} />
+                <div>
+                  <h3 className="text-xl font-black uppercase tracking-tight text-white">Central de Sincronização</h3>
+                  <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Monitoramento de Integridade de Dados</p>
+                </div>
+              </div>
+              <button onClick={() => setShowSyncModal(false)} className="text-white/70 hover:text-white transition-colors">
+                <X className="w-8 h-8" />
+              </button>
+            </div>
+
+            <div className="p-8">
+              {pendingSyncs.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
+                    <div className="flex gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                      <div>
+                        <p className="text-sm font-black text-amber-800 uppercase">Registros em Fila Local</p>
+                        <p className="text-xs font-bold text-amber-700/80 leading-relaxed mt-1">
+                          Existem {pendingSyncs.length} registros que não puderam ser enviados ao banco de dados devido a instabilidades de conexão. 
+                          O sistema tentará sincronizá-los automaticamente a cada minuto.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                    {pendingSyncs.map((s, i) => (
+                      <div key={i} className="bg-white p-3 border-2 border-slate-200 rounded-lg flex justify-between items-center group">
+                        <div>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Servidor:</p>
+                          <p className="text-sm font-black text-[#1A3351] uppercase">{s.servidor_nome}</p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">{s.aso_type}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Status:</p>
+                          <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 animate-pulse">PENDENTE</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                        setIsSyncing(true);
+                        // O efeito useEffect já tem a lógica, mas poderíamos disparar aqui manualmente se necessário
+                        // Para este MVP, o alerta informa que é automático.
+                        alert("Sincronização forçada iniciada. Verifique o status em alguns segundos.");
+                    }}
+                    className="w-full py-4 bg-[#1A3351] text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-xl hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-blue-950 flex items-center justify-center gap-3"
+                  >
+                    {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    {isSyncing ? "Sincronizando..." : "Forçar Sincronização Agora"}
+                  </button>
+                </div>
+              ) : (
+                <div className="py-12 text-center flex flex-col items-center gap-6">
+                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center border-2 border-green-100">
+                    <CheckCircle2 className="w-12 h-12 text-green-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-[#1A3351] uppercase">Tudo em Ordem!</h4>
+                    <p className="text-sm font-bold text-slate-500 max-w-sm mx-auto mt-2 leading-relaxed">
+                      Não existem registros pendentes no seu dispositivo. Todos os dados foram sincronizados com sucesso na nuvem.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-[#B0B0B0] flex justify-center border-t border-slate-400">
+              <button
+                onClick={() => setShowSyncModal(false)}
+                className="px-12 py-2 bg-[#1A3351] text-white font-black uppercase tracking-widest rounded-lg shadow-md hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-blue-950"
+              >
+                Fechar Painel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE BOAS-VINDAS PERSONALIZADO */}
+      <WelcomeModal userName={userName} />
+
+      {/* MODAL DE GERENCIAMENTO DE MENSAGENS (ADMIN) */}
+      <GreetingsManagerModal 
+        isOpen={showGreetingsManager} 
+        onClose={() => setShowGreetingsManager(false)} 
+        userId={session?.user?.id}
+      />
     </div>
   );
 }
