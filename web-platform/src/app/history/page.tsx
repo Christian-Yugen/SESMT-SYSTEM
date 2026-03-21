@@ -11,8 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { ensureISO } from "@/lib/utils";
-import WelcomeModal from "@/components/WelcomeModal";
-import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import Sidebar from "@/components/layout/Sidebar";
 
 
@@ -61,7 +59,6 @@ export default function HistoryPage() {
     // Filtros
     const [filterUser, setFilterUser] = useState("all");
     const [filterType, setFilterType] = useState("all");
-    const [showGreetingsManager, setShowGreetingsManager] = useState(false);
 
     const [filterSecretaria, setFilterSecretaria] = useState("all");
     const [startDate, setStartDate] = useState("");
@@ -798,7 +795,6 @@ useEffect(() => {
                 userName={userName}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
-                setShowGreetingsManager={setShowGreetingsManager}
             />
 
             {isSidebarOpen && (
@@ -1853,14 +1849,6 @@ useEffect(() => {
                     </div>
                 </div>
             )}
-            {/* MODAL DE CONTEXTO */}
-            <WelcomeModal userName={userName} />
-
-            <GreetingsManagerModal 
-                isOpen={showGreetingsManager} 
-                onClose={() => setShowGreetingsManager(false)} 
-                userId={currentUserId || undefined}
-            />
         </div>
     );
 }

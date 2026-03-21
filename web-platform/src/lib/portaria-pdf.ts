@@ -12,8 +12,6 @@ export interface PortariaData {
     periodo_inicio: string; // DD/MM/YYYY
     periodo_fim: string;    // DD/MM/YYYY
     data_portaria: string;  // DD/MM/YYYY
-    assomasul_numero?: string;
-    assomasul_data?: string;
 }
 
 function formatDateExtended(dateStr: string): string {
