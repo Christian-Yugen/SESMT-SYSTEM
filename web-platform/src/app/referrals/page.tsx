@@ -8,8 +8,6 @@ import {
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2,
     CreditCard, Loader2, Scale, FileText
 } from "lucide-react";
-import WelcomeModal from "@/components/WelcomeModal";
-import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import Sidebar from "@/components/layout/Sidebar";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -39,7 +37,6 @@ export default function ReferralsPage() {
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-    const [showGreetingsManager, setShowGreetingsManager] = useState(false);
     const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
     // Filtros
@@ -174,7 +171,6 @@ export default function ReferralsPage() {
                 userName={userName}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
-                setShowGreetingsManager={setShowGreetingsManager}
             />
 
             {/* ÁREA PRINCIPAL */}

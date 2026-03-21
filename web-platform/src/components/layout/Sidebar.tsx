@@ -8,27 +8,22 @@ import {
   FolderOpen, ChevronDown, Trash2, Scale, FileText, CloudDownload, MessageSquarePlus 
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import SyncModal from "@/components/SyncModal";
+import GreetingsManagerModal from "@/components/GreetingsManagerModal";
+import WelcomeModal from "@/components/WelcomeModal";
 
 interface SidebarProps {
   userRole: string | null;
   userName: string;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
-  pendingSyncs?: any[];
-  isSyncing?: boolean;
-  setShowSyncModal?: (show: boolean) => void;
-  setShowGreetingsManager?: (show: boolean) => void;
 }
 
 export default function Sidebar({
   userRole,
   userName,
   isSidebarOpen,
-  setIsSidebarOpen,
-  pendingSyncs = [],
-  isSyncing = false,
-  setShowSyncModal,
-  setShowGreetingsManager
+  setIsSidebarOpen
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -38,14 +33,44 @@ export default function Sidebar({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Auto-expand submenus based on current path
+  // States for Admin Modals (Centralized)
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [showGreetingsManager, setShowGreetingsManager] = useState(false);
+  const [pendingSyncs, setPendingSyncs] = useState<any[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Auto-expand submenus and manage sync data
   useEffect(() => {
     if (pathname.includes('/abono')) {
       setIsBenefitsOpen(true);
       setIsAbonoOpen(true);
     }
+    if (pathname.includes('/referrals')) setIsBenefitsOpen(true);
     if (pathname.includes('/history') || pathname.includes('/analytics')) setIsHistoryOpen(true);
-    if (pathname.includes('/users') || pathname.includes('/deletion-requests')) setIsAdminOpen(true);
+    if (pathname === '/' || pathname.includes('/users') || pathname.includes('/history/deletions')) setIsAdminOpen(true);
+
+    // Sync Data Logic (Centralized)
+    const loadPendingData = () => {
+      const pendingStr = localStorage.getItem('pending_aso_history');
+      if (pendingStr) {
+        const records = JSON.parse(pendingStr);
+        if (Array.isArray(records)) setPendingSyncs(records);
+      } else {
+        setPendingSyncs([]);
+      }
+    };
+
+    const getUserId = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) setUserId(session.user.id);
+    };
+
+    loadPendingData();
+    getUserId();
+
+    const interval = setInterval(loadPendingData, 30000); // Check every 30s
+    return () => clearInterval(interval);
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -184,8 +209,8 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* MONITOR DE SINCRONIZAÇÃO - Apenas se não for admin (para admin fica no submenu) */}
-          {userRole !== 'admin' && pendingSyncs.length > 0 && setShowSyncModal && (
+          {/* MONITOR DE SINCRONIZAÇÃO */}
+          {pendingSyncs.length > 0 && (
             <div className="pt-2">
               <button
                 onClick={() => setShowSyncModal(true)}
@@ -267,24 +292,20 @@ export default function Sidebar({
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Exclusões Pendentes</span>
                   </button>
-                  {setShowGreetingsManager && (
-                    <button onClick={() => setShowGreetingsManager(true)} className="w-full flex items-center gap-2 p-2.5 pl-9 rounded-md text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider">
-                      <MessageSquarePlus className="w-3.5 h-3.5" />
-                      <span>Boas-Vindas</span>
-                    </button>
-                  )}
-                  {setShowSyncModal && (
-                    <button 
-                      onClick={() => setShowSyncModal(true)} 
-                      className={`w-full flex items-center justify-between p-2.5 pl-9 rounded-md transition-all font-bold text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? 'text-amber-500' : 'text-white/50 hover:text-white'}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CloudDownload className={`w-3.5 h-3.5 ${isSyncing ? 'animate-bounce' : ''}`} />
-                        <span>Sincronizar Dados</span>
-                      </div>
-                      {pendingSyncs.length > 0 && <span className="bg-amber-500 text-black text-[8px] px-1 rounded-full">{pendingSyncs.length}</span>}
-                    </button>
-                  )}
+                  <button onClick={() => setShowGreetingsManager(true)} className="w-full flex items-center gap-2 p-2.5 pl-9 rounded-md text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider">
+                    <MessageSquarePlus className="w-3.5 h-3.5" />
+                    <span>Boas-Vindas</span>
+                  </button>
+                  <button 
+                    onClick={() => setShowSyncModal(true)} 
+                    className={`w-full flex items-center justify-between p-2.5 pl-9 rounded-md transition-all font-bold text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? 'text-amber-500' : 'text-white/50 hover:text-white'}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <CloudDownload className={`w-3.5 h-3.5 ${isSyncing ? 'animate-bounce' : ''}`} />
+                      <span>Sincronizar Dados</span>
+                    </div>
+                    {pendingSyncs.length > 0 && <span className="bg-amber-500 text-black text-[8px] px-1 rounded-full">{pendingSyncs.length}</span>}
+                  </button>
                 </div>
               )}
             </div>
@@ -307,6 +328,24 @@ export default function Sidebar({
           </div>
         </div>
       </aside>
+
+      {/* ADMIN MODALS (Centralized) */}
+      <SyncModal 
+        isOpen={showSyncModal} 
+        onClose={() => setShowSyncModal(false)} 
+        pendingSyncs={pendingSyncs} 
+        isSyncing={isSyncing}
+      />
+      
+      {userId && (
+        <GreetingsManagerModal 
+          isOpen={showGreetingsManager} 
+          onClose={() => setShowGreetingsManager(false)} 
+          userId={userId}
+        />
+      )}
+      
+      <WelcomeModal userName={userName} />
     </>
   );
 }

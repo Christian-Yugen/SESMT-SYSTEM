@@ -42,8 +42,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
-import WelcomeModal from "@/components/WelcomeModal";
-import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import Sidebar from "@/components/layout/Sidebar";
 import { MessageSquarePlus } from "lucide-react";
 
@@ -118,7 +116,6 @@ export default function AnalyticsPage() {
     // Filtros
     const [searchTerm] = useState("");
     const [filterOperator, setFilterOperator] = useState("all");
-    const [showGreetingsManager, setShowGreetingsManager] = useState(false);
     const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
 
     // Extrair operadores únicos presentes no histórico
@@ -569,7 +566,6 @@ export default function AnalyticsPage() {
                 userName={userName}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
-                setShowGreetingsManager={setShowGreetingsManager}
             />
 
             {/* MAIN */}
@@ -1157,14 +1153,6 @@ export default function AnalyticsPage() {
                     </footer>
                 </div>
             </main>
-            {/* MODAL DE BOAS-VINDAS */}
-            <WelcomeModal userName={userName} />
-
-            <GreetingsManagerModal 
-                isOpen={showGreetingsManager} 
-                onClose={() => setShowGreetingsManager(false)} 
-                userId={session?.user?.id}
-            />
         </div>
     );
 }
