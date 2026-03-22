@@ -444,9 +444,9 @@ export default function ReferralsPage() {
 
                                                     <div className="pt-2">
                                                         <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-2 block border-b border-slate-200 pb-1">Riscos Ocupacionais</span>
-                                                        <p className="text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase leading-relaxed bg-white/50 p-3 border border-slate-200 rounded-lg">
-                                                            {(() => {
-                                                                const match = entry.aso_type.match(/<([\s\S]*?)>/);
+                                                        <p className="p-4 bg-white border border-slate-100 rounded-lg text-[10px] lg:text-[11px] font-bold text-slate-600 uppercase leading-relaxed shadow-sm">
+                                                            {entry.risks || (() => {
+                                                                const match = entry.aso_type.match(/<(.*?)>/);
                                                                 return match ? match[1] : "Riscos não detalhados nesta evidência.";
                                                             })()}
                                                         </p>
@@ -459,6 +459,19 @@ export default function ReferralsPage() {
                                                     </span>
                                                     <div className="space-y-2">
                                                         {(() => {
+                                                            // Prioridade para o novo formato JSONB
+                                                            if (entry.exams_json && Array.isArray(entry.exams_json) && entry.exams_json.length > 0) {
+                                                                return entry.exams_json
+                                                                    .filter((ex: any) => (ex.name || ex).toUpperCase() !== "EXAME CLÍNICO")
+                                                                    .map((exam: any, i: number) => (
+                                                                        <div key={i} className="flex items-center gap-2 text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight">
+                                                                            <div className="w-1.5 h-1.5 bg-[#E31E24] rounded-full shrink-0" />
+                                                                            {exam.name || exam}
+                                                                        </div>
+                                                                    ));
+                                                            }
+
+                                                            // Fallback para o formato legado em aso_type string
                                                             const match = entry.aso_type.match(/\[(.*?)\]/);
                                                             if (match && match[1]) {
                                                                 const exams = match[1].split(',')
@@ -510,17 +523,25 @@ export default function ReferralsPage() {
                                                         const asoTypeMatch = entry.aso_type.match(/\((.*?)\)/);
                                                         const asoType = asoTypeMatch ? asoTypeMatch[1] : "Encaminhamento";
 
-                                                        const examsMatch = entry.aso_type.match(/\[([\s\S]*?)\]/);
-                                                        const exams = examsMatch ? examsMatch[1].split(',').map(e => e.trim()) : [];
+                                                        // Extrair dados do banco (preferencial) ou string (legado)
+                                                        const exams = entry.exams_json && Array.isArray(entry.exams_json)
+                                                            ? entry.exams_json.map((e: any) => e.name || e)
+                                                            : (entry.aso_type.match(/\[([\s\S]*?)\]/) ? entry.aso_type.match(/\[([\s\S]*?)\]/)[1].split(',').map(e => e.trim()) : []);
 
-                                                        const risksMatch = entry.aso_type.match(/<([\s\S]*?)>/);
-                                                        const details = risksMatch ? risksMatch[1] : "";
+                                                        const details = entry.risks || (entry.aso_type.match(/<([\s\S]*?)>/) ? entry.aso_type.match(/<([\s\S]*?)>/)[1] : "");
+                                                        const examDates = entry.exams_json && Array.isArray(entry.exams_json)
+                                                            ? entry.exams_json.map((e: any) => e.date)
+                                                            : Array(exams.length).fill(new Date(entry.generated_at).toLocaleDateString('pt-BR'));
+
 
                                                         const docData = {
                                                             Nome: entry.servidor_nome,
                                                             CPF: entry.servidor_cpf,
+                                                            "CPF.": entry.servidor_cpf,
+                                                            "Dt.Nascimento": entry.servidor_nascimento,
                                                             Cargo: entry.cargo,
                                                             Secretaria: entry.secretaria,
+                                                            contrato: entry.contrato
                                                         };
 
                                                         const examConfig = {

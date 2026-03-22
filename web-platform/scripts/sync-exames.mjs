@@ -24,7 +24,7 @@ const DADOS_DIR = path.resolve(__dirname, '../../dados');
 
 const IS_DRY_RUN = process.argv.includes('--dry-run');
 
-async function processFile(filename, tipo) {
+async function processFile(filename, asoType) {
     const filePath = path.join(DADOS_DIR, filename);
     if (!fs.existsSync(filePath)) {
         console.warn(`⚠️ Arquivo ${filename} não encontrado. Pulando.`);
@@ -37,24 +37,27 @@ async function processFile(filename, tipo) {
     
     return data.map(row => {
         const exames = [];
-        for (let i = 1; i <= 9; i++) {
-            const val = row[`EXAME ${i}`];
+        // Tenta capturar de EXAME 1 a EXAME 20 para garantir
+        for (let i = 1; i <= 20; i++) {
+            const val = row[`EXAME ${i}`] || row[`EXAME${i}`];
             if (val && val.toString().trim()) {
                 exames.push(val.toString().trim());
             }
         }
         
         return {
-            tipo: tipo,
+            aso_type: asoType,
             funcao: row['FUNÇÃO']?.toString().trim().toUpperCase() || '',
             ghe: row['GHE']?.toString().trim() || '',
+            riscos: row['Riscos Ocupacionais']?.toString().trim() || '',
+            detalhes: row['Riscos Ocupacionais - Detalhes']?.toString().trim() || '',
             exames: exames
         };
-    }).filter(r => r.funcao);
+    }).filter(r => r.funcao && r.ghe);
 }
 
 async function syncExames() {
-    console.log(`--- Sincronização de Exames por Função (${IS_DRY_RUN ? 'SIMULAÇÃO' : 'REAL'}) ---`);
+    console.log(`--- Sincronização de exames_config (${IS_DRY_RUN ? 'SIMULAÇÃO' : 'REAL'}) ---`);
 
     try {
         const admissionais = await processFile('EXAMES ADMISSIONAL.xlsx', 'admissional');
@@ -62,6 +65,10 @@ async function syncExames() {
         
         const allData = [...admissionais, ...demissionais];
         console.log(`📊 Total de registros processados: ${allData.length}`);
+
+        if (allData.length > 0) {
+            console.log("Exemplo do primeiro registro:", JSON.stringify(allData[0], null, 2));
+        }
 
         if (IS_DRY_RUN) {
             console.log('⚠️ SIMULAÇÃO CONCLUÍDA.');
@@ -73,14 +80,14 @@ async function syncExames() {
         for (let i = 0; i < allData.length; i += chunkSize) {
             const chunk = allData.slice(i, i + chunkSize);
             const { error } = await supabase
-                .from('exams_by_function')
-                .upsert(chunk, { onConflict: 'tipo,funcao,ghe' });
+                .from('exames_config')
+                .upsert(chunk, { onConflict: 'aso_type,ghe' });
             
             if (error) throw error;
             console.log(`✓ Progresso: ${i + chunk.length}/${allData.length}`);
         }
 
-        console.log('✅ Sincronização de Exames finalizada com sucesso!');
+        console.log('✅ Sincronização de exames_config finalizada com sucesso!');
 
     } catch (err) {
         console.error('💥 Erro:', err.message);
