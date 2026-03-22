@@ -12,6 +12,7 @@ export interface PortariaData {
     periodo_inicio: string; // DD/MM/YYYY
     periodo_fim: string;    // DD/MM/YYYY
     data_portaria: string;  // DD/MM/YYYY
+    servidor_contrato?: string;
 }
 
 function formatDateExtended(dateStr: string): string {
@@ -149,9 +150,12 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     doc.text('Art. 1º - ', indentLeft, y);
     const art1LabelWidth = doc.getTextWidth('Art. 1º - ');
 
-    doc.setFont('times', 'normal');
+    const matriculaTexto = data.servidor_contrato 
+        ? `${data.servidor_matricula} (CONTRATO ${data.servidor_contrato})`
+        : data.servidor_matricula;
+
     // Adicionado espaço após a vírgula (ponto 10)
-    const art1Text = `Fica concedido pelo período de ${data.periodo_inicio} a ${data.periodo_fim} o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} ${nomeFormatado}, matrícula ${data.servidor_matricula}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`;
+    const art1Text = `Fica concedido pelo período de ${data.periodo_inicio} a ${data.periodo_fim} o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} ${nomeFormatado}, matrícula ${matriculaTexto}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`;
 
     // Reduzimos a largura para compensar a largura extra do negrito de forma mais segura
     // Reduzimos a largura significativamente para garantir espaço para o rótulo e negritos

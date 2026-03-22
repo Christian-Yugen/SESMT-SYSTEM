@@ -8,6 +8,7 @@ export interface Servidor {
     Secretaria?: string;
     natureza_cargo?: string;
     "Dt.Nascimento"?: string;
+    contrato?: string;
     [key: string]: string | undefined;
 }
 

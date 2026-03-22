@@ -28,6 +28,7 @@ interface PortariaRecord {
     periodo_inicio: string;
     periodo_fim: string;
     data_portaria: string;
+    servidor_contrato?: string;
     criado_por: string;
     criado_por_nome: string;
     created_at: string;
@@ -128,7 +129,8 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                 Secretaria: "---", // Could fetch from servidores table but portaria has main info
                 "CPF.": portaria.servidor_cpf,
                 Sexo: portaria.servidor_genero,
-                "Local de Trabalho": portaria.servidor_lotacao
+                "Local de Trabalho": portaria.servidor_lotacao,
+                contrato: portaria.servidor_contrato
             });
 
         } catch (err) {
@@ -160,7 +162,8 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            servidor_contrato: selectedServidor?.contrato
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -180,7 +183,8 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            servidor_contrato: selectedServidor?.contrato
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -211,6 +215,7 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     data_portaria: formData.data_portaria,
                     servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero,
+                    servidor_contrato: selectedServidor?.contrato,
                     motivo_alteracao: formData.motivo_alteracao,
                     alterado_por: operatorName,
                     updated_at: new Date().toISOString()
@@ -231,7 +236,8 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                     periodo_fim: formData.periodo_fim,
                     data_portaria: formData.data_portaria,
                     servidor_lotacao: capitalizeName(formData.lotacao),
-                    servidor_genero: formData.genero
+                    servidor_genero: formData.genero,
+                    servidor_contrato: selectedServidor?.contrato
                 }
             });
 
@@ -315,7 +321,12 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Matrícula</p>
-                                        <p className="text-sm font-bold text-slate-700">{selectedServidor.Matrícula}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-bold text-slate-700">{selectedServidor.Matrícula}</p>
+                                            {selectedServidor.contrato && (
+                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {selectedServidor.contrato}</span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="md:col-span-2">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cargo</p>

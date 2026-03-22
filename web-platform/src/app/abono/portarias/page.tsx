@@ -26,6 +26,7 @@ interface PortariaRecord {
     periodo_inicio: string;
     periodo_fim: string;
     data_portaria: string;
+    servidor_contrato?: string;
     criado_por: string;
     criado_por_nome: string;
     created_at: string;
@@ -242,7 +243,8 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            servidor_contrato: record.servidor_contrato
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -258,7 +260,8 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            servidor_contrato: record.servidor_contrato
         };
         generatePortariaPDF(portariaData, 'download');
     };
@@ -275,7 +278,8 @@ export default function PortariasPage() {
             servidor_genero: record.servidor_genero,
             periodo_inicio: formatDate(record.periodo_inicio),
             periodo_fim: formatDate(record.periodo_fim),
-            data_portaria: formatDate(record.data_portaria)
+            data_portaria: formatDate(record.data_portaria),
+            servidor_contrato: record.servidor_contrato
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -471,7 +475,12 @@ export default function PortariasPage() {
                                                         </div>
                                                         <div>
                                                             <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Matrícula</span>
-                                                            <p className="text-xs lg:text-sm font-black text-[#1A3351]">{entry.servidor_matricula}</p>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="text-xs lg:text-sm font-black text-[#1A3351]">{entry.servidor_matricula}</p>
+                                                                {entry.servidor_contrato && (
+                                                                    <span className="bg-[#E31E24] text-white text-[8px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {entry.servidor_contrato}</span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Cargo</span>
