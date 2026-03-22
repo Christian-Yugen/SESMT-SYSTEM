@@ -210,7 +210,7 @@ export const generateASOPDF = (
     doc.setFont('times', 'normal');
     doc.setFontSize(12); // Aumentado para 12 conforme solicitado
     doc.text('Dr. Issam Fares Junior', 59.5, boxY + 16, { align: 'center' });
-    doc.text('CRM 3744', 59.5, boxY + 22, { align: 'center' });
+    doc.text('CRM/MS 3744', 59.5, boxY + 22, { align: 'center' });
 
     doc.line(105, boxY + 23, 196, boxY + 23); // Date horizontal line
     doc.setFontSize(12); // Aumentado para 12 conforme solicitado
