@@ -8,6 +8,7 @@ import {
   FolderOpen, ChevronDown, Trash2, Scale, FileText, CloudDownload, MessageSquarePlus 
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ensureISO } from "@/lib/utils";
 import SyncModal from "@/components/SyncModal";
 import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import WelcomeModal from "@/components/WelcomeModal";
@@ -72,6 +73,38 @@ export default function Sidebar({
     const interval = setInterval(loadPendingData, 30000); // Check every 30s
     return () => clearInterval(interval);
   }, [pathname]);
+
+  const handleForceSync = async () => {
+    if (pendingSyncs.length === 0 || isSyncing) return;
+    setIsSyncing(true);
+    
+    const remaining = [...pendingSyncs];
+    const failedToSync = [];
+    
+    for (const record of remaining) {
+      try {
+        // Higienizar antes de reenviar
+        const sanitizedRecord = {
+          ...record,
+          servidor_nascimento: ensureISO(record.servidor_nascimento)
+        };
+        
+        const { error } = await supabase.from('aso_history').insert(sanitizedRecord);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Erro ao sincronizar:", err);
+        failedToSync.push(record);
+      }
+    }
+    
+    localStorage.setItem('pending_aso_history', JSON.stringify(failedToSync));
+    setPendingSyncs(failedToSync);
+    setIsSyncing(false);
+    
+    if (failedToSync.length === 0) {
+      setShowSyncModal(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -335,6 +368,7 @@ export default function Sidebar({
         onClose={() => setShowSyncModal(false)} 
         pendingSyncs={pendingSyncs} 
         isSyncing={isSyncing}
+        onForceSync={handleForceSync}
       />
       
       {userId && (
