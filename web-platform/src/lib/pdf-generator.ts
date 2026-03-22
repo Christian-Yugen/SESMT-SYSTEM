@@ -23,6 +23,7 @@ const formatDateOnly = (dateStr?: string) => {
     const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
     let day, month, year;
     if (cleanDate.includes('-')) { [year, month, day] = parts; } else { [day, month, year] = parts; }
+    if (!day || !month || !year) return dateStr;
     return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
 };
 
