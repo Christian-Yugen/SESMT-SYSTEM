@@ -7,6 +7,7 @@ export const ensureISO = (dateStr: string | undefined) => {
         if (parts[0].length === 4) return cleanDate; // JÁ ESTÁ NO FORMATO YYYY-MM-DD
         // CASO ESTEJA EM DD-MM-AAAA
         const [p1, p2, p3] = parts;
+        if (!p1 || !p2 || !p3) return cleanDate;
         return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
     }
     
@@ -14,6 +15,7 @@ export const ensureISO = (dateStr: string | undefined) => {
     const parts = cleanDate.split('/');
     if (parts.length === 3) {
         const [day, month, year] = parts;
+        if (!day || !month || !year) return cleanDate;
         if (year.length === 4) {
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         } else if (day.length === 4) {
