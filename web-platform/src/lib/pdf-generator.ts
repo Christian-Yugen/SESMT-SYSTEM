@@ -280,57 +280,57 @@ export const generateReferralPDF = (
 
     doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
     doc.setFontSize(8);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text('ESTADO DE MATO GROSSO DO SUL', 62, 8.5); // Alinhado com o topo do logo
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 62, 13.5);
     doc.setFontSize(7);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text('SECRETÁRIA MUNICIPAL DE GESTÃO DE PESSOAS', 62, 18);
     doc.text('SESMT - SERVIÇOS ESPECIALIZADOS EM SEGURANÇA E MEDICINA DO TRABALHO', 62, 22.5);
 
     // 2. Título do Documento
     doc.setTextColor(0);
     doc.setFontSize(12);
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.rect(14, 42, 182, 10);
     doc.text(`SOLICITAÇÃO DE EXAMES (${asoType.toUpperCase()})`, 105, 48.5, { align: 'center' });
 
     let y = 60;
     doc.setFontSize(11); // Aumentado para 11
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text('Ao Laboratório / Clínica Especializada,', 14, y);
     y += 12; // Pula o texto excluído e vai para o grid
 
     // Grid de Dados
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('NOME:', 14, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text((servidor.Nome || "").toUpperCase(), 35, y);
     y += 6;
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('CPF:', 14, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text(servidor["CPF."] || servidor.CPF || "", 35, y);
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('DT. NASC:', 100, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text(formatDateOnly(servidor["Dt.Nascimento"] || servidor.nascimento), 125, y);
     y += 6;
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('CARGO:', 14, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text((servidor.Cargo || "").toUpperCase(), 35, y);
     y += 6;
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('SETOR:', 14, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text((servidor.Secretaria || "").toUpperCase(), 35, y);
     y += 6;
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('MATRÍCULA:', 14, y);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     const matriculaDoc = servidor.Matrícula || "---";
     const contratoDoc = servidor.contrato ? ` (CONTRATO ${servidor.contrato})` : "";
     doc.text(matriculaDoc + contratoDoc, 42, y);
@@ -346,7 +346,7 @@ export const generateReferralPDF = (
         head: [['EXAME SOLICITADO']],
         body: examesFiltrados,
         theme: 'grid',
-        styles: { font: 'times', fontSize: 9, cellPadding: 2, textColor: 0 },
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 2, textColor: 0 },
         headStyles: { fillColor: colors.primary, textColor: 255 },
     });
 
@@ -356,10 +356,10 @@ export const generateReferralPDF = (
     doc.setDrawColor(200);
     doc.line(60, y, 150, y);
     y += 5;
-    doc.setFont('times', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.text('DPT. DE SEG. SAÚDE E QUALIDADE DE VIDA', 105, y, { align: 'center' });
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 105, y + 4, { align: 'center' });
 
     y += 20;
@@ -372,12 +372,12 @@ export const generateReferralPDF = (
 
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     const footerLine1 = "R. Munir Thomé, 949, Centro, Três Lagoas - MS";
     doc.text(footerLine1, 105, 282, { align: 'center' });
 
     doc.setFontSize(7.5);
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text(`Operador: ${operatorName} | Gerado via SESMT SYSTEM - Powered by UXBRAS®`, 105, 286, { align: 'center' });
 
     window.open(doc.output('bloburl'), '_blank');

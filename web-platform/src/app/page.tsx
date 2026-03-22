@@ -285,7 +285,7 @@ export default function Home() {
             servidor_nascimento: ensureISO(selectedServidor["Dt.Nascimento"] || selectedServidor.Nascimento),
             contrato: selectedServidor.contrato || null,
             aso_type: endpoint.includes('referral')
-              ? `Encaminhamento (${asoType}) {${functionName}} <${risksText}> [${examsList}]`
+              ? `Encaminhamento (${asoType})`
               : `ASO (${asoType})`,
             cargo: selectedServidor.Cargo,
             secretaria: selectedServidor.Secretaria,
@@ -297,6 +297,7 @@ export default function Home() {
             exams_json: examsJson
           };
 
+          console.log("Tentando gravar histórico com payload:", payload);
           const { error: histError } = await supabase.from('aso_history').insert(payload);
 
           if (histError) throw histError;
@@ -307,7 +308,8 @@ export default function Home() {
           alert("Documento gerado e salvo no histórico com sucesso!");
 
         } catch (histError: any) {
-          console.error("Erro ao gravar histórico:", histError);
+          console.error("Erro detalhado ao gravar histórico:", JSON.stringify(histError, null, 2));
+          console.error("Erro ao gravar histórico (obj):", histError);
           
           // BACKUP AUTOMÁTICO EM CASO DE FALHA
           try {
