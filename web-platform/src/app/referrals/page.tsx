@@ -27,6 +27,7 @@ interface ReferralEntry {
     risks?: string;
     exams_json?: any;
     servidor_nascimento?: string;
+    contrato?: string;
 }
 
 export default function ReferralsPage() {
@@ -527,11 +528,13 @@ export default function ReferralsPage() {
                                                         const asoType = asoTypeMatch ? asoTypeMatch[1] : "Encaminhamento";
 
                                                         // Extrair dados do banco (preferencial) ou string (legado)
+                                                        const examsMatch = entry.aso_type.match(/\[([\s\S]*?)\]/);
                                                         const exams = entry.exams_json && Array.isArray(entry.exams_json)
                                                             ? entry.exams_json.map((e: any) => e.name || e)
-                                                            : (entry.aso_type.match(/\[([\s\S]*?)\]/) ? entry.aso_type.match(/\[([\s\S]*?)\]/)[1].split(',').map(e => e.trim()) : []);
+                                                            : (examsMatch ? examsMatch[1].split(',').map(e => e.trim()) : []);
 
-                                                        const details = entry.risks || (entry.aso_type.match(/<([\s\S]*?)>/) ? entry.aso_type.match(/<([\s\S]*?)>/)[1] : "");
+                                                        const risksMatch = entry.aso_type.match(/<([\s\S]*?)>/);
+                                                        const details = entry.risks || (risksMatch ? risksMatch[1] : "");
                                                         const examDates = entry.exams_json && Array.isArray(entry.exams_json)
                                                             ? entry.exams_json.map((e: any) => e.date)
                                                             : Array(exams.length).fill(new Date(entry.generated_at).toLocaleDateString('pt-BR'));
