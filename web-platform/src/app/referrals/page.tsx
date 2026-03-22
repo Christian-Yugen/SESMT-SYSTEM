@@ -525,16 +525,16 @@ export default function ReferralsPage() {
                                                 <button
                                                     onClick={() => {
                                                         const asoTypeMatch = entry.aso_type.match(/\((.*?)\)/);
-                                                        const asoType = asoTypeMatch ? asoTypeMatch[1] : "Encaminhamento";
+                                                        const asoType = asoTypeMatch && asoTypeMatch[1] ? asoTypeMatch[1] : "Encaminhamento";
 
                                                         // Extrair dados do banco (preferencial) ou string (legado)
                                                         const examsMatch = entry.aso_type.match(/\[([\s\S]*?)\]/);
                                                         const exams = entry.exams_json && Array.isArray(entry.exams_json)
                                                             ? entry.exams_json.map((e: any) => e.name || e)
-                                                            : (examsMatch ? examsMatch[1].split(',').map(e => e.trim()) : []);
+                                                            : (examsMatch && examsMatch[1] ? examsMatch[1].split(',').map(e => e.trim()) : []);
 
                                                         const risksMatch = entry.aso_type.match(/<([\s\S]*?)>/);
-                                                        const details = entry.risks || (risksMatch ? risksMatch[1] : "");
+                                                        const details = entry.risks || (risksMatch && risksMatch[1] ? risksMatch[1] : "");
                                                         const examDates = entry.exams_json && Array.isArray(entry.exams_json)
                                                             ? entry.exams_json.map((e: any) => e.date)
                                                             : Array(exams.length).fill(new Date(entry.generated_at).toLocaleDateString('pt-BR'));
@@ -544,10 +544,10 @@ export default function ReferralsPage() {
                                                             Nome: entry.servidor_nome,
                                                             CPF: entry.servidor_cpf,
                                                             "CPF.": entry.servidor_cpf,
-                                                            "Dt.Nascimento": entry.servidor_nascimento,
-                                                            Cargo: entry.cargo,
-                                                            Secretaria: entry.secretaria,
-                                                            contrato: entry.contrato
+                                                            "Dt.Nascimento": entry.servidor_nascimento || "",
+                                                            Cargo: entry.cargo || "",
+                                                            Secretaria: entry.secretaria || "",
+                                                            contrato: entry.contrato || ""
                                                         };
 
                                                         const examConfig = {
