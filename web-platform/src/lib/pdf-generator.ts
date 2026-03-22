@@ -338,6 +338,11 @@ export const generateReferralPDF = (
     doc.text('DPT. DE SEG. SAÚDE E QUALIDADE DE VIDA', 105, y, { align: 'center' });
     doc.setFont('helvetica', 'normal');
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 105, y + 4, { align: 'center' });
+    
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Dr. Issam Fares Junior', 105, y, { align: 'center' });
+    doc.text('CRM/MS 3744', 105, y + 4, { align: 'center' });
 
     y += 20;
     doc.setFontSize(11); // Diminuído para 11
