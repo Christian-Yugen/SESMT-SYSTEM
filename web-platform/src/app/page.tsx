@@ -141,7 +141,8 @@ export default function Home() {
         Cargo: s.cargo,
         Matrícula: s.matricula,
         "Dt.Nascimento": s.nascimento,
-        Secretaria: s.secretaria
+        Secretaria: s.secretaria,
+        contrato: s.contrato
       });
     } else {
       setSearchResults(results.map(s => ({
@@ -150,7 +151,8 @@ export default function Home() {
         Cargo: s.cargo,
         Matrícula: s.matricula,
         "Dt.Nascimento": s.nascimento,
-        Secretaria: s.secretaria
+        Secretaria: s.secretaria,
+        contrato: s.contrato
       })));
       setShowSelectionModal(true);
     }
@@ -281,6 +283,7 @@ export default function Home() {
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
             servidor_nome: selectedServidor.Nome,
             servidor_nascimento: ensureISO(selectedServidor["Dt.Nascimento"] || selectedServidor.Nascimento),
+            contrato: selectedServidor.contrato || null,
             aso_type: endpoint.includes('referral')
               ? `Encaminhamento (${asoType}) {${functionName}} <${risksText}> [${examsList}]`
               : `ASO (${asoType})`,
@@ -431,10 +434,15 @@ export default function Home() {
             <div className="shrink-0">
               <h2 className="text-xl lg:text-2xl font-black mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Dados do Servidor</h2>
               <div className="space-y-4 lg:space-y-3 text-sm lg:text-base leading-snug pl-1 lg:pl-2">
-                <p className="flex gap-4 items-baseline">
+                <div className="flex gap-4 items-baseline">
                   <span className="font-black text-slate-900 w-32 shrink-0">Matrícula:</span>
-                  <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
-                </p>
+                  <div className="flex gap-2 items-center">
+                    <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
+                    {selectedServidor?.contrato && (
+                      <span className="bg-[#E31E24]/10 text-[#E31E24] text-[10px] px-2 py-0.5 rounded font-black border border-[#E31E24]/20 uppercase">Contrato {selectedServidor.contrato}</span>
+                    )}
+                  </div>
+                </div>
                 <p className="flex gap-4 items-baseline">
                   <span className="font-black text-slate-900 w-32 shrink-0">Data Nasc.:</span>
                   <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{formatBirthInfo(selectedServidor?.["Dt.Nascimento"] || selectedServidor?.Nascimento)}</span>
@@ -769,7 +777,12 @@ export default function Home() {
                   >
                     <div className="flex justify-between items-center">
                       <span className="font-black text-[#1A3351] text-lg uppercase">{s.Nome}</span>
-                      <span className="bg-[#1A3351] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Mat: {s.Matrícula}</span>
+                      <div className="flex gap-2">
+                        {s.contrato && (
+                           <span className="bg-[#E31E24] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Contrato: {s.contrato}</span>
+                        )}
+                        <span className="bg-[#1A3351] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Mat: {s.Matrícula}</span>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div className="flex flex-col">

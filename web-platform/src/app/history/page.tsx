@@ -21,6 +21,7 @@ interface HistoryEntry {
     aso_type: string;
     cargo?: string;
     secretaria?: string;
+    contrato?: string;
     ghe_conj?: string;
     operator_name?: string;
     generated_at: string;
@@ -1171,7 +1172,12 @@ useEffect(() => {
                                             </div>
                                             <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3 flex-1 min-w-0">
                                                 <h4 className={`font-black uppercase text-[#1A3351] leading-tight truncate transition-all duration-300 ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm'}`}>
-                                                    {entry.servidor_nome}
+                                                    <span className="flex items-center gap-2">
+                                                        {entry.servidor_nome}
+                                                        {entry.contrato && (
+                                                            <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black tracking-tighter">C. {entry.contrato}</span>
+                                                        )}
+                                                    </span>
                                                 </h4>
                                                 <div className="flex flex-wrap gap-2 items-center">
                                                     {entry.deletion_pending && (
@@ -1279,6 +1285,7 @@ useEffect(() => {
                                                                     function_ghe: entry.ghe_conj || "", 
                                                                     risks: entry.risks || "",
                                                                     exams: entry.exams_json || [],
+                                                                    contrato: entry.contrato || "",
                                                                     motivo_alteracao: ""
                                                                 });
                                                                 setIsEditModalOpen(true);
@@ -1506,20 +1513,31 @@ useEffect(() => {
                                             onChange={(e) => setEditFormData({ ...editFormData, servidor_nascimento: e.target.value })}
                                         />
                                     </div>
-                                    <div className="md:col-span-12 space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de Documento</label>
-                                        <select
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
-                                            value={editFormData.aso_type}
-                                            onChange={(e) => setEditFormData({ ...editFormData, aso_type: e.target.value })}
-                                        >
-                                            <option value="Admissional">ASO Admissional</option>
-                                            <option value="Periódico">ASO Periódico</option>
-                                            <option value="Mudança de Função">ASO Mudança de Função</option>
-                                            <option value="Demissional">ASO Demissional</option>
-                                            <option value="Retorno ao Trabalho">ASO Retorno ao Trabalho</option>
-                                            <option value="Encaminhamento">Encaminhamento de Exames</option>
-                                        </select>
+                                    <div className="md:col-span-12 flex gap-4">
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de Documento</label>
+                                            <select
+                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
+                                                value={editFormData.aso_type}
+                                                onChange={(e) => setEditFormData({ ...editFormData, aso_type: e.target.value })}
+                                            >
+                                                <option value="Admissional">ASO Admissional</option>
+                                                <option value="Periódico">ASO Periódico</option>
+                                                <option value="Mudança de Função">ASO Mudança de Função</option>
+                                                <option value="Demissional">ASO Demissional</option>
+                                                <option value="Retorno ao Trabalho">ASO Retorno ao Trabalho</option>
+                                                <option value="Encaminhamento">Encaminhamento de Exames</option>
+                                            </select>
+                                        </div>
+                                        <div className="w-32 space-y-1">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Contrato</label>
+                                            <input
+                                                type="text"
+                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                                value={editFormData.contrato}
+                                                onChange={(e) => setEditFormData({ ...editFormData, contrato: e.target.value })}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1755,14 +1773,16 @@ useEffect(() => {
                                                     cpf: editingEntry.servidor_cpf,
                                                     cargo: editingEntry.cargo,
                                                     secretaria: editingEntry.secretaria,
-                                                    tipo: editingEntry.aso_type
+                                                    tipo: editingEntry.aso_type,
+                                                    contrato: editingEntry.contrato
                                                 },
                                                 new: {
                                                     nome: editFormData.servidor_nome,
                                                     cpf: editFormData.servidor_cpf,
                                                     cargo: editFormData.cargo,
                                                     secretaria: editFormData.secretaria,
-                                                    tipo: editFormData.aso_type === 'Encaminhamento' ? 'Encaminhamento' : `ASO (${editFormData.aso_type})`
+                                                    tipo: editFormData.aso_type === 'Encaminhamento' ? 'Encaminhamento' : `ASO (${editFormData.aso_type})`,
+                                                    contrato: editFormData.contrato
                                                 }
                                             }
                                         };
@@ -1787,6 +1807,7 @@ useEffect(() => {
                                                 function_name: editFormData.function_name,
                                                 risks: editFormData.risks,
                                                 exams_json: editFormData.exams,
+                                                contrato: editFormData.contrato,
                                                 edit_history: updatedHistory
                                             })
                                             .eq('id', editingEntry.id);
@@ -1802,7 +1823,8 @@ useEffect(() => {
                                             "CPF.": editFormData.servidor_cpf,
                                             "Dt.Nascimento": editFormData.servidor_nascimento,
                                             Cargo: editFormData.cargo,
-                                            Secretaria: editFormData.secretaria
+                                            Secretaria: editFormData.secretaria,
+                                            contrato: editFormData.contrato
                                         };
 
                                         const currentExamsMock = {

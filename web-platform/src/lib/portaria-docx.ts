@@ -99,7 +99,7 @@ export async function generatePortariaDOCX(data: PortariaData) {
                         new TextRun({ text: `${data.periodo_inicio} a ${data.periodo_fim}`, bold: true, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: ` o ABONO SALARIAL, conforme Lei Municipal nº 1.562/1999, com alterações dadas pela Lei nº 3.353/2017, ${generoArtigo} ${generoPublica} `, size: 24, font: 'Times New Roman' }),
                         new TextRun({ text: `${nomeFormatado}, `, bold: true, size: 24, font: 'Times New Roman' }),
-                        new TextRun({ text: `matrícula ${data.servidor_matricula}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`, size: 24, font: 'Times New Roman' })
+                        new TextRun({ text: `matrícula ${data.servidor_matricula}${data.servidor_contrato ? ` (CONTRATO ${data.servidor_contrato})` : ""}, no cargo de ${cargoFormatado}, ${lotadoGrammar} ${lotacaoFormatada}.`, size: 24, font: 'Times New Roman' })
                     ]
                 }),
 

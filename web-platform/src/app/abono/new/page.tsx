@@ -147,7 +147,8 @@ export default function NewAbonoPage() {
             Matrícula: s.matricula,
             "Dt.Nascimento": s.nascimento,
             Secretaria: s.secretaria,
-            natureza_cargo: s.natureza_cargo
+            natureza_cargo: s.natureza_cargo,
+            contrato: s.contrato
         });
         setFoundServidores([]);
     };
@@ -371,6 +372,9 @@ export default function NewAbonoPage() {
                                                     <div className="flex gap-4 mt-1">
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase text-amber-600">Matrícula: {s.matricula}</p>
+                                                        {s.contrato && (
+                                                            <p className="text-[10px] font-black text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded text-[9px] font-black text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
@@ -394,7 +398,12 @@ export default function NewAbonoPage() {
                                     </div>
                                     <div>
                                         <p className="text-[11px] font-black text-slate-400 uppercase">Matrícula</p>
-                                        <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
+                                            {selectedServidor.contrato && (
+                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black">C. {selectedServidor.contrato}</span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div>
                                         <p className="text-[11px] font-black text-slate-400 uppercase">Secretaria</p>

@@ -118,7 +118,8 @@ export default function NewPortariaPage() {
             Secretaria: s.secretaria,
             // Adicionando os novos campos vindos do banco
             Sexo: s.sexo,
-            "Local de Trabalho": s.local_trabalho
+            "Local de Trabalho": s.local_trabalho,
+            contrato: s.contrato
         });
         setFormData(prev => ({
             ...prev,
@@ -154,7 +155,8 @@ export default function NewPortariaPage() {
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            servidor_contrato: selectedServidor.contrato
         };
         generatePortariaPDF(portariaData, 'view');
     };
@@ -178,7 +180,8 @@ export default function NewPortariaPage() {
             servidor_genero: formData.genero,
             periodo_inicio: formatDateBR(formData.periodo_inicio),
             periodo_fim: formatDateBR(formData.periodo_fim),
-            data_portaria: formatDateBR(formData.data_portaria)
+            data_portaria: formatDateBR(formData.data_portaria),
+            servidor_contrato: selectedServidor.contrato
         };
         await generatePortariaDOCX(portariaData);
     };
@@ -206,6 +209,7 @@ export default function NewPortariaPage() {
                     servidor_nome: capitalizeName(selectedServidor.Nome || ""),
                     servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
                     servidor_matricula: selectedServidor.Matrícula,
+                    servidor_contrato: selectedServidor.contrato,
                     servidor_cargo: capitalizeName(selectedServidor.Cargo || ""),
                     servidor_lotacao: capitalizeName(formData.lotacao),
                     servidor_genero: formData.genero,
@@ -229,7 +233,8 @@ export default function NewPortariaPage() {
                 servidor_genero: formData.genero,
                 periodo_inicio: formatDateBR(formData.periodo_inicio),
                 periodo_fim: formatDateBR(formData.periodo_fim),
-                data_portaria: formatDateBR(formData.data_portaria)
+                data_portaria: formatDateBR(formData.data_portaria),
+                servidor_contrato: selectedServidor.contrato
             };
             generatePortariaPDF(portariaData, 'view');
 
@@ -333,6 +338,9 @@ export default function NewPortariaPage() {
                                                     <div className="flex gap-4 mt-1">
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
                                                         <p className="text-[10px] font-bold text-amber-600 uppercase">Matrícula: {s.matricula}</p>
+                                                        {s.contrato && (
+                                                            <p className="text-[10px] font-black text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
+                                                        )}
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">Cargo: {s.cargo}</p>
                                                     </div>
                                                 </div>
@@ -372,7 +380,12 @@ export default function NewPortariaPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Matrícula:</p>
-                                            <p className="font-bold text-slate-700">{selectedServidor.Matrícula}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-bold text-slate-700">{selectedServidor.Matrícula}</p>
+                                                {selectedServidor.contrato && (
+                                                    <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {selectedServidor.contrato}</span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Sexo:</p>
