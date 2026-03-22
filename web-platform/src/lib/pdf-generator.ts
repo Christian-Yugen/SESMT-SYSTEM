@@ -2,29 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Servidor, Funcao, ExameData } from '@/types';
 
-const formatBirthInfo = (dateStr?: string) => {
-    if (!dateStr) return "---";
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
-    let day, month, year;
-    if (cleanDate.includes('-')) { [year, month, day] = parts; } else { [day, month, year] = parts; }
-    if (!day || !month || !year) return dateStr;
-    const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year} (${age} anos)`;
-};
-
-const formatDateOnly = (dateStr?: string) => {
-    if (!dateStr) return "---";
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
-    let day, month, year;
-    if (cleanDate.includes('-')) { [year, month, day] = parts; } else { [day, month, year] = parts; }
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-};
+import { formatBirthInfo, formatDate } from './utils';
 
 export const generateASOPDF = (
     servidor: Servidor,
@@ -232,7 +210,7 @@ export const generateASOPDF = (
     doc.setFont('times', 'normal');
     doc.setFontSize(12); // Aumentado para 12 conforme solicitado
     doc.text('Dr. Issam Fares Junior', 59.5, boxY + 16, { align: 'center' });
-    doc.text('CRM 3744', 59.5, boxY + 22, { align: 'center' });
+    doc.text('CRM/MS 3744', 59.5, boxY + 22, { align: 'center' });
 
     doc.line(105, boxY + 23, 196, boxY + 23); // Date horizontal line
     doc.setFontSize(12); // Aumentado para 12 conforme solicitado
@@ -315,7 +293,7 @@ export const generateReferralPDF = (
     doc.setFont('helvetica', 'bold');
     doc.text('DT. NASC:', 100, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(formatDateOnly(servidor["Dt.Nascimento"] || servidor.nascimento), 125, y);
+    doc.text(formatDate(servidor["Dt.Nascimento"] || servidor.nascimento), 125, y);
     y += 6;
     doc.setFont('helvetica', 'bold');
     doc.text('CARGO:', 14, y);
@@ -335,6 +313,13 @@ export const generateReferralPDF = (
     doc.text(matriculaDoc + contratoDoc, 42, y);
     y += 10;
 
+    // Texto de Solicitação Médica
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const solicitacaoText = `Os exames abaixo são uma solicitação do médico coordenador do PCMSO Dr. Issam Fares Junior - CRM/MS 3744.`;
+    doc.text(solicitacaoText, 14, y);
+    y += 8;
+
     // Tabela de Exames (Removendo "Exame Clínico")
     const examesFiltrados = (examesConfig.exames || [])
         .filter(ex => ex.toUpperCase().trim() !== "EXAME CLÍNICO")
@@ -345,7 +330,7 @@ export const generateReferralPDF = (
         head: [['EXAME SOLICITADO']],
         body: examesFiltrados,
         theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 2, textColor: 0 },
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 2, textColor: 0 },
         headStyles: { fillColor: colors.primary, textColor: 255 },
     });
 
@@ -360,6 +345,8 @@ export const generateReferralPDF = (
     doc.text('DPT. DE SEG. SAÚDE E QUALIDADE DE VIDA', 105, y, { align: 'center' });
     doc.setFont('helvetica', 'normal');
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 105, y + 4, { align: 'center' });
+
+    y += 20;
 
     y += 20;
     doc.setFontSize(11); // Diminuído para 11

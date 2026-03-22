@@ -38,9 +38,9 @@ async function syncGHE() {
 
         const preparedData = data.map(row => ({
             cod: row['Cod']?.toString().trim() || '',
-            funcao: row['Nome']?.toString().trim().toUpperCase() || '',
+            nome: row['Nome']?.toString().trim().toUpperCase() || '',
             ghe: row['GHE']?.toString().trim() || '',
-            ghe_conjunto: row['GHE CONJUNTO']?.toString().trim() || ''
+            ghe_conj: row['GHE CONJ']?.toString().trim() || ''
         })).filter(r => r.cod);
 
         console.log(`✅ Registros válidos: ${preparedData.length}`);
@@ -52,7 +52,7 @@ async function syncGHE() {
 
         // Upsert no banco
         const { error } = await supabase
-            .from('ghe_metadata')
+            .from('funcoes')
             .upsert(preparedData, { onConflict: 'cod' });
 
         if (error) throw error;
