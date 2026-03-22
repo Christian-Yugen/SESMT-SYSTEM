@@ -103,7 +103,9 @@ export default function Home() {
         .not('secretaria', 'is', null);
 
       if (data) {
-        const unique = Array.from(new Set(data.map(s => s.secretaria))).sort();
+        const unique = Array.from(new Set(data.map(s => s.secretaria)))
+          .filter(s => s !== "APOSENTADOS" && s !== "PENSIONISTAS")
+          .sort();
         setSecretarias(unique);
       }
     }
