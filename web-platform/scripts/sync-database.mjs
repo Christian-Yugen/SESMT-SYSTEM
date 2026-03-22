@@ -9,106 +9,175 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Carregar variáveis de ambiente
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    console.error('❌ Erro: Variáveis de ambiente NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY/NEXT_PUBLIC_SUPABASE_ANON_KEY não encontradas.');
+    console.error('❌ Erro: SUPABASE_SERVICE_ROLE_KEY não encontrada no .env.local');
     process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-
 const DADOS_DIR = path.resolve(__dirname, '../../dados');
+const BACKUP_FILE = path.join(__dirname, '../tmp/servidores_backup_completo.json');
 
-async function syncDatabase() {
-    console.log('--- Iniciando Sincronização do Banco de Dados ---');
+const IS_DRY_RUN = process.argv.includes('--dry-run');
+
+// Função auxiliar para formatar datas (Excel Date -> YYYY-MM-DD)
+function formatDate(val) {
+    if (val instanceof Date) return val.toISOString().split('T')[0];
+    if (!val) return null;
+    return val.toString().trim();
+}
+
+// Função para gerar chave única do vínculo
+function getUniqueKey(cpf, matricula, contrato) {
+    const cleanCpf = cpf?.toString().replace(/\D/g, '') || '';
+    const cleanMat = matricula?.toString().trim() || 'X';
+    const cleanCont = contrato?.toString().trim() || '1';
+    return `${cleanCpf}_${cleanMat}_${cleanCont}`;
+}
+
+async function runSync() {
+    console.log(`--- Iniciando Sincronização Inteligente V2 (${IS_DRY_RUN ? 'SIMULAÇÃO' : 'REAL'}) ---`);
 
     try {
-        // 1. Encontrar o arquivo Excel mais recente
-        if (!fs.existsSync(DADOS_DIR)) {
-            console.error(`❌ Diretório não encontrado: ${DADOS_DIR}`);
-            return;
+        // 1. Ler dados atuais do Banco (Paginado)
+        console.log('🔄 Lendo estado atual do banco para backup...');
+        let dbRows = [];
+        let from = 0;
+        const step = 1000;
+        while (true) {
+            const { data, error } = await supabase.from('servidores').select('*').range(from, from + step - 1);
+            if (error) throw new Error(`Erro ao ler banco: ${error.message}`);
+            dbRows = dbRows.concat(data);
+            if (data.length < step) break;
+            from += step;
         }
+        console.log(`✅ Banco de dados atual: ${dbRows.length} registros.`);
+        fs.writeFileSync(BACKUP_FILE, JSON.stringify(dbRows, null, 2));
 
-        const files = fs.readdirSync(DADOS_DIR)
-            .filter(f => f.startsWith('BancoDados') && f.endsWith('.xlsx'))
-            .sort((a, b) => b.localeCompare(a)); // Ordenação simples por nome (funciona se o formato for BancoDadosYYYYMMDD)
+        // 3. Ler novo Excel (Prioridade: AtualizacaoBancoDados.xlsx)
+        const possibleNames = ['AtualizacaoBancoDados.xlsx', 'AtualizaçãoBancoDados.xlsx'];
+        let latestFile = possibleNames
+            .map(n => path.join(DADOS_DIR, n))
+            .find(p => fs.existsSync(p));
 
-        if (files.length === 0) {
-            console.error('❌ Nenhum arquivo BancoDados*.xlsx encontrado em SESMT/dados/');
-            return;
+        if (!latestFile) {
+            console.log('💡 Dica: Nenhuma planilha "AtualizacaoBancoDados.xlsx" encontrada. Buscando sequencial...');
+            const files = fs.readdirSync(DADOS_DIR)
+                .filter(f => f.startsWith('BancoDados') && f.endsWith('.xlsx'))
+                .sort((a, b) => b.localeCompare(a));
+
+            if (files.length === 0) throw new Error('Nenhum arquivo BancoDados*.xlsx ou AtualizacaoBancoDados.xlsx encontrado.');
+            latestFile = path.join(DADOS_DIR, files[0]);
         }
-
-        const latestFile = path.join(DADOS_DIR, files[0]);
-        console.log(`📂 Lendo arquivo: ${latestFile}`);
-
-        // 2. Ler o Excel
-        const workbook = XLSX.readFile(latestFile);
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const data = XLSX.utils.sheet_to_json(worksheet, { cellDates: true });
-
-        console.log(`📊 Total de registros no Excel: ${data.length}`);
-
-        // 3. Mapear e preparar dados
-        const preparedData = data.map(row => {
-            let nascimento = row['Dt.Nascimento'];
-            if (nascimento instanceof Date) {
-                nascimento = nascimento.toISOString().split('T')[0];
-            }
-
-            return {
-                cpf: row['CPF.']?.toString().replace(/\D/g, '') || '',
-                nome: row['Nome'] || '',
-                cargo: row['Cargo'] || '',
-                matricula: row['Matrícula']?.toString() || '',
-                nascimento: nascimento || null,
-                secretaria: row['Secretaria'] || '',
-                natureza_cargo: row['Nome Natureza Cargo'] || row['natureza_cargo'] || ''
-            };
-        }).filter(item => item.cpf !== '');
-
-        console.log(`✅ Registros válidos (com CPF): ${preparedData.length}`);
-
-        // 4. Limpar tabela atual (opcional, dependendo do desejo do usuário)
-        // O usuário disse "atualizarmos", geralmente um full sync limpa e insere
-        console.log('🧹 Limpando tabela de servidores...');
-        const { error: deleteError } = await supabase
-            .from('servidores')
-            .delete()
-            .neq('cpf', ''); // Deletar todos
-
-        if (deleteError) {
-            console.error('❌ Erro ao limpar tabela:', deleteError.message);
-            // Prosseguimos mesmo assim, pode ser erro de permissão RLS
-        }
-
-        // 5. Inserir em blocos (chunks) para evitar limites
-        const chunkSize = 200;
-        console.log(`🚀 Inserindo dados em lotes de ${chunkSize}...`);
         
-        for (let i = 0; i < preparedData.length; i += chunkSize) {
-            const chunk = preparedData.slice(i, i + chunkSize);
-            const { error: insertError } = await supabase
-                .from('servidores')
-                .insert(chunk);
+        console.log(`📂 Processando Excel: ${latestFile}`);
 
-            if (insertError) {
-                console.error(`❌ Erro no lote ${Math.floor(i/chunkSize) + 1}:`, insertError.message);
+        const workbook = XLSX.readFile(latestFile);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const excelData = XLSX.utils.sheet_to_json(sheet, { cellDates: true });
+        console.log(`📊 Total no Excel: ${excelData.length} registros.`);
+
+        const excelMap = new Map();
+        excelData.forEach(row => {
+            const mapped = {
+                cpf: row['CPF.']?.toString().replace(/\D/g, '') || '',
+                nome: row['Nome']?.toString().trim().toUpperCase() || '',
+                cargo: row['Cargo']?.toString().trim().toUpperCase() || '',
+                matricula: row['Matrícula']?.toString().trim() || '',
+                nascimento: formatDate(row['Dt.Nascimento']),
+                secretaria: row['Secretaria']?.toString().trim().toUpperCase() || '',
+                contrato: row['Contrato']?.toString().trim() || '1',
+                sexo: row['Sexo']?.toString() || '',
+                local_trabalho: row['Nome Local Trabalho']?.toString() || '',
+                vinculo: row['Nome Vinculo']?.toString() || '',
+                natureza_cargo: row['Nome Natureza Cargo']?.toString() || '',
+                // NOVOS CAMPOS:
+                admissao: formatDate(row['Dt.Admissão']),
+                deficiencia_rais: row['Deficiência RAIS']?.toString() || '',
+                pis_pasep: row['PIS/PASEP/NIT']?.toString() || ''
+            };
+            
+            if (mapped.cpf) {
+                const key = getUniqueKey(mapped.cpf, mapped.matricula, mapped.contrato);
+                excelMap.set(key, mapped);
+            }
+        });
+
+        const dbMap = new Map();
+        dbRows.forEach(row => {
+            const key = getUniqueKey(row.cpf, row.matricula, row.contrato);
+            dbMap.set(key, row);
+        });
+
+        // 3. Comparar (Diff)
+        const toInsert = [];
+        const toUpdate = [];
+        const toDeleteIds = [];
+
+        excelMap.forEach((excelRow, key) => {
+            const dbRow = dbMap.get(key);
+            if (!dbRow) {
+                toInsert.push(excelRow);
             } else {
-                console.log(`✔️ Lote ${Math.floor(i/chunkSize) + 1}/${Math.ceil(preparedData.length/chunkSize)} concluído.`);
+                // Verificar se algo relevante mudou (inclusive os novos campos)
+                const hasChanged = 
+                    excelRow.nome !== dbRow.nome ||
+                    excelRow.cargo !== dbRow.cargo ||
+                    excelRow.secretaria !== dbRow.secretaria ||
+                    excelRow.admissao !== dbRow.admissao ||
+                    excelRow.pis_pasep !== dbRow.pis_pasep ||
+                    excelRow.deficiencia_rais !== dbRow.deficiencia_rais;
+                
+                if (hasChanged) {
+                    toUpdate.push(excelRow);
+                }
+            }
+        });
+
+        dbMap.forEach((dbRow, key) => {
+            if (!excelMap.has(key)) toDeleteIds.push(dbRow.id);
+        });
+
+        console.log('\n--- Relatório Final de Sincronização ---');
+        console.log(`🆕 Novos Vínculos (Incluindo Admitidos 2026): ${toInsert.length}`);
+        console.log(`📝 Atualizados (Mudança funcional/dados): ${toUpdate.length}`);
+        console.log(`🗑️ Removidos (Demitidos): ${toDeleteIds.length}`);
+        console.log(`⚖️ Total Final Esperado: ${excelMap.size}`);
+
+        if (IS_DRY_RUN) {
+            console.log('\n⚠️ SIMULAÇÃO CONCLUÍDA. Nenhuma alteração real feita.');
+            return;
+        }
+
+        // 4. Aplicar
+        if (toDeleteIds.length > 0) {
+            console.log(`🗑️ Removendo ${toDeleteIds.length} demitidos...`);
+            const { error: delErr } = await supabase.from('servidores').delete().in('id', toDeleteIds);
+            if (delErr) throw delErr;
+        }
+
+        const upserts = [...toInsert, ...toUpdate];
+        if (upserts.length > 0) {
+            console.log(`🚀 Sincronizando ${upserts.length} admitidos/atualizados...`);
+            const chunkSize = 200;
+            for (let i = 0; i < upserts.length; i += chunkSize) {
+                const chunk = upserts.slice(i, i + chunkSize);
+                const { error: upErr } = await supabase.from('servidores').upsert(chunk, { onConflict: 'cpf,matricula,contrato' });
+                if (upErr) throw upErr;
+                console.log(`✓ Progresso: ${i + chunk.length}/${upserts.length}`);
             }
         }
 
-        console.log('--- Sincronização Finalizada com Sucesso ---');
+        console.log('\n✅ SINCRONIZAÇÃO FINALIZADA COM SUCESSO!');
 
     } catch (err) {
-        console.error('💥 Erro fatal durante a sincronização:', err.message);
+        console.error('\n💥 Erro crítico:', err.message);
     }
 }
 
-syncDatabase();
+runSync();

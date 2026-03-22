@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:sync": "node scripts/sync-database.mjs"
+    "db:sync": "node scripts/sync-database.mjs",
+    "db:sync:ghe": "node scripts/sync-ghe.mjs",
+    "db:sync:exames": "node scripts/sync-exames.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.2",
