@@ -1,46 +1,63 @@
-
-export const ensureISO = (dateStr: string | undefined) => {
+export const parseMixedDate = (dateStr: any): string | null => {
     if (!dateStr) return null;
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    if (cleanDate.includes('-')) {
-        const parts = cleanDate.split('-');
-        if (parts[0].length === 4) return cleanDate; // JÁ ESTÁ NO FORMATO YYYY-MM-DD
-        // CASO ESTEJA EM DD-MM-AAAA
-        const [p1, p2, p3] = parts;
-        if (!p1 || !p2 || !p3) return cleanDate;
-        return `${p3}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
+    const str = String(dateStr).trim();
+    if (!str || str === "---") return null;
+
+    // Caso seja número do Excel (ex: "29393")
+    if (/^\d{5}$/.test(str)) {
+        const excelDate = Number(str);
+        // Excel base date is 1899-12-30
+        const date = new Date(1899, 11, 30 + excelDate);
+        return date.toISOString().split('T')[0];
     }
+
+    // Tenta ISO
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+        return str.split(' ')[0].split('T')[0];
+    }
+
+    // Tenta DD/MM/AAAA ou DD-MM-AAAA
+    const cleanDate = str.split(' ')[0].split('T')[0];
+    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
     
-    // CASO ESTEJA EM DD/MM/AAAA
-    const parts = cleanDate.split('/');
     if (parts.length === 3) {
-        const [day, month, year] = parts;
-        if (!day || !month || !year) return cleanDate;
-        if (year.length === 4) {
+        let day, month, year;
+        if (cleanDate.includes('-')) {
+            if (parts[0].length === 4) {
+               [year, month, day] = parts;
+            } else {
+               [day, month, year] = parts;
+            }
+        } else {
+            [day, month, year] = parts;
+        }
+        
+        if (day && day.length === 4 && year.length !== 4) {
+            [day, year] = [year, day];
+        }
+
+        if (day && month && year && year.length === 4) {
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        } else if (day.length === 4) {
-            return `${day}-${month.padStart(2, '0')}-${year.padStart(2, '0')}`;
         }
     }
-    return cleanDate;
+
+    return null;
 };
 
-export const formatBirthInfo = (dateStr: string | undefined) => {
-    if (!dateStr) return "---";
+export const ensureISO = (dateStr: any) => parseMixedDate(dateStr);
 
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
+export const formatDate = (dateStr: any) => {
+    const isoDate = parseMixedDate(dateStr);
+    if (!isoDate) return "---";
+    const [year, month, day] = isoDate.split('-');
+    return `${day}/${month}/${year}`;
+};
 
-    let day, month, year;
+export const formatBirthInfo = (dateStr: any) => {
+    const isoDate = parseMixedDate(dateStr);
+    if (!isoDate) return "---";
 
-    if (cleanDate.includes('-')) {
-        [year, month, day] = parts;
-    } else {
-        [day, month, year] = parts;
-    }
-
-    if (!day || !month || !year) return dateStr;
-
+    const [year, month, day] = isoDate.split('-');
     const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -49,5 +66,5 @@ export const formatBirthInfo = (dateStr: string | undefined) => {
         age--;
     }
 
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year} (${age} anos)`;
+    return `${day}/${month}/${year} (${age} anos)`;
 };

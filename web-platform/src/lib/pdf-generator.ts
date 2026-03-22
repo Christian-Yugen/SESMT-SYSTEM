@@ -2,30 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Servidor, Funcao, ExameData } from '@/types';
 
-const formatBirthInfo = (dateStr?: string) => {
-    if (!dateStr) return "---";
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
-    let day, month, year;
-    if (cleanDate.includes('-')) { [year, month, day] = parts; } else { [day, month, year] = parts; }
-    if (!day || !month || !year) return dateStr;
-    const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year} (${age} anos)`;
-};
-
-const formatDateOnly = (dateStr?: string) => {
-    if (!dateStr) return "---";
-    const cleanDate = dateStr.split(' ')[0].split('T')[0];
-    const parts = cleanDate.includes('-') ? cleanDate.split('-') : cleanDate.split('/');
-    let day, month, year;
-    if (cleanDate.includes('-')) { [year, month, day] = parts; } else { [day, month, year] = parts; }
-    if (!day || !month || !year) return dateStr;
-    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-};
+import { formatBirthInfo, formatDate } from './utils';
 
 export const generateASOPDF = (
     servidor: Servidor,
@@ -316,7 +293,7 @@ export const generateReferralPDF = (
     doc.setFont('helvetica', 'bold');
     doc.text('DT. NASC:', 100, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(formatDateOnly(servidor["Dt.Nascimento"] || servidor.nascimento), 125, y);
+    doc.text(formatDate(servidor["Dt.Nascimento"] || servidor.nascimento), 125, y);
     y += 6;
     doc.setFont('helvetica', 'bold');
     doc.text('CARGO:', 14, y);
