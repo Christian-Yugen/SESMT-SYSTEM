@@ -313,6 +313,13 @@ export const generateReferralPDF = (
     doc.text(matriculaDoc + contratoDoc, 42, y);
     y += 10;
 
+    // Texto de Solicitação Médica
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const solicitacaoText = `Os exames abaixo são uma solicitação do médico coordenador do PCMSO Dr. Issam Fares Junior - CRM/MS 3744.`;
+    doc.text(solicitacaoText, 14, y);
+    y += 8;
+
     // Tabela de Exames (Removendo "Exame Clínico")
     const examesFiltrados = (examesConfig.exames || [])
         .filter(ex => ex.toUpperCase().trim() !== "EXAME CLÍNICO")
@@ -338,11 +345,8 @@ export const generateReferralPDF = (
     doc.text('DPT. DE SEG. SAÚDE E QUALIDADE DE VIDA', 105, y, { align: 'center' });
     doc.setFont('helvetica', 'normal');
     doc.text('PREFEITURA MUNICIPAL DE TRÊS LAGOAS', 105, y + 4, { align: 'center' });
-    
-    y += 10;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Dr. Issam Fares Junior', 105, y, { align: 'center' });
-    doc.text('CRM/MS 3744', 105, y + 4, { align: 'center' });
+
+    y += 20;
 
     y += 20;
     doc.setFontSize(11); // Diminuído para 11
