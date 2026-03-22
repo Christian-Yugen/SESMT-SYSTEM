@@ -24,6 +24,9 @@ interface ReferralEntry {
     generated_at: string;
     generated_by: string;
     exams?: string[];
+    risks?: string;
+    exams_json?: any;
+    servidor_nascimento?: string;
 }
 
 export default function ReferralsPage() {
