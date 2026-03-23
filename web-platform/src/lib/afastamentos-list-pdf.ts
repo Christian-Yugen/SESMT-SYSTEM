@@ -152,8 +152,7 @@ export function generateAfastamentosListPDF(
         },
         bodyStyles: { 
             fontSize: isLandscape ? 6.5 : 7.5, 
-            textColor: [60, 60, 60],
-            textTransform: 'uppercase'
+            textColor: [60, 60, 60]
         },
         columnStyles: isLandscape 
             ? { 
