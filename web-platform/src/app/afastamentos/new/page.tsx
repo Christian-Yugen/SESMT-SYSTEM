@@ -230,6 +230,21 @@ export default function NewAfastamentoPage() {
             
             let nextNumber = (lastPortaria?.numero || 0) + 1;
 
+            // Se for prorrogação, vamos buscar os registros anteriores (siblings) para vincular corretamente
+            let previousRecords: any[] = [];
+            if (formData.renew_from_id) {
+                const { data: baseRec } = await supabase.from('afastamentos').select('*').eq('id', formData.renew_from_id).single();
+                if (baseRec) {
+                    const { data: siblings } = await supabase.from('afastamentos')
+                        .select('*')
+                        .eq('servidor_cpf', baseRec.servidor_cpf)
+                        .eq('data_inicio', baseRec.data_inicio)
+                        .eq('data_fim', baseRec.data_fim)
+                        .eq('status', 'ATIVO');
+                    if (siblings) previousRecords = siblings;
+                }
+            }
+
             // Lançar para todos os vínculos
             for (const bond of allBonds) {
                 const { data: newAfastamento, error } = await supabase
@@ -300,15 +315,19 @@ export default function NewAfastamentoPage() {
                     servidor_contrato: allContracts // <--- Joined contracts
                 });
 
-                // Prorrogação
-                if (formData.renew_from_id) {
+                // Prorrogação: Procurar o registro anterior correspondente a este vínculo
+                const prevBondRec = previousRecords.find(pr => pr.servidor_matricula === bond.matricula && pr.servidor_contrato === bond.contrato);
+                if (prevBondRec) {
                     await supabase
                         .from('afastamentos')
                         .update({ 
                             situacao: 'PRORROGADO',
                             renovado_por_id: newAfastamento.id 
                         })
-                        .eq('id', formData.renew_from_id);
+                        .eq('id', prevBondRec.id);
+                } else if (formData.renew_from_id && allBonds.length === 1) {
+                    // Fallback para caso simples de 1 vínculo ou se a matrícula mudou (raro)
+                    await supabase.from('afastamentos').update({ situacao: 'PRORROGADO', renovado_por_id: newAfastamento.id }).eq('id', formData.renew_from_id);
                 }
             }
 
