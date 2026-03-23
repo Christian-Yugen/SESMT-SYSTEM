@@ -10,7 +10,7 @@ import {
     BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, Plus, Trash2, CheckCircle2, History, Printer, Download, Eye
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-import { getCIDChapter, getCIDDetails, CIDDetails } from "@/lib/cid-utils";
+import { getCIDChapter, getCIDDetails, CIDDetails, searchCIDs } from "@/lib/cid-utils";
 import { generateAfastamentoPDF, AfastamentoPortariaData } from "@/lib/afastamento-portaria-pdf";
 
 interface Servidor {
@@ -52,9 +52,11 @@ export default function NewAfastamentoPage() {
 
     const [selectedCids, setSelectedCids] = useState<CIDDetails[]>([]);
     const [cidInput, setCidInput] = useState("");
+    const [foundCids, setFoundCids] = useState<CIDDetails[]>([]);
+    const [searchingCids, setSearchingCids] = useState(false);
     const [diasAfastamento, setDiasAfastamento] = useState<string>("");
 
-    // Debounce search
+    // Debounce server search
     useEffect(() => {
         const timer = setTimeout(() => {
             if (searchQuery.length >= 3) {
@@ -65,6 +67,21 @@ export default function NewAfastamentoPage() {
         }, 500);
         return () => clearTimeout(timer);
     }, [searchQuery]);
+
+    // Debounce CID search
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (cidInput.trim().length >= 1) {
+                setSearchingCids(true);
+                const results = await searchCIDs(cidInput);
+                setFoundCids(results);
+                setSearchingCids(false);
+            } else {
+                setFoundCids([]);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [cidInput]);
 
     // Auto calculate data_fim
     useEffect(() => {
@@ -147,11 +164,27 @@ export default function NewAfastamentoPage() {
         setFoundServidores([]);
     };
 
-    const addCid = () => {
+    const addCid = async (cidToUse?: CIDDetails) => {
+        if (cidToUse) {
+            const alreadyExists = selectedCids.some(c => c.code === cidToUse.code);
+            if (!alreadyExists) {
+                setSelectedCids([...selectedCids, cidToUse]);
+            }
+            setCidInput("");
+            setFoundCids([]);
+            return;
+        }
+
         if (!cidInput.trim()) return;
-        const details = getCIDDetails(cidInput);
-        setSelectedCids([...selectedCids, details]);
+        setSearchingCids(true);
+        const details = await getCIDDetailsFromDB(cidInput);
+        const alreadyExists = selectedCids.some(c => c.code === details.code);
+        if (!alreadyExists) {
+            setSelectedCids([...selectedCids, details]);
+        }
         setCidInput("");
+        setFoundCids([]);
+        setSearchingCids(false);
     };
 
     const removeCid = (index: number) => {
@@ -421,16 +454,42 @@ export default function NewAfastamentoPage() {
                                 {/* SELEÇÃO DE CID */}
                                 <div className="space-y-4 pt-4 border-t border-slate-100">
                                     <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">CIDs (CID-10 / CID-11)</label>
-                                    <div className="flex gap-2">
-                                        <input 
-                                            type="text" 
-                                            placeholder="CÓDIGO CID (Ex: J45)..." 
-                                            className="flex-1 px-4 py-3 border border-slate-300 rounded font-bold uppercase"
-                                            value={cidInput}
-                                            onChange={(e) => setCidInput(e.target.value.toUpperCase())}
-                                            onKeyDown={(e) => e.key === 'Enter' && addCid()}
-                                        />
-                                        <button onClick={addCid} className="bg-[#1A3351] text-white px-4 rounded hover:bg-emerald-600 transition-colors">
+                                    <div className="flex gap-2 relative">
+                                        <div className="flex-1 relative">
+                                            <input 
+                                                type="text" 
+                                                placeholder="CÓDIGO OU NOME DA DOENÇA (Ex: J45 ou Asma)..." 
+                                                className="w-full px-4 py-3 border border-slate-300 rounded font-bold uppercase"
+                                                value={cidInput}
+                                                onChange={(e) => setCidInput(e.target.value.toUpperCase())}
+                                                onKeyDown={(e) => e.key === 'Enter' && addCid()}
+                                            />
+                                            {searchingCids && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                    <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                                                </div>
+                                            )}
+                                            {foundCids.length > 0 && (
+                                                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-[#1A3351] rounded shadow-2xl z-50 max-h-60 overflow-y-auto">
+                                                    {foundCids.map((cid, idx) => (
+                                                        <button 
+                                                            key={cid.code + idx} 
+                                                            onClick={() => addCid(cid)}
+                                                            className="w-full text-left p-3 hover:bg-emerald-50 border-b last:border-0 transition-colors group"
+                                                        >
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-xs font-black text-[#1A3351]">{cid.code}</span>
+                                                                <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded uppercase">Cap. {cid.chapter}</span>
+                                                            </div>
+                                                            <p className="text-[10px] font-bold text-slate-600 uppercase group-hover:text-emerald-700">
+                                                                {cid.desc}
+                                                            </p>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button onClick={() => addCid()} className="bg-[#1A3351] text-white px-4 rounded hover:bg-emerald-600 transition-colors h-[46px]">
                                             <Plus className="w-6 h-6" />
                                         </button>
                                     </div>

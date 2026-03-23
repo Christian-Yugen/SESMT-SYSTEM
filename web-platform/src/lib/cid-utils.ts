@@ -1,4 +1,5 @@
 import cidData from './cid10-data.json';
+import { supabase } from './supabase';
 
 export interface CIDChapter {
     capitulo: string;
@@ -68,4 +69,96 @@ export function getCIDDetails(code: string): CIDDetails {
         chapter: chapter?.capitulo || "N/A",
         chapter_desc: chapter?.descricao || "Capítulo não identificado"
     };
+}
+
+/**
+ * Busca detalhada no banco de dados para sugestões em tempo real ou recuperação de descrições precisas.
+ */
+export async function searchCIDs(query: string): Promise<CIDDetails[]> {
+    const q = query.trim().toUpperCase();
+    if (!q || q.length < 1) return [];
+
+    // Prioridade para busca por código exato ou similar
+    const { data, error } = await supabase
+        .from('cid10')
+        .select('*')
+        .or(`codigo.ilike.${q}%,descricao.ilike.%${q}%`)
+        .order('codigo')
+        .limit(25);
+
+    if (error || !data) return [];
+
+    return data.map(item => {
+        const chapter = getCIDChapter(item.codigo);
+        return {
+            code: item.codigo,
+            desc: item.descricao,
+            chapter: chapter?.capitulo || "N/A",
+            chapter_desc: chapter?.descricao || "Capítulo não identificado"
+        };
+    });
+}
+
+/**
+ * Recupera os detalhes de um CID específico do banco de dados (async).
+ * Implementa lógica inteligente para lidar com códigos incompletos (ex: I42 -> I42.0).
+ */
+export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
+    const upperCode = code.toUpperCase().trim();
+    if (!upperCode) return getCIDDetails("");
+    
+    // 1. Tenta correspondência exata
+    let { data, error } = await supabase
+        .from('cid10')
+        .select('codigo, descricao')
+        .eq('codigo', upperCode)
+        .maybeSingle();
+    
+    let finalCode = upperCode;
+    let finalDesc = data?.descricao;
+
+    // 2. Lógica Inteligente: Se não encontrou e o código não tem ponto (ex: I42), tenta variações
+    if (!data && !upperCode.includes('.')) {
+        // Tenta adicionar .0 (padrão comum)
+        const codeWithZero = `${upperCode}.0`;
+        const { data: dataZero } = await supabase
+            .from('cid10')
+            .select('codigo, descricao')
+            .eq('codigo', codeWithZero)
+            .maybeSingle();
+        
+        if (dataZero) {
+            data = dataZero;
+            finalCode = dataZero.codigo;
+            finalDesc = dataZero.descricao;
+        } else {
+            // Tenta qualquer subitem que comece com o código + ponto (ex: I42.1, I42.2...)
+            const { data: dataAny } = await supabase
+                .from('cid10')
+                .select('codigo, descricao')
+                .ilike('codigo', `${upperCode}.%`)
+                .order('codigo')
+                .limit(1)
+                .maybeSingle();
+            
+            if (dataAny) {
+                data = dataAny;
+                finalCode = dataAny.codigo;
+                finalDesc = dataAny.descricao;
+            }
+        }
+    }
+    
+    const chapter = getCIDChapter(finalCode);
+
+    if (data && !error) {
+        return {
+            code: finalCode,
+            desc: finalDesc || "Descrição não encontrada",
+            chapter: chapter?.capitulo || "N/A",
+            chapter_desc: chapter?.descricao || "Capítulo não identificado"
+        };
+    }
+
+    return getCIDDetails(code);
 }

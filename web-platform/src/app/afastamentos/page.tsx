@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { getCIDChapter, getCIDDetails } from "@/lib/cid-utils";
+import { getCIDChapter, getCIDDetails, searchCIDs, getCIDDetailsFromDB } from "@/lib/cid-utils";
 import { supabase } from "@/lib/supabase";
 import {
     LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
@@ -63,6 +63,42 @@ const formatCpf = (cpf: string) => {
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
 };
 
+// Componente inteligente para exibir o CID com resolução assíncrona
+function CIDBadge({ code }: { code: string }) {
+    const [details, setDetails] = useState<any>(null);
+
+    useEffect(() => {
+        getCIDDetailsFromDB(code).then(setDetails);
+    }, [code]);
+
+    if (!details) {
+        return (
+            <div className="flex items-center gap-3 animate-pulse">
+                <div className="h-8 w-16 bg-emerald-100/50 rounded-lg"></div>
+                <div className="h-4 w-32 bg-slate-100 rounded"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-3 group">
+            <div className="flex items-center bg-emerald-100/50 px-2 py-1 rounded-lg border border-emerald-200/50">
+                <span className="text-sm font-black text-emerald-800 mr-2">{details.code}</span>
+                <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 rounded-full py-0.5">CAP. {details.chapter}</span>
+            </div>
+            <div className="flex flex-col">
+                <p className="text-xs font-black text-slate-800 uppercase group-hover:text-emerald-700 transition-colors whitespace-nowrap overflow-hidden text-ellipsis max-w-[250px]" title={details.desc}>
+                    {details.desc}
+                </p>
+                <p className="text-[11px] font-bold text-slate-400 leading-none mt-1">
+                    {details.chapter_desc}
+                </p>
+            </div>
+            <div className="hidden lg:block w-px h-8 bg-slate-200 ml-4 line-clamp-1"></div>
+        </div>
+    );
+}
+
 export default function AfastamentosPage() {
     const [records, setRecords] = useState<AfastamentoRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -91,6 +127,23 @@ export default function AfastamentosPage() {
     });
     const [isSavingEdit, setIsSavingEdit] = useState(false);
     const [cidEditInput, setCidEditInput] = useState("");
+    const [foundCids, setFoundCids] = useState<any[]>([]);
+    const [searchingCids, setSearchingCids] = useState(false);
+
+    // Debounce CID search (edição)
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (cidEditInput.trim().length >= 1) {
+                setSearchingCids(true);
+                const results = await searchCIDs(cidEditInput);
+                setFoundCids(results);
+                setSearchingCids(false);
+            } else {
+                setFoundCids([]);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [cidEditInput]);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -288,6 +341,24 @@ export default function AfastamentosPage() {
             setIsSavingEdit(false);
         }
     }
+
+    const openEditModal = async (record: AfastamentoRecord) => {
+        setUpdatingId(record.id);
+        
+        // Resolver CIDs de forma "inteligente" (ex: I42 -> I42.0)
+        const resolvedCids = await Promise.all(
+            (record.afastamento_cids || []).map(c => getCIDDetailsFromDB(c.cid_codigo))
+        );
+        
+        setEditingRecord(record);
+        setEditFormData({
+            data_inicio: record.data_inicio,
+            dias_afastado: String(record.dias_afastado || ""),
+            cids: resolvedCids
+        });
+        setUpdatingId(null);
+        setIsEditModalOpen(true);
+    };
 
     const handleViewPortaria = (record: any) => {
         const portaria = record.portarias_afastamento?.[0];
@@ -686,26 +757,9 @@ export default function AfastamentosPage() {
                                                                             <Layers className="w-4 h-4" /> Diagnósticos Registrados (CID-10)
                                                                         </p>
                                                                         <div className="flex flex-wrap gap-x-8 gap-y-4">
-                                                                            {record.afastamento_cids?.map(c => {
-                                                                                const details = getCIDDetails(c.cid_codigo);
-                                                                                return (
-                                                                                    <div key={c.id} className="flex items-center gap-3 group">
-                                                                                        <div className="flex items-center bg-emerald-100/50 px-2 py-1 rounded-lg border border-emerald-200/50">
-                                                                                            <span className="text-sm font-black text-emerald-800 mr-2">{c.cid_codigo}</span>
-                                                                                            <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 rounded-full py-0.5">CAP. {details.chapter}</span>
-                                                                                        </div>
-                                                                                        <div className="flex flex-col">
-                                                                                            <p className="text-xs font-black text-slate-800 uppercase group-hover:text-emerald-700 transition-colors whitespace-nowrap">
-                                                                                                {details.desc}
-                                                                                            </p>
-                                                                                            <p className="text-[11px] font-bold text-slate-400 leading-none mt-1">
-                                                                                                {details.chapter_desc}
-                                                                                            </p>
-                                                                                        </div>
-                                                                                        <div className="hidden lg:block w-px h-8 bg-slate-200 ml-4"></div>
-                                                                                    </div>
-                                                                                );
-                                                                            }) || <p className="text-sm text-slate-400 italic">Nenhum CID registrado.</p>}
+                                                                            {record.afastamento_cids?.map(c => (
+                                                                                <CIDBadge key={c.id} code={c.cid_codigo} />
+                                                                            )) || <p className="text-sm text-slate-400 italic">Nenhum CID registrado.</p>}
                                                                         </div>
                                                                         <button 
                                                                             onClick={() => toggleCidVisibility(record.id)}
@@ -738,18 +792,12 @@ export default function AfastamentosPage() {
                                                                             </button>
                                                                         )}
                                                                         <button 
-                                                                            onClick={() => {
-                                                                                setEditingRecord(record);
-                                                                                setEditFormData({
-                                                                                    data_inicio: record.data_inicio,
-                                                                                    dias_afastado: String(record.dias_afastado || ""),
-                                                                                    cids: record.afastamento_cids?.map(c => getCIDDetails(c.cid_codigo)) || []
-                                                                                });
-                                                                                setIsEditModalOpen(true);
-                                                                            }}
+                                                                            onClick={() => openEditModal(record)}
+                                                                            disabled={updatingId === record.id}
                                                                             className="flex items-center gap-2 px-5 py-2 bg-slate-800 text-white text-[10px] font-black rounded-xl hover:bg-black transition-all shadow-md active:scale-95 uppercase border-b-2 border-slate-950"
                                                                         >
-                                                                            <Pencil className="w-4 h-4" /> Editar
+                                                                            {updatingId === record.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
+                                                                            Editar
                                                                         </button>
                                                                     </>
                                                                 )}
@@ -844,33 +892,78 @@ export default function AfastamentosPage() {
 
                                 <div className="space-y-4">
                                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest block">Gerenciamento de CIDs</label>
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 relative">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                             <input 
                                                 type="text" 
-                                                placeholder="Adicionar novo CID (Ex: J45)..."
+                                                placeholder="CÓDIGO OU NOME DA DOENÇA (Ex: J45 ou Asma)..."
                                                 className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all uppercase"
                                                 value={cidEditInput}
                                                 onChange={(e) => setCidEditInput(e.target.value.toUpperCase())}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' && cidEditInput.trim()) {
-                                                        const details = getCIDDetails(cidEditInput);
-                                                        setEditFormData({...editFormData, cids: [...editFormData.cids, details]});
-                                                        setCidEditInput("");
+                                                onKeyDown={async (e) => {
+                                                    if (e.key === 'Enter') {
+                                                        if (cidEditInput.trim()) {
+                                                            setSearchingCids(true);
+                                                            const details = await getCIDDetailsFromDB(cidEditInput);
+                                                            const alreadyExists = editFormData.cids.some(c => c.code === details.code);
+                                                            if (!alreadyExists) {
+                                                                setEditFormData({...editFormData, cids: [...editFormData.cids, details]});
+                                                            }
+                                                            setCidEditInput("");
+                                                            setFoundCids([]);
+                                                            setSearchingCids(false);
+                                                        }
                                                     }
                                                 }}
                                             />
+                                            {searchingCids && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                    <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                                                </div>
+                                            )}
+                                            {foundCids.length > 0 && (
+                                                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-[#1A3351] rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto">
+                                                    {foundCids.map((cid, idx) => (
+                                                        <button 
+                                                            key={cid.code + idx} 
+                                                            onClick={() => {
+                                                                const alreadyExists = editFormData.cids.some(c => c.code === cid.code);
+                                                                if (!alreadyExists) {
+                                                                    setEditFormData({...editFormData, cids: [...editFormData.cids, cid]});
+                                                                }
+                                                                setCidEditInput("");
+                                                                setFoundCids([]);
+                                                            }}
+                                                            className="w-full text-left p-3 hover:bg-emerald-50 border-b last:border-0 transition-colors group"
+                                                        >
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-xs font-black text-[#1A3351]">{cid.code}</span>
+                                                                <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded uppercase">Cap. {cid.chapter}</span>
+                                                            </div>
+                                                            <p className="text-[10px] font-bold text-slate-600 uppercase group-hover:text-emerald-700">
+                                                                {cid.desc}
+                                                            </p>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <button 
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 if (cidEditInput.trim()) {
-                                                    const details = getCIDDetails(cidEditInput);
-                                                    setEditFormData({...editFormData, cids: [...editFormData.cids, details]});
+                                                    setSearchingCids(true);
+                                                    const details = await getCIDDetailsFromDB(cidEditInput);
+                                                    const alreadyExists = editFormData.cids.some(c => c.code === details.code);
+                                                    if (!alreadyExists) {
+                                                        setEditFormData({...editFormData, cids: [...editFormData.cids, details]});
+                                                    }
                                                     setCidEditInput("");
+                                                    setFoundCids([]);
+                                                    setSearchingCids(false);
                                                 }
                                             }}
-                                            className="px-6 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs hover:bg-emerald-700 transition-all active:scale-95 shadow-md shadow-emerald-600/20"
+                                            className="px-6 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs hover:bg-emerald-700 transition-all active:scale-95 shadow-md shadow-emerald-600/20 h-[46px]"
                                         >
                                             Add
                                         </button>
