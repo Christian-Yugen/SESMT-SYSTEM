@@ -10,7 +10,7 @@ import {
     BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, Plus, Trash2, CheckCircle2, History, Printer, Download, Eye
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-import { getCIDChapter, getCIDDetails, CIDDetails, searchCIDs, getCIDDetailsFromDB } from "@/lib/cid-utils";
+import { getCIDChapter, getCIDDetails, CIDDetails, searchCIDs, getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { generateAfastamentoPDF, AfastamentoPortariaData } from "@/lib/afastamento-portaria-pdf";
 
 interface Servidor {
@@ -22,6 +22,7 @@ interface Servidor {
     contrato: string;
     secretaria: string;
     natureza_cargo: string;
+    sexo?: string; // M ou F
 }
 
 export default function NewAfastamentoPage() {
@@ -41,6 +42,7 @@ export default function NewAfastamentoPage() {
     // Form data
     const [formData, setFormData] = useState({
         tipo_afastamento: "AUX. DOENÇA",
+        is_acidente_trabalho: false,
         data_inicio: "",
         data_fim: "",
         data_pericia: "",
@@ -160,6 +162,13 @@ export default function NewAfastamentoPage() {
 
     const selectServidor = async (s: Servidor) => {
         setSelectedServidor(s);
+        
+        // Se for homem, não pode estar em Licença Maternidade
+        const isMale = s.sexo === 'M' || s.sexo === 'MASCULINO';
+        if (isMale && formData.tipo_afastamento === "LICENÇA MATERNIDADE") {
+            setFormData(prev => ({ ...prev, tipo_afastamento: "AUX. DOENÇA" }));
+        }
+
         const { data: bonds } = await supabase.from('servidores').select('*').eq('cpf', s.cpf);
         if (bonds) setAllBonds(bonds);
         setFoundServidores([]);
@@ -176,9 +185,11 @@ export default function NewAfastamentoPage() {
             return;
         }
 
-        if (!cidInput.trim()) return;
+        const normalizedInput = normalizeCID(cidInput);
+        if (!normalizedInput) return;
+        
         setSearchingCids(true);
-        const details = await getCIDDetailsFromDB(cidInput);
+        const details = await getCIDDetailsFromDB(normalizedInput);
         const alreadyExists = selectedCids.some(c => c.code === details.code);
         if (!alreadyExists) {
             setSelectedCids([...selectedCids, details]);
@@ -232,6 +243,7 @@ export default function NewAfastamentoPage() {
                         servidor_cargo: bond.cargo || bond.natureza_cargo,
                         natureza_cargo: bond.natureza_cargo,
                         tipo_afastamento: formData.tipo_afastamento,
+                        is_acidente_trabalho: formData.is_acidente_trabalho,
                         data_inicio: formData.data_inicio,
                         data_fim: formData.data_fim,
                         data_pericia: formData.data_pericia || null,
@@ -282,6 +294,7 @@ export default function NewAfastamentoPage() {
                     data_inicio: new Date(formData.data_inicio).toLocaleDateString('pt-BR'),
                     data_fim: new Date(formData.data_fim).toLocaleDateString('pt-BR'),
                     tipo_afastamento: formData.tipo_afastamento,
+                    is_acidente_trabalho: formData.is_acidente_trabalho,
                     perito_nome: formData.perito_nome,
                     perito_crm: formData.perito_crm,
                     servidor_contrato: allContracts // <--- Joined contracts
@@ -417,16 +430,32 @@ export default function NewAfastamentoPage() {
                                 <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Informações do Afastamento</h3>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Tipo de Afastamento</label>
-                                        <select 
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-[#1A3351]"
-                                            value={formData.tipo_afastamento}
-                                            onChange={(e) => setFormData({...formData, tipo_afastamento: e.target.value})}
-                                        >
-                                            <option value="AUX. DOENÇA">AUXÍLIO DOENÇA</option>
-                                            <option value="LICENÇA MATERNIDADE">LICENÇA MATERNIDADE</option>
-                                        </select>
+                                    <div className="flex flex-col md:flex-row gap-6 md:items-end">
+                                        <div className="flex-1">
+                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Tipo de Afastamento</label>
+                                            <select 
+                                                className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-[#1A3351]"
+                                                value={formData.tipo_afastamento}
+                                                onChange={(e) => setFormData({...formData, tipo_afastamento: e.target.value})}
+                                            >
+                                                <option value="AUX. DOENÇA">AUXÍLIO DOENÇA</option>
+                                                {/* Bloquear maternidade para homens */}
+                                                {!(selectedServidor?.sexo === 'M' || selectedServidor?.sexo === 'MASCULINO') && (
+                                                    <option value="LICENÇA MATERNIDADE">LICENÇA MATERNIDADE</option>
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded group hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer select-none"
+                                            onClick={() => setFormData(prev => ({ ...prev, is_acidente_trabalho: !prev.is_acidente_trabalho }))}>
+                                            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${formData.is_acidente_trabalho ? 'bg-red-600 border-red-600 shadow-lg shadow-red-200' : 'border-slate-300 bg-white group-hover:border-red-400'}`}>
+                                                {formData.is_acidente_trabalho && <Activity className="w-4 h-4 text-white" />}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className={`text-[10px] font-black uppercase leading-none ${formData.is_acidente_trabalho ? 'text-red-700' : 'text-slate-500'}`}>Acidente de Trabalho</span>
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase">Marcar se relacionado à ocupação</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

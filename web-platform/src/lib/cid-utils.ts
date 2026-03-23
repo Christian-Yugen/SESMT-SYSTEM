@@ -14,6 +14,23 @@ export interface CIDDetails {
     chapter_desc: string;
 }
 
+/**
+ * Normaliza um código CID-10 para o formato padrão (Ex: Z763 -> Z76.3).
+ */
+export function normalizeCID(code: string): string {
+    if (!code) return "";
+    // Remove tudo que não é letra ou número e converte para maiúsculo
+    const clean = code.toUpperCase().trim().replace(/[^A-Z0-9]/g, '');
+    
+    // CID-10 padrão tem 3 caracteres (categoria) ou 4 (subcategoria)
+    // Se tiver 4 caracteres, insere o ponto na 4ª posição (índice 3)
+    if (clean.length === 4) {
+        return `${clean.substring(0, 3)}.${clean.substring(3)}`;
+    }
+    
+    return clean;
+}
+
 export const CID_CHAPTERS: CIDChapter[] = cidData.chapters;
 
 export function getCIDChapter(code: string): CIDChapter | null {
@@ -78,11 +95,15 @@ export async function searchCIDs(query: string): Promise<CIDDetails[]> {
     const q = query.trim().toUpperCase();
     if (!q || q.length < 1) return [];
 
-    // Prioridade para busca por código exato ou similar
+    // Normaliza para busca (tira pontos se houver, ou coloca se for o caso)
+    const normalized = normalizeCID(q);
+    const clean = q.replace(/[^A-Z0-9]/g, '');
+
+    // Busca por código (com ou sem ponto) ou descrição
     const { data, error } = await supabase
         .from('cid10')
         .select('*')
-        .or(`codigo.ilike.${q}%,descricao.ilike.%${q}%`)
+        .or(`codigo.ilike.${normalized}%,codigo.ilike.${clean}%,descricao.ilike.%${q}%`)
         .order('codigo')
         .limit(25);
 
@@ -104,23 +125,23 @@ export async function searchCIDs(query: string): Promise<CIDDetails[]> {
  * Implementa lógica inteligente para lidar com códigos incompletos (ex: I42 -> I42.0).
  */
 export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
-    const upperCode = code.toUpperCase().trim();
-    if (!upperCode) return getCIDDetails("");
+    const normalizedCode = normalizeCID(code);
+    if (!normalizedCode) return getCIDDetails("");
     
-    // 1. Tenta correspondência exata
+    // 1. Tenta correspondência exata com o código normalizado
     let { data, error } = await supabase
         .from('cid10')
         .select('codigo, descricao')
-        .eq('codigo', upperCode)
+        .eq('codigo', normalizedCode)
         .maybeSingle();
     
-    let finalCode = upperCode;
+    let finalCode = normalizedCode;
     let finalDesc = data?.descricao;
 
     // 2. Lógica Inteligente: Se não encontrou e o código não tem ponto (ex: I42), tenta variações
-    if (!data && !upperCode.includes('.')) {
+    if (!data && !normalizedCode.includes('.')) {
         // Tenta adicionar .0 (padrão comum)
-        const codeWithZero = `${upperCode}.0`;
+        const codeWithZero = `${normalizedCode}.0`;
         const { data: dataZero } = await supabase
             .from('cid10')
             .select('codigo, descricao')
@@ -136,7 +157,7 @@ export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
             const { data: dataAny } = await supabase
                 .from('cid10')
                 .select('codigo, descricao')
-                .ilike('codigo', `${upperCode}.%`)
+                .ilike('codigo', `${normalizedCode}.%`)
                 .order('codigo')
                 .limit(1)
                 .maybeSingle();

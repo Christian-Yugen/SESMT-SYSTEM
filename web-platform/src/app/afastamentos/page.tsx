@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { getCIDChapter, getCIDDetails, searchCIDs, getCIDDetailsFromDB } from "@/lib/cid-utils";
+import { getCIDChapter, getCIDDetails, searchCIDs, getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { supabase } from "@/lib/supabase";
 import {
     Activity, X, Menu,
@@ -41,6 +41,7 @@ interface AfastamentoRecord {
     renovado_por_id: number | null;
     criado_em: string;
     afastamento_cids?: CIDRecord[];
+    is_acidente_trabalho: boolean;
     portarias_afastamento?: { numero: string; ano: string; data_emissao: string }[];
 }
 
@@ -61,8 +62,9 @@ const formatCpf = (cpf: string) => {
 
 function CIDBadge({ code }: { code: string }) {
     const [details, setDetails] = useState<any>(null);
-    useEffect(() => { getCIDDetailsFromDB(code).then(setDetails); }, [code]);
-    if (!details) return <span className="text-[13px] font-black bg-slate-100 text-slate-700 px-2.5 py-1 rounded animate-pulse">{code}</span>;
+    const normalized = normalizeCID(code);
+    useEffect(() => { getCIDDetailsFromDB(normalized).then(setDetails); }, [normalized]);
+    if (!details) return <span className="text-[13px] font-black bg-slate-100 text-slate-700 px-2.5 py-1 rounded animate-pulse">{normalized || code}</span>;
     return (
         <div className="group relative">
             <span className="text-[13px] font-black bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded border border-emerald-200/50 cursor-help hover:bg-emerald-200 transition-colors">
@@ -81,7 +83,8 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getCIDDetailsFromDB(cid.cid_codigo).then(res => {
+        const normalized = normalizeCID(cid.cid_codigo);
+        getCIDDetailsFromDB(normalized).then(res => {
             setDetails(res);
             setLoading(false);
         });
@@ -97,11 +100,13 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
         </div>
     );
 
+    const displayCode = details?.code || normalizeCID(cid.cid_codigo);
+
     return (
         <div className="py-2 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3 group/cid">
             <div className="flex flex-col items-center justify-center bg-slate-100 text-[#1A3351] rounded px-2 py-1 min-w-[60px] border border-slate-200 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-colors">
                 <span className="text-[7px] font-black uppercase opacity-60 tracking-wider leading-none">Código</span>
-                <span className="text-sm font-black tracking-wide leading-none">{details?.code || cid.cid_codigo}</span>
+                <span className="text-sm font-black tracking-wide leading-none">{displayCode}</span>
             </div>
             <div className="flex flex-col justify-center">
                 <div className="flex items-baseline gap-2">
@@ -137,6 +142,7 @@ export default function AfastamentosPage() {
     const [secretariaFilter, setSecretariaFilter] = useState<string>('all');
     const [naturezaCargoFilter, setNaturezaCargoFilter] = useState<string>('all');
     const [tipoAfastamentoFilter, setTipoAfastamentoFilter] = useState<string>('all');
+    const [cargoFilter, setCargoFilter] = useState<string>('all');
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
     const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
@@ -149,16 +155,20 @@ export default function AfastamentosPage() {
 
     // Edit modal states
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState<AfastamentoRecord | null>(null);
-    const [editFormData, setEditFormData] = useState({ data_inicio: "", dias_afastado: "", cids: [] as any[] });
+    const [editFormData, setEditFormData] = useState({ data_inicio: "", dias_afastado: "", is_acidente_trabalho: false, cids: [] as any[] });
+    const [noteFormData, setNoteFormData] = useState("");
     const [isSavingEdit, setIsSavingEdit] = useState(false);
+    const [isSavingNote, setIsSavingNote] = useState(false);
     const [cidEditInput, setCidEditInput] = useState("");
     const [foundCids, setFoundCids] = useState<any[]>([]);
 
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (cidEditInput.trim().length >= 1) {
-                const results = await searchCIDs(cidEditInput);
+            const normalized = normalizeCID(cidEditInput);
+            if (normalized.length >= 1) {
+                const results = await searchCIDs(normalized);
                 setFoundCids(results);
             } else setFoundCids([]);
         }, 300);
@@ -218,9 +228,20 @@ export default function AfastamentosPage() {
         setUpdatingId(record.id);
         const resolvedCids = await Promise.all((record.afastamento_cids || []).map(c => getCIDDetailsFromDB(c.cid_codigo)));
         setEditingRecord(record);
-        setEditFormData({ data_inicio: record.data_inicio, dias_afastado: String(record.dias_afastado || ""), cids: resolvedCids });
+        setEditFormData({ 
+            data_inicio: record.data_inicio, 
+            dias_afastado: String(record.dias_afastado || ""), 
+            is_acidente_trabalho: record.is_acidente_trabalho || false,
+            cids: resolvedCids 
+        });
         setUpdatingId(null);
         setIsEditModalOpen(true);
+    };
+
+    const openNotesModal = (record: AfastamentoRecord) => {
+        setEditingRecord(record);
+        setNoteFormData(record.observacoes || "");
+        setIsNotesModalOpen(true);
     };
 
     async function handleEditSave() {
@@ -235,10 +256,15 @@ export default function AfastamentosPage() {
             end.setDate(start.getDate() + days - 1);
             const newDataFim = end.toISOString().split('T')[0];
 
-            const oldData = { data_inicio: editingRecord.data_inicio, data_fim: editingRecord.data_fim, cids: editingRecord.afastamento_cids?.map(c => c.cid_codigo) || [] };
-            const newData = { data_inicio: editFormData.data_inicio, data_fim: newDataFim, cids: editFormData.cids.map(c => c.code) };
+            const oldData = { data_inicio: editingRecord.data_inicio, data_fim: editingRecord.data_fim, is_acidente_trabalho: editingRecord.is_acidente_trabalho, cids: editingRecord.afastamento_cids?.map(c => c.cid_codigo) || [] };
+            const newData = { data_inicio: editFormData.data_inicio, data_fim: newDataFim, is_acidente_trabalho: editFormData.is_acidente_trabalho, cids: editFormData.cids.map(c => c.code) };
 
-            await supabase.from('afastamentos').update({ data_inicio: editFormData.data_inicio, data_fim: newDataFim, dias_afastado: days }).eq('id', editingRecord.id);
+            await supabase.from('afastamentos').update({ 
+                data_inicio: editFormData.data_inicio, 
+                data_fim: newDataFim, 
+                dias_afastado: days,
+                is_acidente_trabalho: editFormData.is_acidente_trabalho 
+            }).eq('id', editingRecord.id);
             await supabase.from('afastamento_cids').delete().eq('afastamento_id', editingRecord.id);
             for (const cid of editFormData.cids) {
                 const chapter = getCIDChapter(cid.code);
@@ -250,6 +276,19 @@ export default function AfastamentosPage() {
             alert("Alterações salvas com sucesso!");
         } catch (err: any) { alert("Erro ao salvar: " + err.message); }
         finally { setIsSavingEdit(false); }
+    }
+
+    async function handleNoteSave() {
+        if (!editingRecord) return;
+        setIsSavingNote(true);
+        try {
+            const { error } = await supabase.from('afastamentos').update({ observacoes: noteFormData }).eq('id', editingRecord.id);
+            if (error) throw error;
+            loadRecords();
+            setIsNotesModalOpen(false);
+            alert("Anotação salva com sucesso!");
+        } catch (err: any) { alert("Erro ao salvar anotação: " + err.message); }
+        finally { setIsSavingNote(false); }
     }
 
     const handleViewPortaria = (record: any) => {
@@ -277,11 +316,36 @@ export default function AfastamentosPage() {
         if (record.situacao === 'FINALIZADO') return 'finished';
         const today = new Date(); today.setHours(0, 0, 0, 0);
         if (record.data_fim) {
-            const end = new Date(record.data_fim); end.setHours(0, 0, 0, 0);
+            const p = record.data_fim.split('-');
+            const end = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+            end.setHours(0, 0, 0, 0);
             if (end < today) return record.tipo_afastamento?.toUpperCase().includes('MATERNIDADE') ? 'finished' : 'expired';
-            if (Math.ceil((end.getTime() - today.getTime()) / 86400000) <= 15) return 'alert';
+            if (Math.ceil((end.getTime() - today.getTime()) / 86400000) <= 10) return 'alert';
         }
         return 'active';
+    };
+
+    const getDaysRemaining = (dateFim: string) => {
+        if (!dateFim) return null;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const p = dateFim.split('-');
+        const end = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+        end.setHours(0, 0, 0, 0);
+        const diffTime = end.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
+    const VencimentoAlerta = ({ dateFim, compact = false }: { dateFim: string, compact?: boolean }) => {
+        const days = getDaysRemaining(dateFim);
+        if (days === null || days < 0 || days >= 11) return null;
+        
+        return (
+            <div className={`flex items-center gap-1.5 text-red-600 font-black animate-pulse ${compact ? 'text-[8px]' : 'text-xs'} uppercase tracking-tight`}>
+                <Clock className={compact ? 'w-2 h-2 text-red-400' : 'w-4 h-4 text-red-500'} />
+                {days === 0 ? 'VENCE HOJE' : `Faltam ${days} ${days === 1 ? 'dia' : 'dias'} para vencer`}
+            </div>
+        );
     };
 
     const filteredRecords = useMemo(() => {
@@ -294,6 +358,7 @@ export default function AfastamentosPage() {
             const matchesSecretaria = secretariaFilter === 'all' || record.servidor_secretaria === secretariaFilter;
             const matchesNatureza = naturezaCargoFilter === 'all' || record.natureza_cargo === naturezaCargoFilter;
             const matchesTipo = tipoAfastamentoFilter === 'all' || record.tipo_afastamento === tipoAfastamentoFilter;
+            const matchesCargo = cargoFilter === 'all' || record.servidor_cargo === cargoFilter;
             
             let matchesStatus = true;
             if (statusFilter !== 'all') {
@@ -310,14 +375,15 @@ export default function AfastamentosPage() {
                 } else matchesPeriod = false;
             }
 
-            return matchesSearch && matchesSecretaria && matchesNatureza && matchesTipo && matchesPeriod && matchesStatus;
+            return matchesSearch && matchesSecretaria && matchesNatureza && matchesTipo && matchesCargo && matchesPeriod && matchesStatus;
         });
-    }, [records, searchTerm, secretariaFilter, naturezaCargoFilter, tipoAfastamentoFilter, startDate, endDate, statusFilter]);
+    }, [records, searchTerm, secretariaFilter, naturezaCargoFilter, cargoFilter, tipoAfastamentoFilter, startDate, endDate, statusFilter]);
 
     const printFiltersDesc = useMemo(() => {
         const filters = [];
         if (secretariaFilter !== 'all') filters.push(secretariaFilter);
         if (naturezaCargoFilter !== 'all') filters.push(naturezaCargoFilter);
+        if (cargoFilter !== 'all') filters.push(cargoFilter);
         if (tipoAfastamentoFilter !== 'all') filters.push(tipoAfastamentoFilter);
         if (startDate || endDate) {
             const start = startDate ? formatDate(startDate) : "INÍCIO";
@@ -329,7 +395,7 @@ export default function AfastamentosPage() {
             filters.push(statusMap[statusFilter as keyof typeof statusMap] || statusFilter.toUpperCase());
         }
         return filters.length > 0 ? filters.join(' | ').toUpperCase() : 'NENHUM FILTRO APLICADO';
-    }, [secretariaFilter, naturezaCargoFilter, tipoAfastamentoFilter, startDate, endDate, statusFilter]);
+    }, [secretariaFilter, naturezaCargoFilter, cargoFilter, tipoAfastamentoFilter, startDate, endDate, statusFilter]);
 
     const groupedRecords = useMemo(() => {
         const groups: Record<string, { nome: string, cpf: string, items: AfastamentoRecord[] }> = {};
@@ -475,17 +541,16 @@ export default function AfastamentosPage() {
                             </div>
 
                             <div className="flex-1 relative min-w-[200px]">
-                                <Activity className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <select className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={naturezaCargoFilter} onChange={(e) => setNaturezaCargoFilter(e.target.value)}>
-                                    <option value="all">NATUREZA DO CARGO: TODAS</option>
-                                    <option value="EFETIVO">EFETIVO</option>
-                                    <option value="COMISSÃO">COMISSÃO</option>
-                                    <option value="TEMPORÁRIO">TEMPORÁRIO</option>
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                <select className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={cargoFilter} onChange={(e) => setCargoFilter(e.target.value)}>
+                                    <option value="all">CARGO: TODOS</option>
+                                    {Array.from(new Set(records.map(r => r.servidor_cargo).filter(Boolean))).sort().map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                             </div>
-                            {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || tipoAfastamentoFilter !== 'all' || searchTerm || startDate || endDate) && (
-                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
+
+                            {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || cargoFilter !== 'all' || tipoAfastamentoFilter !== 'all' || searchTerm || startDate || endDate) && (
+                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
                                     <X className="w-4 h-4" /> ZERAR FILTROS
                                 </button>
                             )}
@@ -598,21 +663,30 @@ export default function AfastamentosPage() {
                                             </button>
 
                                             {expandedCpf !== group.cpf && (
-                                                <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-lg border border-slate-200">
-                                                    <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Último Início</p>
-                                                        <p className="text-xs font-black text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
+                                                <div className="flex flex-col items-end gap-2 pr-2">
+                                                    <div className="hidden md:flex items-center gap-6 bg-slate-100/50 px-4 py-2 rounded-lg border border-slate-200">
+                                                        <div className="flex flex-col items-start leading-none">
+                                                            <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Último Início</p>
+                                                            <p className="text-xs font-black text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
+                                                        </div>
+                                                        <div className="w-px h-6 bg-slate-300" />
+                                                        <div className="flex flex-col items-start leading-none gap-1">
+                                                            <div className="flex flex-col">
+                                                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
+                                                                <p className={`text-xs font-black ${(() => {
+                                                                    if (!group.items[0].data_fim) return 'text-slate-400';
+                                                                    const e = new Date(group.items[0].data_fim); e.setHours(0,0,0,0);
+                                                                    const t = new Date(); t.setHours(0,0,0,0);
+                                                                    return e < t ? 'text-[#E31E24]' : 'text-green-600';
+                                                                })()}`}>{formatDate(group.items[0].data_fim)}</p>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="w-px h-6 bg-slate-300" />
-                                                    <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
-                                                        <p className={`text-xs font-black ${(() => {
-                                                            if (!group.items[0].data_fim) return 'text-slate-400';
-                                                            const e = new Date(group.items[0].data_fim); e.setHours(0,0,0,0);
-                                                            const t = new Date(); t.setHours(0,0,0,0);
-                                                            return e < t ? 'text-[#E31E24]' : 'text-green-600';
-                                                        })()}`}>{formatDate(group.items[0].data_fim)}</p>
-                                                    </div>
+                                                    {group.items[0].situacao === 'EM_ANDAMENTO' && group.items[0].data_fim && (
+                                                        <div className="hidden md:block">
+                                                            <VencimentoAlerta dateFim={group.items[0].data_fim} />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                             {expandedCpf !== group.cpf ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronUp className="w-5 h-5 text-[#1A3351]" />}
@@ -671,22 +745,31 @@ export default function AfastamentosPage() {
 
                                                                 {/* COLUNA 3: VIGÊNCIA E TIPO (DIREITA) */}
                                                                 <div className="space-y-1 md:text-right flex flex-col md:items-end">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Vigência e Tipo</p>
-                                                                    <p className="text-sm font-black text-[#1A3351] uppercase truncate">{record.tipo_afastamento}</p>
+                                                                    <div className="flex items-center gap-2 md:justify-end">
+                                                                        {record.is_acidente_trabalho && (
+                                                                            <span className="text-[9px] font-black bg-red-600 text-white px-2 py-0.5 rounded shadow-sm animate-pulse">ACIDENTE DE TRABALHO</span>
+                                                                        )}
+                                                                        <p className="text-sm font-black text-[#1A3351] uppercase truncate">{record.tipo_afastamento}</p>
+                                                                    </div>
                                                                     <div className="flex items-center gap-2 mt-1 md:justify-end">
                                                                         <span className="text-xs font-black text-slate-400 uppercase">Início:</span>
                                                                         <span className="text-sm font-bold text-[#1A3351]">{formatDate(record.data_inicio)}</span>
                                                                     </div>
-                                                                    <div className="flex items-center gap-2 md:justify-end">
-                                                                        <span className="text-xs font-black text-slate-400 uppercase">Término:</span>
-                                                                        {record.data_fim ? (
-                                                                            <span className="flex flex-wrap items-center gap-1.5 md:justify-end">
-                                                                                <span className={status === 'expired' ? 'text-sm font-bold text-[#E31E24]' : 'text-sm font-bold text-green-600'}>{formatDate(record.data_fim)}</span>
-                                                                                <span className={`text-[9px] px-1.5 py-0.5 rounded border font-black ${status === 'active' || status === 'alert' ? 'bg-green-500 text-white border-green-600' : status === 'finished' ? 'bg-slate-300 text-slate-600 border-slate-400' : 'bg-[#E31E24] text-white border-[#E31E24]'}`}>
-                                                                                    {status === 'active' ? 'VIGENTE' : status === 'alert' ? 'VENCENDO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
+                                                                    <div className="flex flex-col md:items-end gap-1">
+                                                                        <div className="flex items-center gap-2 md:justify-end">
+                                                                            <span className="text-xs font-black text-slate-400 uppercase">Término:</span>
+                                                                            {record.data_fim ? (
+                                                                                <span className="flex flex-wrap items-center gap-1.5 md:justify-end">
+                                                                                    <span className={status === 'expired' ? 'text-sm font-bold text-[#E31E24]' : 'text-sm font-bold text-green-600'}>{formatDate(record.data_fim)}</span>
+                                                                                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-black ${status === 'active' || status === 'alert' ? 'bg-green-500 text-white border-green-600' : status === 'finished' ? 'bg-slate-300 text-slate-600 border-slate-400' : 'bg-[#E31E24] text-white border-[#E31E24]'}`}>
+                                                                                        {status === 'active' ? 'VIGENTE' : status === 'alert' ? 'VENCENDO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
+                                                                                    </span>
                                                                                 </span>
-                                                                            </span>
-                                                                        ) : <span className="text-sm font-bold text-slate-400">---</span>}
+                                                                            ) : <span className="text-sm font-bold text-slate-400">---</span>}
+                                                                        </div>
+                                                                        {record.situacao !== 'FINALIZADO' && record.data_fim && (
+                                                                            <VencimentoAlerta dateFim={record.data_fim} />
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -699,33 +782,55 @@ export default function AfastamentosPage() {
                                                                 <button onClick={() => openEditModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-black rounded border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
                                                                     <Pencil className="w-3 h-3" /> Editar
                                                                 </button>
+                                                                <button onClick={() => openNotesModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-black rounded border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
+                                                                    <ClipboardList className="w-3 h-3" /> Anotações
+                                                                </button>
                                                                 {record.situacao === 'EM_ANDAMENTO' && (
                                                                     <>
-                                                                        <button onClick={() => router.push(`/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`)} className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-black rounded border border-amber-500 hover:bg-amber-600 hover:text-white transition-all">
-                                                                            <RotateCcw className="w-3 h-3" /> Prorrogar
+                                                                        <button onClick={() => router.push(`/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`)} className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-black rounded border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all">
+                                                                            <RotateCcw className="w-3 h-3" /> PRORROGAR
                                                                         </button>
                                                                         {!record.tipo_afastamento?.toUpperCase().includes('MATERNIDADE') && (
-                                                                            <button onClick={() => handleAltaMedica(record)} disabled={updatingId === record.id} className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-black rounded border border-emerald-700 hover:bg-emerald-700 transition-all disabled:opacity-50">
+                                                                            <button onClick={() => handleAltaMedica(record)} disabled={updatingId === record.id} className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-black rounded border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50">
                                                                                 {updatingId === record.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                                                                                Dar Alta
+                                                                                DAR ALTA
                                                                             </button>
                                                                         )}
                                                                     </>
                                                                 )}
                                                                 {/* Botão CID isolado à direita */}
-                                                                <button onClick={() => { const s = new Set(revealedCids); if (s.has(record.id)) s.delete(record.id); else s.add(record.id); setRevealedCids(s); }} className="flex items-center gap-1.5 px-2 py-1 border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 font-black rounded text-[10px] uppercase transition-all ml-auto">
-                                                                    {revealedCids.has(record.id) ? <><EyeOff className="w-3 h-3" /> Ocultar CID</> : <><Eye className="w-3 h-3" /> Revelar CID</>}
+                                                                <button onClick={() => { const s = new Set(revealedCids); if (s.has(record.id)) s.delete(record.id); else s.add(record.id); setRevealedCids(s); }} className="flex items-center gap-1.5 px-2 py-1 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-black rounded text-[10px] uppercase transition-all ml-auto">
+                                                                    {revealedCids.has(record.id) ? <><EyeOff className="w-3 h-3 text-emerald-600" /> Ocultar CID</> : <><Eye className="w-3 h-3 text-emerald-600" /> Revelar CID</>}
                                                                 </button>
                                                             </div>
 
                                                             {/* PAINEL CID EXPANDIDO */}
-                                                            {revealedCids.has(record.id) && record.afastamento_cids && record.afastamento_cids.length > 0 && (() => {
+                                                            {revealedCids.has(record.id) && (() => {
                                                                 return (
-                                                                    <div className="mt-4 border-t border-slate-100 pt-3 divide-y divide-slate-100 relative z-10">
-                                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
-                                                                        {record.afastamento_cids.map((cid) => (
-                                                                            <CIDDetailItem key={cid.id} cid={cid} />
-                                                                        ))}
+                                                                    <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
+                                                                        <div className="flex flex-col gap-3">
+                                                                            {/* CID-10 SECTION */}
+                                                                            {record.afastamento_cids && record.afastamento_cids.length > 0 && (
+                                                                                <div className="divide-y divide-slate-100">
+                                                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
+                                                                                    {record.afastamento_cids.map((cid) => (
+                                                                                        <CIDDetailItem key={cid.id} cid={cid} />
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* ANOTAÇÕES SECTION */}
+                                                                            <div className="bg-slate-50/50 p-3 rounded border border-slate-200/50">
+                                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                                                    <ClipboardList className="w-3 h-3" /> Anotações do Registro
+                                                                                </p>
+                                                                                {record.observacoes ? (
+                                                                                    <p className="text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-wrap">{record.observacoes}</p>
+                                                                                ) : (
+                                                                                    <p className="text-[10px] font-bold text-slate-400 italic">Nenhuma anotação registrada para este afastamento.</p>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 );
                                                             })()}
@@ -755,7 +860,7 @@ export default function AfastamentosPage() {
                             </div>
                             <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
                         </div>
-                        <div className="p-6 overflow-y-auto space-y-6">
+                        <div className="p-6 overflow-y-auto space-y-6 text-left">
                             <div className="bg-slate-100 p-4 rounded-lg">
                                 <p className="text-[11px] font-black uppercase text-slate-500 mb-1">Servidor</p>
                                 <p className="text-base font-black text-[#1A3351]">{editingRecord.servidor_nome}</p>
@@ -770,6 +875,21 @@ export default function AfastamentosPage() {
                                     <label className="text-[10px] font-black uppercase text-slate-500 mb-2 block">Dias Afastado</label>
                                     <input type="number" min="1" className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 outline-none" value={editFormData.dias_afastado} onChange={(e) => setEditFormData({ ...editFormData, dias_afastado: e.target.value })} />
                                 </div>
+                            </div>
+                            <div className="bg-red-50 p-4 rounded-lg border border-red-100 flex items-center justify-between group cursor-pointer"
+                                onClick={() => setEditFormData({ ...editFormData, is_acidente_trabalho: !editFormData.is_acidente_trabalho })}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${editFormData.is_acidente_trabalho ? 'bg-red-600 border-red-600' : 'bg-white border-slate-300'}`}>
+                                        {editFormData.is_acidente_trabalho && <Activity className="w-4 h-4 text-white" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-red-800 uppercase leading-none">Acidente de Trabalho</p>
+                                        <p className="text-[10px] font-bold text-red-600/60 uppercase mt-0.5">ESTE AFASTAMENTO É DECORRENTE DE ACIDENTE LABORAL?</p>
+                                    </div>
+                                </div>
+                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded ${editFormData.is_acidente_trabalho ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                    {editFormData.is_acidente_trabalho ? 'SIM' : 'NÃO'}
+                                </span>
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase text-slate-500 block">Diagnósticos CID-10</label>
@@ -788,7 +908,13 @@ export default function AfastamentosPage() {
                                     {foundCids.length > 0 && (
                                         <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-200 shadow-xl rounded-lg max-h-[200px] overflow-y-auto z-[160]">
                                             {foundCids.map((cid, i) => (
-                                                <button key={i} onClick={() => { if (!editFormData.cids.find(c => c.code === cid.code)) setEditFormData({ ...editFormData, cids: [...editFormData.cids, cid] }); setCidEditInput(""); setFoundCids([]); }} className="w-full text-left px-4 py-3 border-b hover:bg-emerald-50 transition-colors flex flex-col gap-1">
+                                                <button key={i} onClick={() => { 
+                                                    const normalized = normalizeCID(cid.code);
+                                                    if (!editFormData.cids.find(c => normalizeCID(c.code) === normalized)) {
+                                                        setEditFormData({ ...editFormData, cids: [...editFormData.cids, { ...cid, code: normalized }] });
+                                                    }
+                                                    setCidEditInput(""); setFoundCids([]); 
+                                                }} className="w-full text-left px-4 py-3 border-b hover:bg-emerald-50 transition-colors flex flex-col gap-1">
                                                     <span className="text-xs font-black text-emerald-700">{cid.code}</span>
                                                     <span className="text-[10px] font-bold text-slate-600 truncate">{cid.desc}</span>
                                                 </button>
@@ -802,6 +928,37 @@ export default function AfastamentosPage() {
                             <button onClick={() => setIsEditModalOpen(false)} disabled={isSavingEdit} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded">Cancelar</button>
                             <button onClick={handleEditSave} disabled={isSavingEdit} className="px-6 py-2.5 bg-[#1A3351] text-white font-black text-xs uppercase rounded flex items-center gap-2">
                                 {isSavingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE ANOTAÇÕES */}
+            {isNotesModalOpen && editingRecord && (
+                <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-left">
+                    <div className="bg-white rounded-xl shadow-2xl border-4 border-[#1A3351] w-full max-w-lg flex flex-col">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-lg">
+                            <h3 className="text-sm font-black text-[#1A3351] uppercase flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Anotações do Afastamento</h3>
+                            <button onClick={() => setIsNotesModalOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 mb-2">
+                                <p className="text-[10px] font-black uppercase text-slate-500 leading-none mb-1">Servidor</p>
+                                <p className="text-sm font-black text-[#1A3351]">{editingRecord.servidor_nome}</p>
+                            </div>
+                            <textarea
+                                className="w-full p-4 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 text-xs outline-none min-h-[200px] resize-none focus:border-[#1A3351] focus:ring-1 focus:ring-[#1A3351] transition-all"
+                                placeholder="INSIRA AQUI OBSERVAÇÕES ADICIONAIS SOBRE ESTE AFASTAMENTO..."
+                                value={noteFormData}
+                                onChange={(e) => setNoteFormData(e.target.value.toUpperCase())}
+                                autoFocus
+                            />
+                        </div>
+                        <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-b-lg flex justify-end gap-3">
+                            <button onClick={() => setIsNotesModalOpen(false)} disabled={isSavingNote} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded">Cancelar</button>
+                            <button onClick={handleNoteSave} disabled={isSavingNote} className="px-6 py-2.5 bg-[#1A3351] text-white font-black text-xs uppercase rounded flex items-center gap-2">
+                                {isSavingNote ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Salvar Anotação
                             </button>
                         </div>
                     </div>

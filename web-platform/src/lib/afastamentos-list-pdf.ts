@@ -12,6 +12,7 @@ export interface AfastamentoReportItem {
     data_fim: string;
     dias_afastado: number | null;
     situacao: string;
+    is_acidente_trabalho?: boolean;
     afastamento_cids?: { cid_codigo: string }[];
 }
 
@@ -111,12 +112,14 @@ export function generateAfastamentosListPDF(
         const start = new Date(r.data_inicio + 'T00:00:00').toLocaleDateString('pt-BR');
         const end = r.data_fim ? new Date(r.data_fim + 'T00:00:00').toLocaleDateString('pt-BR') : '---';
         
+        const typeStr = r.is_acidente_trabalho ? `${r.tipo_afastamento.toUpperCase()} (AT)` : r.tipo_afastamento.toUpperCase();
+        
         if (isLandscape) {
             return [
                 capitalizeName(r.servidor_nome),
                 r.servidor_matricula,
                 r.servidor_secretaria || '---',
-                r.tipo_afastamento.toUpperCase(),
+                typeStr,
                 start,
                 end,
                 r.dias_afastado?.toString() || '---',
@@ -127,7 +130,7 @@ export function generateAfastamentosListPDF(
             return [
                 capitalizeName(r.servidor_nome),
                 r.servidor_secretaria || '---',
-                r.tipo_afastamento.toUpperCase(),
+                typeStr,
                 start,
                 end,
                 r.situacao === 'FINALIZADO' ? 'FINALIZADO' : 'ATIVO'

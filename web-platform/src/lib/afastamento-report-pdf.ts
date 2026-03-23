@@ -17,6 +17,7 @@ export interface ReportRecord {
     data_fim: string;
     dias_afastado: number | null;
     status: string;
+    is_acidente_trabalho?: boolean;
     servidor_matricula: string;
     servidor_contrato: string;
     natureza_cargo: string;
@@ -98,7 +99,7 @@ export function generateServidorReportPDF(
         const cidsInfo = r.afastamento_cids?.map(c => `[${c.cid_codigo}] ${c.cid_descricao}\n${c.cid_capitulo}`).join('\n\n') || '---';
         
         return [
-            r.tipo_afastamento,
+            r.is_acidente_trabalho ? `${r.tipo_afastamento} (AT)` : r.tipo_afastamento,
             new Date(r.data_inicio).toLocaleDateString('pt-BR'),
             r.data_fim ? new Date(r.data_fim).toLocaleDateString('pt-BR') : '---',
             r.dias_afastado?.toString() || '---',
