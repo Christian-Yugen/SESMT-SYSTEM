@@ -10,7 +10,7 @@ import {
     BarChart3, FolderOpen, Users as UsersIcon, TrendingUp, Scale, Plus, Trash2, CheckCircle2, History, Printer, Download, Eye
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
-import { getCIDChapter, getCIDDetails, CIDDetails, searchCIDs } from "@/lib/cid-utils";
+import { getCIDChapter, getCIDDetails, CIDDetails, searchCIDs, getCIDDetailsFromDB } from "@/lib/cid-utils";
 import { generateAfastamentoPDF, AfastamentoPortariaData } from "@/lib/afastamento-portaria-pdf";
 
 interface Servidor {
@@ -122,7 +122,7 @@ export default function NewAfastamentoPage() {
                     const cpf = params.get('cpf');
                     if (renewFrom && cpf) {
                         setFormData(prev => ({ ...prev, renew_from_id: parseInt(renewFrom) }));
-                        performSearch(cpf);
+                        performSearch(cpf, true); // autoSelectFirst=true: seleciona mesmo com múltiplos vínculos
                     }
                 } else {
                     router.push("/login");
@@ -134,7 +134,7 @@ export default function NewAfastamentoPage() {
         checkAuth();
     }, [router]);
 
-    const performSearch = async (queryStr: string) => {
+    const performSearch = async (queryStr: string, autoSelectFirst = false) => {
         setSearching(true);
         const cleanQuery = queryStr.replace(/\D/g, "");
         const isNumeric = /^\d+$/.test(cleanQuery) && cleanQuery.length > 0;
@@ -150,7 +150,8 @@ export default function NewAfastamentoPage() {
 
         if (!error && data) {
             setFoundServidores(data);
-            if (data.length === 1) {
+            // Auto-select: se só houver 1 resultado, ou se vier de prorrogação (autoSelectFirst)
+            if (data.length === 1 || (autoSelectFirst && data.length > 0)) {
               selectServidor(data[0]);
             }
         }
@@ -228,6 +229,7 @@ export default function NewAfastamentoPage() {
                         servidor_matricula: bond.matricula,
                         servidor_contrato: bond.contrato,
                         servidor_secretaria: bond.secretaria,
+                        servidor_cargo: bond.cargo || bond.natureza_cargo,
                         natureza_cargo: bond.natureza_cargo,
                         tipo_afastamento: formData.tipo_afastamento,
                         data_inicio: formData.data_inicio,
