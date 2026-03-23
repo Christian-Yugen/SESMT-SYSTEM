@@ -215,9 +215,14 @@ export function generatePortariaPDF(data: PortariaData, action: 'view' | 'downlo
     doc.setFontSize(12);
     doc.text('VANESSA DOS SANTOS SÊNA', pageWidth / 2, y, { align: 'center' });
     y += 6;
-    doc.setFont('times', 'normal');
     doc.setFontSize(11);
     doc.text('Secretária Municipal de Gestão de Pessoas', pageWidth / 2, y, { align: 'center' });
+
+    // === RODAPÉ PADRÃO ===
+    doc.setFontSize(7.5);
+    doc.setFont('times', 'normal');
+    doc.setTextColor(150);
+    doc.text('Gerado via SESMT SYSTEM - Powered by UXBRAS®', pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
 
     // === Output ===
     if (action === 'download') {

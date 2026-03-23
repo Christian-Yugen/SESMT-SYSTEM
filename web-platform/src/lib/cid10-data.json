@@ -1,0 +1,1811 @@
+{
+  "chapters": [
+    {
+      "capitulo": "I",
+      "descricao": "Algumas doenças infecciosas e parasitárias",
+      "range": "A00-B99"
+    },
+    {
+      "capitulo": "II",
+      "descricao": "Neoplasias [tumores]",
+      "range": "C00-D48"
+    },
+    {
+      "capitulo": "III",
+      "descricao": "Doenças do sangue e dos órgãos hematopoéticos e alguns transtornos imunitários",
+      "range": "D50-D89"
+    },
+    {
+      "capitulo": "IV",
+      "descricao": "Doenças endócrinas, nutricionais e metabólicas",
+      "range": "E00-E90"
+    },
+    {
+      "capitulo": "V",
+      "descricao": "Transtornos mentais e comportamentais",
+      "range": "F00-F99"
+    },
+    {
+      "capitulo": "VI",
+      "descricao": "Doenças do sistema nervoso",
+      "range": "G00-G99"
+    },
+    {
+      "capitulo": "VII",
+      "descricao": "Doenças do olho e anexos",
+      "range": "H00-H59"
+    },
+    {
+      "capitulo": "VIII",
+      "descricao": "Doenças do ouvido e da apófise mastóide",
+      "range": "H60-H95"
+    },
+    {
+      "capitulo": "IX",
+      "descricao": "Doenças do aparelho circulatório",
+      "range": "I00-I99"
+    },
+    {
+      "capitulo": "X",
+      "descricao": "Doenças do aparelho respiratório",
+      "range": "J00-J99"
+    },
+    {
+      "capitulo": "XI",
+      "descricao": "Doenças do aparelho digestivo",
+      "range": "K00-K93"
+    },
+    {
+      "capitulo": "XII",
+      "descricao": "Doenças da pele e do tecido subcutâneo",
+      "range": "L00-L99"
+    },
+    {
+      "capitulo": "XIII",
+      "descricao": "Doenças do sistema osteomuscular e do tecido conjuntivo",
+      "range": "M00-M99"
+    },
+    {
+      "capitulo": "XIV",
+      "descricao": "Doenças do aparelho geniturinário",
+      "range": "N00-N99"
+    },
+    {
+      "capitulo": "XV",
+      "descricao": "Gravidez, parto e puerpério",
+      "range": "O00-O99"
+    },
+    {
+      "capitulo": "XVI",
+      "descricao": "Algumas afecções originadas no período perinatal",
+      "range": "P00-P96"
+    },
+    {
+      "capitulo": "XVII",
+      "descricao": "Malformações congênitas, deformidades e anomalias cromossômicas",
+      "range": "Q00-Q99"
+    },
+    {
+      "capitulo": "XVIII",
+      "descricao": "Sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte",
+      "range": "R00-R99"
+    },
+    {
+      "capitulo": "XIX",
+      "descricao": "Lesões, envenenamentos e algumas outras conseqüências de causas externas",
+      "range": "S00-T98"
+    },
+    {
+      "capitulo": "XX",
+      "descricao": "Causas externas de morbidade e de mortalidade",
+      "range": "V01-Y98"
+    },
+    {
+      "capitulo": "XXI",
+      "descricao": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde",
+      "range": "Z00-Z99"
+    },
+    {
+      "capitulo": "XXII",
+      "descricao": "Códigos para propósitos especiais",
+      "range": "U00-U99"
+    }
+  ],
+  "categories": {
+    "A00": {
+      "desc": "Cólera",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A01": {
+      "desc": "Febres tifóide e paratifóide",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A03": {
+      "desc": "Shiguelose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A06": {
+      "desc": "Amebíase",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A09": {
+      "desc": "Diarréia e gastroenterite de origem infecciosa presumível",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A02, A04-A05, A07-A08": {
+      "desc": "Outras doenças infecciosas intestinais",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A15-A16": {
+      "desc": "Tuberculose respiratória",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A15.0-A15.3, A16.0-A16.3": {
+      "desc": "Tuberculose pulmonar",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A15.4-A15.9, A16.4-A16.9": {
+      "desc": "Outras tuberculoses respiratórias",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A17-A19": {
+      "desc": "Outras tuberculoses",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A17": {
+      "desc": "Tuberculose do sistema nervoso",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A18.3": {
+      "desc": "Tuberculose do intestino, do peritônio e dos gânglios mesentéricos",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A18.0": {
+      "desc": "Tuberculose óssea e das articulações",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A18.1": {
+      "desc": "Tuberculose do aparelho geniturinário",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A19": {
+      "desc": "Tuberculose miliar",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A18.2, A18.4-A18.8": {
+      "desc": "Restante de outras tuberculoses",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A20": {
+      "desc": "Peste",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A23": {
+      "desc": "Brucelose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A30": {
+      "desc": "Hanseníase [lepra]",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A33": {
+      "desc": "Tétano neonatal",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A34-A35": {
+      "desc": "Outros tétanos",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A36": {
+      "desc": "Difteria",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A37": {
+      "desc": "Coqueluche",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A39": {
+      "desc": "Infecção meningocócica",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A40-A41": {
+      "desc": "Septicemia",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A21-A22, A24-A28, A31-A32, A38, A42-A49": {
+      "desc": "Outras doenças bacterianas",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A27.0": {
+      "desc": "Leptospirose icterohemorrágica",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A27.8": {
+      "desc": "Outras formas de leptospirose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A27.9": {
+      "desc": "Leptospirose não especificada",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A21-A22, A24-A26, A28, A31-A32, A38, A42-A49": {
+      "desc": "Restante de outras doenças bacterianas",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A50": {
+      "desc": "Sífilis congênita",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A51": {
+      "desc": "Sífilis precoce",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A52-A53": {
+      "desc": "Outras sífilis",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A54": {
+      "desc": "Infecção gonocócica",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A55-A56": {
+      "desc": "Doenças por clamídias transmitidas por via sexual",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A57-A64": {
+      "desc": "Outras infecções com transmissão predominantemente sexual",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A68": {
+      "desc": "Febres recorrentes",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A71": {
+      "desc": "Tracoma",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A75": {
+      "desc": "Tifo exantemático",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A80": {
+      "desc": "Poliomielite aguda",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A82": {
+      "desc": "Raiva",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A83-A86": {
+      "desc": "Encefalite viral",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A95": {
+      "desc": "Febre amarela",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A90-A94, A96-A99": {
+      "desc": "Outras febre por arbovírus e febres hemorrágicas por vírus",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A90": {
+      "desc": "Dengue [dengue clássico]",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A91": {
+      "desc": "Febre hemorrágica devida ao vírus da dengue",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A92-A94, A96-A99": {
+      "desc": "Restante de outras febre por arbovírus e febres hemorrágicas por vírus",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B00": {
+      "desc": "Infecções pelo vírus do herpes",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B01-B02": {
+      "desc": "Varicela e herpes zoster",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B05": {
+      "desc": "Sarampo",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B06": {
+      "desc": "Rubéola",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B16": {
+      "desc": "Hepatite aguda B",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B15, B17-B19": {
+      "desc": "Outras hepatites virais",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B20-B24": {
+      "desc": "Doença pelo vírus da imunodeficiência humana [HIV]",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B26": {
+      "desc": "Caxumba [parotidite epidêmica]",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A81, A87-A89, B03-B04, B07-B09, B25, B27-B34": {
+      "desc": "Outras doenças virais",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A87": {
+      "desc": "Meningite viral",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A81, A88-A89, B03-B04, B07-B09, B25, B27-B34": {
+      "desc": "Restante de outras doenças virais",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B35-B49": {
+      "desc": "Micoses",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B50-B54": {
+      "desc": "Malária",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B50": {
+      "desc": "Malária por Plasmodium falciparum",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B51": {
+      "desc": "Malária por Plasmodium vivax",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B52": {
+      "desc": "Malária por Plasmodium malariae",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B53": {
+      "desc": "Outras formas de malária confirmadas por exames parasitológicos",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B54": {
+      "desc": "Malária não especificada",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B55": {
+      "desc": "Leishmaniose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B55.0": {
+      "desc": "Leishmaniose visceral",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B55.1": {
+      "desc": "Leishmaniose cutânea",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B55.2": {
+      "desc": "Leishmaniose cutâneo-mucosa",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B55.9": {
+      "desc": "Leishmaniose não especificada",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B56-B57": {
+      "desc": "Tripanossomíase",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B65": {
+      "desc": "Esquistossomose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B66": {
+      "desc": "Outras infestações por trematódeos",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B67": {
+      "desc": "Equinococose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B72": {
+      "desc": "Dracunculíase",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B73": {
+      "desc": "Oncocercose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B74": {
+      "desc": "Filariose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B76": {
+      "desc": "Ancilostomíase",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B68-B71, B75, B77-B83": {
+      "desc": "Outras helmintíases",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B90": {
+      "desc": "Seqüelas de tuberculose",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B91": {
+      "desc": "Seqüelas de poliomielite",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "B92": {
+      "desc": "Seqüelas de hanseníase [lepra]",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "A65-A67, A69-A70, A74, A77-A79, B58-B64, B85-B89, B94-B99": {
+      "desc": "Outras doenças infecciosas e parasitárias",
+      "cap": "I",
+      "cap_desc": "Algumas doenças infecciosas e parasitárias"
+    },
+    "C00-C14": {
+      "desc": "Neoplasia maligna do lábio, cavidade oral e faringe",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C15": {
+      "desc": "Neoplasia maligna do esôfago",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C16": {
+      "desc": "Neoplasia maligna do estômago",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C18": {
+      "desc": "Neoplasia maligna do cólon",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C19-C21": {
+      "desc": "Neoplasia maligna da junção retossigmóide, reto, ânus e canal anal",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C22": {
+      "desc": "Neoplasia maligna do fígado e das vias biliares intra-hepáticas",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C25": {
+      "desc": "Neoplasia maligna do pâncreas",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C17, C23-C24, C26": {
+      "desc": "Outras neoplasias malignas de órgãos digestivos",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C32": {
+      "desc": "Neoplasias malignas de laringe",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C33-C34": {
+      "desc": "Neoplasia maligna da traquéia, dos brônquios e dos pulmões",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C30-C31, C37-C39": {
+      "desc": "Outras neoplasias malignas de órgãos respiratórios e intratorácicos",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C40-C41": {
+      "desc": "Neoplasia maligna do osso e da cartilagem articular",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C43": {
+      "desc": "Neoplasia maligna da pele",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C44": {
+      "desc": "Outras neoplasias malignas da pele",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C45-C49": {
+      "desc": "Neoplasias malignas do tecido mesotelial e tecidos moles",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C50": {
+      "desc": "Neoplasia maligna da mama",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C53": {
+      "desc": "Neoplasia maligna do colo do útero",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C54-C55": {
+      "desc": "Neoplasia maligna de outras porções e de porções não especificadas do útero",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C51-C52, C56-C58": {
+      "desc": "Outras neoplasias malignas dos órgãos genitais femininos",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C61": {
+      "desc": "Neoplasia maligna da próstata",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C60, C62-C63": {
+      "desc": "Outras neoplasias malignas dos órgãos genitais masculinos",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C67": {
+      "desc": "Neoplasia maligna da bexiga",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C64-C66, C68": {
+      "desc": "Outras neoplasias malignas do trato urinário",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C69": {
+      "desc": "Neoplasia maligna dos olhos e anexos",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C71": {
+      "desc": "Neoplasia maligna do encéfalo",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C70, C72": {
+      "desc": "Neoplasia maligna de outras partes do sistema nervoso central",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C73-C80, C97": {
+      "desc": "Neoplasias malignas de outras localizações, de localização mal definida, secundárias e de localização não especificada",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C81": {
+      "desc": "Doença de Hodgkin",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C82-C85": {
+      "desc": "Linfoma não-Hodgkin",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C91-C95": {
+      "desc": "Leucemia",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "C88-C90, C96": {
+      "desc": "Outras neoplasias malignas de tecidos linfóide, hematopoético e relacionados",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D06": {
+      "desc": "Carcinoma in situ de colo do útero",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D22-D23": {
+      "desc": "Neoplasia benigna da pele",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D24": {
+      "desc": "Neoplasia benigna da mama",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D25": {
+      "desc": "Leiomioma do útero",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D27": {
+      "desc": "Neoplasia benigna do ovário",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D30": {
+      "desc": "Neoplasia benigna dos órgãos urinários",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D33": {
+      "desc": "Neoplasia benigna do encéfalo e de outras partes do sistema nervoso central",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D00-D05, D07-D21, D26, D28-D29, D31-D32, D34-D48": {
+      "desc": "Outras neoplasias in situ e neoplasias benignas e neoplasias de comportamento incerto ou desconhecido",
+      "cap": "II",
+      "cap_desc": "Neoplasias [tumores]"
+    },
+    "D50": {
+      "desc": "Anemia por deficiência de ferro",
+      "cap": "III",
+      "cap_desc": "Doenças do sangue e dos órgãos hematopoéticos e alguns transtornos imunitários"
+    },
+    "D51-D64": {
+      "desc": "Outras anemias",
+      "cap": "III",
+      "cap_desc": "Doenças do sangue e dos órgãos hematopoéticos e alguns transtornos imunitários"
+    },
+    "D65-D77": {
+      "desc": "Afecções hemorrágicas e outras doenças do sangue e dos órgãos hematopoéticos",
+      "cap": "III",
+      "cap_desc": "Doenças do sangue e dos órgãos hematopoéticos e alguns transtornos imunitários"
+    },
+    "D80-D89": {
+      "desc": "Alguns transtornos envolvendo o mecanismo imunitário",
+      "cap": "III",
+      "cap_desc": "Doenças do sangue e dos órgãos hematopoéticos e alguns transtornos imunitários"
+    },
+    "E00-E02": {
+      "desc": "Transtornos tireoidianos relacionados à deficiência de iodo",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E05": {
+      "desc": "Tireotoxicose",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E03-E04, E06-E07": {
+      "desc": "Outros transtornos tireoidianos",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E10-E14": {
+      "desc": "Diabetes mellitus",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E40-E46": {
+      "desc": "Desnutrição",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E50": {
+      "desc": "Deficiência de vitamina A",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E51-E56": {
+      "desc": "Outras deficiências vitamínicas",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E64": {
+      "desc": "Seqüelas de desnutrição e de outras deficiências nutricionais",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E66": {
+      "desc": "Obesidade",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E86": {
+      "desc": "Depleção de volume",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "E15-E35, E58-E63, E65, E67-E85, E87-E90": {
+      "desc": "Outros transtornos endócrinos, nutricionais e metabólicos",
+      "cap": "IV",
+      "cap_desc": "Doenças endócrinas, nutricionais e metabólicas"
+    },
+    "F00-F03": {
+      "desc": "Demência",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F10": {
+      "desc": "Transtornos mentais e comportamentais devidos ao uso de álcool",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F11-F19": {
+      "desc": "Transtornos mentais e comportamentais devidos ao uso de outras substâncias psicoativas",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F20-F29": {
+      "desc": "Esquizofrenia, transtornos esquizotípicos e delirantes",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F30-F39": {
+      "desc": "Transtornos de humor [afetivos]",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F40-F48": {
+      "desc": "Transtornos neuróticos, transtornos relacionados com o \"stress\" e transtornos somatoformes",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F70-F79": {
+      "desc": "Retardo mental",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "F04-F09, F50-F69, F80-F99": {
+      "desc": "Outros transtornos mentais e comportamentais",
+      "cap": "V",
+      "cap_desc": "Transtornos mentais e comportamentais"
+    },
+    "G00-G09": {
+      "desc": "Doenças inflamatórias do sistema nervoso central",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G00": {
+      "desc": "Meningite bacteriana, não classificada em outra parte",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G01": {
+      "desc": "Meningite em doenças bacterianas classificadas em outra parte",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G02": {
+      "desc": "Meningite em outras doenças infecciosas e parasitárias classificadas em outra parte",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G03": {
+      "desc": "Meningite devida a outras causas e a causas não especificadas",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G04-G09": {
+      "desc": "Restante de doenças inflamatórias do sistema nervoso central",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G20": {
+      "desc": "Doença de Parkinson",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G30": {
+      "desc": "Doença de Alzheimer",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G35": {
+      "desc": "Esclerose múltiplas",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G40-G41": {
+      "desc": "Epilepsia",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G43-G44": {
+      "desc": "Enxaqueca e outras síndromes de algias cefálicos",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G45": {
+      "desc": "Acidentes vasculares cerebrais isquêmicos transitórios e síndromes correlatas",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G50-G59": {
+      "desc": "Transtornos dos nervos, das raízes e dos plexos nervosos",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G80-G83": {
+      "desc": "Paralisia cerebral e outras síndromes paralíticas",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "G10-G13, G21-G26, G31-G32, G36-G37, G46-G47, G60-G73, G90-G99": {
+      "desc": "Outras doenças do sistema nervoso",
+      "cap": "VI",
+      "cap_desc": "Doenças do sistema nervoso"
+    },
+    "H00-H01": {
+      "desc": "Inflamação da pálpebra",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H10-H13": {
+      "desc": "Conjuntivite e outros transtornos da conjuntiva",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H15-H19": {
+      "desc": "Ceratite e outros transtornos da esclerótica e da córnea",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H25-H28": {
+      "desc": "Catarata e outros transtornos do cristalino",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H33": {
+      "desc": "Descolamentos e defeitos da retina",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H40-H42": {
+      "desc": "Glaucoma",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H49-H50": {
+      "desc": "Estrabismo",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H52": {
+      "desc": "Transtornos da refração e da acomodação",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H54": {
+      "desc": "Cegueira e visão subnormal",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H02-H06, H20-H22, H30-H32, H34-H36, H43-H48, H51, H53, H55-H59": {
+      "desc": "Outras doenças do olho e anexos",
+      "cap": "VII",
+      "cap_desc": "Doenças do olho e anexos"
+    },
+    "H65-H75": {
+      "desc": "Otite média e outros transtornos do ouvido médio e da apófise mastóide",
+      "cap": "VIII",
+      "cap_desc": "Doenças do ouvido e da apófise mastóide"
+    },
+    "H90-H91": {
+      "desc": "Perda de audição",
+      "cap": "VIII",
+      "cap_desc": "Doenças do ouvido e da apófise mastóide"
+    },
+    "H60-H62, H80-H83, H92-H95": {
+      "desc": "Outras doenças do ouvido e da apófise mastóide",
+      "cap": "VIII",
+      "cap_desc": "Doenças do ouvido e da apófise mastóide"
+    },
+    "I00-I02": {
+      "desc": "Febre reumática aguda",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I05-I09": {
+      "desc": "Doença reumática crônica do coração",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I10": {
+      "desc": "Hipertensão essencial (primária)",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I11-I15": {
+      "desc": "Outras doenças hipertensivas",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I21-I22": {
+      "desc": "Infarto agudo do miocárdio",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I20, I23-I25": {
+      "desc": "Outras doenças isquêmicas do coração",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I26": {
+      "desc": "Embolia pulmonar",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I44-I49": {
+      "desc": "Transtornos de condução e arritmias cardíacas",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I50": {
+      "desc": "Insuficiência cardíaca",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I27-I43, I51-I52": {
+      "desc": "Outras doenças do coração",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I60-I62": {
+      "desc": "Hemorragia intracraniana",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I63": {
+      "desc": "Infarto cerebral",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I64": {
+      "desc": "Acidente vascular cerebral, não especificado como hemorrágico ou isquêmico",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I65-I69": {
+      "desc": "Outras doenças cerebrovasculares",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I70": {
+      "desc": "Ateroesclerose",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I73": {
+      "desc": "Outras doenças vasculares periféricas",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I74": {
+      "desc": "Embolia e trombose arteriais",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I71-I72, I77-I79": {
+      "desc": "Outras doenças das artérias, arteríolas e capilares",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I80-I82": {
+      "desc": "Flebite, tromboflebite, embolia e trombose venosa",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I83": {
+      "desc": "Veias varicosas das extremidades inferiores",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I84": {
+      "desc": "Hemorróidas",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "I85-I99": {
+      "desc": "Outras doenças do aparelho circulatório",
+      "cap": "IX",
+      "cap_desc": "Doenças do aparelho circulatório"
+    },
+    "J02-J03": {
+      "desc": "Faringite aguda e amigdalite aguda",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J04": {
+      "desc": "Laringite e traqueíte agudas",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J00-J01, J05-J06": {
+      "desc": "Outras infecções agudas das vias aéreas superiores",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J09-J11": {
+      "desc": "Influenza [gripe]",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J12-J18": {
+      "desc": "Pneumonia",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J20-J21": {
+      "desc": "Bronquite aguda e bronquiolite aguda",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J32": {
+      "desc": "Sinusite crônica",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J30-J31, J33-J34": {
+      "desc": "Outras doenças do nariz e dos seios paranasais",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J35": {
+      "desc": "Doenças crônicas das amígdalas e das adenóides",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J36-J39": {
+      "desc": "Outras doenças do trato respiratório superior",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J40-J44": {
+      "desc": "Bronquite, enfisema e outras doenças pulmonares obstrutivas crônicas",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J45-J46": {
+      "desc": "Asma",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J47": {
+      "desc": "Bronquiectasia",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J60-J65": {
+      "desc": "Pneumoconiose",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "J22, J66-J99": {
+      "desc": "Outras doenças do aparelho respiratório",
+      "cap": "X",
+      "cap_desc": "Doenças do aparelho respiratório"
+    },
+    "K02": {
+      "desc": "Cárie dentária",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K00-K01, K03-K08": {
+      "desc": "Outros transtornos dos dentes e estruturas de suporte",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K09-K14": {
+      "desc": "Outras doenças da cavidade oral, glândulas salivares e dos maxilares",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K25-K27": {
+      "desc": "Úlcera gástrica e duodenal",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K29": {
+      "desc": "Gastrite e duodenite",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K20-K23, K28, K30-K31": {
+      "desc": "Outras doenças do esôfago, estômago e duodeno",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K35-K38": {
+      "desc": "Doenças do apêndice",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K40": {
+      "desc": "Hérnia inguinal",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K41-K46": {
+      "desc": "Outras hérnias",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K50-K51": {
+      "desc": "Doença de Crohn e colite ulcerativa",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K56": {
+      "desc": "Íleo paralítico e obstrução intestinal sem hérnia",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K57": {
+      "desc": "Doença diverticular do intestino",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K52-K55, K58-K67": {
+      "desc": "Outras doenças dos intestinos e peritônio",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K70": {
+      "desc": "Doença alcoólica do fígado",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K71-K77": {
+      "desc": "Outras doenças do fígado",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K80-K81": {
+      "desc": "Colelitíase e colecistite",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K85-K86": {
+      "desc": "Pancreatite aguda e outras doenças do pâncreas",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "K82-K83, K87-K93": {
+      "desc": "Outras doenças do aparelho digestivo",
+      "cap": "XI",
+      "cap_desc": "Doenças do aparelho digestivo"
+    },
+    "L00-L08": {
+      "desc": "Infecções da pele e do tecido subcutâneo",
+      "cap": "XII",
+      "cap_desc": "Doenças da pele e do tecido subcutâneo"
+    },
+    "L10-L99": {
+      "desc": "Outras doenças da pele e do tecido subcutâneo",
+      "cap": "XII",
+      "cap_desc": "Doenças da pele e do tecido subcutâneo"
+    },
+    "M05-M14": {
+      "desc": "Artrite reumatóide e outras poliartropatias inflamatórias",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M15-M19": {
+      "desc": "Artrose",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M20-M21": {
+      "desc": "Deformidades adquiridas das articulações",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M00-M03, M22-M25": {
+      "desc": "Outros transtronos articulares",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M30-M36": {
+      "desc": "Doenças sistêmicas do tecido conjuntivo",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M50-M51": {
+      "desc": "Transtornos discais cervicais e outros transtornos discais intervertebrais",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M40-M49, M53-M54": {
+      "desc": "Outras dorsopatias",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M60-M79": {
+      "desc": "Transtornos do tecido mole",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M80-M85": {
+      "desc": "Transtornos da densidade e da estrutura ósseas",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M86": {
+      "desc": "Osteomielite",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "M87-M99": {
+      "desc": "Outras doenças do sistema osteomuscular e do tecido conjuntivo",
+      "cap": "XIII",
+      "cap_desc": "Doenças do sistema osteomuscular e do tecido conjuntivo"
+    },
+    "N00-N01": {
+      "desc": "Síndrome nefríticas aguda e rapidamente progressiva",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N02-N08": {
+      "desc": "Outras doenças glomerulares",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N10-N16": {
+      "desc": "Doenças renais túbulo-intersticiais",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N17-N19": {
+      "desc": "Insuficiência renal",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N20-N23": {
+      "desc": "Urolitíase",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N30": {
+      "desc": "Cistite",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N25-N29, N31-N39": {
+      "desc": "Outras doenças do aparelho urinário",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N40": {
+      "desc": "Hiperplasia da próstata",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N41-N42": {
+      "desc": "Outros transtornos da próstata",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N43": {
+      "desc": "Hidrocele e espermatocele",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N47": {
+      "desc": "Preprúcio redundante, fimose e parafimose",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N44-N46, N48-N51": {
+      "desc": "Outras doenças dos órgãos genitais masculinos",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N60-N64": {
+      "desc": "Transtornos da mama",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N70": {
+      "desc": "Salpingite e ooforite",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N72": {
+      "desc": "Doença inflamatória do colo do útero",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N71, N73-N77": {
+      "desc": "Outras doenças inflamatórias dos órgãos pélvicos femininos",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N80": {
+      "desc": "Endometriose",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N81": {
+      "desc": "Prolapso genital feminino",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N83": {
+      "desc": "Transtornos não-inflamatórios do ovário, da trompa de Falópio e do ligamento largo",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N91-N92": {
+      "desc": "Transtornos da menstruação",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N95": {
+      "desc": "Transtornos menopáusicos e outros transtornos perimenopáusicos",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N97": {
+      "desc": "Infertilidade feminina",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "N82, N84-N90, N93-N94, N96, N98-N99": {
+      "desc": "Outros transtornos do aparelho geniturinário",
+      "cap": "XIV",
+      "cap_desc": "Doenças do aparelho geniturinário"
+    },
+    "O03": {
+      "desc": "Aborto espontâneo",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O04": {
+      "desc": "Aborto por razões médicas",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O00-O02, O05-O08": {
+      "desc": "Outras gravidezes que terminam em aborto",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O10-O16": {
+      "desc": "Edema, proteinúria e transtornos hipertensivos na gravidez, parto e puerpério",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O44-O46": {
+      "desc": "Placenta prévia, descolamento prematuro de placenta e hemorragia anteparto",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O30-O43, O47-O48": {
+      "desc": "Outros motivos de assistência à mãe relacionados à cavidade fetal e amniótica, e possíveis problemas de parto",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O64-O66": {
+      "desc": "Trabalho de parto obstruído",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O72": {
+      "desc": "Hemorragia pós-parto",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O20-O29, O60-O63, O67-O71, O73-O75, O81-O84": {
+      "desc": "Outras complicações da gravidez e do parto",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O80": {
+      "desc": "Parto único espontâneo",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "O85-O99": {
+      "desc": "Complicações predominantemente relacionadas ao puerpério e outras afecções obstétricas, não classificadas em outra parte",
+      "cap": "XV",
+      "cap_desc": "Gravidez, parto e puerpério"
+    },
+    "P00-P04": {
+      "desc": "Feto e recém-nascido afetados por fatores maternos e por complicações da gravidez, trabalho de parto e parto",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P05-P07": {
+      "desc": "Retardo de crescimento fetal, desnutrição fetal e transtornos relacionados à gestação curta e baixo peso ao nascer",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P10-P15": {
+      "desc": "Trauma durante o nascimento",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P20-P21": {
+      "desc": "Hipóxia intrauterina e asfixia ao nascer",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P22-P28": {
+      "desc": "Outros transtornos respiratórios originados no período perinatal",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P35-P37": {
+      "desc": "Doenças infecciosas e parasitárias congênitas",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P38-P39": {
+      "desc": "Outras infecções específicas do período perinatal",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P55": {
+      "desc": "Doença hemolítica do feto e do recém-nascido",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "P08, P29, P50-P54, P56-P96": {
+      "desc": "Outras afecções originadas no período perinatal",
+      "cap": "XVI",
+      "cap_desc": "Algumas afecções originadas no período perinatal"
+    },
+    "Q05": {
+      "desc": "Espinha bífida",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q00-Q04, Q06-Q07": {
+      "desc": "Outras malformações congênitas do sistema nervoso",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q20-Q28": {
+      "desc": "Malformações congênitas do aparelho circulatório",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q35-Q37": {
+      "desc": "Fenda labial e fenda palatina",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q41": {
+      "desc": "Ausência, atresia e estenose do intestino delgado",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q38-Q40, Q42-Q45": {
+      "desc": "Outras malformações congênitas do aparelho digestivo",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q53": {
+      "desc": "Testiculo não-descido",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q50-Q52, Q54-Q64": {
+      "desc": "Outras malformações do aparelho geniturinário",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q65": {
+      "desc": "Deformidades congênitas do quadril",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q66": {
+      "desc": "Deformidades congênitas dos pés",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q67-Q79": {
+      "desc": "Outras malformações e deformidades congênitas do aparelho osteomuscular",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q10-Q18, Q30-Q34, Q80-Q89": {
+      "desc": "Outras malformações congênitas",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "Q90-Q99": {
+      "desc": "Anomalias cromossômicas, não classificadas em outra parte",
+      "cap": "XVII",
+      "cap_desc": "Malformações congênitas, deformidades e anomalias cromossômicas"
+    },
+    "R10": {
+      "desc": "Dor abdominal e pélvica",
+      "cap": "XVIII",
+      "cap_desc": "Sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte"
+    },
+    "R50": {
+      "desc": "Febre de origem desconhecida",
+      "cap": "XVIII",
+      "cap_desc": "Sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte"
+    },
+    "R54": {
+      "desc": "Senilidade",
+      "cap": "XVIII",
+      "cap_desc": "Sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte"
+    },
+    "R00-R09, R11-R49, R51-R53, R55-R99": {
+      "desc": "Outros sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte",
+      "cap": "XVIII",
+      "cap_desc": "Sintomas, sinais e achados anormais de exames clínicos e de laboratório, não classificados em outra parte"
+    },
+    "S02": {
+      "desc": "Fratura do crânio e dos ossos da face",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S12, S22, S32, T08": {
+      "desc": "Fratura do pescoço, tórax ou pelve",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S72": {
+      "desc": "Fratura do fêmur",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S42, S52, S62, S82, S92, T10, T12": {
+      "desc": "Fratura de outros ossos dos membros",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T02": {
+      "desc": "Fraturas envolvendo múltiplas regiões do corpo",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S03, S13, S23, S33, S43, S53, S63, S73, S83, S93, T03": {
+      "desc": "Luxações, entorse e distensão de regiões especificadas e de regiões múltiplas do corpo",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S05": {
+      "desc": "Traumatismo do olho e da órbita ocular",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S06": {
+      "desc": "Traumatismo intracraniano",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S26-S27, S36-S37": {
+      "desc": "Traumatismo de outros órgãos internos",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S07-S08, S17-S18, S28, S38, S47-S48, S57-S58, S67-S68, S77-S78, S87-S88, S97-S98, T04-T05": {
+      "desc": "Lesões por esmagamento e amputações traumáticas de regiões especificadas e de múltiplas regiões do corpo",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "S00-S01, S04, S09-S11, S14-S16, S19-S21, S24-S25, S29-S31, S34-S35, S39-S41, S44-S46, S49-S51, S54-S56, S59-S61, S64-S66, S69-S71, S74-S76, S79-S81, S84-S86, S89-S91, S94-S96, S99, T00-T01, T06-T07, T09, T11, T13-T14": {
+      "desc": "Outros traumatismos de regiões especificadas e não especificadas e de regiões múltiplas do corpo",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T15-T19": {
+      "desc": "Efeitos de corpo estranho que entra através de orifício natural",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T20-T32": {
+      "desc": "Queimadura e corrosões",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T36-T50": {
+      "desc": "Envenenamento por drogas e substâncias biológicas",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T51-T65": {
+      "desc": "Efeitos tóxicos de substâncias de origem principalmente não-medicinal",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T74": {
+      "desc": "Síndromes de maus tratos",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T33-T35, T66-T73, T75-T78": {
+      "desc": "Outros efeitos e os efeitos não especificados de causas externas",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T79-T88": {
+      "desc": "Certas complicações precoces de traumatismo e complicações cirúrgicas, e da assistência médica não classificadas em outra parte",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "T90-T98": {
+      "desc": "Seqüelas de traumatismos, de envenenamento e de outras conseqüências de causas externas",
+      "cap": "XIX",
+      "cap_desc": "Lesões, envenenamentos e algumas outras conseqüências de causas externas"
+    },
+    "V01-V99": {
+      "desc": "Acidentes de transporte",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "W00-W19": {
+      "desc": "Quedas",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "W65-W74": {
+      "desc": "Afogamento e submersão acidentais",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "X00-X09": {
+      "desc": "Exposição ao fumo, ao fogo e às chamas",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "X40-X49": {
+      "desc": "Envenenamento, intoxicação por ou exposição a substâncias nocivas",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "X60-X84": {
+      "desc": "Lesões autoprovocadas voluntariamente",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "X85-Y09": {
+      "desc": "Agressões",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "W20-W64, W75-W99, X10-X39, X50-X59, Y10-Y89": {
+      "desc": "Todas as outras causas externas",
+      "cap": "XX",
+      "cap_desc": "Causas externas de morbidade e de mortalidade"
+    },
+    "Z00-Z13": {
+      "desc": "Pessoas em contato com os serviços de saúde para exame e investigação",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z21": {
+      "desc": "Estado de infecção assintomática pelo vírus da imunodeficiência humana [HIV]",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z20, Z22-Z29": {
+      "desc": "Outras pessoas com riscos potenciais à saúde relacionadas com doenças transmissíveis",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z30": {
+      "desc": "Anticoncepção",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z34-Z36": {
+      "desc": "Rastreamento (\"screening\") pré-natal e outras supervisões da gravidez",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z38": {
+      "desc": "Nascidos vivos segundo o local de nascimento",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z39": {
+      "desc": "Assistência e exame pós-natal",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z40-Z54": {
+      "desc": "Pessoas em contato com serviços de saúde para cuidados e procedimentos específicos",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "Z31-Z33, Z37, Z55-Z99": {
+      "desc": "Pessoas em contato com os serviços de saúde por outras razões",
+      "cap": "XXI",
+      "cap_desc": "Fatores que exercem influência sobre o estado de saúde e o contato com serviços de saúde"
+    },
+    "U04": {
+      "desc": "Síndrome respiratória aguda grave (Severe acute respiratory syndrome) [SARS]",
+      "cap": "XXII",
+      "cap_desc": "Códigos para propósitos especiais"
+    },
+    "U99": {
+      "desc": "CID 10ª Revisão não disponível",
+      "cap": "XXII",
+      "cap_desc": "Códigos para propósitos especiais"
+    }
+  }
+}

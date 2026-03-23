@@ -31,6 +31,7 @@ export default function Sidebar({
 
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
+  const [isAfastamentosOpen, setIsAfastamentosOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
@@ -46,6 +47,10 @@ export default function Sidebar({
     if (pathname.includes('/abono')) {
       setIsBenefitsOpen(true);
       setIsAbonoOpen(true);
+    }
+    if (pathname.includes('/afastamentos')) {
+      setIsBenefitsOpen(true);
+      setIsAfastamentosOpen(true);
     }
     if (pathname.includes('/referrals')) setIsBenefitsOpen(true);
     if (pathname.includes('/history') || pathname.includes('/analytics')) setIsHistoryOpen(true);
@@ -187,10 +192,15 @@ export default function Sidebar({
                 <div className="flex flex-col space-y-1 bg-black/10 rounded-lg p-1">
                   {userRole !== 'social_assistant' && (
                     <>
-                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
-                        <Database className="w-3.5 h-3.5 shrink-0" />
-                        <span>Auxílio Doença</span>
-                      </button>
+                      {(userRole === 'admin' || userRole === 'nurse') && (
+                        <button
+                          onClick={() => router.push('/afastamentos')}
+                          className={`w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith('/afastamentos') ? 'bg-white/5 text-white border-l-2 border-emerald-500/50' : 'text-white/40 hover:bg-white/5 hover:text-white'}`}
+                        >
+                          <Database className="w-3.5 h-3.5 shrink-0" />
+                          <span>Afastamentos</span>
+                        </button>
+                      )}
 
                       <button className="w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
                         <FileSearch className="w-3.5 h-3.5 shrink-0" />
