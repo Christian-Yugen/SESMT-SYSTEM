@@ -161,7 +161,7 @@ export default function AfastamentosAnalyticsPage() {
     }, [records, filterSecretaria, filterNatureza, filterTipo, startDate, endDate]);
 
     const getStatus = (record: any) => {
-        if (record.situacao === 'FINALIZADO') return 'finished';
+        if (record.situacao === 'FINALIZADO' || record.situacao === 'PRORROGADO') return 'finished';
         const today = new Date(); today.setHours(0, 0, 0, 0);
         if (record.data_fim) {
             const end = new Date(record.data_fim + 'T00:00:00'); end.setHours(0, 0, 0, 0);

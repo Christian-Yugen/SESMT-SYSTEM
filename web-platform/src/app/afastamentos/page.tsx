@@ -204,6 +204,9 @@ export default function AfastamentosPage() {
             .order('data_inicio', { ascending: false });
 
         if (!error && data) {
+            // Auto-repair logic: Fix records that should be PRORROGADO or FINALIZADO
+            await runAutoRepair(data);
+
             const withDays = data.map(r => {
                 if (r.data_inicio && r.data_fim) {
                     const diff = Math.abs(new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime());
@@ -214,6 +217,43 @@ export default function AfastamentosPage() {
             setRecords(withDays);
         }
         setLoading(false);
+    }
+
+    async function runAutoRepair(data: AfastamentoRecord[]) {
+        try {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            
+            // 1. Records that have 'renovado_por_id' but are still 'EM_ANDAMENTO'
+            const toProrrogar = data.filter(r => 
+                r.situacao === 'EM_ANDAMENTO' && 
+                r.renovado_por_id !== null
+            );
+
+            // 2. Records that are clearly expired (over 30 days ago) and still 'EM_ANDAMENTO'
+            // We only do this for records that are definitely in the past to avoid false positives
+            const toFinalize = data.filter(r => {
+                if (r.situacao !== 'EM_ANDAMENTO') return false;
+                if (!r.data_fim) return false;
+                const end = new Date(r.data_fim + 'T00:00:00');
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                return end < thirtyDaysAgo;
+            });
+
+            if (toProrrogar.length > 0) {
+                console.log(`Fixing ${toProrrogar.length} records to PRORROGADO...`);
+                await supabase.from('afastamentos').update({ situacao: 'PRORROGADO' }).in('id', toProrrogar.map(r => r.id));
+                toProrrogar.forEach(r => r.situacao = 'PRORROGADO'); // Update local ref
+            }
+
+            if (toFinalize.length > 0) {
+                console.log(`Fixing ${toFinalize.length} records to FINALIZADO...`);
+                await supabase.from('afastamentos').update({ situacao: 'FINALIZADO' }).in('id', toFinalize.map(r => r.id));
+                toFinalize.forEach(r => r.situacao = 'FINALIZADO'); // Update local ref
+            }
+        } catch (err) {
+            console.error("Error in auto-repair:", err);
+        }
     }
 
     async function handleAltaMedica(record: AfastamentoRecord) {
@@ -313,7 +353,7 @@ export default function AfastamentosPage() {
     };
 
     const getStatus = (record: AfastamentoRecord) => {
-        if (record.situacao === 'FINALIZADO') return 'finished';
+        if (record.situacao === 'FINALIZADO' || record.situacao === 'PRORROGADO') return 'finished';
         const today = new Date(); today.setHours(0, 0, 0, 0);
         if (record.data_fim) {
             const p = record.data_fim.split('-');
@@ -628,7 +668,12 @@ export default function AfastamentosPage() {
                                                     <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
                                                     {group.items[0].servidor_secretaria && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
                                                     {group.items[0].natureza_cargo && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}
-                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase">{group.items.length} {group.items.length === 1 ? 'Registro' : 'Registros'}</span>
+                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full uppercase border border-emerald-200">
+                                                        {group.items.filter(i => getStatus(i) === 'active' || getStatus(i) === 'alert').length} VIGENTE(S)
+                                                    </span>
+                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase border border-slate-300">
+                                                        {group.items.length} TOTAL
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

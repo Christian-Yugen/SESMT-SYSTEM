@@ -88,8 +88,14 @@ export async function safeGetSession() {
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
-            // Se for erro de refresh token, não logamos como erro, apenas retornamos nulo
-            if (error.message?.includes('Refresh Token Not Found') || error.status === 400) {
+            // Se for erro de refresh token, limpamos o storage e retornamos nulo silenciosamente
+            if (error.message?.includes('Refresh Token Not Found') || 
+                error.message?.includes('invalid refresh token') ||
+                error.status === 400) {
+                
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('sesmt-auth-session');
+                }
                 return { session: null, error: null };
             }
             return { session: null, error };
