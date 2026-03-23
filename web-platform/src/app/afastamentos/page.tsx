@@ -4,8 +4,10 @@ import { useEffect, useState, useMemo } from "react";
 import { getCIDChapter, getCIDDetails } from "@/lib/cid-utils";
 import { supabase } from "@/lib/supabase";
 import {
+    LayoutDashboard, Database, FileSearch, HeartPulse, LogOut, Activity, X, Menu,
+    ChevronDown, ChevronUp, History as HistoryIcon,
     BarChart3, User, Calendar, ClipboardList, Search, Filter, Printer, Users as UsersIcon, TrendingUp, FolderOpen, Trash2, PlusCircle, ArrowRight,
-    Building2, Scale, FileText, CheckCircle2, Clock, RotateCcw, Briefcase, Hash, Eye, Layers
+    Building2, Scale, FileText, CheckCircle2, Clock, RotateCcw, Briefcase, Hash, Eye, EyeOff, Layers
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
@@ -46,6 +48,14 @@ interface CIDRecord {
     cid_capitulo: string;
 }
 
+interface ServidorLite {
+    cpf: string;
+    cargo: string;
+    natureza_cargo: string;
+    matricula: string;
+    contrato: string;
+}
+
 const normalizeCpf = (cpf: string) => cpf.replace(/\D/g, '');
 const formatCpf = (cpf: string) => {
     const digits = cpf.replace(/\D/g, '');
@@ -68,6 +78,8 @@ export default function AfastamentosPage() {
     const [secretariaFilter, setSecretariaFilter] = useState<string>('all');
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [updatingId, setUpdatingId] = useState<number | null>(null);
+    const [revealedCids, setRevealedCids] = useState<Set<number>>(new Set());
+    const [servidoresData, setServidoresData] = useState<Record<string, ServidorLite>>({});
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -114,12 +126,30 @@ export default function AfastamentosPage() {
             .order('data_inicio', { ascending: false });
 
         if (!error && data) {
+            // Fetch unique CPFs
+            const cpfs = Array.from(new Set(data.map(r => r.servidor_cpf))).filter(Boolean);
+            if (cpfs.length > 0) {
+                const { data: servs } = await supabase
+                    .from('servidores')
+                    .select('cpf, cargo, natureza_cargo, matricula, contrato')
+                    .in('cpf', cpfs);
+                
+                if (servs) {
+                    const servMap: Record<string, ServidorLite> = {};
+                    servs.forEach(s => {
+                        const key = `${normalizeCpf(s.cpf)}_${String(s.matricula)}_${String(s.contrato || '1')}`;
+                        servMap[key] = s;
+                    });
+                    setServidoresData(servMap);
+                }
+            }
+
             const recordsWithDays = data.map(record => {
-                if (record.data_inicio && record.data_fim) {
-                    const startDate = new Date(record.data_inicio);
-                    const endDate = new Date(record.data_fim);
+                const startDate = record.data_inicio ? new Date(record.data_inicio) : null;
+                const endDate = record.data_fim ? new Date(record.data_fim) : null;
+                if (startDate && endDate) {
                     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include start and end day
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                     return { ...record, dias_afastado: diffDays };
                 }
                 return { ...record, dias_afastado: null };
@@ -130,18 +160,42 @@ export default function AfastamentosPage() {
     }
 
     async function handleAltaMedica(record: AfastamentoRecord) {
+        let motivo = "";
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const endDate = record.data_fim ? new Date(record.data_fim) : null;
+        
+        if (endDate) {
+            endDate.setHours(0, 0, 0, 0);
+            const diffTime = endDate.getTime() - today.getTime();
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            
+            if (diffDays > 1) {
+                motivo = prompt("Alta médica com antecipação superior a 1 dia. Por favor, informe o motivo:") || "";
+                if (!motivo) {
+                    alert("O motivo é obrigatório para altas antecipadas.");
+                    return;
+                }
+            }
+        }
+
         if (!confirm("Confirmar ALTA MÉDICA para este afastamento? O registro será marcado como FINALIZADO.")) return;
         
         setUpdatingId(record.id);
+        const updateData: any = { situacao: 'FINALIZADO' };
+        if (motivo) {
+            updateData.observacoes = (record.observacoes ? record.observacoes + "\n" : "") + "MOTIVO ALTA ANTECIPADA: " + motivo;
+        }
+
         const { error } = await supabase
             .from('afastamentos')
-            .update({ situacao: 'FINALIZADO' })
+            .update(updateData)
             .eq('id', record.id);
 
         if (error) {
             alert("Erro ao dar alta: " + error.message);
         } else {
-            setRecords(records.map((r: AfastamentoRecord) => r.id === record.id ? { ...r, situacao: 'FINALIZADO' } : r));
+            setRecords(records.map((r: AfastamentoRecord) => r.id === record.id ? { ...r, situacao: 'FINALIZADO', observacoes: updateData.observacoes || r.observacoes } : r));
         }
         setUpdatingId(null);
     }
@@ -216,6 +270,13 @@ export default function AfastamentosPage() {
         const diffTime = target.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
+    };
+
+    const toggleCidVisibility = (id: number) => {
+        const newSet = new Set(revealedCids);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setRevealedCids(newSet);
     };
 
     const filteredRecords = useMemo(() => {
@@ -395,26 +456,14 @@ export default function AfastamentosPage() {
                                                     <p className="text-xs font-bold text-slate-500 uppercase mt-1">CPF: {formatCpf(group.cpf)}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Matrícula(s) / Vínculo(s)</p>
-                                                    <div className="flex flex-col">
-                                                        {Array.from(new Set(group.items.map(i => `${i.servidor_matricula} (C. ${i.servidor_contrato || '1'})`))).map(m => (
-                                                            <p key={m} className="text-sm font-black text-emerald-600 uppercase">
-                                                                MAT: {m}
-                                                            </p>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cargo / Natureza</p>
-                                                    <p className="text-sm font-bold text-slate-700 uppercase">
-                                                        {group.items[0].natureza_cargo || 'N/D'}
-                                                    </p>
-                                                </div>
-                                                <div>
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secretaria</p>
                                                     <p className="text-sm font-bold text-slate-700 uppercase">
                                                         {group.items[0].servidor_secretaria || 'N/D'}
                                                     </p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1 h-8 bg-slate-200"></div>
+                                                    <p className="text-[11px] font-bold text-slate-400 italic">Expanda os registros para ver vínculos específicos</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -423,12 +472,33 @@ export default function AfastamentosPage() {
                                             {group.items.map(record => (
                                                 <div key={record.id} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all hover:border-emerald-200">
                                                     <div className="p-4">
-                                                        <div className="grid grid-cols-2 md:grid-cols-7 gap-4 items-center">
-                                                            <div className="md:col-span-1">
-                                                                <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Tipo</p>
+                                                        <div className="grid grid-cols-2 md:grid-cols-12 gap-4 items-center">
+                                                            {/* COLUNA 1: TIPO E VÍNCULO */}
+                                                            <div className="md:col-span-2">
+                                                                <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Tipo / Vínculo</p>
                                                                 <p className="text-[11px] font-black text-[#1A3351] uppercase">{record.tipo_afastamento}</p>
+                                                                <p className="text-[10px] font-bold text-emerald-600 mt-1">MAT: {record.servidor_matricula} (C. {record.servidor_contrato || '1'})</p>
                                                             </div>
-                                                            <div className="md:col-span-1">
+                                                            
+                                                            {/* COLUNA 2: CARGO E NATUREZA */}
+                                                            <div className="md:col-span-2 border-r border-slate-100 last:border-0 mr-2">
+                                                                <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Cargo / Natureza</p>
+                                                                {(() => {
+                                                                    const servKey = `${normalizeCpf(record.servidor_cpf)}_${String(record.servidor_matricula)}_${String(record.servidor_contrato || '1')}`;
+                                                                    const s = servidoresData[servKey];
+                                                                    return (
+                                                                        <>
+                                                                            <p className="text-[10px] font-bold text-slate-700 uppercase leading-tight line-clamp-2">
+                                                                                {s?.cargo || '---'}
+                                                                            </p>
+                                                                            <p className="text-[9px] font-black text-slate-400 italic">
+                                                                                {s?.natureza_cargo || record.natureza_cargo || '---'}
+                                                                            </p>
+                                                                        </>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                            <div className="md:col-span-1 border-r border-slate-100 last:border-0 mr-2">
                                                                 <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Início Afastamento</p>
                                                                 <p className="text-[11px] font-bold text-slate-700">
                                                                     {new Date(record.data_inicio).toLocaleDateString('pt-BR')}
@@ -463,24 +533,38 @@ export default function AfastamentosPage() {
                                                                     <p className="text-[13px] font-black text-emerald-700">{record.dias_afastado || '---'} Dias</p>
                                                                 </div>
                                                             </div>
-                                                            <div className="md:col-span-1">
+                                                            <div className="md:col-span-2">
                                                                 <p className="text-[10px] font-black text-slate-400 uppercase mb-1">CID(s)</p>
                                                                 <div className="flex flex-wrap gap-1 items-center">
-                                                                    {record.afastamento_cids?.map(c => (
+                                                                    {revealedCids.has(record.id) ? (
+                                                                        <div className="flex flex-col gap-1 w-full">
+                                                                            {record.afastamento_cids?.map(c => {
+                                                                                const details = getCIDDetails(c.cid_codigo);
+                                                                                return (
+                                                                                    <div key={c.id} className="text-[10px] flex flex-col bg-emerald-50 p-1.5 rounded border border-emerald-100">
+                                                                                        <div className="flex items-center gap-1.5">
+                                                                                            <span className="font-black text-emerald-700">{c.cid_codigo}</span>
+                                                                                            <span className="bg-emerald-600 text-white px-1.5 py-0.5 rounded-[3px] text-[8px] font-bold">CAP. {details.chapter}</span>
+                                                                                        </div>
+                                                                                        <p className="text-slate-600 font-bold leading-tight mt-0.5">{details.desc}</p>
+                                                                                    </div>
+                                                                                );
+                                                                            }) || <span className="text-[13px] text-slate-400">Nenhum</span>}
+                                                                            <button 
+                                                                                onClick={() => toggleCidVisibility(record.id)}
+                                                                                className="mt-1 flex items-center justify-center gap-1 py-1 bg-slate-100 text-slate-500 rounded text-[9px] font-bold hover:bg-slate-200 transition-colors uppercase"
+                                                                            >
+                                                                                <Eye className="w-3 h-3" /> Ocultar Detalhes
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
                                                                         <button 
-                                                                            key={c.id} 
-                                                                            onClick={() => setExpandedCidId(expandedCidId === record.id ? null : record.id)}
-                                                                            className="text-[13px] font-black bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded hover:bg-emerald-200 transition-colors"
+                                                                            onClick={() => toggleCidVisibility(record.id)}
+                                                                            className="flex items-center gap-2 p-1.5 px-3 bg-slate-50 border border-slate-200 rounded text-slate-400 hover:text-emerald-600 transition-colors group shadow-sm"
+                                                                            title="Revelar CID"
                                                                         >
-                                                                            {c.cid_codigo}
-                                                                        </button>
-                                                                    )) || <span className="text-[13px] text-slate-400">Nenhum</span>}
-                                                                    {record.afastamento_cids && record.afastamento_cids.length > 0 && (
-                                                                        <button 
-                                                                            onClick={() => setExpandedCidId(expandedCidId === record.id ? null : record.id)}
-                                                                            className="ml-1 text-slate-400 hover:text-emerald-600 transition-transform hover:scale-125"
-                                                                        >
-                                                                            <Eye className="w-5 h-5" />
+                                                                            <EyeOff className="w-5 h-5" />
+                                                                            <span className="text-[10px] font-black uppercase tracking-tighter group-hover:block hidden">REVELAR CID</span>
                                                                         </button>
                                                                     )}
                                                                 </div>
@@ -489,12 +573,12 @@ export default function AfastamentosPage() {
                                                                 <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Situação</p>
                                                                 {renderStatusBadge(record)}
                                                             </div>
-                                                            <div className="md:col-span-1 flex flex-col gap-1">
+                                                            <div className="md:col-span-2 flex flex-row flex-wrap gap-2 items-center justify-end">
                                                                 {record.situacao === 'EM_ANDAMENTO' && (
                                                                     <>
                                                                         <button 
                                                                             onClick={() => router.push(`/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`)}
-                                                                            className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-[10px] font-black rounded hover:bg-amber-600 transition-all shadow-sm"
+                                                                            className="flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500 text-white text-[10px] font-black rounded hover:bg-amber-600 transition-all shadow-md flex-1"
                                                                             title="Prorrogar Afastamento"
                                                                         >
                                                                             <RotateCcw className="w-3.5 h-3.5" />
@@ -504,7 +588,7 @@ export default function AfastamentosPage() {
                                                                             <button 
                                                                                 onClick={() => handleAltaMedica(record)}
                                                                                 disabled={updatingId === record.id}
-                                                                                className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-black rounded hover:bg-emerald-700 transition-all shadow-sm"
+                                                                                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-[10px] font-black rounded hover:bg-emerald-700 transition-all shadow-md flex-1"
                                                                                 title="Dar Alta Médica"
                                                                             >
                                                                                 {updatingId === record.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -515,7 +599,7 @@ export default function AfastamentosPage() {
                                                                 )}
                                                                 <button 
                                                                     onClick={() => handleViewPortaria(record)}
-                                                                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 text-[10px] font-black rounded hover:bg-slate-200 transition-all border border-slate-200"
+                                                                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 text-slate-700 text-[10px] font-black rounded hover:bg-slate-200 transition-all border border-slate-300 shadow-sm flex-1"
                                                                 >
                                                                     <FileText className="w-3.5 h-3.5" />
                                                                     PORTARIA
