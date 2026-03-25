@@ -56,6 +56,27 @@ export default function AbonoPage() {
     const [naturezaCargoFilter, setNaturezaCargoFilter] = useState<string>('all');
     const [mounted, setMounted] = useState(false);
 
+    // Smart Header Logic
+    const [showHeader, setShowHeader] = useState(true);
+        const [lastScrollTop, setLastScrollTop] = useState(0);
+        const [scrollUpStart, setScrollUpStart] = useState(0);
+
+        const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+            const scrollTop = e.currentTarget.scrollTop;
+            const isScrollingDown = scrollTop > lastScrollTop;
+
+            if (isScrollingDown) {
+                setScrollUpStart(scrollTop);
+                if (scrollTop > 150 && showHeader) setShowHeader(false);
+            } else {
+                // Só mostra se subiu mais de 250px desde o ponto mais baixo ou chegou no topo
+                if ((scrollUpStart - scrollTop > 250) || scrollTop < 50) {
+                    if (!showHeader) setShowHeader(true);
+                }
+            }
+            setLastScrollTop(scrollTop);
+        };
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -364,564 +385,556 @@ export default function AbonoPage() {
             )}
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden print:hidden">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+                <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
+                    {/* HEADER */}
+                    {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
+                    <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                        <div className="overflow-hidden">
+                            <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
+                                <div className="flex justify-between items-center mb-3">
+                            <div className="flex items-center gap-3 text-[#1A3351]">
+                                <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
+                                <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Abono Salarial</h2>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {/* Botão de Impressão com Popover de Opções */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
+                                        className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    >
+                                        <Printer className="w-4 h-4" />
+                                        Gerar Relatório (PDF)
+                                        <ChevronDown className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? 'rotate-180' : ''}`} />
+                                    </button>
 
-                {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
-                    <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-3 text-[#1A3351]">
-                            <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
-                            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Abono Salarial</h2>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {/* Botão de Impressão com Popover de Opções */}
-                            <div className="relative">
+                                    {isPrintPopoverOpen && (
+                                        <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
+                                            <div className="p-3 border-b border-slate-100 bg-slate-50">
+                                                <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
+                                            </div>
+                                            <div className="p-2 space-y-1">
+                                                <button
+                                                    onClick={() => { setPrintLayout('portrait'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
+                                                    className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                >
+                                                    <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
+                                                    {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setPrintLayout('landscape'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
+                                                    className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                >
+                                                    <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
+                                                    {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <button
-                                    onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
+                                    onClick={() => router.push('/abono/analytics')}
                                     className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
-                                    <Printer className="w-4 h-4" />
-                                    Gerar Relatório (PDF)
-                                    <ChevronDown className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? 'rotate-180' : ''}`} />
+                                    <BarChart3 className="w-4 h-4" />
+                                    Indicadores BI
                                 </button>
-
-                                {isPrintPopoverOpen && (
-                                    <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
-                                        <div className="p-3 border-b border-slate-100 bg-slate-50">
-                                            <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
-                                        </div>
-                                        <div className="p-2 space-y-1">
-                                            <button
-                                                onClick={() => { setPrintLayout('portrait'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
-                                            >
-                                                <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
-                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
-                                            </button>
-                                            <button
-                                                onClick={() => { setPrintLayout('landscape'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
-                                            >
-                                                <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
-                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
-                                            </button>
-                                        </div>
-                                    </div>
+                                {userRole !== 'analytic_manager' && (
+                                    <button
+                                        onClick={() => router.push('/abono/new')}
+                                        className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    >
+                                        <PlusCircle className="w-4 h-4" />
+                                        Novo Lançamento
+                                    </button>
                                 )}
-                            </div>
-
-                            <button
-                                onClick={() => router.push('/abono/analytics')}
-                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                            >
-                                <BarChart3 className="w-4 h-4" />
-                                Indicadores BI
-                            </button>
-                            {userRole !== 'analytic_manager' && (
                                 <button
-                                    onClick={() => router.push('/abono/new')}
-                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    onClick={() => setIsSidebarOpen(true)}
+                                    className="lg:hidden p-2.5 bg-[#1A3351] rounded-none-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                                 >
-                                    <PlusCircle className="w-4 h-4" />
-                                    Novo Lançamento
+                                    <Menu className="w-5 h-5" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
                                 </button>
-                            )}
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-none-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
-                            >
-                                <Menu className="w-5 h-5" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                        <div className="flex flex-col md:flex-row gap-2">
-                            {/* Busca principal */}
-                            <div className="flex-[3] relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="text"
-                                    placeholder="BUSCAR POR NOME OU CPF..."
-                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Filtro por Período Estilizado (Padrao Historico - Lado a Lado) */}
-                            <div className="flex-1 relative min-w-[200px]">
-                                <button
-                                    onClick={() => {
-                                        setTempStartDate(startDate);
-                                        setTempEndDate(endDate);
-                                        setIsDatePopoverOpen(!isDatePopoverOpen);
-                                    }}
-                                    className="w-full h-full min-h-[40px] px-4 py-2 border border-[#888] shadow-inner bg-[#E8E8E8] flex items-center justify-between text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition-all uppercase"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 text-slate-500" />
-                                        <span>Filtrar por Período</span>
-                                    </div>
-                                    <ChevronDown className={`w-3 h-3 transition-transform ${isDatePopoverOpen ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {/* Popover de Datas (Alineado à direita para não cortar na tela) */}
-                                {isDatePopoverOpen && (
-                                    <div className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#1A3351] shadow-2xl z-[100] p-5 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h4 className="text-sm font-bold text-[#1A3351] uppercase tracking-tighter">Definir Período</h4>
-                                            <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500 transition-colors">
-                                                <X className="w-5 h-5" />
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Inicial (Início)</label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="date"
-                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
-                                                        value={tempStartDate}
-                                                        onChange={(e) => setTempStartDate(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Final (Fim)</label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="date"
-                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
-                                                        value={tempEndDate}
-                                                        onChange={(e) => setTempEndDate(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-2 pt-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setTempStartDate("");
-                                                        setTempEndDate("");
-                                                        setStartDate("");
-                                                        setEndDate("");
-                                                        setIsDatePopoverOpen(false);
-                                                    }}
-                                                    className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-bold uppercase hover:bg-slate-50 transition-all rounded-none shadow-sm"
-                                                >
-                                                    Limpar
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setStartDate(tempStartDate);
-                                                        setEndDate(tempEndDate);
-                                                        setIsDatePopoverOpen(false);
-                                                    }}
-                                                    className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-bold uppercase hover:brightness-110 transition-all rounded-none shadow-lg active:scale-[0.98]"
-                                                >
-                                                    Filtrar Agora
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
 
-                        <div className="flex flex-col md:flex-row gap-2 mt-1">
-                            <div className="flex-[3] relative">
-                                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <select
-                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
-                                    value={secretariaFilter}
-                                    onChange={(e) => setSecretariaFilter(e.target.value)}
-                                >
-                                    <option value="all">TODAS SECRETARIAS</option>
-                                    {secretarias.map(sec => (
-                                        <option key={sec} value={sec}>{sec}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                            </div>
-
-                            {/* Filtro por Natureza do Cargo */}
-                            <div className="flex-1 relative min-w-[200px]">
-                                <Activity className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <select
-                                    className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
-                                    value={naturezaCargoFilter}
-                                    onChange={(e) => setNaturezaCargoFilter(e.target.value)}
-                                >
-                                    <option value="all">NATUREZA DO CARGO: TODAS</option>
-                                    {naturezas.map(nat => (
-                                        <option key={nat} value={nat}>{nat}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                            </div>
-
-                            {/* Botão Global Zerar Filtros */}
-                            {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || searchTerm || startDate || endDate) && (
-                                <button
-                                    onClick={() => {
-                                        setStartDate("");
-                                        setEndDate("");
-                                        setTempStartDate("");
-                                        setTempEndDate("");
-                                        setSecretariaFilter("all");
-                                        setNaturezaCargoFilter("all");
-                                        setSearchTerm("");
-                                    }}
-                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-bold uppercase rounded-none shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
-                                >
-                                    <X className="w-4 h-4" /> ZERAR FILTROS
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                {/* CONTEÚDO */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
-
-                    {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
-                        <div
-                            onClick={() => setStatusFilter('all')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-[#1A3351] border-white text-white' : 'bg-white border-[#1A3351] text-[#1A3351]'}`}
-                        >
-                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Total Servidores</p>
-                            <h3 className="text-xl lg:text-3xl font-bold">{stats.totalServidores}</h3>
-                        </div>
-                        <div
-                            onClick={() => setStatusFilter('all')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-slate-500 border-white text-white' : 'bg-white border-slate-300 text-slate-500'}`}
-                        >
-                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Benefícios</p>
-                            <h3 className="text-xl lg:text-3xl font-bold">{stats.totalBenefits}</h3>
-                        </div>
-                        <div
-                            onClick={() => setStatusFilter('active')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'active' ? 'bg-emerald-600 border-white text-white' : 'bg-white border-emerald-500 text-emerald-600'}`}
-                        >
-                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'active' ? 'text-white/60' : 'text-slate-400'}`}>Abonos Ativos</p>
-                            <h3 className="text-xl lg:text-3xl font-bold">{stats.ativos}</h3>
-                        </div>
-                        <div
-                            onClick={() => setStatusFilter('expired')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'expired' ? 'bg-[#E31E24] border-white text-white' : 'bg-white border-[#E31E24] text-[#E31E24]'}`}
-                        >
-                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'expired' ? 'text-white/60' : 'text-slate-400'}`}>Vencidos</p>
-                            <h3 className="text-xl lg:text-3xl font-bold">{stats.vencidos}</h3>
-                        </div>
-                        <div
-                            onClick={() => setStatusFilter('finished')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'finished' ? 'bg-blue-600 border-white text-white' : 'bg-white border-blue-600 text-blue-600'}`}
-                        >
-                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'finished' ? 'text-white/60' : 'text-slate-400'}`}>Finalizados</p>
-                            <h3 className="text-xl lg:text-3xl font-bold">{stats.finalizados}</h3>
-                        </div>
-                    </div>
-
-                    {/* LISTA DE REGISTROS */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
-                        <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div>
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-4">
-                                {/* Filtro de Status */}
-                                <div className="flex items-center gap-1 bg-white/50 p-1 rounded-none-none shadow-inner border border-black/5">
-                                    <button
-                                        onClick={() => setStatusFilter('all')}
-                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'all' ? 'bg-[#1A3351] text-white' : 'text-slate-600 hover:bg-black/5'}`}
-                                    >
-                                        Todos
-                                    </button>
-                                    <button
-                                        onClick={() => setStatusFilter('active')}
-                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'active' ? 'bg-green-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
-                                    >
-                                        Ativos
-                                    </button>
-                                    <button
-                                        onClick={() => setStatusFilter('expired')}
-                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'expired' ? 'bg-[#E31E24] text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
-                                    >
-                                        Vencidos
-                                    </button>
-                                    <button
-                                        onClick={() => setStatusFilter('finished')}
-                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'finished' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
-                                    >
-                                        Finalizados
-                                    </button>
+                        <div className="flex flex-col gap-3">
+                            <div className="flex flex-col md:flex-row gap-2">
+                                {/* Busca principal */}
+                                <div className="flex-[3] relative h-11">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="BUSCAR POR NOME OU CPF..."
+                                        className="w-full h-full px-10 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                 </div>
 
-                                {/* Divisor */}
-                                <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
-
-                                {/* Ordenação */}
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase">Ordenar:</span>
-                                    <select
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value as any)}
-                                        className="bg-white/70 border border-slate-400 text-[9px] font-bold uppercase px-2 py-1 outline-none shadow-sm cursor-pointer hover:bg-white transition-colors"
+                                {/* Filtro por Período Estilizado (Padrao Historico - Lado a Lado) */}
+                                <div className="flex-1 relative min-w-[200px] h-11">
+                                    <button
+                                        onClick={() => {
+                                            setTempStartDate(startDate);
+                                            setTempEndDate(endDate);
+                                            setIsDatePopoverOpen(!isDatePopoverOpen);
+                                        }}
+                                        className="w-full h-full px-4 border border-[#888] shadow-inner bg-[#E8E8E8] flex items-center justify-between text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition-all uppercase"
                                     >
-                                        <option value="alphabetical">Ordem Alfabética</option>
-                                        <option value="newest">Mais Novos</option>
-                                        <option value="oldest">Mais Antigos</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="divide-y divide-slate-200">
-                            {groupedRecords.length > 0 ? groupedRecords.map((group) => (
-                                <div key={group.cpf} className="group">
-                                    <div
-                                        onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)}
-                                        className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedCpf === group.cpf ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
-                                    >
-                                        <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-3 rounded-none-none transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                                <User className="w-6 h-6" />
-                                            </div>
-                                            <div>
-                                                <h4 className={`font-bold uppercase text-[#1A3351] leading-tight transition-all ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>
-                                                    {group.nome}
-                                                </h4>
-                                                <div className="flex flex-wrap gap-4 mt-1">
-                                                    <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
-                                                    {group.benefits[0].secretaria && (
-                                                        <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                                                            <Building2 className="w-3 h-3 text-slate-400" /> {group.benefits[0].secretaria}
-                                                        </p>
-                                                    )}
-                                                    {group.benefits[0].natureza_cargo && (
-                                                        <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                                                            <Activity className="w-3 h-3 text-slate-400" /> {group.benefits[0].natureza_cargo}
-                                                        </p>
-                                                    )}
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded-none-none uppercase">
-                                                        {group.benefits.length} {group.benefits.length === 1 ? 'Benefício' : 'Benefícios'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div className="flex items-center gap-2">
-                                            {expandedCpf !== group.cpf && (
-                                                <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-none-none border border-slate-200">
-                                                    <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Último Início</p>
-                                                        <p className="text-xs font-bold text-[#1A3351]">{formatDate(group.benefits[0].inicio)}</p>
-                                                    </div>
-                                                    <div className="w-px h-6 bg-slate-300" />
-                                                    <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Próximo Término</p>
-                                                        <p className={`text-xs font-bold ${(() => {
-                                                            if (!group.benefits[0].inicio) return 'text-slate-400';
-                                                            const parts = group.benefits[0].inicio.split('-');
-                                                            const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                                                            endDate.setFullYear(endDate.getFullYear() + 1);
-                                                            const today = new Date();
-                                                            today.setHours(0, 0, 0, 0);
-                                                            return endDate < today ? 'text-[#E31E24]' : 'text-green-600';
-                                                        })()}`}>
-                                                            {group.benefits[0].inicio ? (() => {
-                                                                const parts = group.benefits[0].inicio.split('-');
-                                                                const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                                                                date.setFullYear(date.getFullYear() + 1);
-                                                                return date.toLocaleDateString('pt-BR');
-                                                            })() : '---'}
-                                                        </p>
+                                            <Calendar className="w-4 h-4 text-slate-500" />
+                                            <span>Filtrar por Período</span>
+                                        </div>
+                                        <ChevronDown className={`w-3 h-3 transition-transform ${isDatePopoverOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Popover de Datas (Alineado à direita para não cortar na tela) */}
+                                    {isDatePopoverOpen && (
+                                        <div className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#1A3351] shadow-2xl z-[100] p-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <h4 className="text-sm font-bold text-[#1A3351] uppercase tracking-tighter">Definir Período</h4>
+                                                <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500 transition-colors">
+                                                    <X className="w-5 h-5" />
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Inicial (Início)</label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="date"
+                                                            className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
+                                                            value={tempStartDate}
+                                                            onChange={(e) => setTempStartDate(e.target.value)}
+                                                        />
                                                     </div>
                                                 </div>
-                                            )}
-                                            {expandedCpf !== group.cpf ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronUp className="w-5 h-5 text-[#1A3351]" />}
-                                        </div>
-                                    </div>
 
-                                    {expandedCpf === group.cpf && (
-                                        <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
-                                            <div className="space-y-6">
-                                                <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Final (Fim)</label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="date"
+                                                            className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
+                                                            value={tempEndDate}
+                                                            onChange={(e) => setTempEndDate(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                                <div className="grid grid-cols-1 gap-4">
-                                                    {group.benefits.map((record) => (
-                                                        <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-none-none hover:border-[#1A3351]/30 transition-colors relative overflow-hidden group/card">
-                                                            <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-none-none group-hover/card:bg-[#1A3351]/10 transition-colors" />
-
-                                                            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
-                                                                <div className="space-y-1 md:col-span-2">
-                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Vigência</p>
-                                                                    <div className="flex flex-col gap-1.5">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-xs font-bold text-slate-400 uppercase min-w-[50px]">Início:</span>
-                                                                            <span className="text-sm font-bold text-[#1A3351]">{formatDate(record.inicio)}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                            <span className="text-xs font-bold text-slate-400 uppercase min-w-[50px]">Término:</span>
-                                                                            <span className="text-sm font-bold">
-                                                                                {record.inicio ? (() => {
-                                                                                    const parts = record.inicio.split('-');
-                                                                                    const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                                                                                    endDate.setFullYear(endDate.getFullYear() + 1);
-
-                                                                                    const today = new Date();
-                                                                                    today.setHours(0, 0, 0, 0);
-                                                                                    const status = getBenefitStatus(record, renewalTargetIds);
-
-                                                                                    return (
-                                                                                        <span className="flex items-center gap-2 translate-y-[1px]">
-                                                                                            <span className={status === 'active' || status === 'renewed' ? 'text-green-600' : status === 'expired' ? 'text-[#E31E24]' : 'text-slate-500'}>
-                                                                                                {endDate.toLocaleDateString('pt-BR')}
-                                                                                            </span>
-                                                                                            <span className={`text-[10px] px-2 py-0.5 rounded-none shadow-sm border font-bold ${status === 'active'
-                                                                                                ? 'bg-green-500 text-white border-green-600 animate-pulse'
-                                                                                                : status === 'renewed'
-                                                                                                    ? 'bg-blue-600 text-white border-blue-700'
-                                                                                                    : status === 'finished'
-                                                                                                        ? 'bg-slate-300 text-slate-600 border-slate-400'
-                                                                                                        : 'bg-[#E31E24] text-white border-[#E31E24]'
-                                                                                                }`}>
-                                                                                                {status === 'active' ? 'VIGENTE' : status === 'renewed' ? 'RENOVADO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
-                                                                                            </span>
-                                                                                        </span>
-                                                                                    );
-                                                                                })() : '---'}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="space-y-1 md:col-span-2 text-center md:text-left">
-                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Beneficiário e Natureza</p>
-                                                                    <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
-                                                                    {record.natureza_cargo && (
-                                                                        <span className="text-[10px] font-bold text-[#1A3351] bg-[#1A3351]/5 px-2 py-0.5 rounded-none uppercase border border-[#1A3351]/10">
-                                                                            {record.natureza_cargo}
-                                                                        </span>
-                                                                    )}
-                                                                    <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase border-b border-slate-100 pb-0.5 mb-1.5">Documento Oficial</p>
-                                                                    <div className="space-y-0.5">
-                                                                        {record.assomasul_data && (
-                                                                            <p className="text-[10px] font-bold text-[#1A3351] uppercase tracking-tighter whitespace-nowrap">
-                                                                                Pub. Assomasul: {formatDate(record.assomasul_data)}
-                                                                            </p>
-                                                                        )}
-                                                                        {record.assomasul_numero && (
-                                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {record.assomasul_numero}</p>
-                                                                        )}
-                                                                        <div className="h-px bg-slate-100 my-1" />
-                                                                        <p className="text-xs font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">{record.portaria || '---'}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex flex-col gap-2 items-end justify-center">
-                                                                    {userRole !== 'analytic_manager' && (
-                                                                        <>
-                                                                            <button
-                                                                                onClick={() => router.push(`/abono/edit/${record.id}`)}
-                                                                                className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32"
-                                                                            >
-                                                                                Editar Dados
-                                                                            </button>
-                                                                            {getBenefitStatus(record, renewalTargetIds) === 'expired' && !record.renovado_por_id && (
-                                                                                <button
-                                                                                    onClick={() => router.push(`/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ''}`)}
-                                                                                    className="px-6 py-2 bg-green-600 text-white text-[10px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32 flex items-center justify-center gap-1"
-                                                                                >
-                                                                                    <TrendingUp className="w-3 h-3" />
-                                                                                    Renovar
-                                                                                </button>
-                                                                            )}
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            {record.observacoes && (
-                                                                <div className="mt-4 pt-4 border-t border-slate-100">
-                                                                    <p className="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1">
-                                                                        <ClipboardList className="w-3.5 h-3.5" /> Informações Adicionais
-                                                                    </p>
-                                                                    <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
-                                                                        <p className="text-sm text-slate-700 font-bold uppercase leading-relaxed italic">
-                                                                            "{record.observacoes}"
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
-                                                            {
-                                                                logs[record.id] && logs[record.id].length > 0 && (
-                                                                    <div className="mt-4 pt-4 border-t border-slate-100">
-                                                                        <button
-                                                                            onClick={() => setExpandedLogId(expandedLogId === record.id ? null : record.id)}
-                                                                            className={`w-full flex items-center justify-between p-3 rounded-none border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
-                                                                        >
-                                                                            <div className="flex items-center gap-2">
-                                                                                <HistoryIcon className={`w-4 h-4 ${expandedLogId === record.id ? 'text-white' : 'text-[#E31E24]'}`} />
-                                                                                <span className="text-[10px] font-bold uppercase tracking-wider">
-                                                                                    {expandedLogId === record.id ? 'Ocultar Histórico de Auditoria' : `Ver Histórico de Auditoria (${logs[record.id].length})`}
-                                                                                </span>
-                                                                            </div>
-                                                                            {expandedLogId === record.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                                                        </button>
-
-                                                                        {expandedLogId === record.id && (
-                                                                            <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
-                                                                                {logs[record.id].map((log) => {
-                                                                                    const diff = getDiff(log.dados_anteriores, log.dados_novos);
-                                                                                    return (
-                                                                                        <div key={log.id} className="text-[10px] p-3 bg-white rounded-none border border-slate-200 shadow-sm relative overflow-hidden group/log">
-                                                                                            <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
-                                                                                            <div className="flex justify-between font-bold uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
-                                                                                                <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
-                                                                                                <span className="text-slate-400">{new Date(log.data_alteracao).toLocaleDateString('pt-BR')} {new Date(log.data_alteracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                                                                            </div>
-                                                                                            <div className="space-y-2">
-                                                                                                <p className="font-bold text-[#1A3351] uppercase leading-tight">
-                                                                                                    <span className="text-amber-600">MOTIVO:</span> {log.motivo}
-                                                                                                </p>
-                                                                                                {diff && diff.length > 0 && (
-                                                                                                    <div className="bg-slate-50 p-2 rounded-none border border-slate-100 space-y-1">
-                                                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
-                                                                                                        {diff.map((change, i) => (
-                                                                                                            <p key={i} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
-                                                                                                                <ArrowRight className="w-2.5 h-2.5 text-amber-500" /> {change}
-                                                                                                            </p>
-                                                                                                        ))}
-                                                                                                    </div>
-                                                                                                )}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    );
-                                                                                })}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                        </div>
-                                                    ))}
+                                                <div className="flex gap-2 pt-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setTempStartDate("");
+                                                            setTempEndDate("");
+                                                            setStartDate("");
+                                                            setEndDate("");
+                                                            setIsDatePopoverOpen(false);
+                                                        }}
+                                                        className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-bold uppercase hover:bg-slate-50 transition-all rounded-none shadow-sm"
+                                                    >
+                                                        Limpar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setStartDate(tempStartDate);
+                                                            setEndDate(tempEndDate);
+                                                            setIsDatePopoverOpen(false);
+                                                        }}
+                                                        className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-bold uppercase hover:brightness-110 transition-all rounded-none shadow-lg active:scale-[0.98]"
+                                                    >
+                                                        Filtrar Agora
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
-                            )) : (
-                                <div className="p-20 text-center text-slate-400 flex flex-col items-center gap-4">
-                                    <ClipboardList className="w-16 h-16 opacity-20" />
-                                    <p className="font-bold uppercase tracking-[0.2em]">Nenhum registro encontrado</p>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row gap-2 mt-1">
+                                <div className="flex-[3] relative h-11">
+                                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <select
+                                        className="w-full h-full px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
+                                        value={secretariaFilter}
+                                        onChange={(e) => setSecretariaFilter(e.target.value)}
+                                    >
+                                        <option value="all">TODAS SECRETARIAS</option>
+                                        {secretarias.map(sec => (
+                                            <option key={sec} value={sec}>{sec}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                                 </div>
-                            )}
+
+                                {/* Filtro por Natureza do Cargo */}
+                                <div className="flex-1 relative min-w-[200px] h-11">
+                                    <Activity className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <select
+                                        className="w-full h-full px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer"
+                                        value={naturezaCargoFilter}
+                                        onChange={(e) => setNaturezaCargoFilter(e.target.value)}
+                                    >
+                                        <option value="all">NATUREZA DO CARGO: TODAS</option>
+                                        {naturezas.map(nat => (
+                                            <option key={nat} value={nat}>{nat}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                                </div>
+
+                                {/* Botão Global Zerar Filtros */}
+                                {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || searchTerm || startDate || endDate) && (
+                                    <button
+                                        onClick={() => {
+                                            setStartDate("");
+                                            setEndDate("");
+                                            setTempStartDate("");
+                                            setTempEndDate("");
+                                            setSecretariaFilter("all");
+                                            setNaturezaCargoFilter("all");
+                                            setSearchTerm("");
+                                        }}
+                                        className="px-6 h-11 bg-[#E31E24] text-white text-[10px] font-bold uppercase rounded-none shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
+                                    >
+                                        <X className="w-4 h-4" /> ZERAR FILTROS
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        </section>
+                    </div>
+                </div>
+
+                    {/* CONTEÚDO */}
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
+
+                        {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
+                            <div
+                                onClick={() => setStatusFilter('all')}
+                                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-[#1A3351] border-white text-white' : 'bg-white border-[#1A3351] text-[#1A3351]'}`}
+                            >
+                                <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Total Servidores</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{stats.totalServidores}</h3>
+                            </div>
+                            <div
+                                onClick={() => setStatusFilter('all')}
+                                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-slate-500 border-white text-white' : 'bg-white border-slate-300 text-slate-500'}`}
+                            >
+                                <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Benefícios</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{stats.totalBenefits}</h3>
+                            </div>
+                            <div
+                                onClick={() => setStatusFilter('active')}
+                                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'active' ? 'bg-emerald-600 border-white text-white' : 'bg-white border-emerald-500 text-emerald-600'}`}
+                            >
+                                <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'active' ? 'text-white/60' : 'text-slate-400'}`}>Abonos Ativos</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{stats.ativos}</h3>
+                            </div>
+                            <div
+                                onClick={() => setStatusFilter('expired')}
+                                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'expired' ? 'bg-[#E31E24] border-white text-white' : 'bg-white border-[#E31E24] text-[#E31E24]'}`}
+                            >
+                                <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'expired' ? 'text-white/60' : 'text-slate-400'}`}>Vencidos</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{stats.vencidos}</h3>
+                            </div>
+                            <div
+                                onClick={() => setStatusFilter('finished')}
+                                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'finished' ? 'bg-blue-600 border-white text-white' : 'bg-white border-blue-600 text-blue-600'}`}
+                            >
+                                <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'finished' ? 'text-white/60' : 'text-slate-400'}`}>Finalizados</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{stats.finalizados}</h3>
+                            </div>
+                        </div>
+
+                        {/* LISTA DE REGISTROS */}
+                        <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                            <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <div className="flex items-center bg-white/50 shadow-inner border border-black/5 h-10 p-1">
+                                        {[
+                                            { key: 'all', label: 'Todos', color: 'bg-[#1A3351]' },
+                                            { key: 'active', label: 'Ativos', color: 'bg-green-600' },
+                                            { key: 'expired', label: 'Vencidos', color: 'bg-[#E31E24]' },
+                                            { key: 'finished', label: 'Finalizados', color: 'bg-blue-600' },
+                                        ].map(btn => (
+                                            <button key={btn.key} onClick={() => setStatusFilter(btn.key as any)} className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center rounded-none ${statusFilter === btn.key ? btn.color + ' text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}>
+                                                {btn.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase">Ordenar:</span>
+                                            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]">
+                                                <option value="alphabetical">Ordem Alfabética</option>
+                                                <option value="newest">Mais Novos</option>
+                                                <option value="oldest">Mais Antigos</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={`divide-y divide-slate-200 transition-colors duration-500 ${expandedCpf ? 'bg-slate-900/10 backdrop-blur-[1px]' : ''}`}>
+                                {groupedRecords.length > 0 ? groupedRecords.map((group) => (
+                                    <div key={group.cpf} className={`transition-all duration-500 ${expandedCpf === group.cpf ? 'z-50 relative scale-[1.01] shadow-[0_35px_80px_-15px_rgba(0,0,0,0.35)] ring-2 ring-[#1A3351]/20 bg-white translate-y-[-4px]' : expandedCpf ? 'opacity-25 blur-[1.5px] grayscale-[0.5] pointer-events-none scale-[0.98]' : 'z-0 opacity-100'}`}>
+                                        <div
+                                            onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)}
+                                            className={`px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-8 ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351]' : 'border-transparent'}`}
+                                        >
+                                            <div className="flex items-center gap-5 flex-1">
+                                                <div className={`p-4 transition-colors shadow-sm ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                                    <User className="w-8 h-8" />
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center gap-3">
+                                                        <h4 className={`font-bold uppercase text-[#1A3351] leading-tight transition-all ${expandedCpf === group.cpf ? 'text-2xl' : 'text-lg'}`}>
+                                                            {group.nome}
+                                                        </h4>
+                                                        {expandedCpf === group.cpf && (
+                                                            <span className="text-[10px] font-bold bg-[#1A3351] text-white px-2 py-0.5 rounded-none animate-pulse flex items-center gap-1 shrink-0">
+                                                                <div className="w-1.5 h-1.5 bg-white rounded-full" /> REGISTRO EM FOCO
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-4 mt-1">
+                                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">CPF: {formatCpf(group.cpf)}</p>
+                                                        {group.benefits[0].secretaria && (
+                                                            <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                                                                <Building2 className="w-3 h-3 text-slate-400" /> {group.benefits[0].secretaria}
+                                                            </p>
+                                                        )}
+                                                        {group.benefits[0].natureza_cargo && (
+                                                            <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                                                                <Activity className="w-3 h-3 text-slate-400" /> {group.benefits[0].natureza_cargo}
+                                                            </p>
+                                                        )}
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded-none-none uppercase">
+                                                            {group.benefits.length} {group.benefits.length === 1 ? 'Benefício' : 'Benefícios'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {expandedCpf !== group.cpf && (
+                                                    <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-none-none border border-slate-200">
+                                                        <div className="flex flex-col items-start leading-none">
+                                                            <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Último Início</p>
+                                                            <p className="text-xs font-bold text-[#1A3351]">{formatDate(group.benefits[0].inicio)}</p>
+                                                        </div>
+                                                        <div className="w-px h-6 bg-slate-300" />
+                                                        <div className="flex flex-col items-start leading-none">
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">Próximo Término</p>
+                                                            <p className={`text-sm font-bold ${(() => {
+                                                                if (!group.benefits[0].inicio) return 'text-slate-400';
+                                                                const parts = group.benefits[0].inicio.split('-');
+                                                                const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                                                endDate.setFullYear(endDate.getFullYear() + 1);
+                                                                const today = new Date();
+                                                                today.setHours(0, 0, 0, 0);
+                                                                return endDate < today ? 'text-[#E31E24]' : 'text-green-600';
+                                                            })()}`}>
+                                                                {group.benefits[0].inicio ? (() => {
+                                                                    const parts = group.benefits[0].inicio.split('-');
+                                                                    const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                                                    date.setFullYear(date.getFullYear() + 1);
+                                                                    return date.toLocaleDateString('pt-BR');
+                                                                })() : '---'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {expandedCpf !== group.cpf ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronUp className="w-5 h-5 text-[#1A3351]" />}
+                                            </div>
+                                        </div>
+
+                                        {expandedCpf === group.cpf && (
+                                            <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                                <div className="space-y-6">
+                                                    <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
+
+                                                    <div className="bg-white border-2 border-slate-200 shadow-sm overflow-hidden">
+                                                        {group.benefits.map((record, index) => (
+                                                            <div key={record.id}>
+                                                                <div className="p-6 relative overflow-hidden group/card transition-colors hover:bg-slate-50/50">
+                                                                    <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-none-none group-hover/card:bg-[#1A3351]/10 transition-colors" />
+
+                                                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
+                                                                        <div className="space-y-1.5 md:col-span-2">
+                                                                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Vigência</p>
+                                                                            <div className="flex flex-col gap-2 mt-1">
+                                                                                <div className="flex items-center gap-2.5">
+                                                                                    <span className="text-[11px] font-bold text-slate-400 uppercase min-w-[60px]">Início:</span>
+                                                                                    <span className="text-sm font-bold text-[#1A3351]">{formatDate(record.inicio)}</span>
+                                                                                </div>
+                                                                                <div className="flex items-center gap-2.5 whitespace-nowrap">
+                                                                                    <span className="text-[11px] font-bold text-slate-400 uppercase min-w-[60px]">Término:</span>
+                                                                                    <span className="text-sm font-bold">
+                                                                                        {record.inicio ? (() => {
+                                                                                            const parts = record.inicio.split('-');
+                                                                                            const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                                                                            endDate.setFullYear(endDate.getFullYear() + 1);
+
+                                                                                            const today = new Date();
+                                                                                            today.setHours(0, 0, 0, 0);
+                                                                                            const status = getBenefitStatus(record, renewalTargetIds);
+
+                                                                                            return (
+                                                                                                <span className="flex items-center gap-2 translate-y-[1px]">
+                                                                                                    <span className={status === 'active' || status === 'renewed' ? 'text-green-600' : status === 'expired' ? 'text-[#E31E24]' : 'text-slate-500'}>
+                                                                                                        {endDate.toLocaleDateString('pt-BR')}
+                                                                                                    </span>
+                                                                                                    <span className={`text-[10px] px-2 py-0.5 rounded-none shadow-sm border font-bold ${status === 'active'
+                                                                                                        ? 'bg-green-500 text-white border-green-600 animate-pulse'
+                                                                                                        : status === 'renewed'
+                                                                                                            ? 'bg-blue-600 text-white border-blue-700'
+                                                                                                            : status === 'finished'
+                                                                                                                ? 'bg-slate-300 text-slate-600 border-slate-400'
+                                                                                                                : 'bg-[#E31E24] text-white border-[#E31E24]'
+                                                                                                        }`}>
+                                                                                                        {status === 'active' ? 'VIGENTE' : status === 'renewed' ? 'RENOVADO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
+                                                                                                    </span>
+                                                                                                </span>
+                                                                                            );
+                                                                                        })() : '---'}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="space-y-1.5 md:col-span-2 text-center md:text-left">
+                                                                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Beneficiário e Natureza</p>
+                                                                            <p className="text-base font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
+                                                                            {record.natureza_cargo && (
+                                                                                <span className="text-[11px] font-bold text-[#1A3351] bg-[#1A3351]/5 px-2.5 py-1 rounded-none uppercase border border-[#1A3351]/20 inline-block mt-1">
+                                                                                    {record.natureza_cargo}
+                                                                                </span>
+                                                                            )}
+                                                                            <p className="text-[10px] text-slate-400 italic mt-2.5">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
+                                                                        </div>
+                                                                        <div className="space-y-1.5">
+                                                                            <p className="text-[11px] font-bold text-slate-400 uppercase border-b border-slate-100 pb-1 mb-2 tracking-widest">Documento Oficial</p>
+                                                                            <div className="space-y-1">
+                                                                                {record.assomasul_data && (
+                                                                                    <p className="text-[11px] font-bold text-[#1A3351] uppercase tracking-tighter whitespace-nowrap">
+                                                                                        Pub. Assomasul: {formatDate(record.assomasul_data)}
+                                                                                    </p>
+                                                                                )}
+                                                                                {record.assomasul_numero && (
+                                                                                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {record.assomasul_numero}</p>
+                                                                                )}
+                                                                                <div className="h-px bg-slate-100 my-1.5" />
+                                                                                <p className="text-sm font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">{record.portaria || '---'}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex flex-col gap-2 items-end justify-center">
+                                                                            {userRole !== 'analytic_manager' && (
+                                                                                <>
+                                                                                    <button
+                                                                                        onClick={() => router.push(`/abono/edit/${record.id}`)}
+                                                                                        className="px-6 py-2.5 bg-[#1A3351] text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40"
+                                                                                    >
+                                                                                        Editar Dados
+                                                                                    </button>
+                                                                                    {getBenefitStatus(record, renewalTargetIds) === 'expired' && !record.renovado_por_id && (
+                                                                                        <button
+                                                                                            onClick={() => router.push(`/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ''}`)}
+                                                                                            className="px-6 py-2.5 bg-green-600 text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40 flex items-center justify-center gap-2"
+                                                                                        >
+                                                                                            <TrendingUp className="w-4 h-4" />
+                                                                                            Renovar
+                                                                                        </button>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {record.observacoes && (
+                                                                        <div className="mt-4 pt-4 border-t border-slate-100">
+                                                                            <p className="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1">
+                                                                                <ClipboardList className="w-3.5 h-3.5" /> Informações Adicionais
+                                                                            </p>
+                                                                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                                                                <p className="text-sm text-slate-700 font-bold uppercase leading-relaxed italic">
+                                                                                    "{record.observacoes}"
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {
+                                                                        logs[record.id] && logs[record.id].length > 0 && (
+                                                                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                                                                <button
+                                                                                    onClick={() => setExpandedLogId(expandedLogId === record.id ? null : record.id)}
+                                                                                    className={`w-full flex items-center justify-between p-3 rounded-none border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
+                                                                                >
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <HistoryIcon className={`w-4 h-4 ${expandedLogId === record.id ? 'text-white' : 'text-[#E31E24]'}`} />
+                                                                                        <span className="text-[10px] font-bold uppercase tracking-wider">
+                                                                                            {expandedLogId === record.id ? 'Ocultar Histórico de Auditoria' : `Ver Histórico de Auditoria (${logs[record.id].length})`}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    {expandedLogId === record.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                                                </button>
+
+                                                                                {expandedLogId === record.id && (
+                                                                                    <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                                                                        {logs[record.id].map((log) => {
+                                                                                            const diff = getDiff(log.dados_anteriores, log.dados_novos);
+                                                                                            return (
+                                                                                                <div key={log.id} className="text-[10px] p-3 bg-white rounded-none border border-slate-200 shadow-sm relative overflow-hidden group/log">
+                                                                                                    <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
+                                                                                                    <div className="flex justify-between font-bold uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
+                                                                                                        <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
+                                                                                                        <span className="text-slate-400">{new Date(log.data_alteracao).toLocaleDateString('pt-BR')} {new Date(log.data_alteracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                                                                    </div>
+                                                                                                    <div className="space-y-2">
+                                                                                                        <p className="font-bold text-[#1A3351] uppercase leading-tight">
+                                                                                                            <span className="text-amber-600">MOTIVO:</span> {log.motivo}
+                                                                                                        </p>
+                                                                                                        {diff && diff.length > 0 && (
+                                                                                                            <div className="bg-slate-50 p-2 rounded-none border border-slate-100 space-y-1">
+                                                                                                                <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
+                                                                                                                {diff.map((change, i) => (
+                                                                                                                    <p key={i} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
+                                                                                                                        <ArrowRight className="w-2.5 h-2.5 text-amber-500" /> {change}
+                                                                                                                    </p>
+                                                                                                                ))}
+                                                                                                            </div>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            );
+                                                                                        })}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                </div>
+                                                                {index < group.benefits.length - 1 && <div className="mx-6 h-px bg-slate-200" />}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )) : (
+                                    <div className="p-20 text-center text-slate-400 flex flex-col items-center gap-4">
+                                        <ClipboardList className="w-16 h-16 opacity-20" />
+                                        <p className="font-bold uppercase tracking-[0.2em]">Nenhum registro encontrado</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

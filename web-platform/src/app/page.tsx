@@ -29,6 +29,27 @@ export default function Home() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
+  // Smart Header Logic
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const [scrollUpStart, setScrollUpStart] = useState(0);
+
+  const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    const isScrollingDown = scrollTop > lastScrollTop;
+
+    if (isScrollingDown) {
+      setScrollUpStart(scrollTop);
+      if (scrollTop > 150 && showHeader) setShowHeader(false);
+    } else {
+      // Só mostra se subiu mais de 250px desde o ponto mais baixo ou chegou no topo
+      if ((scrollUpStart - scrollTop > 250) || scrollTop < 50) {
+        if (!showHeader) setShowHeader(true);
+      }
+    }
+    setLastScrollTop(scrollTop);
+  };
+
   // Verificar autenticação e carregar perfil
   useEffect(() => {
     safeGetSession().then(({ session, error }) => {
@@ -390,10 +411,16 @@ export default function Home() {
 
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
+        <div
+          onScroll={handleMainScroll}
+          className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
+        >
 
-        {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
-        <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
-          <div className="flex justify-between items-center mb-1">
+        {/* BUSCAR SERVIDOR (HEADER) - Smart Dynamic Header com Colapso de Espaço */}
+        <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+          <div className="overflow-hidden">
+            <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
+              <div className="flex justify-between items-center mb-1">
             <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -425,11 +452,13 @@ export default function Home() {
                 )}
               </div>
             </div>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
 
         {/* CONTAINER DE DADOS (2 COLUNAS) */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] overflow-y-auto min-h-0 mx-auto w-full">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] min-h-0 mx-auto w-full">
 
           {/* COLUNA ESQUERDA (DADOS E GHE) */}
           <div className="col-span-12 xl:col-span-6 flex flex-col gap-6 min-h-0">
@@ -437,30 +466,21 @@ export default function Home() {
             {/* DADOS DO SERVIDOR */}
             <div className="shrink-0">
               <h2 className="text-xl lg:text-2xl font-bold mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Dados do Servidor</h2>
-              <div className="space-y-4 lg:space-y-3 text-sm lg:text-base leading-snug pl-1 lg:pl-2">
-                <div className="flex gap-4 items-baseline">
-                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Matrícula:</span>
-                  <div className="flex gap-2 items-center">
-                    <span className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
-                    {selectedServidor?.contrato && (
-                      <span className="bg-[#E31E24]/10 text-[#E31E24] text-[10px] px-2 py-0.5 font-bold border border-[#E31E24]/20 uppercase">Contrato {selectedServidor.contrato}</span>
-                    )}
-                  </div>
-                </div>
+              <div className="space-y-4 lg:space-y-4 text-sm lg:text-lg leading-snug pl-1 lg:pl-2">
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Data Nasc.:</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[12px] tracking-wider">Data Nasc.:</span>
                   <span className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{formatBirthInfo(selectedServidor?.["Dt.Nascimento"] || selectedServidor?.Nascimento)}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Nome:</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[12px] tracking-wider">Nome:</span>
                   <span className="font-semibold text-slate-700 uppercase underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Nome || "---"}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Cargo:</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[12px] tracking-wider">Cargo:</span>
                   <span className="font-semibold text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Cargo || "---"}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Secretaria:</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[12px] tracking-wider">Secretaria:</span>
                   <span className="font-semibold text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Secretaria || "---"}</span>
                 </p>
               </div>
@@ -469,9 +489,9 @@ export default function Home() {
             {/* DEFINIÇÃO DE GHE */}
             <div className="flex-1 flex flex-col gap-4 min-h-0">
               <h2 className="text-xl lg:text-2xl font-bold leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Definição de GHE</h2>
-              <div className="flex flex-col gap-5 min-h-0">
+              <div className="flex flex-col gap-6 min-h-0">
                 <div className="pl-2">
-                  <p className="text-[10px] font-bold mb-2 uppercase text-slate-500">Função Laboral:</p>
+                  <p className="text-[12px] font-bold mb-2 uppercase text-slate-500 tracking-wider">Função Laboral:</p>
                   <div className="relative w-full max-w-xl">
                     <input
                       type="text"
@@ -499,11 +519,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="space-y-4 lg:space-y-3 text-sm lg:text-base pl-1 lg:pl-2">
-                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[10px]">GHE Correspondente:</span> <span className="text-[#1A3351] font-bold text-lg lg:text-xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
+                <div className="space-y-4 lg:space-y-4 text-sm lg:text-lg pl-1 lg:pl-2 mt-2">
+                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[12px] tracking-wider">GHE Correspondente:</span> <span className="text-[#1A3351] font-bold text-xl lg:text-2xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
                   <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline">
-                    <span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[10px]">GHE CONJ:</span>
-                    <span className="text-slate-600 font-semibold underline underline-offset-4 decoration-slate-300 decoration-1 tracking-wide">
+                    <span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[12px] tracking-wider">GHE CONJ:</span>
+                    <span className="text-slate-600 font-semibold underline underline-offset-4 decoration-slate-300 decoration-1 tracking-wide text-base lg:text-lg">
                       {selectedFuncao?.["GHE CONJ"]
                         ? (selectedFuncao["GHE CONJ"].toString().toUpperCase().startsWith("ACT")
                           ? selectedFuncao["GHE CONJ"]
@@ -514,7 +534,7 @@ export default function Home() {
                 </div>
 
                 <div className="pl-2">
-                  <p className="text-[10px] font-bold mb-2 uppercase text-slate-500">Tipo de Exame Requerido:</p>
+                  <p className="text-[12px] font-bold mb-2 uppercase text-slate-500 tracking-wider">Tipo de Exame Requerido:</p>
                   <div className="flex flex-wrap bg-[#888] border-2 border-[#888] overflow-hidden w-full sm:w-fit shadow-md rounded-none">
                     {(["Admissional", "de Retorno ao Trabalho", "Demissional"] as const).map((type) => (
                       <button
@@ -602,6 +622,7 @@ export default function Home() {
             </div>
           </div>
 
+        </div>
         </div>
       </main>
 

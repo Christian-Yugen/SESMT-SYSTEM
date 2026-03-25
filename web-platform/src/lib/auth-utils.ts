@@ -88,13 +88,18 @@ export async function safeGetSession() {
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
+            const errorMessage = error.message || '';
             // Se for erro de refresh token, limpamos o storage e retornamos nulo silenciosamente
-            if (error.message?.includes('Refresh Token Not Found') || 
-                error.message?.includes('invalid refresh token') ||
+            if (errorMessage.includes('Refresh Token Not Found') || 
+                errorMessage.includes('invalid refresh token') ||
                 error.status === 400) {
                 
+                console.warn("Sessão inválida detectada pelo geSession. Limpando...");
                 if (typeof window !== 'undefined') {
-                    localStorage.removeItem('sesmt-auth-session');
+                    const storageKey = 'sesmt-auth-session';
+                    localStorage.removeItem(storageKey);
+                    // Força um signOut interno para limpar o estado do cliente Supabase
+                    supabase.auth.signOut().catch(() => {});
                 }
                 return { session: null, error: null };
             }
@@ -102,7 +107,8 @@ export async function safeGetSession() {
         }
         
         return { session: data.session, error: null };
-    } catch (err) {
+    } catch (err: any) {
+        console.error("Erro inesperado ao buscar sessão:", err);
         return { session: null, error: err };
     }
 }

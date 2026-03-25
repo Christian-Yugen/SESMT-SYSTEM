@@ -137,6 +137,26 @@ export default function AfastamentosPage() {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+    const [scrollUpStart, setScrollUpStart] = useState(0);
+
+    const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const scrollTop = e.currentTarget.scrollTop;
+        const isScrollingDown = scrollTop > lastScrollTop;
+
+        if (isScrollingDown) {
+            setScrollUpStart(scrollTop);
+            if (scrollTop > 150 && showHeader) setShowHeader(false);
+        } else {
+            // Só mostra se subiu mais de 250px desde o ponto mais baixo ou chegou no topo
+            if ((scrollUpStart - scrollTop > 250) || scrollTop < 50) {
+                if (!showHeader) setShowHeader(true);
+            }
+        }
+        setLastScrollTop(scrollTop);
+    };
+
     const [expandedCpf, setExpandedCpf] = useState<string | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
@@ -538,7 +558,10 @@ export default function AfastamentosPage() {
 
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden">
+                {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
+                <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                    <div className="overflow-hidden">
+                        <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
@@ -653,10 +676,12 @@ export default function AfastamentosPage() {
                             )}
                         </div>
                     </div>
-                </section>
+                        </section>
+                    </div>
+                </div>
 
                 {/* CONTEÚDO */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 print:hidden">
+                <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 print:hidden">
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 lg:gap-4 shrink-0">
                         {[

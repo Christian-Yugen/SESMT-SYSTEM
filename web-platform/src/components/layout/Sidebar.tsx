@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ensureISO } from "@/lib/utils";
+import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
 import SyncModal from "@/components/SyncModal";
 import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import WelcomeModal from "@/components/WelcomeModal";
@@ -68,7 +69,11 @@ export default function Sidebar({
     };
 
     const getUserId = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { session, error } = await safeGetSession();
+      if (error) {
+        await handleAuthError(error);
+        return;
+      }
       if (session) setUserId(session.user.id);
     };
 

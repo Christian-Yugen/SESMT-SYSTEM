@@ -84,8 +84,7 @@ export function generateAfastamentoPDF(data: AfastamentoPortariaData, action: 'v
     doc.setFont('times', 'bold');
     doc.text('Art. 1º - ', marginLeft, y);
     doc.setFont('times', 'normal');
-    const matriculaText = data.servidor_contrato ? `${data.servidor_matricula} (Contrato ${data.servidor_contrato})` : data.servidor_matricula;
-    const art1 = `Conceder o afastamento do tipo ${data.tipo_afastamento} pelo período de ${data.data_inicio} a ${data.data_fim} ao(à) servidor(a) ${nomeFormatado}, matrícula ${matriculaText}, ocupante do cargo de ${cargoFormatado}, lotado(a) em ${lotacaoFormatada}.`;
+    const art1 = `Conceder o afastamento do tipo ${data.tipo_afastamento} pelo período de ${data.data_inicio} a ${data.data_fim} ao(à) servidor(a) ${nomeFormatado}, ocupante do cargo de ${cargoFormatado}, lotado(a) em ${lotacaoFormatada}.`;
     const art1Lines = doc.splitTextToSize(art1, contentWidth - 20);
     doc.text(art1Lines, marginLeft + 20, y, { align: 'justify', maxWidth: contentWidth - 20 });
     y += (art1Lines.length * 6) + 6;
