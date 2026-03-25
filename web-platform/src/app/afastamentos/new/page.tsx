@@ -349,7 +349,7 @@ export default function NewAfastamentoPage() {
                 {/* HEADER */}
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-emerald-500 shrink-0 shadow-lg">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => router.push('/afastamentos')} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                        <button onClick={() => router.push('/afastamentos')} className="p-2 hover:bg-black/5 transition-colors">
                             <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                         </button>
                         <h2 className="text-xl font-black uppercase tracking-tight text-[#1A3351]">
@@ -365,24 +365,24 @@ export default function NewAfastamentoPage() {
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
                             <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Servidor</h3>
                             {!selectedServidor ? (
-                                <div className="flex gap-3">
+                                <div className="flex gap-3 h-14">
                                     <input
                                         type="text"
                                         placeholder="NOME OU CPF DO SERVIDOR..."
-                                        className="flex-1 px-4 py-3 border border-slate-300 shadow-inner text-base font-bold bg-[#E8E8E8] outline-none uppercase"
+                                        className="flex-1 px-4 h-full border border-slate-300 shadow-inner text-base font-bold bg-[#E8E8E8] outline-none uppercase"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && performSearch(searchQuery)}
                                     />
-                                    <button onClick={() => performSearch(searchQuery)} className="bg-[#1A3351] text-white px-6 py-3 font-black uppercase text-sm rounded shadow-lg">
+                                    <button onClick={() => performSearch(searchQuery)} className="bg-[#1A3351] text-white px-8 h-full font-black uppercase text-sm shadow-lg hover:brightness-110 transition-all">
                                         Buscar
                                     </button>
                                 </div>
                             ) : (
-                                <div className="bg-slate-50 p-6 rounded-lg border-2 border-slate-200 shadow-inner">
+                                <div className="bg-slate-50 p-6 border-2 border-slate-200 shadow-inner">
                                     <div className="flex justify-between items-start">
                                         <div className="flex gap-6 items-center">
-                                            <div className="p-4 bg-[#1A3351] text-white rounded-xl shadow-lg">
+                                            <div className="p-4 bg-[#1A3351] text-white shadow-lg">
                                                 <User className="w-8 h-8" />
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 flex-1">

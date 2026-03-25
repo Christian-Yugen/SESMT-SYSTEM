@@ -549,7 +549,7 @@ useEffect(() => {
             .report-title-area h1 { margin: 0; font-size: 13px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
             .report-info { font-size: 7.5px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 1px; }
             
-            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 2px; border: 1px solid #f0f0f0; }
+            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 0px; border: 1px solid #f0f0f0; }
             .legend-item { display: flex; gap: 3px; }
 
             table { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
@@ -572,7 +572,7 @@ useEffect(() => {
 
             .stats-bar { font-size: 8px; font-weight: 900; margin-bottom: 5px; color: #1A3351; text-transform: uppercase; border-left: 3px solid #E31E24; padding-left: 8px; }
             .footer { margin-top: 20px; font-size: 7px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
-            .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 15px; border-radius: 2px; }
+            .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 15px; border-radius: 0px; }
             .lgpd-title { font-size: 8px; font-weight: 900; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block; }
             .lgpd-text { font-size: 8px; color: #333; text-align: justify; margin: 0; line-height: 1.4; font-weight: 500; }
           </style>
@@ -723,7 +723,7 @@ useEffect(() => {
             .report-title-area h1 { margin: 0; font-size: 13px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
             .report-info { font-size: 7.5px; color: #666; font-weight: bold; text-transform: uppercase; margin-top: 1px; }
             
-            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 2px; border: 1px solid #f0f0f0; }
+            .legend-bar { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 6px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; background: #f8f8f8; padding: 3px 6px; border-radius: 0px; border: 1px solid #f0f0f0; }
             .legend-item { display: flex; gap: 3px; }
 
             table { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
@@ -844,9 +844,9 @@ useEffect(() => {
                                                 
                                                 <button
                                                     onClick={() => handlePrintRequest('portrait')}
-                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all rounded-lg group border border-transparent hover:border-slate-200"
+                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
                                                 >
-                                                    <div className="p-2 bg-slate-100 rounded group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                                    <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
                                                         <FileSearch className="w-5 h-5" />
                                                     </div>
                                                     <div className="text-left">
@@ -857,9 +857,9 @@ useEffect(() => {
 
                                                 <button
                                                     onClick={() => handlePrintRequest('landscape')}
-                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all rounded-lg group border border-transparent hover:border-slate-200"
+                                                    className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
                                                 >
-                                                    <div className="p-2 bg-slate-100 rounded group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                                    <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
                                                         <Printer className="w-5 h-5" />
                                                     </div>
                                                     <div className="text-left">
@@ -877,7 +877,7 @@ useEffect(() => {
                             )}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                                className="lg:hidden p-2.5 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                             >
                                 <Menu className="w-5 h-5" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -887,23 +887,23 @@ useEffect(() => {
 
                     <div className="flex flex-col gap-3 relative z-10">
                         <div className="flex flex-col lg:flex-row gap-3">
-                            <div className="flex-1 relative">
+                            <div className="flex-1 relative h-11">
                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
                                     placeholder="BUSCAR SERVIDOR..."
-                                    className="w-full px-11 py-3 lg:py-2 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase rounded-lg lg:rounded-none"
+                                    className="w-full h-full px-11 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
 
                             {/* FILTRO DE DATA COMPACTO (POPOVER) */}
-                            <div className="relative w-full lg:w-auto">
+                            <div className="relative w-full lg:w-auto h-11">
                                 <button
                                     onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
                                     className={`
-                                        flex items-center justify-between lg:justify-center gap-2 w-full lg:w-64 h-11 lg:h-10 bg-[#E8E8E8] border border-[#888] shadow-inner font-black text-[10px] uppercase transition-all px-4 rounded-lg lg:rounded-none
+                                        flex items-center justify-between lg:justify-center gap-2 w-full lg:w-64 h-full bg-[#E8E8E8] border border-[#888] shadow-inner font-black text-[10px] uppercase transition-all px-4
                                         ${(startDate || endDate) ? 'text-[#E31E24] border-[#E31E24]' : 'text-slate-500'}
                                     `}
                                 >
@@ -925,7 +925,7 @@ useEffect(() => {
                                                 <span className="text-[9px] font-black text-slate-400 uppercase">Data Inicial (Início)</span>
                                                 <input
                                                     type="date"
-                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24] rounded"
+                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24]"
                                                     value={startDate}
                                                     onChange={(e) => setStartDate(e.target.value)}
                                                 />
@@ -934,7 +934,7 @@ useEffect(() => {
                                                 <span className="text-[9px] font-black text-slate-400 uppercase">Data Final (Fim)</span>
                                                 <input
                                                     type="date"
-                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24] rounded"
+                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24]"
                                                     value={endDate}
                                                     onChange={(e) => setEndDate(e.target.value)}
                                                 />
@@ -948,7 +948,7 @@ useEffect(() => {
                                                 </button>
                                                 <button
                                                     onClick={() => setIsDateFilterOpen(false)}
-                                                    className="flex-[2] py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 rounded shadow-md"
+                                                    className="flex-[2] py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 shadow-md"
                                                 >
                                                     Filtrar Agora
                                                 </button>
@@ -959,11 +959,11 @@ useEffect(() => {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 items-stretch h-11">
                             <select
                                 value={filterUser}
                                 onChange={(e) => setFilterUser(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
@@ -975,7 +975,7 @@ useEffect(() => {
                             <select
                                 value={filterType}
                                 onChange={(e) => setFilterType(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS DOCUMENTOS</option>
                                 <option value="ASO">ASOs</option>
@@ -983,10 +983,10 @@ useEffect(() => {
                             </select>
 
                             {filterType === 'ASO' && (
-                                <div className="relative flex-1 md:flex-none">
+                                <div className="relative flex-1 md:flex-none h-full">
                                     <button
                                         onClick={() => setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)}
-                                        className={`flex items-center justify-between gap-2 px-4 py-2 bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
+                                        className={`flex items-center justify-between gap-2 px-4 h-full bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
                                     >
                                         <span className="truncate">
                                             {selectedAsoSubtypes.length === 0 
@@ -1061,7 +1061,7 @@ useEffect(() => {
                             <select
                                 value={filterShift}
                                 onChange={(e) => setFilterShift(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS OS TURNOS</option>
                                 <option value="morning">MANHÃ (07h - 13h)</option>
@@ -1071,7 +1071,7 @@ useEffect(() => {
                             <select
                                 value={filterSecretaria}
                                 onChange={(e) => setFilterSecretaria(e.target.value)}
-                                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
                             >
                                 <option value="all">TODAS SECRETARIAS</option>
                                 {uniqueSecretarias.map(sec => (
@@ -1090,7 +1090,7 @@ useEffect(() => {
                                         setStartDate("");
                                         setEndDate("");
                                     }}
-                                    className="px-4 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                                    className="px-4 h-full bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all"
                                 >
                                     Zerar Filtros
                                 </button>

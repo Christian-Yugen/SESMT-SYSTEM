@@ -600,12 +600,12 @@ export default function AfastamentosPage() {
 
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col md:flex-row gap-2">
-                            <div className="flex-[3] relative">
+                            <div className="flex-[3] relative h-11">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <input type="text" placeholder="BUSCAR POR NOME OU CPF..." className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                <input type="text" placeholder="BUSCAR POR NOME OU CPF..." className="w-full h-full px-10 border border-[#888] shadow-inner text-sm font-bold bg-[#E8E8E8] outline-none uppercase placeholder:text-slate-400" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                             </div>
-                            <div className="flex-1 relative min-w-[200px]">
-                                <button onClick={() => { setTempStartDate(startDate); setTempEndDate(endDate); setIsDatePopoverOpen(!isDatePopoverOpen); }} className="w-full h-full min-h-[40px] px-4 py-2 border border-[#888] shadow-inner bg-[#E8E8E8] flex items-center justify-between text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition-all uppercase">
+                            <div className="flex-1 relative min-w-[200px] h-11">
+                                <button onClick={() => { setTempStartDate(startDate); setTempEndDate(endDate); setIsDatePopoverOpen(!isDatePopoverOpen); }} className="w-full h-full px-4 border border-[#888] shadow-inner bg-[#E8E8E8] flex items-center justify-between text-[11px] font-bold text-slate-600 hover:bg-slate-200 transition-all uppercase">
                                     <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-slate-500" /><span>Filtrar por Período</span></div>
                                     <ChevronDown className={`w-3 h-3 transition-transform ${isDatePopoverOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -616,11 +616,11 @@ export default function AfastamentosPage() {
                                             <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
                                         </div>
                                         <div className="space-y-4">
-                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Inicial</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded" value={tempStartDate} onChange={(e) => setTempStartDate(e.target.value)} /></div>
-                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Final</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded" value={tempEndDate} onChange={(e) => setTempEndDate(e.target.value)} /></div>
+                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Inicial</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none" value={tempStartDate} onChange={(e) => setTempStartDate(e.target.value)} /></div>
+                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Final</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none" value={tempEndDate} onChange={(e) => setTempEndDate(e.target.value)} /></div>
                                             <div className="flex gap-2 pt-2">
-                                                <button onClick={() => { setTempStartDate(""); setTempEndDate(""); setStartDate(""); setEndDate(""); setIsDatePopoverOpen(false); }} className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-black uppercase rounded">Limpar</button>
-                                                <button onClick={() => { setStartDate(tempStartDate); setEndDate(tempEndDate); setIsDatePopoverOpen(false); }} className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-black uppercase rounded">Filtrar</button>
+                                                <button onClick={() => { setTempStartDate(""); setTempEndDate(""); setStartDate(""); setEndDate(""); setIsDatePopoverOpen(false); }} className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-black uppercase rounded-none">Limpar</button>
+                                                <button onClick={() => { setStartDate(tempStartDate); setEndDate(tempEndDate); setIsDatePopoverOpen(false); }} className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-black uppercase rounded-none">Filtrar</button>
                                             </div>
                                         </div>
                                     </div>
@@ -628,18 +628,18 @@ export default function AfastamentosPage() {
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-2 mt-1">
-                            <div className="flex-[3] relative">
+                            <div className="flex-[3] relative h-11">
                                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <select className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={secretariaFilter} onChange={(e) => setSecretariaFilter(e.target.value)}>
+                                <select className="w-full h-full px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={secretariaFilter} onChange={(e) => setSecretariaFilter(e.target.value)}>
                                     <option value="all">TODAS SECRETARIAS</option>
                                     {Array.from(new Set(records.map(r => r.servidor_secretaria).filter(Boolean))).sort().map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                             </div>
 
-                            <div className="flex-1 relative min-w-[200px]">
+                            <div className="flex-1 relative min-w-[200px] h-11">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <select className="w-full px-10 py-2.5 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={cargoFilter} onChange={(e) => setCargoFilter(e.target.value)}>
+                                <select className="w-full h-full px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase appearance-none cursor-pointer" value={cargoFilter} onChange={(e) => setCargoFilter(e.target.value)}>
                                     <option value="all">CARGO: TODOS</option>
                                     {Array.from(new Set(records.map(r => r.servidor_cargo).filter(Boolean))).sort().map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
@@ -647,7 +647,7 @@ export default function AfastamentosPage() {
                             </div>
 
                             {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || cargoFilter !== 'all' || tipoAfastamentoFilter !== 'all' || searchTerm || startDate || endDate) && (
-                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
+                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 h-11 bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
                                     <X className="w-4 h-4" /> ZERAR FILTROS
                                 </button>
                             )}
@@ -667,7 +667,7 @@ export default function AfastamentosPage() {
                             { label: 'Vencidos', value: stats.expired, filter: 'expired' as const, activeColor: 'bg-[#E31E24] border-white text-white', baseColor: 'bg-white border-[#E31E24] text-[#E31E24]' },
                             { label: 'Finalizados', value: stats.finished, filter: 'finished' as const, activeColor: 'bg-blue-600 border-white text-white', baseColor: 'bg-white border-blue-600 text-blue-600' },
                         ].map(card => (
-                            <div key={card.label} onClick={() => setStatusFilter(card.filter)} className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === card.filter ? card.activeColor : card.baseColor}`}>
+                            <div key={card.label} onClick={() => setStatusFilter(card.filter)} className={`p-4 lg:p-6 border-l-4 shadow-lg transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === card.filter ? card.activeColor : card.baseColor}`}>
                                 <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === card.filter ? 'text-white/60' : 'text-slate-400'}`}>{card.label}</p>
                                 <h3 className="text-xl lg:text-3xl font-black">{card.value}</h3>
                             </div>
@@ -679,7 +679,7 @@ export default function AfastamentosPage() {
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                             <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Registros de Afastamento</h3>
                             <div className="flex flex-wrap items-center gap-4">
-                                <div className="flex items-center gap-1 bg-white/50 p-1 rounded-md shadow-inner border border-black/5">
+                                <div className="flex items-center bg-white/50 shadow-inner border border-black/5 h-10 p-1">
                                     {[
                                         { key: 'all', label: 'Todos', color: 'bg-[#1A3351]' },
                                         { key: 'active', label: 'Ativos', color: 'bg-green-600' },
@@ -687,7 +687,7 @@ export default function AfastamentosPage() {
                                         { key: 'expired', label: 'Vencidos', color: 'bg-[#E31E24]' },
                                         { key: 'finished', label: 'Finalizados', color: 'bg-blue-600' },
                                     ].map(btn => (
-                                        <button key={btn.key} onClick={() => setStatusFilter(btn.key as any)} className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === btn.key ? btn.color + ' text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}>
+                                        <button key={btn.key} onClick={() => setStatusFilter(btn.key as any)} className={`h-full px-4 text-[10px] font-black uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + ' text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}>
                                             {btn.label}
                                         </button>
                                     ))}
@@ -695,15 +695,15 @@ export default function AfastamentosPage() {
                                 <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
                                 <div className="flex flex-wrap items-center gap-4">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Filtrar:</span>
-                                        <select value={tipoAfastamentoFilter} onChange={(e) => setTipoAfastamentoFilter(e.target.value)} className="bg-white/70 border border-slate-400 text-[9px] font-black uppercase px-2 py-1 outline-none shadow-sm cursor-pointer min-w-[120px]">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase">Filtrar:</span>
+                                        <select value={tipoAfastamentoFilter} onChange={(e) => setTipoAfastamentoFilter(e.target.value)} className="bg-white/70 border border-slate-400 text-[10px] font-black uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]">
                                             <option value="all">TODOS OS TIPOS</option>
                                             {Array.from(new Set(records.map(r => r.tipo_afastamento).filter(Boolean))).sort().map(t => <option key={t} value={t}>{t}</option>)}
                                         </select>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase">Ordenar:</span>
-                                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/70 border border-slate-400 text-[9px] font-black uppercase px-2 py-1 outline-none shadow-sm cursor-pointer">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase">Ordenar:</span>
+                                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/70 border border-slate-400 text-[10px] font-black uppercase px-2 h-10 outline-none shadow-sm cursor-pointer">
                                             <option value="alphabetical">Ordem Alfabética</option>
                                             <option value="newest">Mais Novos</option>
                                             <option value="oldest">Mais Antigos</option>
@@ -718,23 +718,23 @@ export default function AfastamentosPage() {
                                 <div key={group.cpf}>
                                     <div onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)} className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedCpf === group.cpf ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}>
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-3 rounded-full transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
+                                            <div className={`p-3 transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
                                             <div>
                                                 <h4 className={`font-black uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
-                                                <div className="flex flex-wrap gap-4 mt-1">
+                                                <div className="flex flex-wrap gap-4 mt-1 items-center">
                                                     <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
                                                     {group.items[0].servidor_secretaria && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
                                                     {group.items[0].natureza_cargo && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}
-                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full uppercase border border-emerald-200">
+                                                    <span className="text-[10px] font-black px-2 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center">
                                                         {group.items.filter(i => getStatus(i) === 'active' || getStatus(i) === 'alert').length} VIGENTE(S)
                                                     </span>
-                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase border border-slate-300">
+                                                    <span className="text-[10px] font-black px-2 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center">
                                                         {group.items.length} TOTAL
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-3">
                                             {/* BOTÃO RELATÓRIO DO SERVIDOR */}
                                             <button 
                                                 onClick={async (e) => {
@@ -759,39 +759,34 @@ export default function AfastamentosPage() {
                                                         generateServidorReportPDF({ nome: group.nome, cpf: group.cpf }, group.items, []);
                                                     }
                                                 }}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-[#1A3351] hover:bg-slate-50 font-black rounded border border-slate-200 text-[10px] uppercase transition-all shadow-sm active:scale-95 group/btn"
+                                                className="flex items-center gap-2 px-4 h-11 bg-white text-[#1A3351] hover:bg-slate-50 font-black border border-slate-200 text-[10px] uppercase transition-all shadow-sm active:scale-95 group/btn shrink-0"
                                             >
-                                                <FileText className="w-3.5 h-3.5 text-slate-400 group-hover/btn:text-[#1A3351]" /> Relatório
+                                                <FileText className="w-4 h-4 text-slate-400 group-hover/btn:text-[#1A3351]" /> Relatório
                                             </button>
 
                                             {expandedCpf !== group.cpf && (
-                                                <div className="flex flex-col items-end gap-2 pr-2">
-                                                    <div className="hidden md:flex items-center gap-6 bg-slate-100/50 px-4 py-2 rounded-lg border border-slate-200">
-                                                        <div className="flex flex-col items-start leading-none">
-                                                            <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Último Início</p>
-                                                            <p className="text-xs font-black text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <div className="hidden md:flex items-stretch bg-slate-100/80 px-4 h-11 border border-slate-200">
+                                                        <div className="flex flex-col justify-center leading-none min-w-[80px]">
+                                                            <p className="text-[7px] font-black text-slate-400 uppercase mb-1">Último Início</p>
+                                                            <p className="text-[11px] font-black text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
                                                         </div>
-                                                        <div className="w-px h-6 bg-slate-300" />
-                                                        <div className="flex flex-col items-start leading-none gap-1">
-                                                            <div className="flex flex-col">
-                                                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
-                                                                <p className={`text-xs font-black ${(() => {
-                                                                    if (!group.items[0].data_fim) return 'text-slate-400';
-                                                                    const e = new Date(group.items[0].data_fim); e.setHours(0,0,0,0);
-                                                                    const t = new Date(); t.setHours(0,0,0,0);
-                                                                    return e < t ? 'text-[#E31E24]' : 'text-green-600';
-                                                                })()}`}>{formatDate(group.items[0].data_fim)}</p>
-                                                            </div>
+                                                        <div className="w-px bg-slate-200 mx-3 my-2" />
+                                                        <div className="flex flex-col justify-center leading-none min-w-[80px]">
+                                                            <p className="text-[7px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
+                                                            <p className={`text-[11px] font-black ${(() => {
+                                                                if (!group.items[0].data_fim) return 'text-slate-400';
+                                                                const e = new Date(group.items[0].data_fim); e.setHours(0,0,0,0);
+                                                                const t = new Date(); t.setHours(0,0,0,0);
+                                                                return e < t ? 'text-[#E31E24]' : 'text-green-600';
+                                                            })()}`}>{formatDate(group.items[0].data_fim)}</p>
                                                         </div>
                                                     </div>
-                                                    {group.items[0].situacao === 'EM_ANDAMENTO' && group.items[0].data_fim && (
-                                                        <div className="hidden md:block">
-                                                            <VencimentoAlerta dateFim={group.items[0].data_fim} />
-                                                        </div>
-                                                    )}
                                                 </div>
                                             )}
-                                            {expandedCpf !== group.cpf ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronUp className="w-5 h-5 text-[#1A3351]" />}
+                                            <div className="flex items-center justify-center w-8 h-11">
+                                                {expandedCpf !== group.cpf ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronUp className="w-5 h-5 text-[#1A3351]" />}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -804,8 +799,8 @@ export default function AfastamentosPage() {
                                                     {group.items.map((record) => {
                                                         const status = getStatus(record);
                                                         return (
-                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm rounded-xl hover:border-[#1A3351]/30 transition-all relative overflow-hidden group/card">
-                                                                <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 rounded-full group-hover/card:bg-[#1A3351]/10 transition-colors" />
+                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-hidden group/card">
+                                                                <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                             {/* INFO GRID - 3 colunas */}
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">

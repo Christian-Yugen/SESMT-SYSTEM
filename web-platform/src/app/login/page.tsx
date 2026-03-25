@@ -118,7 +118,7 @@ export default function LoginPage() {
                         <h1 className="text-3xl font-black text-[#1A3351] uppercase tracking-tight leading-none">
                             SESMT SYSTEM
                         </h1>
-                        <div className="h-1 w-20 bg-[#E31E24] rounded-full mx-auto mt-0.5"></div>
+                        <div className="h-1 w-20 bg-[#E31E24] rounded-none mx-auto mt-0.5"></div>
                         <p className="text-[11px] font-black text-[#1A3351]/70 uppercase tracking-[0.4em] mt-1.5">
                             {mode === "login" ? "Acesso ao Sistema" : mode === "signup" ? "Novo Cadastro" : "Recuperar Senha"}
                         </p>

@@ -66,22 +66,22 @@ export default function WelcomeModal({ userName }: WelcomeModalProps) {
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#1A3351]/40 backdrop-blur-md transition-all animate-in fade-in duration-500">
-      <div className="bg-white/95 w-full max-w-lg rounded-[2.5rem] shadow-[0_32px_128px_-16px_rgba(26,51,81,0.5)] border-t border-white overflow-hidden relative group animate-in zoom-in slide-in-from-bottom-12 duration-700">
+      <div className="bg-white/95 w-full max-w-lg rounded-none shadow-[0_32px_128px_-16px_rgba(26,51,81,0.5)] border-t border-white overflow-hidden relative group animate-in zoom-in slide-in-from-bottom-12 duration-700">
         
         {/* Background Gradients */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#1A3351] to-transparent opacity-20" />
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-[80px] opacity-60" />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-orange-50 rounded-full blur-[80px] opacity-60" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-none blur-[80px] opacity-60" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-orange-50 rounded-none blur-[80px] opacity-60" />
 
         <div className="relative p-10 flex flex-col items-center text-center">
           <button 
             onClick={() => setIsOpen(false)}
-            className="absolute top-6 right-8 text-slate-300 hover:text-[#1A3351] transition-colors p-2 rounded-full hover:bg-slate-50 active:scale-95"
+            className="absolute top-6 right-8 text-slate-300 hover:text-[#1A3351] transition-colors p-2 rounded-none hover:bg-slate-50 active:scale-95"
           >
             <X className="w-6 h-6" />
           </button>
 
-          <div className="mb-8 p-6 bg-slate-50 rounded-[2rem] shadow-inner border border-white inline-flex relative overflow-hidden">
+          <div className="mb-8 p-6 bg-slate-50 rounded-none shadow-inner border border-white inline-flex relative overflow-hidden">
              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent" />
              {icon}
           </div>
@@ -92,7 +92,7 @@ export default function WelcomeModal({ userName }: WelcomeModalProps) {
               {greeting}, <span className="bg-gradient-to-r from-[#1A3351] to-blue-600 bg-clip-text text-transparent">{userName}</span>!
             </h1>
             
-            <div className="h-0.5 w-12 bg-[#1A3351] mx-auto rounded-full opacity-10" />
+            <div className="h-0.5 w-12 bg-[#1A3351] mx-auto rounded-none opacity-10" />
             
             <p className="text-lg text-slate-600 font-medium leading-relaxed px-4">
               {systemMessage}
@@ -102,7 +102,7 @@ export default function WelcomeModal({ userName }: WelcomeModalProps) {
           <div className="mt-12 w-full pt-8 border-t border-slate-50 flex flex-col items-center gap-4">
             <button
                onClick={() => setIsOpen(false)}
-               className="w-full bg-[#1A3351] text-white py-5 rounded-[1.5rem] font-bold uppercase tracking-[0.2em] shadow-2xl hover:brightness-110 active:scale-95 transition-all text-sm group"
+               className="w-full bg-[#1A3351] text-white py-5 rounded-none font-bold uppercase tracking-[0.2em] shadow-2xl hover:brightness-110 active:scale-95 transition-all text-sm group"
             >
                <span className="flex items-center justify-center gap-2">
                  Iniciar Expediente <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />

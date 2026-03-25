@@ -310,30 +310,30 @@ export default function AfastamentosAnalyticsPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
+                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
                                 <Printer className="w-3.5 h-3.5" /> Imprimir Vista (PDF)
                             </button>
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white"><Menu className="w-6 h-6" /></button>
+                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] text-white"><Menu className="w-6 h-6" /></button>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mt-4">
-                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
+                    <div className="flex flex-wrap gap-2 mt-4 items-stretch">
+                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
                             <option value="all">TODAS SECRETARIAS</option>
                             {uniqueSecretarias.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <select value={filterTipo} onChange={(e) => setFilterTipo(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterTipo} onChange={(e) => setFilterTipo(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODOS OS TIPOS</option>
                             {uniqueTipos.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
-                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODAS NATUREZAS</option>
                             <option value="EFETIVO">EFETIVO</option>
                             <option value="COMISSÃO">COMISSÃO</option>
                             <option value="TEMPORÁRIO">TEMPORÁRIO</option>
                         </select>
-                        <div className="relative flex-1 md:flex-none min-w-[180px]">
-                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-emerald-600" : ""}`}>
+                        <div className="relative flex-1 md:flex-none min-w-[180px] h-11">
+                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full h-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-emerald-600" : ""}`}>
                                 <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> PERÍODO</span>
                                 <ChevronDown className="w-3 h-3" />
                             </button>
@@ -349,7 +349,7 @@ export default function AfastamentosAnalyticsPage() {
                             )}
                         </div>
                         {(filterSecretaria !== "all" || filterTipo !== "all" || filterNatureza !== "all" || startDate || endDate) && (
-                            <button onClick={() => { setFilterSecretaria("all"); setFilterTipo("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
+                            <button onClick={() => { setFilterSecretaria("all"); setFilterTipo("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 h-11 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
                                 <X className="w-3 h-3" /> Limpar
                             </button>
                         )}
@@ -392,7 +392,7 @@ export default function AfastamentosAnalyticsPage() {
                     {/* CHARTS */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8">
                         {/* CHART 1: MONTHLY VOLUME */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-8 rounded-xl">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-8">
                             <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Evolução Mensal (Lançamentos)
                             </h4>
@@ -408,7 +408,7 @@ export default function AfastamentosAnalyticsPage() {
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 700, fill: "#999" }} />
                                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 700, fill: "#999" }} />
-                                        <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "11px", fontWeight: "bold" }} />
+                                        <Tooltip contentStyle={{ borderRadius: "0px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "11px", fontWeight: "bold" }} />
                                         <Area type="monotone" dataKey="total" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
@@ -416,14 +416,14 @@ export default function AfastamentosAnalyticsPage() {
                         </div>
 
                         {/* CHART 2: STATUS PIE */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-xl relative">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 relative">
                             <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Activity className="w-4 h-4" /> Situação dos Registros
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={chartData.byStatus} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value">
+                                        <Pie data={chartData.byStatus} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value">
                                             {chartData.byStatus.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                                             <LabelList dataKey="value" position="outside" style={{ fontSize: "11px", fontWeight: 900, fill: "#1A3351" }} />
                                         </Pie>
@@ -435,14 +435,14 @@ export default function AfastamentosAnalyticsPage() {
                         </div>
 
                         {/* CHART 3: TYPE PIE */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-xl relative">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 relative">
                             <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Distribuição por Tipo
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={chartData.byType} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value">
+                                        <Pie data={chartData.byType} cx="50%" cy="45%" innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value">
                                             {chartData.byType.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={['#1e293b', '#3b82f6', '#f59e0b', '#10b981', '#6366f1'][index % 5]} />
                                             ))}
@@ -456,7 +456,7 @@ export default function AfastamentosAnalyticsPage() {
                         </div>
 
                         {/* CHART 4: IMPACT BAR RANKING */}
-                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8 rounded-xl">
+                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8">
                             <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Building2 className="w-4 h-4" /> Absenteísmo por Secretaria (Total de Dias)
                             </h4>
@@ -466,8 +466,8 @@ export default function AfastamentosAnalyticsPage() {
                                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
                                         <XAxis type="number" hide />
                                         <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={<SecretariaTick />} width={160} />
-                                        <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)", fontSize: "11px" }} />
-                                        <Bar dataKey="total" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={24}>
+                                        <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: "0px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)", fontSize: "11px" }} />
+                                        <Bar dataKey="total" fill="#ef4444" radius={[0, 0, 0, 0]} barSize={24}>
                                             <LabelList dataKey="total" position="right" style={{ fontSize: "10px", fontWeight: 900, fill: "#ef4444" }} />
                                         </Bar>
                                     </BarChart>
