@@ -288,7 +288,7 @@ export default function PortariasPage() {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando Portarias...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando Portarias...</p>
             </div>
         );
     }
@@ -320,15 +320,15 @@ export default function PortariasPage() {
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <FileText className="w-5 lg:w-6 h-5 lg:h-6" />
                             <div>
-                                <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Portarias</h2>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em] mt-1">Digital Ledger • Portarias Oficiais</p>
+                                <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Portarias</h2>
+                                <p className="text-[9px] font-bold text-black/40 uppercase tracking-[0.2em] mt-1">Digital Ledger • Portarias Oficiais</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {userRole !== 'analytic_manager' && (
                                 <button
                                     onClick={() => router.push('/abono/portarias/new')}
-                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-black rounded shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
                                     <PlusCircle className="w-4 h-4" />
                                     Nova Portaria
@@ -336,7 +336,7 @@ export default function PortariasPage() {
                             )}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                             >
                                 <Menu className="w-5 h-5" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -359,7 +359,7 @@ export default function PortariasPage() {
                             {searchTerm && (
                                 <button
                                     onClick={() => setSearchTerm("")}
-                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
+                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-bold uppercase rounded-none shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
                                 >
                                     ZERAR FILTROS
                                 </button>
@@ -373,17 +373,17 @@ export default function PortariasPage() {
 
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 shrink-0">
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#1A3351] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Total de Portarias</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-[#1A3351]">{stats.total}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#1A3351] shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">Total de Portarias</p>
+                            <h3 className="text-xl lg:text-3xl font-bold text-[#1A3351]">{stats.total}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Emitidas no Mês</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-emerald-600">{stats.thisMonth}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">Emitidas no Mês</p>
+                            <h3 className="text-xl lg:text-3xl font-bold text-emerald-600">{stats.thisMonth}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all col-span-2 lg:col-span-1">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-1">Sustentabilidade</p>
-                            <h3 className="text-xl lg:text-3xl font-black text-[#E31E24]">{stats.total} <span className="text-xs font-normal">folhas digitais</span></h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all col-span-2 lg:col-span-1">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">Sustentabilidade</p>
+                            <h3 className="text-xl lg:text-3xl font-bold text-[#E31E24]">{stats.total} <span className="text-xs font-normal">folhas digitais</span></h3>
                         </div>
                     </div>
 
@@ -391,7 +391,7 @@ export default function PortariasPage() {
                     {userRole !== 'analytic_manager' && (
                         <button
                             onClick={() => router.push('/abono/portarias/new')}
-                            className="md:hidden w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white font-black rounded shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                            className="md:hidden w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                         >
                             <PlusCircle className="w-4 h-4" />
                             Nova Portaria
@@ -399,26 +399,26 @@ export default function PortariasPage() {
                     )}
 
                     {/* LISTA */}
-                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-xl">
+                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
-                                <h3 className="text-sm font-black uppercase tracking-widest text-[#1A3351]">Registro Digital de Portarias</h3>
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-[#1A3351]">Registro Digital de Portarias</h3>
                                 <p className="text-[9px] font-bold text-slate-600 uppercase">Portarias oficiais geradas via SESMT SYSTEM</p>
                             </div>
                             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-slate-600 uppercase">Ordem:</span>
+                                    <span className="text-[10px] font-bold text-slate-600 uppercase">Ordem:</span>
                                     <select
                                         value={sortOrder}
                                         onChange={(e) => setSortOrder(e.target.value)}
-                                        className="bg-[#D3D3D3] border border-slate-400 text-[10px] font-black uppercase px-3 py-1.5 outline-none focus:border-[#1A3351]"
+                                        className="bg-[#D3D3D3] border border-slate-400 text-[10px] font-bold uppercase px-3 py-1.5 outline-none focus:border-[#1A3351]"
                                     >
                                         <option value="date-desc">Recentes Primeiro</option>
                                         <option value="numero">Nº Portaria</option>
                                         <option value="alpha">Ordem Alfabética</option>
                                     </select>
                                 </div>
-                                <div className="text-[10px] font-black text-slate-700 uppercase bg-slate-200 px-3 py-1.5 border border-slate-300">{sortedRecords.length} ITENS</div>
+                                <div className="text-[10px] font-bold text-slate-700 uppercase bg-slate-200 px-3 py-1.5 border border-slate-300">{sortedRecords.length} ITENS</div>
                             </div>
                         </div>
 
@@ -430,23 +430,23 @@ export default function PortariasPage() {
                                         className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-slate-50 cursor-pointer transition-all border-l-[6px] ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
-                                            <div className={`p-2 lg:p-2.5 rounded shadow-sm transition-all duration-300 shrink-0 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                            <div className={`p-2 lg:p-2.5 rounded-none shadow-sm transition-all duration-300 shrink-0 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
                                                 <FileText className={`${expandedId === entry.id ? 'w-5 lg:w-6 h-5 lg:h-6' : 'w-4 lg:w-5 h-4 lg:h-5'}`} />
                                             </div>
                                             <div className="flex flex-col min-w-0 flex-1">
                                                 <div className="flex items-baseline gap-2 lg:gap-4 overflow-hidden">
-                                                    <h4 className={`font-black uppercase text-[#1A3351] leading-none transition-all duration-300 truncate ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm lg:text-base'}`}>
+                                                    <h4 className={`font-bold uppercase text-[#1A3351] leading-none transition-all duration-300 truncate ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm lg:text-base'}`}>
                                                         {entry.servidor_nome}
                                                     </h4>
-                                                    <span className="text-[8px] lg:text-[10px] font-black text-amber-700 uppercase tracking-widest bg-amber-50 px-1.5 lg:px-2 py-0.5 border border-amber-200 shrink-0">
+                                                    <span className="text-[8px] lg:text-[10px] font-bold text-amber-700 uppercase tracking-widest bg-amber-50 px-1.5 lg:px-2 py-0.5 border border-amber-200 shrink-0">
                                                         Nº {entry.numero}
                                                     </span>
                                                 </div>
                                                 <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2">
-                                                    <span className="text-[8px] lg:text-[10px] font-black text-[#1A3351] uppercase bg-blue-50 px-1.5 lg:px-2 py-0.5 border border-blue-100 truncate">
+                                                    <span className="text-[8px] lg:text-[10px] font-bold text-[#1A3351] uppercase bg-blue-50 px-1.5 lg:px-2 py-0.5 border border-blue-100 truncate">
                                                         PORTARIA {entry.numero}/SEGP/DGP/{entry.ano}
                                                     </span>
-                                                    <span className="text-[8px] lg:text-[10px] font-black text-slate-500 uppercase flex items-center gap-1">
+                                                    <span className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
                                                         <Building2 className="w-3 h-3 shrink-0" /> {entry.servidor_lotacao || "---"}
                                                     </span>
                                                 </div>
@@ -454,8 +454,8 @@ export default function PortariasPage() {
                                         </div>
                                         <div className={`flex items-center justify-between lg:justify-end gap-4 lg:gap-8 w-full lg:w-auto shrink-0 transition-all ${expandedId === entry.id ? 'opacity-100' : 'opacity-70'}`}>
                                             <div className="flex flex-col">
-                                                <span className="font-black text-[8px] lg:text-[9px] text-slate-400 uppercase mb-0.5 block tracking-widest">Data</span>
-                                                <span className={`font-black text-slate-800 transition-all ${expandedId === entry.id ? 'text-sm lg:text-base' : 'text-[10px] lg:text-xs'}`}>
+                                                <span className="font-bold text-[8px] lg:text-[9px] text-slate-400 uppercase mb-0.5 block tracking-widest">Data</span>
+                                                <span className={`font-bold text-slate-800 transition-all ${expandedId === entry.id ? 'text-sm lg:text-base' : 'text-[10px] lg:text-xs'}`}>
                                                     {formatDate(entry.data_portaria)}
                                                 </span>
                                             </div>
@@ -470,63 +470,63 @@ export default function PortariasPage() {
                                                 <div className="md:col-span-8 space-y-4">
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Servidor</span>
-                                                            <p className="text-xs lg:text-sm font-black text-[#1A3351] uppercase leading-tight">{entry.servidor_nome}</p>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Servidor</span>
+                                                            <p className="text-xs lg:text-sm font-bold text-[#1A3351] uppercase leading-tight">{entry.servidor_nome}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Matrícula</span>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Matrícula</span>
                                                             <div className="flex items-center gap-2">
-                                                                <p className="text-xs lg:text-sm font-black text-[#1A3351]">{entry.servidor_matricula}</p>
+                                                                <p className="text-xs lg:text-sm font-bold text-[#1A3351]">{entry.servidor_matricula}</p>
                                                                 {entry.servidor_contrato && (
-                                                                    <span className="bg-[#E31E24] text-white text-[8px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {entry.servidor_contrato}</span>
+                                                                    <span className="bg-[#E31E24] text-white text-[8px] px-1.5 py-0.5 rounded-none font-bold uppercase">Contrato {entry.servidor_contrato}</span>
                                                                 )}
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Cargo</span>
-                                                            <p className="text-xs lg:text-sm font-black text-[#1A3351] uppercase leading-tight">{entry.servidor_cargo}</p>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Cargo</span>
+                                                            <p className="text-xs lg:text-sm font-bold text-[#1A3351] uppercase leading-tight">{entry.servidor_cargo}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Lotação</span>
-                                                            <p className="text-xs lg:text-sm font-black text-[#1A3351] uppercase leading-tight">{entry.servidor_lotacao}</p>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Lotação</span>
+                                                            <p className="text-xs lg:text-sm font-bold text-[#1A3351] uppercase leading-tight">{entry.servidor_lotacao}</p>
                                                         </div>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Período Início</span>
-                                                            <p className="text-xs lg:text-sm font-black text-emerald-600">{formatDate(entry.periodo_inicio)}</p>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Período Início</span>
+                                                            <p className="text-xs lg:text-sm font-bold text-emerald-600">{formatDate(entry.periodo_inicio)}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Período Fim</span>
-                                                            <p className="text-xs lg:text-sm font-black text-[#E31E24]">{formatDate(entry.periodo_fim)}</p>
+                                                            <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase mb-1 block border-b border-slate-200 pb-1">Período Fim</span>
+                                                            <p className="text-xs lg:text-sm font-bold text-[#E31E24]">{formatDate(entry.periodo_fim)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="md:col-span-4 bg-white p-4 lg:p-5 border border-slate-200 shadow-inner rounded-xl">
-                                                    <span className="text-xs lg:text-sm font-black text-[#1A3351] uppercase mb-3 block flex items-center gap-2 border-b border-slate-100 pb-2">
+                                                <div className="md:col-span-4 bg-white p-4 lg:p-5 border border-slate-200 shadow-inner rounded-none">
+                                                    <span className="text-xs lg:text-sm font-bold text-[#1A3351] uppercase mb-3 block flex items-center gap-2 border-b border-slate-100 pb-2">
                                                         <FileText className="w-4 h-4 text-amber-500" /> Documento Oficial
                                                     </span>
                                                     <div className="space-y-1">
-                                                        <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
+                                                        <p className="text-xs font-bold text-[#1A3351] uppercase tracking-tighter">PORTARIA Nº {entry.numero}/SEGP/DGP/{entry.ano}</p>
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase">Data Emissão: {formatDate(entry.data_portaria)}</p>
                                                     </div>
                                                 </div>
 
-                                                <div className="md:col-span-12 flex flex-col lg:flex-row justify-between items-stretch lg:items-center bg-slate-100/50 p-4 border border-slate-200 mt-2 gap-4 lg:gap-10 rounded-lg">
+                                                <div className="md:col-span-12 flex flex-col lg:flex-row justify-between items-stretch lg:items-center bg-slate-100/50 p-4 border border-slate-200 mt-2 gap-4 lg:gap-10 rounded-none">
                                                     <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-10">
                                                         <div>
-                                                            <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase mb-0.5 block tracking-widest">Emitida por</span>
-                                                            <p className="text-[10px] lg:text-[11px] font-black text-[#1A3351] uppercase">{entry.criado_por_nome || "SISTEMA"}</p>
+                                                            <span className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase mb-0.5 block tracking-widest">Emitida por</span>
+                                                            <p className="text-[10px] lg:text-[11px] font-bold text-[#1A3351] uppercase">{entry.criado_por_nome || "SISTEMA"}</p>
                                                         </div>
                                                         <div className="h-0.5 lg:h-8 w-full lg:w-px bg-slate-200" />
                                                         <div>
-                                                            <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase mb-0.5 block tracking-widest">Status</span>
-                                                            <p className="text-[10px] lg:text-[11px] font-black text-[#28A745] uppercase flex items-center gap-1">✓ REGISTRADA</p>
+                                                            <span className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase mb-0.5 block tracking-widest">Status</span>
+                                                            <p className="text-[10px] lg:text-[11px] font-bold text-[#28A745] uppercase flex items-center gap-1">✓ REGISTRADA</p>
                                                         </div>
                                                     </div>
                                                     <div className="px-4 py-2 bg-white border-2 border-[#1A3351] text-center shadow-sm">
-                                                        <p className="text-[9px] lg:text-[10px] font-black text-[#1A3351] uppercase leading-none">REF: {entry.id}</p>
+                                                        <p className="text-[9px] lg:text-[10px] font-bold text-[#1A3351] uppercase leading-none">REF: {entry.id}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -535,25 +535,25 @@ export default function PortariasPage() {
                                                 <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
                                                     <button
                                                         onClick={() => handleViewPDF(entry)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-none"
                                                     >
                                                         <Eye className="w-3.5 h-3.5" /> Visualizar PDF
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadPDF(entry)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-none"
                                                     >
                                                         <Printer className="w-3.5 h-3.5" /> Baixar PDF
                                                     </button>
                                                     <button
                                                         onClick={() => handleDownloadDOCX(entry)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#2B579A] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#2B579A] text-white text-[10px] font-bold uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-none"
                                                     >
                                                         <Download className="w-3.5 h-3.5" /> Exportar Word
                                                     </button>
                                                     <button
                                                         onClick={() => router.push(`/abono/portarias/edit/${entry.id}`)}
-                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-lg"
+                                                        className="w-full lg:w-auto px-6 py-3 lg:py-2 bg-[#E31E24] text-white text-[10px] font-bold uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-none"
                                                     >
                                                         <PencilLine className="w-3.5 h-3.5" /> Editar Portaria
                                                     </button>
@@ -566,24 +566,24 @@ export default function PortariasPage() {
                                                 <div className="mt-8 pt-6 border-t border-slate-200">
                                                     <div className="flex items-center gap-2 mb-4">
                                                         <HistoryIcon className="w-4 h-4 text-slate-400" />
-                                                        <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Histórico de Alterações</h5>
+                                                        <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Histórico de Alterações</h5>
                                                     </div>
                                                     <div className="space-y-3">
                                                         {logs[entry.id].map((log, idx) => {
                                                             const changes = getDiff(log.dados_anteriores, log.dados_novos);
                                                             return (
-                                                                <div key={log.id} className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm">
+                                                                <div key={log.id} className="bg-white border border-slate-200 p-3 rounded-none shadow-sm">
                                                                     <div className="flex justify-between items-start mb-2">
                                                                         <div>
-                                                                            <p className="text-[10px] font-black text-[#1A3351] uppercase">Motivo: {log.motivo}</p>
+                                                                            <p className="text-[10px] font-bold text-[#1A3351] uppercase">Motivo: {log.motivo}</p>
                                                                             <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Por: {log.usuario_email} • {formatDateTime(log.data_alteracao)}</p>
                                                                         </div>
                                                                     </div>
                                                                     {changes && changes.length > 0 && (
-                                                                        <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
+                                                                        <div className="bg-slate-50 p-2 rounded-none border border-slate-100 space-y-1">
                                                                             {changes.map((change, cIdx) => (
                                                                                 <p key={cIdx} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
-                                                                                    <span className="w-1 h-1 bg-amber-400 rounded-full" />
+                                                                                    <span className="w-1 h-1 bg-amber-400 rounded-none" />
                                                                                     {change}
                                                                                 </p>
                                                                             ))}
@@ -601,11 +601,11 @@ export default function PortariasPage() {
                             )) : (
                                 <div className="py-24 text-center flex flex-col items-center gap-4">
                                     <FileText className="w-16 h-16 text-slate-200" />
-                                    <p className="text-slate-400 uppercase font-black text-xs italic tracking-[0.3em]">Nenhuma portaria registrada</p>
+                                    <p className="text-slate-400 uppercase font-bold text-xs italic tracking-[0.3em]">Nenhuma portaria registrada</p>
                                     {userRole !== 'analytic_manager' && (
                                         <button
                                             onClick={() => router.push('/abono/portarias/new')}
-                                            className="mt-4 px-8 py-3 bg-green-600 text-white text-[10px] font-black uppercase rounded shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center gap-2"
+                                            className="mt-4 px-8 py-3 bg-green-600 text-white text-[10px] font-bold uppercase rounded-none shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center gap-2"
                                         >
                                             <PlusCircle className="w-4 h-4" /> Criar Primeira Portaria
                                         </button>
@@ -616,7 +616,7 @@ export default function PortariasPage() {
                     </div>
 
                     <div className="bg-[#B0B0B0] p-6 text-center border-2 border-slate-300 shadow-inner">
-                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-600">SESMT SYSTEM — Módulo de Portarias Oficiais — Powered by UXBRAS®</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">SESMT SYSTEM — Módulo de Portarias Oficiais — Powered by UXBRAS®</p>
                     </div>
                 </div>
             </main>

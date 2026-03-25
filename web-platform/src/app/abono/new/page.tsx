@@ -240,42 +240,42 @@ export default function NewAbonoPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <LayoutDashboard className="w-4 h-4 shrink-0" />
                         <span>Criar documentos</span>
                     </button>
 
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <ClipboardList className="w-4 h-4 shrink-0" />
                         <span>Central de Evidências</span>
                     </button>
 
                     <div className="group">
-                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HeartPulse className="w-4 h-4 shrink-0" />
                             <span>Benefícios</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Database className="w-3.5 h-3.5 shrink-0" />
                             <span>Auxílio Doença</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileSearch className="w-3.5 h-3.5 shrink-0" />
                             <span>Readaptação</span>
                         </button>
-                        <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
-                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Scale className="w-3.5 h-3.5 shrink-0" />
                             <span>Legislação e Regras</span>
                         </button>
-                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileText className="w-3.5 h-3.5 shrink-0" />
                             <span>Portarias</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                         </button>
@@ -284,13 +284,13 @@ export default function NewAbonoPage() {
                     {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <>
                             <div className="group">
-                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                     <HistoryIcon className="w-4 h-4 shrink-0" />
                                     <span>Histórico</span>
                                 </button>
                             </div>
 
-                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <FolderOpen className="w-4 h-4 shrink-0" />
                                 <span>Arquivo Médico</span>
                             </button>
@@ -312,12 +312,12 @@ export default function NewAbonoPage() {
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => router.push('/abono')} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                            <button onClick={() => router.push('/abono')} className="p-2 hover:bg-black/5 rounded-none transition-colors">
                                 <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                             </button>
-                            <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Lançamento de Abono Salarial</h2>
+                            <h2 className="text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Lançamento de Abono Salarial</h2>
                         </div>
-                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
+                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded-none text-white active:scale-90 transition-transform">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -328,7 +328,7 @@ export default function NewAbonoPage() {
 
                         {/* BUSCAR SERVIDOR */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Passo 1: Identificar Servidor</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Passo 1: Identificar Servidor</h3>
                             <div className="flex gap-3">
                                 <input
                                     type="text"
@@ -344,7 +344,7 @@ export default function NewAbonoPage() {
                                 <button
                                     onClick={handleSearch}
                                     disabled={searching}
-                                    className="px-8 py-3 bg-[#1A3351] text-white font-black uppercase text-sm rounded hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2"
+                                    className="px-8 py-3 bg-[#1A3351] text-white font-bold uppercase text-sm rounded-none hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2"
                                 >
                                     {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                     Buscar
@@ -353,9 +353,9 @@ export default function NewAbonoPage() {
 
                             {/* LISTA DE RESULTADOS (Autocomplete em tempo real) */}
                             {foundServidores.length > 0 && !selectedServidor && (
-                                <div className="mt-2 border-2 border-[#1A3351] bg-white overflow-hidden rounded shadow-2xl animate-in fade-in slide-in-from-top-2 z-10 relative">
+                                <div className="mt-2 border-2 border-[#1A3351] bg-white overflow-hidden rounded-none shadow-2xl animate-in fade-in slide-in-from-top-2 z-10 relative">
                                     <div className="bg-[#1A3351] px-4 py-2 flex justify-between items-center">
-                                        <p className="text-[10px] font-black text-white uppercase tracking-widest">Sugestões Encontradas</p>
+                                        <p className="text-[10px] font-bold text-white uppercase tracking-widest">Sugestões Encontradas</p>
                                         <button onClick={() => setFoundServidores([])} className="text-white hover:text-red-400">
                                             <X className="w-4 h-4" />
                                         </button>
@@ -368,16 +368,16 @@ export default function NewAbonoPage() {
                                                 className="w-full text-left p-4 border-b border-slate-100 hover:bg-[#E31E24]/5 transition-colors group flex justify-between items-center"
                                             >
                                                 <div>
-                                                    <p className="text-sm font-black text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
+                                                    <p className="text-sm font-bold text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
                                                     <div className="flex gap-4 mt-1">
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase text-amber-600">Matrícula: {s.matricula}</p>
                                                         {s.contrato && (
-                                                            <p className="text-[10px] font-black text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
+                                                            <p className="text-[10px] font-bold text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded text-[9px] font-black text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
+                                                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
                                                     Selecionar
                                                 </div>
                                             </button>
@@ -387,26 +387,26 @@ export default function NewAbonoPage() {
                             )}
 
                             {selectedServidor && (
-                                <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded grid grid-cols-2 gap-4 animate-in fade-in duration-300">
+                                <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-none grid grid-cols-2 gap-4 animate-in fade-in duration-300">
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Nome</p>
-                                        <p className="text-xl font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Nome</p>
+                                        <p className="text-xl font-bold uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Cargo</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Cargo</p>
                                         <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Cargo}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Matrícula</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Matrícula</p>
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
                                             {selectedServidor.contrato && (
-                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black">C. {selectedServidor.contrato}</span>
+                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded-none font-bold">C. {selectedServidor.contrato}</span>
                                             )}
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Secretaria</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Secretaria</p>
                                         <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Secretaria}</p>
                                     </div>
                                 </div>
@@ -416,23 +416,23 @@ export default function NewAbonoPage() {
                         {/* DADOS DO ABONO */}
                         {selectedServidor && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-[#E31E24] animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados do Benefício</h3>
+                                <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados do Benefício</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número da Portaria *</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Número da Portaria *</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
                                             value={formData.portaria}
                                             onChange={(e) => setFormData({ ...formData, portaria: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
                                         <input
                                             type="text"
                                             placeholder="EX: PRÓPRIO, FILHO 1, CÔNJUGE..."
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
                                             value={formData.beneficiario_nome}
                                             onChange={(e) => setFormData({ ...formData, beneficiario_nome: e.target.value })}
                                         />
@@ -441,42 +441,42 @@ export default function NewAbonoPage() {
                                         <div className="md:col-span-2 bg-amber-50 border-l-4 border-amber-500 p-4 mb-2 flex items-center gap-3">
                                             <TrendingUp className="w-5 h-5 text-amber-600" />
                                             <div>
-                                                <p className="text-[10px] font-black text-amber-600 uppercase">Atenção: Modo de Renovação</p>
+                                                <p className="text-[10px] font-bold text-amber-600 uppercase">Atenção: Modo de Renovação</p>
                                                 <p className="text-xs font-bold text-amber-800">Este novo lançamento dará continuidade ao benefício selecionado.</p>
                                             </div>
                                         </div>
                                     )}
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número Assomasul</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Número Assomasul</label>
                                         <input
                                             type="text"
                                             placeholder="EX: 4041"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase text-lg text-[#1A3351]"
                                             value={formData.assomasul_numero}
                                             onChange={(e) => setFormData({ ...formData, assomasul_numero: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
                                             value={formData.assomasul_data}
                                             onChange={(e) => setFormData({ ...formData, assomasul_data: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
                                         <input
                                             type="date"
-                                            className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-lg text-[#1A3351]"
                                             value={formData.inicio}
                                             onChange={(e) => setFormData({ ...formData, inicio: e.target.value })}
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data de Término (Automático)</label>
-                                        <div className="w-full px-4 py-3 border border-slate-200 rounded font-black bg-slate-50 text-xl text-[#E31E24]">
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data de Término (Automático)</label>
+                                        <div className="w-full px-4 py-3 border border-slate-200 rounded-none font-bold bg-slate-50 text-xl text-[#E31E24]">
                                             {formData.inicio ? (
                                                 (() => {
                                                     const date = new Date(formData.inicio + 'T00:00:00');
@@ -487,11 +487,11 @@ export default function NewAbonoPage() {
                                         </div>
                                     </div>
                                     <div className="md:col-span-2 space-y-1">
-                                        <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Informações Adicionais / Observações</label>
+                                        <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Informações Adicionais / Observações</label>
                                         <textarea
                                             rows={3}
                                             placeholder="INSIRA AQUI OBSERVAÇÕES RELEVANTES SOBRE ESTE BENEFÍCIO..."
-                                            className="w-full px-4 py-4 border border-slate-300 rounded font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] uppercase text-base text-[#1A3351]"
+                                            className="w-full px-4 py-4 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] uppercase text-base text-[#1A3351]"
                                             value={formData.observacoes}
                                             onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                                         />
@@ -501,14 +501,14 @@ export default function NewAbonoPage() {
                                 <div className="mt-10 flex justify-end gap-4">
                                     <button
                                         onClick={() => router.push('/abono')}
-                                        className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 transition-all"
+                                        className="px-6 py-3 text-[10px] font-bold uppercase text-slate-400 hover:text-slate-600 transition-all"
                                     >
                                         Cancelar
                                     </button>
                                     <button
                                         onClick={handleSave}
                                         disabled={saving}
-                                        className="px-12 py-3 bg-[#E31E24] text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-red-900"
+                                        className="px-12 py-3 bg-[#E31E24] text-white font-bold uppercase text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-red-900"
                                     >
                                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Salvar Lançamento

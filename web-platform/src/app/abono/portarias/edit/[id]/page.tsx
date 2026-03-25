@@ -262,7 +262,7 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando dados...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando dados...</p>
             </div>
         );
     }
@@ -289,15 +289,15 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => router.push('/abono/portarias')} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                            <button onClick={() => router.push('/abono/portarias')} className="p-2 hover:bg-black/5 rounded-none transition-colors">
                                 <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                             </button>
                             <div>
-                                <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Editar Portaria</h2>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em] mt-1">Ref: {id}</p>
+                                <h2 className="text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Editar Portaria</h2>
+                                <p className="text-[9px] font-bold text-black/40 uppercase tracking-[0.2em] mt-1">Ref: {id}</p>
                             </div>
                         </div>
-                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
+                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded-none text-white active:scale-90 transition-transform">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -308,32 +308,32 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
 
                         {/* SERVIDOR (BLOQUEADO) */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Informações do Servidor</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Informações do Servidor</h3>
                             {selectedServidor && (
-                                <div className="p-5 bg-slate-100 border border-slate-200 rounded grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
+                                <div className="p-5 bg-slate-100 border border-slate-200 rounded-none grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8">
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Nome Completo</p>
-                                        <p className="text-lg font-black uppercase text-[#1A3351] leading-tight">{selectedServidor.Nome}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nome Completo</p>
+                                        <p className="text-lg font-bold uppercase text-[#1A3351] leading-tight">{selectedServidor.Nome}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">CPF</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">CPF</p>
                                         <p className="text-sm font-bold text-slate-700">{selectedServidor["CPF."]}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Matrícula</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Matrícula</p>
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-bold text-slate-700">{selectedServidor.Matrícula}</p>
                                             {selectedServidor.contrato && (
-                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {selectedServidor.contrato}</span>
+                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded-none font-bold uppercase">Contrato {selectedServidor.contrato}</span>
                                             )}
                                         </div>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cargo</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cargo</p>
                                         <p className="text-sm font-bold uppercase text-[#1A3351]">{selectedServidor.Cargo}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Lotação Original</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Lotação Original</p>
                                         <p className="text-sm font-bold uppercase text-amber-600">{selectedServidor["Local de Trabalho"] || "---"}</p>
                                     </div>
                                 </div>
@@ -342,15 +342,15 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
 
                         {/* DADOS EDITAIS */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-amber-500">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest text-left">Editar Dados da Portaria</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest text-left">Editar Dados da Portaria</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                                 {/* Número da Portaria */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Nº da Portaria *</label>
+                                    <label className="text-[10px] font-bold uppercase text-slate-600 pl-1">Nº da Portaria *</label>
                                     <input
                                         type="number"
-                                        className="w-full px-3 py-3 border border-slate-300 rounded font-black bg-white uppercase text-xl text-[#1A3351] text-center focus:border-amber-500 outline-none"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded-none font-bold bg-white uppercase text-xl text-[#1A3351] text-center focus:border-amber-500 outline-none"
                                         value={formData.numero}
                                         onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
                                     />
@@ -359,10 +359,10 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
 
                                 {/* Período Início */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Período Início *</label>
+                                    <label className="text-[10px] font-bold uppercase text-slate-600 pl-1 text-left">Período Início *</label>
                                     <input
                                         type="date"
-                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
                                         value={formData.periodo_inicio}
                                         onChange={(e) => {
                                             const inicio = e.target.value;
@@ -384,45 +384,45 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
 
                                 {/* Período Fim */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Período Fim (Auto)</label>
+                                    <label className="text-[10px] font-bold uppercase text-slate-600 pl-1 text-left">Período Fim (Auto)</label>
                                     <input
                                         type="date"
                                         readOnly
-                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded-none font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                         value={formData.periodo_fim}
                                     />
                                 </div>
 
                                 {/* Data Emissão */}
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Data Emissão</label>
+                                    <label className="text-[10px] font-bold uppercase text-slate-600 pl-1 text-left">Data Emissão</label>
                                     <input
                                         type="date"
-                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-sm text-[#1A3351] focus:border-amber-500 outline-none"
                                         value={formData.data_portaria}
                                         onChange={(e) => setFormData({ ...formData, data_portaria: e.target.value })}
                                     />
                                 </div>
 
                                 <div className="md:col-span-12">
-                                    <label className="text-[10px] font-black uppercase text-slate-600 pl-1 text-left">Lotação para o Documento</label>
+                                    <label className="text-[10px] font-bold uppercase text-slate-600 pl-1 text-left">Lotação para o Documento</label>
                                     <input
                                         type="text"
-                                        className="w-full px-3 py-3 border border-slate-300 rounded font-bold bg-white text-sm text-[#1A3351] focus:border-amber-500 outline-none uppercase"
+                                        className="w-full px-3 py-3 border border-slate-300 rounded-none font-bold bg-white text-sm text-[#1A3351] focus:border-amber-500 outline-none uppercase"
                                         value={formData.lotacao}
                                         onChange={(e) => setFormData({ ...formData, lotacao: e.target.value })}
                                     />
                                 </div>
 
                                 {/* MOTIVO DA ALTERAÇÃO */}
-                                <div className="md:col-span-2 space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
-                                    <label className="text-[11px] font-black uppercase text-amber-700 pl-1 flex items-center gap-2 mb-1">
+                                <div className="md:col-span-2 space-y-1 bg-amber-50 p-4 rounded-none border border-amber-200">
+                                    <label className="text-[11px] font-bold uppercase text-amber-700 pl-1 flex items-center gap-2 mb-1">
                                         <HistoryIcon className="w-4 h-4" /> Motivo da Alteração (Obrigatório)
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="EX: CORREÇÃO DE DATA DE INÍCIO CONFORME SOLICITAÇÃO"
-                                        className="w-full px-4 py-3 border border-amber-300 rounded font-black bg-white outline-none focus:border-amber-500 uppercase text-xs text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-amber-300 rounded-none font-bold bg-white outline-none focus:border-amber-500 uppercase text-xs text-[#1A3351]"
                                         value={formData.motivo_alteracao}
                                         onChange={(e) => setFormData({ ...formData, motivo_alteracao: e.target.value })}
                                     />
@@ -430,14 +430,14 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                             </div>
 
                             {/* PREVIEW */}
-                            <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 text-left">Resumo da Vigência</p>
+                            <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-none">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 text-left">Resumo da Vigência</p>
                                 <div className="flex items-center gap-2">
-                                    <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded border border-emerald-100 text-xs font-black uppercase">
+                                    <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-none border border-emerald-100 text-xs font-bold uppercase">
                                         {formData.periodo_inicio ? formatDateBR(formData.periodo_inicio) : "---"}
                                     </div>
                                     <div className="h-px w-8 bg-slate-300" />
-                                    <div className="bg-red-50 text-red-700 px-3 py-1 rounded border border-red-100 text-xs font-black uppercase">
+                                    <div className="bg-red-50 text-red-700 px-3 py-1 rounded-none border border-red-100 text-xs font-bold uppercase">
                                         {formData.periodo_fim ? formatDateBR(formData.periodo_fim) : "---"}
                                     </div>
                                 </div>
@@ -446,20 +446,20 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                             <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
                                 <button
                                     onClick={() => router.push('/abono/portarias')}
-                                    className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 transition-all text-left"
+                                    className="px-6 py-3 text-[10px] font-bold uppercase text-slate-400 hover:text-slate-600 transition-all text-left"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handlePreview}
-                                    className="px-8 py-3 bg-[#1A3351] text-white font-black uppercase text-[10px] lg:text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                    className="px-8 py-3 bg-[#1A3351] text-white font-bold uppercase text-[10px] lg:text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                                 >
                                     <Eye className="w-4 h-4" />
                                     PDF
                                 </button>
                                 <button
                                     onClick={handleDownloadDOCX}
-                                    className="px-8 py-3 bg-blue-600 text-white font-black uppercase text-[10px] lg:text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                    className="px-8 py-3 bg-blue-600 text-white font-bold uppercase text-[10px] lg:text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                                 >
                                     <Download className="w-4 h-4" />
                                     Word
@@ -467,7 +467,7 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                                 <button
                                     onClick={handleUpdate}
                                     disabled={saving}
-                                    className="px-12 py-3 bg-green-600 text-white font-black uppercase text-[10px] lg:text-sm rounded shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-green-800"
+                                    className="px-12 py-3 bg-green-600 text-white font-bold uppercase text-[10px] lg:text-sm rounded-none shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-green-800"
                                 >
                                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                     Salvar Alterações
@@ -478,17 +478,17 @@ export default function EditPortariaPage({ params }: { params: Promise<{ id: str
                         {/* HISTÓRICO DE AUDITORIA */}
                         {changeLogs.length > 0 && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-slate-400">
-                                <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest flex items-center gap-2 text-left">
+                                <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest flex items-center gap-2 text-left">
                                     <HistoryIcon className="w-4 h-4" /> Trilha de Auditoria
                                 </h3>
                                 <div className="space-y-4">
                                     {changeLogs.map((log: any) => (
-                                        <div key={log.id} className="text-[11px] p-4 bg-slate-50 rounded border border-slate-200">
-                                            <div className="flex justify-between font-black uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
+                                        <div key={log.id} className="text-[11px] p-4 bg-slate-50 rounded-none border border-slate-200">
+                                            <div className="flex justify-between font-bold uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
                                                 <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
                                                 <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(log.data_alteracao).toLocaleString('pt-BR')}</span>
                                             </div>
-                                            <p className="font-black text-[#1A3351] uppercase underline decoration-amber-500/50 mb-1">Motivo:</p>
+                                            <p className="font-bold text-[#1A3351] uppercase underline decoration-amber-500/50 mb-1">Motivo:</p>
                                             <p className="font-bold text-slate-700 uppercase leading-relaxed">{log.motivo}</p>
                                         </div>
                                     ))}

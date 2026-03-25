@@ -91,11 +91,11 @@ export default function ResetPasswordPage() {
                         <img src="/images/logo.png" alt="PREFEITURA" className="h-20 w-auto object-contain" />
                     </div>
                     <div className="flex flex-col items-center gap-1.5 text-center">
-                        <h1 className="text-3xl font-black text-[#1A3351] uppercase tracking-tight leading-none">
+                        <h1 className="text-3xl font-bold text-[#1A3351] uppercase tracking-tight leading-none">
                             SESMT SYSTEM
                         </h1>
-                        <div className="h-1 w-20 bg-[#E31E24] rounded-full mx-auto mt-0.5"></div>
-                        <p className="text-[11px] font-black text-[#1A3351]/70 uppercase tracking-[0.4em] mt-1.5">
+                        <div className="h-1 w-20 bg-[#E31E24] rounded-none mx-auto mt-0.5"></div>
+                        <p className="text-[11px] font-bold text-[#1A3351]/70 uppercase tracking-[0.4em] mt-1.5">
                             Nova Senha
                         </p>
                     </div>
@@ -104,20 +104,20 @@ export default function ResetPasswordPage() {
                 {/* FORMULÁRIO */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-white">
                     {error && (
-                        <div className="p-2.5 bg-red-100 border-l-4 border-[#E31E24] text-[11px] font-black text-[#E31E24] uppercase tracking-wider">
+                        <div className="p-2.5 bg-red-100 border-l-4 border-[#E31E24] text-[11px] font-bold text-[#E31E24] uppercase tracking-wider">
                             {error}
                         </div>
                     )}
 
                     {success && (
-                        <div className="p-2.5 bg-green-100 border-l-4 border-[#28A745] text-[11px] font-black text-[#28A745] uppercase tracking-wider">
+                        <div className="p-2.5 bg-green-100 border-l-4 border-[#28A745] text-[11px] font-bold text-[#28A745] uppercase tracking-wider">
                             {success}
                         </div>
                     )}
 
                     <div className="space-y-3">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none text-left block">Nova Senha</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 leading-none text-left block">Nova Senha</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
@@ -139,7 +139,7 @@ export default function ResetPasswordPage() {
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none text-left block">Confirmar Nova Senha</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 leading-none text-left block">Confirmar Nova Senha</label>
                             <div className="relative">
                                 <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
@@ -164,7 +164,7 @@ export default function ResetPasswordPage() {
                     <button
                         type="submit"
                         disabled={loading || !!success}
-                        className="w-full py-3.5 bg-[#1A3351] text-white font-black uppercase tracking-widest text-xs shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-blue-950 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-3.5 bg-[#1A3351] text-white font-bold uppercase tracking-widest text-xs shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-blue-950 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -180,7 +180,7 @@ export default function ResetPasswordPage() {
                         <button
                             type="button"
                             onClick={() => router.push("/login")}
-                            className="text-[9px] font-black text-[#1A3351] hover:text-[#E31E24] uppercase tracking-[0.2em] transition-colors underline underline-offset-4"
+                            className="text-[9px] font-bold text-[#1A3351] hover:text-[#E31E24] uppercase tracking-[0.2em] transition-colors underline underline-offset-4"
                         >
                             Voltar para o Login
                         </button>
@@ -190,7 +190,7 @@ export default function ResetPasswordPage() {
                 <div className="bg-[#E8E8E8] p-5 py-4 border-t border-slate-200 flex justify-center">
                     <div className="flex flex-col items-start w-fit">
                         <p className="text-[10px] font-normal text-slate-400 leading-none mb-1 text-left">Powered by</p>
-                        <p className="text-[18px] font-black text-slate-600 leading-none tracking-[0.1em] text-left">
+                        <p className="text-[18px] font-bold text-slate-600 leading-none tracking-[0.1em] text-left">
                             UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span>
                         </p>
                     </div>

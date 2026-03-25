@@ -66,15 +66,15 @@ function CIDBadge({ code }: { code: string }) {
     const [details, setDetails] = useState<any>(null);
     const normalized = normalizeCID(code);
     useEffect(() => { getCIDDetailsFromDB(normalized).then(setDetails); }, [normalized]);
-    if (!details) return <span className="text-[13px] font-black bg-slate-100 text-slate-700 px-2.5 py-1 rounded animate-pulse">{normalized || code}</span>;
+    if (!details) return <span className="text-[13px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-none animate-pulse">{normalized || code}</span>;
     return (
         <div className="group relative">
-            <span className="text-[13px] font-black bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded border border-emerald-200/50 cursor-help hover:bg-emerald-200 transition-colors">
+            <span className="text-[13px] font-bold bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200/50 cursor-help hover:bg-emerald-200 transition-colors">
                 {details.code}
             </span>
-            <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg z-50 text-left">
-                <p className="text-[10px] font-black text-white bg-[#1A3351] px-2 py-0.5 rounded-full uppercase inline-block mb-1">Cap. {details.chapter}</p>
-                <p className="text-xs font-black text-slate-800 uppercase leading-snug">{details.desc}</p>
+            <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none z-50 text-left">
+                <p className="text-[10px] font-bold text-white bg-[#1A3351] px-2 py-0.5 rounded-none uppercase inline-block mb-1">Cap. {details.chapter}</p>
+                <p className="text-xs font-semibold text-slate-800 uppercase leading-snug">{details.desc}</p>
             </div>
         </div>
     );
@@ -94,10 +94,10 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
 
     if (loading) return (
         <div className="py-2 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3 animate-pulse">
-            <div className="w-[50px] h-[32px] bg-slate-100 rounded" />
+            <div className="w-[50px] h-[32px] bg-slate-100 rounded-none" />
             <div className="space-y-1.5 flex-1">
-                <div className="h-2 bg-slate-100 rounded w-1/4" />
-                <div className="h-3 bg-slate-100 rounded w-3/4" />
+                <div className="h-2 bg-slate-100 rounded-none w-1/4" />
+                <div className="h-3 bg-slate-100 rounded-none w-3/4" />
             </div>
         </div>
     );
@@ -106,23 +106,23 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
 
     return (
         <div className="py-2 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3 group/cid">
-            <div className="flex flex-col items-center justify-center bg-slate-100 text-[#1A3351] rounded px-2 py-1 min-w-[60px] border border-slate-200 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-colors">
-                <span className="text-[7px] font-black uppercase opacity-60 tracking-wider leading-none">Código</span>
-                <span className="text-sm font-black tracking-wide leading-none">{displayCode}</span>
+            <div className="flex flex-col items-center justify-center bg-slate-100 text-[#1A3351] rounded-none px-2 py-1 min-w-[60px] border border-slate-200 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-colors">
+                <span className="text-[7px] font-bold uppercase opacity-60 tracking-wider leading-none">Código</span>
+                <span className="text-sm font-bold tracking-wide leading-none">{displayCode}</span>
             </div>
             <div className="flex flex-col justify-center">
                 <div className="flex items-baseline gap-2">
-                    <span className="text-[8px] font-black text-slate-400 uppercase leading-none">Descrição:</span>
-                    <p className="text-xs font-bold text-[#1A3351] leading-tight">{details?.desc || cid.cid_descricao || '—'}</p>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase leading-none">Descrição:</span>
+                    <p className="text-xs font-semibold text-[#1A3351] leading-tight">{details?.desc || cid.cid_descricao || '—'}</p>
                 </div>
                 <div className="flex flex-wrap gap-x-4 mt-0.5">
                     <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-black text-slate-400 uppercase">Cap:</span>
-                        <span className="text-[10px] font-black text-emerald-700">{details?.chapter || cid.cid_capitulo || '—'}</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Cap:</span>
+                        <span className="text-[10px] font-bold text-emerald-700">{details?.chapter || cid.cid_capitulo || '—'}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-black text-slate-400 uppercase">Grupo:</span>
-                        <span className="text-[10px] font-bold text-slate-500 truncate max-w-[400px]">{details?.chapter_desc || '—'}</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase">Grupo:</span>
+                        <span className="text-[10px] font-medium text-slate-500 truncate max-w-[400px]">{details?.chapter_desc || '—'}</span>
                     </div>
                 </div>
             </div>
@@ -438,7 +438,7 @@ export default function AfastamentosPage() {
         if (days === null || days < 0 || days >= 11) return null;
         
         return (
-            <div className={`flex items-center gap-1.5 text-red-600 font-black animate-pulse ${compact ? 'text-[8px]' : 'text-xs'} uppercase tracking-tight`}>
+            <div className={`flex items-center gap-1.5 text-red-600 font-bold animate-pulse ${compact ? 'text-[8px]' : 'text-xs'} uppercase tracking-tight`}>
                 <Clock className={compact ? 'w-2 h-2 text-red-400' : 'w-4 h-4 text-red-500'} />
                 {days === 0 ? 'VENCE HOJE' : `Faltam ${days} ${days === 1 ? 'dia' : 'dias'} para vencer`}
             </div>
@@ -524,7 +524,7 @@ export default function AfastamentosPage() {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#10b981] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando Afastamentos...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando Afastamentos...</p>
             </div>
         );
     }
@@ -542,14 +542,14 @@ export default function AfastamentosPage() {
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
-                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Gestão de Afastamentos</h2>
+                            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Gestão de Afastamentos</h2>
                         </div>
                         <div className="flex items-center gap-2">
                             {/* BOTÃO GERAR RELATÓRIO PDF */}
                             <div className="relative">
                                 <button
                                     onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
-                                    className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
                                     <Printer className="w-4 h-4" />
                                     Gerar Relatório (PDF)
@@ -559,22 +559,22 @@ export default function AfastamentosPage() {
                                 {isPrintPopoverOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
                                         <div className="p-3 border-b border-slate-100 bg-slate-50">
-                                            <p className="text-[9px] font-black text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
+                                            <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
                                         </div>
                                         <div className="p-2 space-y-1">
                                             <button
                                                 onClick={() => { setPrintLayout('portrait'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
                                             >
                                                 <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
-                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />}
                                             </button>
                                             <button
                                                 onClick={() => { setPrintLayout('landscape'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
                                             >
                                                 <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
-                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />}
                                             </button>
                                         </div>
                                     </div>
@@ -583,16 +583,16 @@ export default function AfastamentosPage() {
 
                             <button
                                 onClick={() => router.push('/afastamentos/analytics')}
-                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
                                 <BarChart3 className="w-4 h-4" />
                                 Indicadores BI
                             </button>
 
-                            <button onClick={() => router.push('/afastamentos/new')} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-emerald-600 text-white font-black rounded shadow-md hover:bg-emerald-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
+                            <button onClick={() => router.push('/afastamentos/new')} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-emerald-600 text-white font-bold rounded-none shadow-md hover:bg-emerald-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
                                 <PlusCircle className="w-4 h-4" /> Novo Lançamento
                             </button>
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white transition-all shadow-md flex items-center gap-2">
+                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2.5 bg-[#1A3351] rounded-none text-white transition-all shadow-md flex items-center gap-2">
                                 <Menu className="w-5 h-5" />
                             </button>
                         </div>
@@ -612,15 +612,15 @@ export default function AfastamentosPage() {
                                 {isDatePopoverOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#1A3351] shadow-2xl z-[100] p-5">
                                         <div className="flex justify-between items-center mb-6">
-                                            <h4 className="text-sm font-black text-[#1A3351] uppercase">Definir Período</h4>
+                                            <h4 className="text-sm font-bold text-[#1A3351] uppercase">Definir Período</h4>
                                             <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
                                         </div>
                                         <div className="space-y-4">
-                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Inicial</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none" value={tempStartDate} onChange={(e) => setTempStartDate(e.target.value)} /></div>
-                                            <div><label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Final</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none" value={tempEndDate} onChange={(e) => setTempEndDate(e.target.value)} /></div>
+                                            <div><label className="text-[10px] font-medium text-slate-500 uppercase mb-1 block">Data Inicial</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-semibold outline-none rounded-none" value={tempStartDate} onChange={(e) => setTempStartDate(e.target.value)} /></div>
+                                            <div><label className="text-[10px] font-medium text-slate-500 uppercase mb-1 block">Data Final</label><input type="date" className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-semibold outline-none rounded-none" value={tempEndDate} onChange={(e) => setTempEndDate(e.target.value)} /></div>
                                             <div className="flex gap-2 pt-2">
-                                                <button onClick={() => { setTempStartDate(""); setTempEndDate(""); setStartDate(""); setEndDate(""); setIsDatePopoverOpen(false); }} className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-black uppercase rounded-none">Limpar</button>
-                                                <button onClick={() => { setStartDate(tempStartDate); setEndDate(tempEndDate); setIsDatePopoverOpen(false); }} className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-black uppercase rounded-none">Filtrar</button>
+                                                <button onClick={() => { setTempStartDate(""); setTempEndDate(""); setStartDate(""); setEndDate(""); setIsDatePopoverOpen(false); }} className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-bold uppercase rounded-none">Limpar</button>
+                                                <button onClick={() => { setStartDate(tempStartDate); setEndDate(tempEndDate); setIsDatePopoverOpen(false); }} className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-bold uppercase rounded-none">Filtrar</button>
                                             </div>
                                         </div>
                                     </div>
@@ -647,7 +647,7 @@ export default function AfastamentosPage() {
                             </div>
 
                             {(secretariaFilter !== 'all' || naturezaCargoFilter !== 'all' || cargoFilter !== 'all' || tipoAfastamentoFilter !== 'all' || searchTerm || startDate || endDate) && (
-                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 h-11 bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
+                                <button onClick={() => { setStartDate(""); setEndDate(""); setTempStartDate(""); setTempEndDate(""); setSecretariaFilter("all"); setNaturezaCargoFilter("all"); setCargoFilter("all"); setTipoAfastamentoFilter("all"); setSearchTerm(""); }} className="px-6 h-11 bg-[#E31E24] text-white text-[10px] font-bold uppercase shadow-md hover:bg-red-700 flex items-center gap-2 shrink-0">
                                     <X className="w-4 h-4" /> ZERAR FILTROS
                                 </button>
                             )}
@@ -668,8 +668,8 @@ export default function AfastamentosPage() {
                             { label: 'Finalizados', value: stats.finished, filter: 'finished' as const, activeColor: 'bg-blue-600 border-white text-white', baseColor: 'bg-white border-blue-600 text-blue-600' },
                         ].map(card => (
                             <div key={card.label} onClick={() => setStatusFilter(card.filter)} className={`p-4 lg:p-6 border-l-4 shadow-lg transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === card.filter ? card.activeColor : card.baseColor}`}>
-                                <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === card.filter ? 'text-white/60' : 'text-slate-400'}`}>{card.label}</p>
-                                <h3 className="text-xl lg:text-3xl font-black">{card.value}</h3>
+                                <p className={`text-[9px] lg:text-[10px] font-medium uppercase tracking-widest leading-tight mb-1 ${statusFilter === card.filter ? 'text-white/60' : 'text-slate-400'}`}>{card.label}</p>
+                                <h3 className="text-xl lg:text-3xl font-bold">{card.value}</h3>
                             </div>
                         ))}
                     </div>
@@ -677,7 +677,7 @@ export default function AfastamentosPage() {
                     {/* LISTA */}
                     <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Registros de Afastamento</h3>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Afastamento</h3>
                             <div className="flex flex-wrap items-center gap-4">
                                 <div className="flex items-center bg-white/50 shadow-inner border border-black/5 h-10 p-1">
                                     {[
@@ -687,7 +687,7 @@ export default function AfastamentosPage() {
                                         { key: 'expired', label: 'Vencidos', color: 'bg-[#E31E24]' },
                                         { key: 'finished', label: 'Finalizados', color: 'bg-blue-600' },
                                     ].map(btn => (
-                                        <button key={btn.key} onClick={() => setStatusFilter(btn.key as any)} className={`h-full px-4 text-[10px] font-black uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + ' text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}>
+                                        <button key={btn.key} onClick={() => setStatusFilter(btn.key as any)} className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + ' text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}>
                                             {btn.label}
                                         </button>
                                     ))}
@@ -695,15 +695,15 @@ export default function AfastamentosPage() {
                                 <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
                                 <div className="flex flex-wrap items-center gap-4">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase">Filtrar:</span>
-                                        <select value={tipoAfastamentoFilter} onChange={(e) => setTipoAfastamentoFilter(e.target.value)} className="bg-white/70 border border-slate-400 text-[10px] font-black uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]">
+                                        <span className="text-[10px] font-medium text-slate-500 uppercase">Filtrar:</span>
+                                        <select value={tipoAfastamentoFilter} onChange={(e) => setTipoAfastamentoFilter(e.target.value)} className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]">
                                             <option value="all">TODOS OS TIPOS</option>
                                             {Array.from(new Set(records.map(r => r.tipo_afastamento).filter(Boolean))).sort().map(t => <option key={t} value={t}>{t}</option>)}
                                         </select>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase">Ordenar:</span>
-                                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/70 border border-slate-400 text-[10px] font-black uppercase px-2 h-10 outline-none shadow-sm cursor-pointer">
+                                        <span className="text-[10px] font-medium text-slate-500 uppercase">Ordenar:</span>
+                                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer">
                                             <option value="alphabetical">Ordem Alfabética</option>
                                             <option value="newest">Mais Novos</option>
                                             <option value="oldest">Mais Antigos</option>
@@ -720,22 +720,21 @@ export default function AfastamentosPage() {
                                         <div className="flex items-center gap-4 flex-1">
                                             <div className={`p-3 transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
                                             <div>
-                                                <h4 className={`font-black uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
+                                                <h4 className={`font-bold uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
                                                 <div className="flex flex-wrap gap-4 mt-1 items-center">
-                                                    <p className="text-[10px] font-bold text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
-                                                    {group.items[0].servidor_secretaria && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
-                                                    {group.items[0].natureza_cargo && <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}
-                                                    <span className="text-[10px] font-black px-2 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center">
+                                                    <p className="text-[10px] font-medium text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
+                                                    {group.items[0].servidor_secretaria && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
+                                                    {group.items[0].natureza_cargo && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}
+                                                    <span className="text-[10px] font-bold px-2 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center">
                                                         {group.items.filter(i => getStatus(i) === 'active' || getStatus(i) === 'alert').length} VIGENTE(S)
                                                     </span>
-                                                    <span className="text-[10px] font-black px-2 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center">
+                                                    <span className="text-[10px] font-bold px-2 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center">
                                                         {group.items.length} TOTAL
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            {/* BOTÃO RELATÓRIO DO SERVIDOR */}
                                             <button 
                                                 onClick={async (e) => {
                                                     e.stopPropagation();
@@ -759,7 +758,7 @@ export default function AfastamentosPage() {
                                                         generateServidorReportPDF({ nome: group.nome, cpf: group.cpf }, group.items, []);
                                                     }
                                                 }}
-                                                className="flex items-center gap-2 px-4 h-11 bg-white text-[#1A3351] hover:bg-slate-50 font-black border border-slate-200 text-[10px] uppercase transition-all shadow-sm active:scale-95 group/btn shrink-0"
+                                                className="flex items-center gap-2 px-4 h-11 bg-white text-[#1A3351] hover:bg-slate-50 font-bold border border-slate-200 text-[10px] uppercase transition-all shadow-sm active:scale-95 group/btn shrink-0"
                                             >
                                                 <FileText className="w-4 h-4 text-slate-400 group-hover/btn:text-[#1A3351]" /> Relatório
                                             </button>
@@ -768,13 +767,13 @@ export default function AfastamentosPage() {
                                                 <div className="flex flex-col items-end gap-1">
                                                     <div className="hidden md:flex items-stretch bg-slate-100/80 px-4 h-11 border border-slate-200">
                                                         <div className="flex flex-col justify-center leading-none min-w-[80px]">
-                                                            <p className="text-[7px] font-black text-slate-400 uppercase mb-1">Último Início</p>
-                                                            <p className="text-[11px] font-black text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
+                                                            <p className="text-[7px] font-medium text-slate-500 uppercase mb-1">Último Início</p>
+                                                            <p className="text-[11px] font-bold text-[#1A3351]">{formatDate(group.items[0].data_inicio)}</p>
                                                         </div>
                                                         <div className="w-px bg-slate-200 mx-3 my-2" />
                                                         <div className="flex flex-col justify-center leading-none min-w-[80px]">
-                                                            <p className="text-[7px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
-                                                            <p className={`text-[11px] font-black ${(() => {
+                                                            <p className="text-[7px] font-medium text-slate-500 uppercase mb-1">Próximo Término</p>
+                                                            <p className={`text-[11px] font-bold ${(() => {
                                                                 if (!group.items[0].data_fim) return 'text-slate-400';
                                                                 const e = new Date(group.items[0].data_fim); e.setHours(0,0,0,0);
                                                                 const t = new Date(); t.setHours(0,0,0,0);
@@ -793,7 +792,7 @@ export default function AfastamentosPage() {
                                     {expandedCpf === group.cpf && (
                                         <div className="px-4 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
                                             <div className="space-y-6">
-                                                <h5 className="text-[11px] font-black uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
+                                                <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 
                                                 <div className="grid grid-cols-1 gap-6">
                                                     {group.items.map((record) => {
@@ -806,38 +805,38 @@ export default function AfastamentosPage() {
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
                                                                 {/* COLUNA 1: VÍNCULO (ESQUERDA) */}
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Vínculo do Afastamento</p>
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Vínculo do Afastamento</p>
                                                                     <div className="flex flex-col gap-1 mt-1">
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase min-w-[60px]">Matrícula:</span>
-                                                                            <span className="text-sm font-black text-[#1A3351]">{record.servidor_matricula}</span>
+                                                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">Matrícula:</span>
+                                                                            <span className="text-sm font-semibold text-[#1A3351]">{record.servidor_matricula}</span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase min-w-[60px]">Contrato:</span>
-                                                                            <span className="text-sm font-black text-[#1A3351]">{record.servidor_contrato}</span>
+                                                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">Contrato:</span>
+                                                                            <span className="text-sm font-semibold text-[#1A3351]">{record.servidor_contrato}</span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase min-w-[60px]">Cargo:</span>
-                                                                            <span className="text-[11px] font-black text-[#1A3351] uppercase">{record.servidor_cargo || '---'}</span>
+                                                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">Cargo:</span>
+                                                                            <span className="text-[11px] font-semibold text-[#1A3351] uppercase">{record.servidor_cargo || '---'}</span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-slate-400 uppercase min-w-[60px]">Natureza:</span>
-                                                                            <span className="text-[11px] font-black text-[#1A3351] uppercase">{record.natureza_cargo}</span>
+                                                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">Natureza:</span>
+                                                                            <span className="text-[11px] font-semibold text-[#1A3351] uppercase">{record.natureza_cargo}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
                                                                 {/* COLUNA 2: DADOS ADICIONAIS (CENTRO) */}
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Dados Adicionais</p>
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Dados Adicionais</p>
                                                                     <div className="flex flex-col gap-2 mt-1">
                                                                         <div>
-                                                                            <span className="text-[10px] font-bold text-slate-400 block uppercase">Duração</span>
-                                                                            <span className="text-sm font-black text-[#1A3351] flex items-center gap-1"><Clock className="w-3.5 h-3.5 opacity-50" /> {record.dias_afastado || 'N/D'} Dias</span>
+                                                                            <span className="text-[10px] font-medium text-slate-500 block uppercase">Duração</span>
+                                                                            <span className="text-sm font-semibold text-[#1A3351] flex items-center gap-1"><Clock className="w-3.5 h-3.5 opacity-50" /> {record.dias_afastado || 'N/D'} Dias</span>
                                                                         </div>
                                                                         <div>
-                                                                             <span className="text-[10px] font-bold text-slate-400 block uppercase">Diagnóstico (CID-10)</span>
-                                                                             <span className="text-xs font-black text-[#1A3351]">{record.afastamento_cids?.length || 0} código(s) registrado(s)</span>
+                                                                             <span className="text-[10px] font-medium text-slate-500 block uppercase">Diagnóstico (CID-10)</span>
+                                                                             <span className="text-xs font-semibold text-[#1A3351]">{record.afastamento_cids?.length || 0} código(s) registrado(s)</span>
                                                                          </div>
                                                                     </div>
                                                                 </div>
@@ -846,25 +845,25 @@ export default function AfastamentosPage() {
                                                                 <div className="space-y-1 md:text-right flex flex-col md:items-end">
                                                                     <div className="flex items-center gap-2 md:justify-end">
                                                                         {record.is_acidente_trabalho && (
-                                                                            <span className="text-[9px] font-black bg-red-600 text-white px-2 py-0.5 rounded shadow-sm animate-pulse">ACIDENTE DE TRABALHO</span>
+                                                                            <span className="text-[9px] font-bold bg-red-600 text-white px-2 py-0.5 rounded-none shadow-sm animate-pulse">ACIDENTE DE TRABALHO</span>
                                                                         )}
-                                                                        <p className="text-sm font-black text-[#1A3351] uppercase truncate">{record.tipo_afastamento}</p>
+                                                                        <p className="text-sm font-semibold text-[#1A3351] uppercase truncate">{record.tipo_afastamento}</p>
                                                                     </div>
                                                                     <div className="flex items-center gap-2 mt-1 md:justify-end">
-                                                                        <span className="text-xs font-black text-slate-400 uppercase">Início:</span>
-                                                                        <span className="text-sm font-bold text-[#1A3351]">{formatDate(record.data_inicio)}</span>
+                                                                        <span className="text-xs font-medium text-slate-500 uppercase">Início:</span>
+                                                                        <span className="text-sm font-semibold text-[#1A3351]">{formatDate(record.data_inicio)}</span>
                                                                     </div>
                                                                     <div className="flex flex-col md:items-end gap-1">
                                                                         <div className="flex items-center gap-2 md:justify-end">
-                                                                            <span className="text-xs font-black text-slate-400 uppercase">Término:</span>
+                                                                            <span className="text-xs font-medium text-slate-500 uppercase">Término:</span>
                                                                             {record.data_fim ? (
                                                                                 <span className="flex flex-wrap items-center gap-1.5 md:justify-end">
                                                                                     <span className={status === 'expired' ? 'text-sm font-bold text-[#E31E24]' : 'text-sm font-bold text-green-600'}>{formatDate(record.data_fim)}</span>
-                                                                                    <span className={`text-[9px] px-1.5 py-0.5 rounded border font-black ${status === 'active' || status === 'alert' ? 'bg-green-500 text-white border-green-600' : status === 'finished' ? 'bg-slate-300 text-slate-600 border-slate-400' : 'bg-[#E31E24] text-white border-[#E31E24]'}`}>
+                                                                                    <span className={`text-[9px] px-1.5 py-0.5 rounded-none border font-bold ${status === 'active' || status === 'alert' ? 'bg-green-500 text-white border-green-600' : status === 'finished' ? 'bg-slate-300 text-slate-600 border-slate-400' : 'bg-[#E31E24] text-white border-[#E31E24]'}`}>
                                                                                         {status === 'active' ? 'VIGENTE' : status === 'alert' ? 'VENCENDO' : status === 'finished' ? 'FINALIZADO' : 'VENCIDO'}
                                                                                     </span>
                                                                                 </span>
-                                                                            ) : <span className="text-sm font-bold text-slate-400">---</span>}
+                                                                            ) : <span className="text-sm font-semibold text-slate-400">---</span>}
                                                                         </div>
                                                                         {record.situacao !== 'FINALIZADO' && record.data_fim && (
                                                                             <VencimentoAlerta dateFim={record.data_fim} />
@@ -875,22 +874,22 @@ export default function AfastamentosPage() {
 
                                                             {/* BOTÕES - parte inferior, distribuídos horizontalmente */}
                                                             <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
-                                                                <button onClick={() => handleViewPortaria(record)} className="flex items-center gap-1.5 px-2 py-1 bg-slate-200 text-slate-800 hover:bg-slate-300 font-black rounded border border-slate-300 text-[10px] uppercase transition-all">
+                                                                <button onClick={() => handleViewPortaria(record)} className="flex items-center gap-1.5 px-2 py-1 bg-slate-200 text-slate-800 hover:bg-slate-300 font-bold rounded-none border border-slate-300 text-[10px] uppercase transition-all">
                                                                     <Printer className="w-3 h-3" /> Portaria
                                                                 </button>
-                                                                <button onClick={() => openEditModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-black rounded border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
+                                                                <button onClick={() => openEditModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
                                                                     <Pencil className="w-3 h-3" /> Editar
                                                                 </button>
-                                                                <button onClick={() => openNotesModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-black rounded border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
+                                                                <button onClick={() => openNotesModal(record)} className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all">
                                                                     <ClipboardList className="w-3 h-3" /> Anotações
                                                                 </button>
                                                                 {record.situacao === 'EM_ANDAMENTO' && (
                                                                     <>
-                                                                        <button onClick={() => router.push(`/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`)} className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-black rounded border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all">
+                                                                        <button onClick={() => router.push(`/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`)} className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all">
                                                                             <RotateCcw className="w-3 h-3" /> PRORROGAR
                                                                         </button>
                                                                         {!record.tipo_afastamento?.toUpperCase().includes('MATERNIDADE') && (
-                                                                            <button onClick={() => handleAltaMedica(record)} disabled={updatingId === record.id} className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-black rounded border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50">
+                                                                            <button onClick={() => handleAltaMedica(record)} disabled={updatingId === record.id} className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50">
                                                                                 {updatingId === record.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
                                                                                 DAR ALTA
                                                                             </button>
@@ -898,7 +897,7 @@ export default function AfastamentosPage() {
                                                                     </>
                                                                 )}
                                                                 {/* Botão CID isolado à direita */}
-                                                                <button onClick={() => { const s = new Set(revealedCids); if (s.has(record.id)) s.delete(record.id); else s.add(record.id); setRevealedCids(s); }} className="flex items-center gap-1.5 px-2 py-1 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-black rounded text-[10px] uppercase transition-all ml-auto">
+                                                                <button onClick={() => { const s = new Set(revealedCids); if (s.has(record.id)) s.delete(record.id); else s.add(record.id); setRevealedCids(s); }} className="flex items-center gap-1.5 px-2 py-1 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold rounded-none text-[10px] uppercase transition-all ml-auto">
                                                                     {revealedCids.has(record.id) ? <><EyeOff className="w-3 h-3 text-emerald-600" /> Ocultar CID</> : <><Eye className="w-3 h-3 text-emerald-600" /> Revelar CID</>}
                                                                 </button>
                                                             </div>
@@ -910,7 +909,7 @@ export default function AfastamentosPage() {
                                                                         {/* CID-10 SECTION */}
                                                                         {record.afastamento_cids && record.afastamento_cids.length > 0 && (
                                                                             <div className="divide-y divide-slate-100">
-                                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
+                                                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
                                                                                 {record.afastamento_cids.map((cid: any) => (
                                                                                     <CIDDetailItem key={cid.id} cid={cid} />
                                                                                 ))}
@@ -918,14 +917,14 @@ export default function AfastamentosPage() {
                                                                         )}
 
                                                                         {/* ANOTAÇÕES SECTION */}
-                                                                        <div className="bg-slate-50/50 p-3 rounded border border-slate-200/50">
-                                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                                        <div className="bg-slate-50/50 p-3 rounded-none border border-slate-200/50">
+                                                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                                                                 <ClipboardList className="w-3 h-3" /> Anotações do Registro
                                                                             </p>
                                                                             {record.observacoes ? (
-                                                                                <p className="text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-wrap">{record.observacoes}</p>
+                                                                                <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">{record.observacoes}</p>
                                                                             ) : (
-                                                                                <p className="text-[10px] font-bold text-slate-400 italic">Nenhuma anotação registrada para este afastamento.</p>
+                                                                                <p className="text-[10px] font-medium text-slate-400 italic">Nenhuma anotação registrada para este afastamento.</p>
                                                                             )}
                                                                         </div>
                                                                     </div>
@@ -968,51 +967,51 @@ export default function AfastamentosPage() {
             {/* MODAL DE EDIÇÃO */}
             {isEditModalOpen && editingRecord && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-2xl border-4 border-[#1A3351] w-full max-w-2xl flex flex-col max-h-[90vh]">
-                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-lg">
+                    <div className="bg-white rounded-none shadow-2xl border-4 border-[#1A3351] w-full max-w-2xl flex flex-col max-h-[90vh]">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-none-t-lg">
                             <div>
-                                <h3 className="text-sm font-black text-[#1A3351] uppercase flex items-center gap-2"><FileEdit className="w-5 h-5" /> Editar Afastamento</h3>
+                                <h3 className="text-sm font-bold text-[#1A3351] uppercase flex items-center gap-2"><FileEdit className="w-5 h-5" /> Editar Afastamento</h3>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Auditoria ativada — alterações serão registradas.</p>
                             </div>
                             <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="p-6 overflow-y-auto space-y-6 text-left">
-                            <div className="bg-slate-100 p-4 rounded-lg">
-                                <p className="text-[11px] font-black uppercase text-slate-500 mb-1">Servidor</p>
-                                <p className="text-base font-black text-[#1A3351]">{editingRecord.servidor_nome}</p>
+                            <div className="bg-slate-100 p-4 rounded-none">
+                                <p className="text-[11px] font-bold uppercase text-slate-500 mb-1">Servidor</p>
+                                <p className="text-base font-bold text-[#1A3351]">{editingRecord.servidor_nome}</p>
                                 <p className="text-xs font-bold text-slate-600">Matrícula: {editingRecord.servidor_matricula}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-slate-500 mb-2 block">Data de Início</label>
-                                    <input type="date" className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 outline-none" value={editFormData.data_inicio} onChange={(e) => setEditFormData({ ...editFormData, data_inicio: e.target.value })} />
+                                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">Data de Início</label>
+                                    <input type="date" className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none" value={editFormData.data_inicio} onChange={(e) => setEditFormData({ ...editFormData, data_inicio: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-slate-500 mb-2 block">Dias Afastado</label>
-                                    <input type="number" min="1" className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 outline-none" value={editFormData.dias_afastado} onChange={(e) => setEditFormData({ ...editFormData, dias_afastado: e.target.value })} />
+                                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">Dias Afastado</label>
+                                    <input type="number" min="1" className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none" value={editFormData.dias_afastado} onChange={(e) => setEditFormData({ ...editFormData, dias_afastado: e.target.value })} />
                                 </div>
                             </div>
-                            <div className="bg-red-50 p-4 rounded-lg border border-red-100 flex items-center justify-between group cursor-pointer"
+                            <div className="bg-red-50 p-4 rounded-none border border-red-100 flex items-center justify-between group cursor-pointer"
                                 onClick={() => setEditFormData({ ...editFormData, is_acidente_trabalho: !editFormData.is_acidente_trabalho })}>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${editFormData.is_acidente_trabalho ? 'bg-red-600 border-red-600' : 'bg-white border-slate-300'}`}>
+                                    <div className={`w-6 h-6 rounded-none border-2 flex items-center justify-center transition-all ${editFormData.is_acidente_trabalho ? 'bg-red-600 border-red-600' : 'bg-white border-slate-300'}`}>
                                         {editFormData.is_acidente_trabalho && <Activity className="w-4 h-4 text-white" />}
                                     </div>
                                     <div>
-                                        <p className="text-xs font-black text-red-800 uppercase leading-none">Acidente de Trabalho</p>
+                                        <p className="text-xs font-bold text-red-800 uppercase leading-none">Acidente de Trabalho</p>
                                         <p className="text-[10px] font-bold text-red-600/60 uppercase mt-0.5">ESTE AFASTAMENTO É DECORRENTE DE ACIDENTE LABORAL?</p>
                                     </div>
                                 </div>
-                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded ${editFormData.is_acidente_trabalho ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-none ${editFormData.is_acidente_trabalho ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
                                     {editFormData.is_acidente_trabalho ? 'SIM' : 'NÃO'}
                                 </span>
                             </div>
                             <div className="space-y-4">
-                                <label className="text-[10px] font-black uppercase text-slate-500 block">Diagnósticos CID-10</label>
-                                <div className="flex flex-wrap gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-lg min-h-[60px]">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 block">Diagnósticos CID-10</label>
+                                <div className="flex flex-wrap gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-none min-h-[60px]">
                                     {editFormData.cids.map((cid, i) => (
-                                        <div key={i} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded border border-emerald-200">
-                                            <span className="text-xs font-black text-emerald-800">{cid.code}</span>
+                                        <div key={i} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-none border border-emerald-200">
+                                            <span className="text-xs font-bold text-emerald-800">{cid.code}</span>
                                             <button onClick={() => setEditFormData({ ...editFormData, cids: editFormData.cids.filter((_, idx) => idx !== i) })} className="text-red-400 hover:text-red-600"><X className="w-3.5 h-3.5" /></button>
                                         </div>
                                     ))}
@@ -1020,9 +1019,9 @@ export default function AfastamentosPage() {
                                 </div>
                                 <div className="relative">
                                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input type="text" placeholder="BUSCAR NOVO CID..." className="w-full px-10 py-3 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 text-xs outline-none uppercase" value={cidEditInput} onChange={(e) => setCidEditInput(e.target.value.toUpperCase())} />
+                                    <input type="text" placeholder="BUSCAR NOVO CID..." className="w-full px-10 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 text-xs outline-none uppercase" value={cidEditInput} onChange={(e) => setCidEditInput(e.target.value.toUpperCase())} />
                                     {foundCids.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-200 shadow-xl rounded-lg max-h-[200px] overflow-y-auto z-[160]">
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-200 shadow-xl rounded-none max-h-[200px] overflow-y-auto z-[160]">
                                             {foundCids.map((cid, i) => (
                                                 <button key={i} onClick={() => { 
                                                     const normalized = normalizeCID(cid.code);
@@ -1031,7 +1030,7 @@ export default function AfastamentosPage() {
                                                     }
                                                     setCidEditInput(""); setFoundCids([]); 
                                                 }} className="w-full text-left px-4 py-3 border-b hover:bg-emerald-50 transition-colors flex flex-col gap-1">
-                                                    <span className="text-xs font-black text-emerald-700">{cid.code}</span>
+                                                    <span className="text-xs font-bold text-emerald-700">{cid.code}</span>
                                                     <span className="text-[10px] font-bold text-slate-600 truncate">{cid.desc}</span>
                                                 </button>
                                             ))}
@@ -1040,9 +1039,9 @@ export default function AfastamentosPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-b-lg flex justify-end gap-3">
-                            <button onClick={() => setIsEditModalOpen(false)} disabled={isSavingEdit} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded">Cancelar</button>
-                            <button onClick={handleEditSave} disabled={isSavingEdit} className="px-6 py-2.5 bg-[#1A3351] text-white font-black text-xs uppercase rounded flex items-center gap-2">
+                        <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-none-b-lg flex justify-end gap-3">
+                            <button onClick={() => setIsEditModalOpen(false)} disabled={isSavingEdit} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs uppercase rounded-none">Cancelar</button>
+                            <button onClick={handleEditSave} disabled={isSavingEdit} className="px-6 py-2.5 bg-[#1A3351] text-white font-bold text-xs uppercase rounded-none flex items-center gap-2">
                                 {isSavingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Salvar
                             </button>
                         </div>
@@ -1053,27 +1052,27 @@ export default function AfastamentosPage() {
             {/* MODAL DE ANOTAÇÕES */}
             {isNotesModalOpen && editingRecord && (
                 <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-left">
-                    <div className="bg-white rounded-xl shadow-2xl border-4 border-[#1A3351] w-full max-w-lg flex flex-col">
-                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-lg">
-                            <h3 className="text-sm font-black text-[#1A3351] uppercase flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Anotações do Afastamento</h3>
+                    <div className="bg-white rounded-none shadow-2xl border-4 border-[#1A3351] w-full max-w-lg flex flex-col">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-none-t-lg">
+                            <h3 className="text-sm font-bold text-[#1A3351] uppercase flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Anotações do Afastamento</h3>
                             <button onClick={() => setIsNotesModalOpen(false)} className="text-slate-400 hover:text-red-500"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="p-6 space-y-4">
-                            <div className="bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 mb-2">
-                                <p className="text-[10px] font-black uppercase text-slate-500 leading-none mb-1">Servidor</p>
-                                <p className="text-sm font-black text-[#1A3351]">{editingRecord.servidor_nome}</p>
+                            <div className="bg-slate-100 px-4 py-3 rounded-none border border-slate-200 mb-2">
+                                <p className="text-[10px] font-bold uppercase text-slate-500 leading-none mb-1">Servidor</p>
+                                <p className="text-sm font-bold text-[#1A3351]">{editingRecord.servidor_nome}</p>
                             </div>
                             <textarea
-                                className="w-full p-4 bg-slate-50 border border-slate-300 rounded font-bold text-slate-700 text-xs outline-none min-h-[200px] resize-none focus:border-[#1A3351] focus:ring-1 focus:ring-[#1A3351] transition-all"
+                                className="w-full p-4 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 text-xs outline-none min-h-[200px] resize-none focus:border-[#1A3351] focus:ring-1 focus:ring-[#1A3351] transition-all"
                                 placeholder="INSIRA AQUI OBSERVAÇÕES ADICIONAIS SOBRE ESTE AFASTAMENTO..."
                                 value={noteFormData}
                                 onChange={(e) => setNoteFormData(e.target.value.toUpperCase())}
                                 autoFocus
                             />
                         </div>
-                        <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-b-lg flex justify-end gap-3">
-                            <button onClick={() => setIsNotesModalOpen(false)} disabled={isSavingNote} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded">Cancelar</button>
-                            <button onClick={handleNoteSave} disabled={isSavingNote} className="px-6 py-2.5 bg-[#1A3351] text-white font-black text-xs uppercase rounded flex items-center gap-2">
+                        <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-none-b-lg flex justify-end gap-3">
+                            <button onClick={() => setIsNotesModalOpen(false)} disabled={isSavingNote} className="px-6 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs uppercase rounded-none">Cancelar</button>
+                            <button onClick={handleNoteSave} disabled={isSavingNote} className="px-6 py-2.5 bg-[#1A3351] text-white font-bold text-xs uppercase rounded-none flex items-center gap-2">
                                 {isSavingNote ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Salvar Anotação
                             </button>
                         </div>
@@ -1093,7 +1092,7 @@ export default function AfastamentosPage() {
                         </div>
                     </div>
                     <div className="text-right">
-                        <h1 className="text-base font-black text-[#1A3351] uppercase tracking-tighter leading-tight">Relatório Gerencial de Afastamentos</h1>
+                        <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">Relatório Gerencial de Afastamentos</h1>
                         <div className="text-[8px] font-bold text-slate-400 uppercase">
                             OP: {userName} | {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
@@ -1101,10 +1100,10 @@ export default function AfastamentosPage() {
                 </div>
 
                 {/* RESUMO DOS FILTROS - DISCRETO (SYNC COM ABONO) */}
-                <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded">
+                <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none">
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-3.5 bg-[#E31E24]" />
-                        <p className="text-[8px] font-black uppercase text-[#1A3351]">
+                        <p className="text-[8px] font-bold uppercase text-[#1A3351]">
                             REGISTROS: <span className="text-[#E31E24]">{filteredRecords.length}</span>
                         </p>
                     </div>
@@ -1117,11 +1116,11 @@ export default function AfastamentosPage() {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-300">
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Identificação</th>
-                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Início</th>
-                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Término</th>
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Secretaria</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Identificação</th>
+                            <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">Início</th>
+                            <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">Término</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Secretaria</th>
                         </tr>
                     </thead>
                     <tbody>

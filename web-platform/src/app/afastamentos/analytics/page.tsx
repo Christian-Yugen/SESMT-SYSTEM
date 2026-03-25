@@ -244,7 +244,7 @@ export default function AfastamentosAnalyticsPage() {
         return (
             <div className="h-screen w-full bg-[#1A3351] flex flex-col items-center justify-center gap-4">
                 <TrendingUp className="w-12 h-12 text-white animate-pulse" />
-                <p className="text-white uppercase tracking-[0.3em] font-black text-xs">Analisando Dados de Afastamento...</p>
+                <p className="text-white uppercase tracking-[0.3em] font-bold text-xs">Analisando Dados de Afastamento...</p>
             </div>
         );
     }
@@ -266,19 +266,19 @@ export default function AfastamentosAnalyticsPage() {
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                                 <span>Painel Geral</span>
                             </button>
-                            <button onClick={() => router.push("/afastamentos")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/afastamentos")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <ClipboardList className="w-4 h-4 shrink-0" />
                                 <span>Afastamentos</span>
                             </button>
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
+                            <button className="w-full flex items-center gap-1.5 p-3 rounded-none bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
                                 <BarChart3 className="w-4 h-4 shrink-0" />
                                 <span>Indicadores BI</span>
                             </button>
-                            <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <HistoryIcon className="w-4 h-4 shrink-0" />
                                 <span>Histórico ASO</span>
                             </button>
@@ -290,7 +290,7 @@ export default function AfastamentosAnalyticsPage() {
                     </button>
                     <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
                         <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">Powered by</p>
-                        <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span></p>
+                        <p className="text-[18px] font-bold text-white leading-none tracking-[0.1em] text-left">UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span></p>
                     </div>
                 </div>
             </aside>
@@ -301,16 +301,16 @@ export default function AfastamentosAnalyticsPage() {
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-[#1A3351] rounded-lg shadow-inner">
+                            <div className="p-2 bg-[#1A3351] rounded-none shadow-inner">
                                 <TrendingUp className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-black uppercase tracking-tighter leading-none text-[#1A3351]">Afastamentos <span className="text-emerald-600">Analytics</span></h1>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mt-1">Indicadores de Saúde e Absenteísmo</p>
+                                <h1 className="text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">Afastamentos <span className="text-emerald-600">Analytics</span></h1>
+                                <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest mt-1">Indicadores de Saúde e Absenteísmo</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
+                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
                                 <Printer className="w-3.5 h-3.5" /> Imprimir Vista (PDF)
                             </button>
                             <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] text-white"><Menu className="w-6 h-6" /></button>
@@ -318,38 +318,38 @@ export default function AfastamentosAnalyticsPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-4 items-stretch">
-                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
+                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
                             <option value="all">TODAS SECRETARIAS</option>
                             {uniqueSecretarias.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <select value={filterTipo} onChange={(e) => setFilterTipo(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterTipo} onChange={(e) => setFilterTipo(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODOS OS TIPOS</option>
                             {uniqueTipos.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
-                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 h-11 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODAS NATUREZAS</option>
                             <option value="EFETIVO">EFETIVO</option>
                             <option value="COMISSÃO">COMISSÃO</option>
                             <option value="TEMPORÁRIO">TEMPORÁRIO</option>
                         </select>
                         <div className="relative flex-1 md:flex-none min-w-[180px] h-11">
-                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full h-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-emerald-600" : ""}`}>
+                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full h-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 text-[10px] font-bold uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-emerald-600" : ""}`}>
                                 <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> PERÍODO</span>
                                 <ChevronDown className="w-3 h-3" />
                             </button>
                             {isDateFilterOpen && (
                                 <div className="absolute top-11 left-0 bg-white shadow-2xl p-4 border border-[#888] w-64 z-[100] animate-in fade-in slide-in-from-top-2">
                                     <div className="space-y-3">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase">Período de Início</p>
-                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded text-[10px] font-bold outline-none" />
-                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded text-[10px] font-bold outline-none" />
-                                        <button onClick={() => setIsDateFilterOpen(false)} className="w-full py-2 bg-[#1A3351] text-white text-[10px] font-black rounded uppercase">Aplicar Período</button>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">Período de Início</p>
+                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded-none text-[10px] font-bold outline-none" />
+                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded-none text-[10px] font-bold outline-none" />
+                                        <button onClick={() => setIsDateFilterOpen(false)} className="w-full py-2 bg-[#1A3351] text-white text-[10px] font-bold rounded-none uppercase">Aplicar Período</button>
                                     </div>
                                 </div>
                             )}
                         </div>
                         {(filterSecretaria !== "all" || filterTipo !== "all" || filterNatureza !== "all" || startDate || endDate) && (
-                            <button onClick={() => { setFilterSecretaria("all"); setFilterTipo("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 h-11 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
+                            <button onClick={() => { setFilterSecretaria("all"); setFilterTipo("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 h-11 text-[10px] font-bold uppercase shadow-md flex items-center gap-2">
                                 <X className="w-3 h-3" /> Limpar
                             </button>
                         )}
@@ -361,29 +361,29 @@ export default function AfastamentosAnalyticsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="bg-white p-4 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Total de Registros</p>
-                                <h3 className="text-2xl font-black text-[#1A3351] mt-1">{filteredRecords.length}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Total de Registros</p>
+                                <h3 className="text-2xl font-bold text-[#1A3351] mt-1">{filteredRecords.length}</h3>
                             </div>
                             <ClipboardList className="w-6 h-6 text-slate-100" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-emerald-500 shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Afastamentos Ativos</p>
-                                <h3 className="text-2xl font-black text-emerald-600 mt-1">{chartData.byStatus.find(s => s.name === "Ativos")?.value || 0}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Afastamentos Ativos</p>
+                                <h3 className="text-2xl font-bold text-emerald-600 mt-1">{chartData.byStatus.find(s => s.name === "Ativos")?.value || 0}</h3>
                             </div>
                             <Activity className="w-6 h-6 text-emerald-100" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-red-500 shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Total Dias Afastados</p>
-                                <h3 className="text-2xl font-black text-red-600 mt-1">{filteredRecords.reduce((acc, r) => acc + (parseInt(r.dias_afastado) || 0), 0)}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Total Dias Afastados</p>
+                                <h3 className="text-2xl font-bold text-red-600 mt-1">{filteredRecords.reduce((acc, r) => acc + (parseInt(r.dias_afastado) || 0), 0)}</h3>
                             </div>
                             <Calendar className="w-6 h-6 text-red-50" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Servidores Diferentes</p>
-                                <h3 className="text-2xl font-black text-blue-600 mt-1">{new Set(filteredRecords.map(r => r.servidor_cpf)).size}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Servidores Diferentes</p>
+                                <h3 className="text-2xl font-bold text-blue-600 mt-1">{new Set(filteredRecords.map(r => r.servidor_cpf)).size}</h3>
                             </div>
                             <UsersIcon className="w-6 h-6 text-blue-50" />
                         </div>
@@ -393,7 +393,7 @@ export default function AfastamentosAnalyticsPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8">
                         {/* CHART 1: MONTHLY VOLUME */}
                         <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-8">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Evolução Mensal (Lançamentos)
                             </h4>
                             <div className="h-[280px] w-full">
@@ -417,7 +417,7 @@ export default function AfastamentosAnalyticsPage() {
 
                         {/* CHART 2: STATUS PIE */}
                         <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 relative">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Activity className="w-4 h-4" /> Situação dos Registros
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
@@ -436,7 +436,7 @@ export default function AfastamentosAnalyticsPage() {
 
                         {/* CHART 3: TYPE PIE */}
                         <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 relative">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Distribuição por Tipo
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
@@ -457,7 +457,7 @@ export default function AfastamentosAnalyticsPage() {
 
                         {/* CHART 4: IMPACT BAR RANKING */}
                         <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Building2 className="w-4 h-4" /> Absenteísmo por Secretaria (Total de Dias)
                             </h4>
                             <div className="h-[350px] w-full">

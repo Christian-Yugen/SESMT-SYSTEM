@@ -209,7 +209,7 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando dados...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando dados...</p>
             </div>
         );
     }
@@ -236,42 +236,42 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 </div>
 
                 <nav className="flex-1 space-y-1">
-                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <LayoutDashboard className="w-4 h-4 shrink-0" />
                         <span>Criar documentos</span>
                     </button>
 
-                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <button onClick={() => router.push('/referrals')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <ClipboardList className="w-4 h-4 shrink-0" />
                         <span>Central de Evidências</span>
                     </button>
 
                     <div className="group">
-                        <button className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                        <button className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                             <HeartPulse className="w-4 h-4 shrink-0" />
                             <span>Benefícios</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Database className="w-3.5 h-3.5 shrink-0" />
                             <span>Auxílio Doença</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileSearch className="w-3.5 h-3.5 shrink-0" />
                             <span>Readaptação</span>
                         </button>
-                        <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <ClipboardList className="w-3.5 h-3.5 shrink-0" />
                             <span>Abono Salarial</span>
                         </button>
-                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono/lei')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <Scale className="w-3.5 h-3.5 shrink-0" />
                             <span>Legislação e Regras</span>
                         </button>
-                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button onClick={() => router.push('/abono/portarias')} className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <FileText className="w-3.5 h-3.5 shrink-0" />
                             <span>Portarias</span>
                         </button>
-                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                        <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                         </button>
@@ -280,13 +280,13 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                     {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <>
                             <div className="group">
-                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                                <button onClick={() => router.push('/history')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                     <HistoryIcon className="w-4 h-4 shrink-0" />
                                     <span>Histórico</span>
                                 </button>
                             </div>
 
-                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push('/archive')} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <FolderOpen className="w-4 h-4 shrink-0" />
                                 <span>Arquivo Médico</span>
                             </button>
@@ -308,12 +308,12 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => router.push('/abono')} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                            <button onClick={() => router.push('/abono')} className="p-2 hover:bg-black/5 rounded-none transition-colors">
                                 <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                             </button>
-                            <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Editar Registro de Abono Salarial</h2>
+                            <h2 className="text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Editar Registro de Abono Salarial</h2>
                         </div>
-                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
+                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded-none text-white active:scale-90 transition-transform">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -324,27 +324,27 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
 
                         {/* INFORMAÇÕES DO SERVIDOR (LEITURA) */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Servidor Vinculado</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Servidor Vinculado</h3>
                             {selectedServidor && (
-                                <div className="p-4 bg-slate-100/50 border border-slate-200 rounded grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="p-4 bg-slate-100/50 border border-slate-200 rounded-none grid grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="col-span-2 lg:col-span-1">
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Nome</p>
-                                        <p className="text-xl font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Nome</p>
+                                        <p className="text-xl font-bold uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">CPF</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">CPF</p>
                                         <p className="text-sm font-bold text-[#1A3351]">{selectedServidor["CPF."]}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Cargo</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Cargo</p>
                                         <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Cargo}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Matrícula</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Matrícula</p>
                                         <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
                                     </div>
                                     <div className="col-span-2">
-                                        <p className="text-[11px] font-black text-slate-400 uppercase">Secretaria</p>
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Secretaria</p>
                                         <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Secretaria}</p>
                                     </div>
                                 </div>
@@ -353,23 +353,23 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
 
                         {/* EDITAR DADOS DO ABONO */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#E31E24]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest">Dados do Benefício</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest">Dados do Benefício</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número da Portaria *</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Número da Portaria *</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
                                         value={formData.portaria}
                                         onChange={(e) => setFormData({ ...formData, portaria: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Beneficiário / Dependente</label>
                                     <input
                                         type="text"
                                         placeholder="EX: PRÓPRIO, FILHO 1..."
-                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
                                         value={formData.beneficiario_nome}
                                         onChange={(e) => setFormData({ ...formData, beneficiario_nome: e.target.value })}
                                     />
@@ -378,42 +378,42 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                                     <div className="md:col-span-2 bg-blue-50 border-l-4 border-blue-500 p-4 mb-2 flex items-center gap-3">
                                         <TrendingUp className="w-5 h-5 text-blue-600" />
                                         <div>
-                                            <p className="text-[10px] font-black text-blue-600 uppercase">Status: Renovado</p>
+                                            <p className="text-[10px] font-bold text-blue-600 uppercase">Status: Renovado</p>
                                             <p className="text-xs font-bold text-blue-800">Este benefício já possui uma renovação vinculada.</p>
                                         </div>
                                     </div>
                                 )}
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Número Assomasul</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Número Assomasul</label>
                                     <input
                                         type="text"
                                         placeholder="EX: 4041"
-                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] uppercase outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
                                         value={formData.assomasul_numero}
                                         onChange={(e) => setFormData({ ...formData, assomasul_numero: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data Publicação Assomasul</label>
                                     <input
                                         type="date"
-                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
                                         value={formData.assomasul_data}
                                         onChange={(e) => setFormData({ ...formData, assomasul_data: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data Início do Benefício *</label>
                                     <input
                                         type="date"
-                                        className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
+                                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] text-lg text-[#1A3351]"
                                         value={formData.inicio}
                                         onChange={(e) => setFormData({ ...formData, inicio: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Data de Término (Automático)</label>
-                                    <div className="w-full px-4 py-3 border border-slate-200 rounded font-black bg-slate-50 text-xl text-[#E31E24]">
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Data de Término (Automático)</label>
+                                    <div className="w-full px-4 py-3 border border-slate-200 rounded-none font-bold bg-slate-50 text-xl text-[#E31E24]">
                                         {formData.inicio ? (
                                             (() => {
                                                 const date = new Date(formData.inicio + 'T00:00:00');
@@ -424,23 +424,23 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                                     </div>
                                 </div>
                                 <div className="md:col-span-2 space-y-1">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 pl-1">Informações Adicionais / Observações</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 pl-1">Informações Adicionais / Observações</label>
                                     <textarea
                                         rows={3}
                                         placeholder="INSIRA AQUI OBSERVAÇÕES RELEVANTES SOBRE ESTE BENEFÍCIO..."
-                                        className="w-full px-4 py-4 border border-slate-300 rounded font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] uppercase text-base text-[#1A3351]"
+                                        className="w-full px-4 py-4 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] outline-none focus:border-[#E31E24] uppercase text-base text-[#1A3351]"
                                         value={formData.observacoes}
                                         onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                                     />
                                 </div>
-                                <div className="md:col-span-2 space-y-1 bg-amber-50 p-4 rounded-lg border border-amber-200">
-                                    <label className="text-[11px] font-black uppercase text-amber-600 pl-1 flex items-center gap-2">
+                                <div className="md:col-span-2 space-y-1 bg-amber-50 p-4 rounded-none border border-amber-200">
+                                    <label className="text-[11px] font-bold uppercase text-amber-600 pl-1 flex items-center gap-2">
                                         <HistoryIcon className="w-4 h-4" /> Motivo da Alteração (Obrigatório para Auditoria)
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="EX: CORREÇÃO DE DATA DE PORTARIA SOLICITADA PELO RH"
-                                        className="w-full px-4 py-4 border border-amber-300 rounded font-black bg-white outline-none focus:border-amber-500 uppercase text-sm text-[#1A3351]"
+                                        className="w-full px-4 py-4 border border-amber-300 rounded-none font-bold bg-white outline-none focus:border-amber-500 uppercase text-sm text-[#1A3351]"
                                         value={formData.motivo_alteracao}
                                         onChange={(e) => setFormData({ ...formData, motivo_alteracao: e.target.value })}
                                     />
@@ -450,14 +450,14 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                             <div className="mt-10 flex justify-end gap-4">
                                 <button
                                     onClick={() => router.push('/abono')}
-                                    className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 transition-all font-bold"
+                                    className="px-6 py-3 text-[10px] font-bold uppercase text-slate-400 hover:text-slate-600 transition-all font-bold"
                                 >
                                     Descartar Alterações
                                 </button>
                                 <button
                                     onClick={handleUpdate}
                                     disabled={saving}
-                                    className="px-12 py-3 bg-[#E31E24] text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-red-900"
+                                    className="px-12 py-3 bg-[#E31E24] text-white font-bold uppercase text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-red-900"
                                 >
                                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                     Atualizar Registro
@@ -468,13 +468,13 @@ export default function EditAbonoPage({ params }: { params: Promise<{ id: string
                         {/* HISTÓRICO DE AUDITORIA */}
                         {changeLogs.length > 0 && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-slate-400">
-                                <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest flex items-center gap-2">
+                                <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest flex items-center gap-2">
                                     <HistoryIcon className="w-4 h-4" /> Log de Alterações (Segurança)
                                 </h3>
                                 <div className="space-y-4">
                                     {changeLogs.map((log: any) => (
-                                        <div key={log.id} className="text-[11px] p-3 bg-slate-50 rounded border border-slate-200">
-                                            <div className="flex justify-between font-black uppercase text-slate-500 mb-1">
+                                        <div key={log.id} className="text-[11px] p-3 bg-slate-50 rounded-none border border-slate-200">
+                                            <div className="flex justify-between font-bold uppercase text-slate-500 mb-1">
                                                 <span>{log.usuario_email}</span>
                                                 <span>{new Date(log.data_alteracao).toLocaleString('pt-BR')}</span>
                                             </div>

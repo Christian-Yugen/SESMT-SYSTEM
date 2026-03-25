@@ -347,7 +347,7 @@ export default function AbonoAnalyticsPage() {
         return (
             <div className="h-screen w-full bg-[#1A3351] flex flex-col items-center justify-center gap-4">
                 <TrendingUp className="w-12 h-12 text-white animate-pulse" />
-                <p className="text-white uppercase tracking-[0.3em] font-black text-xs">Analisando Dados de Abono...</p>
+                <p className="text-white uppercase tracking-[0.3em] font-bold text-xs">Analisando Dados de Abono...</p>
             </div>
         );
     }
@@ -371,23 +371,23 @@ export default function AbonoAnalyticsPage() {
                 <nav className="flex-1 space-y-1">
                     {(userRole === 'admin' || userRole === 'social_assistant') && (
                         <>
-                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                                 <span>Criar documentos</span>
                             </button>
-                            <button onClick={() => router.push("/abono")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/abono")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <ClipboardList className="w-4 h-4 shrink-0" />
                                 <span>Abono Salarial</span>
                             </button>
-                            <button className="w-full flex items-center gap-1.5 p-3 rounded-lg bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
+                            <button className="w-full flex items-center gap-1.5 p-3 rounded-none bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
                                 <BarChart3 className="w-4 h-4 shrink-0" />
                                 <span>Indicadores BI</span>
                             </button>
-                            <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/history")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <HistoryIcon className="w-4 h-4 shrink-0" />
                                 <span>Histórico</span>
                             </button>
-                            <button onClick={() => router.push("/archive")} className="w-full flex items-center gap-1.5 p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
+                            <button onClick={() => router.push("/archive")} className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
                                 <FolderOpen className="w-4 h-4 shrink-0" />
                                 <span>Arquivo Médico</span>
                             </button>
@@ -401,7 +401,7 @@ export default function AbonoAnalyticsPage() {
                     </button>
                     <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
                         <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">Powered by</p>
-                        <p className="text-[18px] font-black text-white leading-none tracking-[0.1em] text-left">UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span></p>
+                        <p className="text-[18px] font-bold text-white leading-none tracking-[0.1em] text-left">UXBRAS<span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">®</span></p>
                     </div>
                 </div>
             </aside>
@@ -412,57 +412,57 @@ export default function AbonoAnalyticsPage() {
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-[#1A3351] rounded-lg shadow-inner">
+                            <div className="p-2 bg-[#1A3351] rounded-none shadow-inner">
                                 <TrendingUp className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-black uppercase tracking-tighter leading-none text-[#1A3351]">Abono <span className="text-blue-700">Analytics</span></h1>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mt-1">Estatísticas e Indicadores Gerenciais</p>
+                                <h1 className="text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">Abono <span className="text-blue-700">Analytics</span></h1>
+                                <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest mt-1">Estatísticas e Indicadores Gerenciais</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
+                            <button onClick={handlePrintReport} className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10">
                                 <Printer className="w-3.5 h-3.5" /> Relatório Analítico (PDF)
                             </button>
-                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white"><Menu className="w-6 h-6" /></button>
+                            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded-none text-white"><Menu className="w-6 h-6" /></button>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-4">
-                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
+                        <select value={filterSecretaria} onChange={(e) => setFilterSecretaria(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] max-w-[250px]">
                             <option value="all">TODAS SECRETARIAS</option>
                             {uniqueSecretarias.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODOS STATUS</option>
                             <option value="active">ATIVOS</option>
                             <option value="expired">VENCIDOS</option>
                             <option value="finished">FINALIZADOS</option>
                         </select>
-                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-black uppercase outline-none focus:border-[#1A3351]">
+                        <select value={filterNatureza} onChange={(e) => setFilterNatureza(e.target.value)} className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]">
                             <option value="all">TODAS NATUREZAS</option>
                             {Array.from(new Set(records.map(r => r.natureza_cargo).filter(Boolean))).sort().map(n => (
                                 <option key={n} value={n}>{String(n).toUpperCase()}</option>
                             ))}
                         </select>
                         <div className="relative flex-1 md:flex-none min-w-[180px]">
-                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2 text-[10px] font-black uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-blue-700" : ""}`}>
+                            <button onClick={() => setIsDateFilterOpen(!isDateFilterOpen)} className={`w-full bg-[#E8E8E8] border border-[#888] shadow-inner px-4 py-2 text-[10px] font-bold uppercase flex items-center justify-between gap-2 ${startDate || endDate ? "text-blue-700" : ""}`}>
                                 <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> PERÍODO</span>
                                 <ChevronDown className="w-3 h-3" />
                             </button>
                             {isDateFilterOpen && (
                                 <div className="absolute top-11 left-0 bg-white shadow-2xl p-4 border border-[#888] w-64 z-[100] animate-in fade-in slide-in-from-top-2">
                                     <div className="space-y-3">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase">Período de Início</p>
-                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded text-[10px] font-bold outline-none" />
-                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded text-[10px] font-bold outline-none" />
-                                        <button onClick={() => setIsDateFilterOpen(false)} className="w-full py-2 bg-[#1A3351] text-white text-[10px] font-black rounded uppercase">Aplicar Período</button>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">Período de Início</p>
+                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded-none text-[10px] font-bold outline-none" />
+                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 bg-slate-50 border rounded-none text-[10px] font-bold outline-none" />
+                                        <button onClick={() => setIsDateFilterOpen(false)} className="w-full py-2 bg-[#1A3351] text-white text-[10px] font-bold rounded-none uppercase">Aplicar Período</button>
                                     </div>
                                 </div>
                             )}
                         </div>
                         {(filterSecretaria !== "all" || filterStatus !== "all" || filterNatureza !== "all" || startDate || endDate) && (
-                            <button onClick={() => { setFilterSecretaria("all"); setFilterStatus("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-black uppercase shadow-md flex items-center gap-2">
+                            <button onClick={() => { setFilterSecretaria("all"); setFilterStatus("all"); setFilterNatureza("all"); setStartDate(""); setEndDate(""); }} className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-bold uppercase shadow-md flex items-center gap-2">
                                 <X className="w-3 h-3" /> Reset
                             </button>
                         )}
@@ -474,29 +474,29 @@ export default function AbonoAnalyticsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="bg-white p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Total de Benefícios</p>
-                                <h3 className="text-2xl font-black text-[#1A3351] mt-1">{filteredRecords.length}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Total de Benefícios</p>
+                                <h3 className="text-2xl font-bold text-[#1A3351] mt-1">{filteredRecords.length}</h3>
                             </div>
                             <ClipboardList className="w-6 h-6 text-blue-100" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-emerald-500 shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Abonos Ativos</p>
-                                <h3 className="text-2xl font-black text-emerald-600 mt-1">{chartData.byStatus.find(s => s.name === "Ativos")?.value || 0}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Abonos Ativos</p>
+                                <h3 className="text-2xl font-bold text-emerald-600 mt-1">{chartData.byStatus.find(s => s.name === "Ativos")?.value || 0}</h3>
                             </div>
                             <Activity className="w-6 h-6 text-emerald-100" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Servidores Diferentes</p>
-                                <h3 className="text-2xl font-black text-[#1A3351] mt-1">{new Set(filteredRecords.map(r => r.cpf)).size}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Servidores Diferentes</p>
+                                <h3 className="text-2xl font-bold text-[#1A3351] mt-1">{new Set(filteredRecords.map(r => r.cpf)).size}</h3>
                             </div>
                             <UsersIcon className="w-6 h-6 text-slate-100" />
                         </div>
                         <div className="bg-white p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between">
                             <div>
-                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest leading-tight">Secretarias</p>
-                                <h3 className="text-2xl font-black text-[#E31E24] mt-1">{new Set(filteredRecords.map(r => r.secretaria).filter(Boolean)).size}</h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">Secretarias</p>
+                                <h3 className="text-2xl font-bold text-[#E31E24] mt-1">{new Set(filteredRecords.map(r => r.secretaria).filter(Boolean)).size}</h3>
                             </div>
                             <Building2 className="w-6 h-6 text-red-500/10" />
                         </div>
@@ -505,8 +505,8 @@ export default function AbonoAnalyticsPage() {
                     {/* CHARTS */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8">
                         {/* CHART 1: MONTHLY VOLUME */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-8 rounded-xl">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-8 rounded-none">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Volume de Concessões (Mês a Mês)
                             </h4>
                             <div className="h-[280px] w-full">
@@ -529,8 +529,8 @@ export default function AbonoAnalyticsPage() {
                         </div>
 
                         {/* CHART 2: STATUS PIE */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-xl relative">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-none relative">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Activity className="w-4 h-4" /> Status dos Benefícios
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
@@ -545,15 +545,15 @@ export default function AbonoAnalyticsPage() {
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div className="absolute top-[48%] left-1/2 -translate-x-1/2 flex flex-col items-center">
-                                    <span className="text-2xl font-black text-[#1A3351]">{filteredRecords.length}</span>
-                                    <span className="text-[8px] font-black text-black/30 uppercase leading-none">Abonos</span>
+                                    <span className="text-2xl font-bold text-[#1A3351]">{filteredRecords.length}</span>
+                                    <span className="text-[8px] font-bold text-black/30 uppercase leading-none">Abonos</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* CHART 3: NATUREZA DO CARGO PIE */}
-                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-xl relative">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                        <div className="bg-white p-5 shadow-sm border border-black/5 lg:col-span-4 rounded-none relative">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Natureza do Cargo
                             </h4>
                             <div className="h-[280px] w-full flex items-center justify-center">
@@ -573,8 +573,8 @@ export default function AbonoAnalyticsPage() {
                         </div>
 
                         {/* CHART 4: SECRETARIA BAR RANKING */}
-                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8 rounded-xl">
-                            <h4 className="text-[10px] font-black uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
+                        <div className="bg-white p-6 shadow-sm border border-black/5 lg:col-span-8 rounded-none">
+                            <h4 className="text-[10px] font-bold uppercase tracking-tight text-[#1A3351] mb-6 flex items-center gap-2">
                                 <Building2 className="w-4 h-4" /> Distribuição por Secretaria (Ranking)
                             </h4>
                             <div className="h-[350px] w-full">

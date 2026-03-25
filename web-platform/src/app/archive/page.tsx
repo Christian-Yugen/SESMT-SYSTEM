@@ -308,10 +308,10 @@ export default function ArchivePage() {
                 {/* HEADER */}
                 <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
-                        <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Arquivo Médico</h2>
+                        <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Arquivo Médico</h2>
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                            className="lg:hidden h-10 px-4 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2 rounded-none"
                         >
                             <Menu className="w-5 h-5" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -326,7 +326,7 @@ export default function ArchivePage() {
                             <div className="flex gap-2 w-full lg:w-auto">
                                 <button
                                     onClick={() => setSearchType('nome')}
-                                    className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg font-bold text-xs lg:text-sm uppercase transition-all shadow-sm ${searchType === 'nome'
+                                    className={`flex-1 lg:flex-none h-10 px-4 font-bold text-xs lg:text-sm uppercase transition-all shadow-sm rounded-none ${searchType === 'nome'
                                         ? 'bg-[#1A3351] text-white shadow-md'
                                         : 'bg-white/50 text-slate-700 hover:bg-white/80'
                                         }`}
@@ -335,7 +335,7 @@ export default function ArchivePage() {
                                 </button>
                                 <button
                                     onClick={() => setSearchType('cpf')}
-                                    className={`flex-1 lg:flex-none px-4 py-2.5 rounded-lg font-bold text-xs lg:text-sm uppercase transition-all shadow-sm ${searchType === 'cpf'
+                                    className={`flex-1 lg:flex-none h-10 px-4 font-bold text-xs lg:text-sm uppercase transition-all shadow-sm rounded-none ${searchType === 'cpf'
                                         ? 'bg-[#1A3351] text-white shadow-md'
                                         : 'bg-white/50 text-slate-700 hover:bg-white/80'
                                         }`}
@@ -347,7 +347,7 @@ export default function ArchivePage() {
                                 <input
                                     type="text"
                                     placeholder={searchType === 'nome' ? "Digite o nome..." : "Digite o CPF..."}
-                                    className="flex-1 min-w-0 px-4 py-2.5 border-2 border-[#888] shadow-inner text-sm lg:text-base font-normal bg-white outline-none focus:border-[#1A3351] rounded-lg uppercase"
+                                    className="flex-1 h-10 min-w-0 px-4 border-2 border-[#888] shadow-inner text-sm lg:text-base font-normal bg-white outline-none focus:border-[#1A3351] uppercase rounded-none"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -355,7 +355,7 @@ export default function ArchivePage() {
                                 <button
                                     onClick={handleSearch}
                                     disabled={loading}
-                                    className="px-6 lg:px-8 py-2.5 bg-[#1A3351] text-white font-black rounded-lg shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase flex items-center justify-center disabled:opacity-50"
+                                    className="h-10 px-6 lg:px-8 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase flex items-center justify-center disabled:opacity-50 rounded-none"
                                 >
                                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                                 </button>
@@ -365,11 +365,11 @@ export default function ArchivePage() {
                 </section>
 
                 {/* RESULTADOS */}
-                <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
+                <div className="flex-1 p-4 lg:p-6 overflow-y-auto font-bold uppercase">
                     {folders.length === 0 && !loading && (
                         <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-50 py-12">
                             <Archive className="w-20 lg:w-24 h-20 lg:h-24 mb-4" />
-                            <p className="text-lg lg:text-xl font-black uppercase tracking-wider text-center">Aguardando Pesquisa</p>
+                            <p className="text-lg lg:text-xl font-bold uppercase tracking-wider text-center">Aguardando Pesquisa</p>
                             <p className="text-[10px] lg:text-sm mt-2 text-center uppercase tracking-widest font-bold">Localize prontuários pela barra de busca</p>
                         </div>
                     )}
@@ -379,11 +379,11 @@ export default function ArchivePage() {
                             <div
                                 key={folder.id}
                                 onClick={() => handleSelectFolder(folder)}
-                                className="bg-white rounded-xl shadow-lg border-2 border-slate-300 p-4 lg:p-6 hover:border-[#1A3351] transition-all cursor-pointer group flex flex-col justify-between"
+                                className="bg-white shadow-lg border-2 border-slate-300 p-4 lg:p-6 hover:border-[#1A3351] transition-all cursor-pointer group flex flex-col justify-between rounded-none"
                             >
                                 <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base lg:text-lg font-black text-[#1A3351] uppercase group-hover:text-[#E31E24] transition-colors truncate">
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <h3 className="text-base lg:text-lg font-bold text-[#1A3351] uppercase group-hover:text-[#E31E24] transition-colors truncate">
                                             {folder.servidor_nome}
                                         </h3>
                                         <p className="text-[10px] lg:text-xs text-slate-500 font-bold mt-1 uppercase">CPF: {folder.servidor_cpf}</p>
@@ -396,26 +396,26 @@ export default function ArchivePage() {
                                 </div>
 
                                 {folder.status === 'ARQUIVADO' ? (
-                                    <div className="bg-green-50 border-l-4 border-green-600 p-3 lg:p-4 rounded-lg">
-                                        <p className="text-[10px] lg:text-xs font-black text-green-900 uppercase mb-2">✓ Disponível no Arquivo</p>
-                                        <div className="grid grid-cols-3 gap-1.5 lg:gap-2 text-center">
-                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                    <div className="bg-green-50 border-l-4 border-green-600 p-3 lg:p-4 rounded-none">
+                                        <p className="text-[10px] lg:text-xs font-bold text-green-900 uppercase mb-2">✓ Disponível no Arquivo</p>
+                                        <div className="grid grid-cols-3 gap-1.5 lg:gap-2 text-center text-black">
+                                            <div className="bg-white p-2 border border-green-100 rounded-none">
                                                 <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Armário</p>
-                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.armario}</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-[#1A3351]">{folder.armario}</p>
                                             </div>
-                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                            <div className="bg-white p-2 border border-green-100 rounded-none">
                                                 <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
-                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.gaveta}</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-[#1A3351]">{folder.gaveta}</p>
                                             </div>
-                                            <div className="bg-white p-2 rounded lg:shadow-sm border border-green-100">
+                                            <div className="bg-white p-2 border border-green-100 rounded-none">
                                                 <p className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
-                                                <p className="text-xl lg:text-2xl font-black text-[#1A3351]">{folder.pasta}</p>
+                                                <p className="text-xl lg:text-2xl font-bold text-[#1A3351]">{folder.pasta}</p>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-orange-50 border-l-4 border-orange-600 p-3 lg:p-4 rounded-lg">
-                                        <p className="text-[10px] lg:text-xs font-black text-orange-900 uppercase mb-2 block">⚠ Em Posse de:</p>
+                                    <div className="bg-orange-50 border-l-4 border-orange-600 p-3 lg:p-4 text-left rounded-none">
+                                        <p className="text-[10px] lg:text-xs font-bold text-orange-900 uppercase mb-2 block">⚠ Em Posse de:</p>
                                         <p className="text-sm font-bold text-slate-900 truncate uppercase">{folder.posse_nome}</p>
                                         <p className="text-[10px] text-slate-600 mt-2 italic leading-tight line-clamp-2 uppercase">Motivo: {folder.motivo_saida}</p>
                                         <p className="text-[8px] lg:text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-tighter">
@@ -432,7 +432,7 @@ export default function ArchivePage() {
                                                 setSelectedFolder(folder);
                                                 setShowWithdrawModal(true);
                                             }}
-                                            className="flex-1 px-3 py-2.5 bg-[#1A3351] text-white text-[10px] lg:text-xs font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
+                                            className="flex-1 h-10 bg-[#1A3351] text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
                                         >
                                             Retirada
                                         </button>
@@ -443,7 +443,7 @@ export default function ArchivePage() {
                                                 setSelectedFolder(folder);
                                                 setShowReturnModal(true);
                                             }}
-                                            className="flex-1 px-3 py-2.5 bg-green-600 text-white text-[10px] lg:text-xs font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
+                                            className="flex-1 h-10 bg-green-600 text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
                                         >
                                             Devolução
                                         </button>
@@ -454,7 +454,7 @@ export default function ArchivePage() {
                                             handleSelectFolder(folder);
                                             setShowHistoryModal(true);
                                         }}
-                                        className="px-3 py-2.5 bg-slate-600 text-white text-[10px] font-bold uppercase rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md"
+                                        className="w-12 h-10 bg-slate-600 text-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
                                     >
                                         <Clock className="w-4 h-4" />
                                     </button>
@@ -468,40 +468,40 @@ export default function ArchivePage() {
             {/* MODAL: REGISTRAR RETIRADA */}
             {
                 showWithdrawModal && selectedFolder && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div className="bg-[#D3D3D3] w-full max-w-xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
-                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Retirada</h3>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-black">
+                        <div className="bg-[#D3D3D3] w-full max-w-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden rounded-none">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center text-white">
+                                <h3 className="text-xl font-bold uppercase tracking-tight">Registrar Retirada</h3>
                                 <button onClick={() => setShowWithdrawModal(false)} className="text-white/70 hover:text-white transition-colors">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
                             <div className="p-6 space-y-4">
-                                <div className="bg-white p-4 rounded border-l-4 border-[#1A3351]">
-                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                <div className="bg-white p-4 border-l-4 border-[#1A3351] rounded-none">
+                                    <p className="text-sm font-bold text-slate-700 uppercase mb-1">Prontuário de:</p>
                                     <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-black uppercase text-slate-700">Quem está retirando?*</label>
+                                    <label className="text-xs font-bold uppercase text-slate-700">Quem está retirando?*</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
+                                        className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase rounded-none"
                                         value={withdrawData.servidor_nome}
                                         onChange={(e) => setWithdrawData({ ...withdrawData, servidor_nome: e.target.value })}
-                                        placeholder="Ex: Dr. João Silva"
+                                        placeholder="EX: DR. JOÃO SILVA"
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-black uppercase text-slate-700">Motivo da retirada*</label>
+                                    <label className="text-xs font-bold uppercase text-slate-700">Motivo da retirada*</label>
                                     <textarea
-                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
+                                        className="w-full px-4 py-2 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none uppercase rounded-none"
                                         rows={3}
                                         value={withdrawData.motivo}
                                         onChange={(e) => setWithdrawData({ ...withdrawData, motivo: e.target.value })}
-                                        placeholder="Ex: Avaliação médica periódica"
+                                        placeholder="EX: AVALIAÇÃO MÉDICA PERIÓDICA"
                                     />
                                 </div>
                             </div>
@@ -509,13 +509,13 @@ export default function ArchivePage() {
                             <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
                                 <button
                                     onClick={() => setShowWithdrawModal(false)}
-                                    className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                    className="px-8 h-10 bg-[#E31E24] text-white font-bold uppercase shadow-md hover:brightness-110 active:scale-95 transition-all text-sm rounded-none"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleWithdraw}
-                                    className="px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                    className="px-8 h-10 bg-[#1A3351] text-white font-bold uppercase shadow-md hover:brightness-110 active:scale-95 transition-all text-sm rounded-none"
                                 >
                                     Confirmar Retirada
                                 </button>
@@ -528,69 +528,69 @@ export default function ArchivePage() {
             {/* MODAL: REGISTRAR DEVOLUÇÃO */}
             {
                 showReturnModal && selectedFolder && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div className="bg-[#D3D3D3] w-full max-w-2xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden">
-                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Registrar Devolução</h3>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-black">
+                        <div className="bg-[#D3D3D3] w-full max-w-2xl shadow-2xl border-2 border-[#1A3351] overflow-hidden rounded-none">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center text-white">
+                                <h3 className="text-xl font-bold uppercase tracking-tight">Registrar Devolução</h3>
                                 <button onClick={() => setShowReturnModal(false)} className="text-white/70 hover:text-white transition-colors">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
                             <div className="p-6 space-y-4">
-                                <div className="bg-white p-4 rounded border-l-4 border-green-600">
-                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                <div className="bg-white p-4 border-l-4 border-green-600 rounded-none">
+                                    <p className="text-sm font-bold text-slate-700 uppercase mb-1">Prontuário de:</p>
                                     <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
                                     <p className="text-xs text-slate-600 mt-2">Estava com: {selectedFolder.posse_nome}</p>
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-black uppercase text-slate-700">Anotações/Mudanças durante a posse*</label>
+                                    <label className="text-xs font-bold uppercase text-slate-700">Anotações/Mudanças durante a posse*</label>
                                     <textarea
-                                        className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none"
+                                        className="w-full px-4 py-2 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] resize-none uppercase rounded-none"
                                         rows={4}
                                         value={returnData.anotacoes}
                                         onChange={(e) => setReturnData({ ...returnData, anotacoes: e.target.value })}
-                                        placeholder="Ex: Adicionados 3 novos laudos de exames complementares"
+                                        placeholder="EX: ADICIONADOS 3 NOVOS LAUDOS DE EXAMES COMPLEMENTARES"
                                     />
                                 </div>
 
                                 <div className="border-t pt-4">
-                                    <p className="text-sm font-black text-slate-700 uppercase mb-3">A pasta retornará para o local original?</p>
+                                    <p className="text-sm font-bold text-slate-700 uppercase mb-3">A pasta retornará para o local original?</p>
                                     <div className="grid grid-cols-3 gap-3 mb-3">
-                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                        <div className="bg-white p-3 text-center border-2 border-[#1A3351] rounded-none">
                                             <p className="text-[10px] font-bold text-slate-500 uppercase">Armário</p>
-                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.armario}</p>
+                                            <p className="text-xl font-bold text-[#1A3351]">{selectedFolder.armario}</p>
                                         </div>
-                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                        <div className="bg-white p-3 text-center border-2 border-[#1A3351] rounded-none">
                                             <p className="text-[10px] font-bold text-slate-500 uppercase">Gaveta</p>
-                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.gaveta}</p>
+                                            <p className="text-xl font-bold text-[#1A3351]">{selectedFolder.gaveta}</p>
                                         </div>
-                                        <div className="bg-white p-3 rounded text-center border-2 border-[#1A3351]">
+                                        <div className="bg-white p-3 text-center border-2 border-[#1A3351] rounded-none">
                                             <p className="text-[10px] font-bold text-slate-500 uppercase">Pasta</p>
-                                            <p className="text-xl font-black text-[#1A3351]">{selectedFolder.pasta}</p>
+                                            <p className="text-xl font-bold text-[#1A3351]">{selectedFolder.pasta}</p>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-600 mb-3">Ou realocar para novo endereço:</p>
+                                    <p className="text-xs text-slate-600 mb-3 uppercase font-bold tracking-tight">Ou realocar para novo endereço:</p>
                                     <div className="grid grid-cols-3 gap-3">
                                         <input
                                             type="number"
                                             placeholder="Armário"
-                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            className="h-10 px-3 bg-white border border-slate-400 text-center font-bold outline-none focus:border-[#1A3351] rounded-none"
                                             value={returnData.novo_armario}
                                             onChange={(e) => setReturnData({ ...returnData, novo_armario: e.target.value })}
                                         />
                                         <input
                                             type="number"
                                             placeholder="Gaveta"
-                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            className="h-10 px-3 bg-white border border-slate-400 text-center font-bold outline-none focus:border-[#1A3351] rounded-none"
                                             value={returnData.nova_gaveta}
                                             onChange={(e) => setReturnData({ ...returnData, nova_gaveta: e.target.value })}
                                         />
                                         <input
                                             type="number"
                                             placeholder="Pasta"
-                                            className="px-3 py-2 bg-white border border-slate-400 rounded text-center font-bold outline-none focus:border-[#1A3351]"
+                                            className="h-10 px-3 bg-white border border-slate-400 text-center font-bold outline-none focus:border-[#1A3351] rounded-none"
                                             value={returnData.nova_pasta}
                                             onChange={(e) => setReturnData({ ...returnData, nova_pasta: e.target.value })}
                                         />
@@ -601,13 +601,13 @@ export default function ArchivePage() {
                             <div className="p-4 bg-[#B0B0B0] flex justify-end gap-4 border-t border-slate-400">
                                 <button
                                     onClick={() => setShowReturnModal(false)}
-                                    className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                    className="px-8 h-10 bg-[#E31E24] text-white font-bold uppercase shadow-md hover:brightness-110 active:scale-95 transition-all text-sm rounded-none"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleReturn}
-                                    className="px-8 py-2 bg-green-600 text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                    className="px-8 h-10 bg-green-600 text-white font-bold uppercase shadow-md hover:brightness-110 active:scale-95 transition-all text-sm rounded-none"
                                 >
                                     Confirmar Devolução
                                 </button>
@@ -620,18 +620,18 @@ export default function ArchivePage() {
             {/* MODAL: HISTÓRICO */}
             {
                 showHistoryModal && selectedFolder && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div className="bg-[#D3D3D3] w-full max-w-3xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden max-h-[90vh] flex flex-col">
-                            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-                                <h3 className="text-xl font-black uppercase tracking-tight text-white">Histórico de Movimentações</h3>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-black">
+                        <div className="bg-[#D3D3D3] w-full max-w-3xl shadow-2xl border-2 border-[#1A3351] overflow-hidden max-h-[90vh] flex flex-col rounded-none">
+                            <div className="bg-[#1A3351] p-4 flex justify-between items-center text-white">
+                                <h3 className="text-xl font-bold uppercase tracking-tight">Histórico de Movimentações</h3>
                                 <button onClick={() => setShowHistoryModal(false)} className="text-white/70 hover:text-white transition-colors">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
                             <div className="p-6 flex-1 overflow-y-auto">
-                                <div className="bg-white p-4 rounded border-l-4 border-[#1A3351] mb-6">
-                                    <p className="text-sm font-black text-slate-700 uppercase mb-1">Prontuário de:</p>
+                                <div className="bg-white p-4 border-l-4 border-[#1A3351] mb-6 rounded-none">
+                                    <p className="text-sm font-bold text-slate-700 uppercase mb-1">Prontuário de:</p>
                                     <p className="text-lg font-bold text-[#1A3351]">{selectedFolder.servidor_nome}</p>
                                 </div>
 
@@ -644,9 +644,9 @@ export default function ArchivePage() {
                                     <div className="relative">
                                         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-slate-300"></div>
                                         <div className="space-y-6">
-                                            {folderLogs.map((log, index) => (
+                                            {folderLogs.map((log) => (
                                                 <div key={log.id} className="relative pl-16">
-                                                    <div className={`absolute left-0 w-12 h-12 rounded-full flex items-center justify-center ${log.tipo_acao === 'RETIRADA'
+                                                    <div className={`absolute left-0 w-12 h-12 flex items-center justify-center rounded-none ${log.tipo_acao === 'RETIRADA'
                                                         ? 'bg-orange-600'
                                                         : 'bg-green-600'
                                                         }`}>
@@ -656,10 +656,10 @@ export default function ArchivePage() {
                                                             <CheckCircle className="w-6 h-6 text-white" />
                                                         )}
                                                     </div>
-                                                    <div className="bg-white p-4 rounded-lg shadow border border-slate-200">
+                                                    <div className="bg-white p-4 shadow border border-slate-200 rounded-none">
                                                         <div className="flex justify-between items-start mb-2">
                                                             <div>
-                                                                <p className={`text-sm font-black uppercase ${log.tipo_acao === 'RETIRADA' ? 'text-orange-700' : 'text-green-700'
+                                                                <p className={`text-sm font-bold uppercase ${log.tipo_acao === 'RETIRADA' ? 'text-orange-700' : 'text-green-700'
                                                                     }`}>
                                                                     {log.tipo_acao === 'RETIRADA' ? '⬆ Retirada' : '⬇ Devolução'}
                                                                 </p>
@@ -668,11 +668,11 @@ export default function ArchivePage() {
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <div className="space-y-2 text-sm">
+                                                        <div className="space-y-2 text-sm uppercase">
                                                             <p><span className="font-bold text-slate-700">Servidor:</span> {log.servidor_nome}</p>
                                                             <p><span className="font-bold text-slate-700">Motivo:</span> {log.motivo}</p>
                                                             {log.anotacoes_devolucao && (
-                                                                <div className="bg-green-50 p-3 rounded border-l-2 border-green-600 mt-2">
+                                                                <div className="bg-green-50 p-3 border-l-2 border-green-600 mt-2 rounded-none">
                                                                     <p className="font-bold text-green-900 text-xs uppercase mb-1">Anotações da Devolução:</p>
                                                                     <p className="text-slate-700">{log.anotacoes_devolucao}</p>
                                                                 </div>
@@ -689,7 +689,7 @@ export default function ArchivePage() {
                             <div className="p-4 bg-[#B0B0B0] border-t border-slate-400">
                                 <button
                                     onClick={() => setShowHistoryModal(false)}
-                                    className="w-full px-8 py-2 bg-[#1A3351] text-white font-black uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm"
+                                    className="w-full h-10 bg-[#1A3351] text-white font-bold uppercase shadow-md hover:brightness-110 active:scale-95 transition-all text-sm rounded-none"
                                 >
                                     Fechar
                                 </button>
@@ -698,6 +698,6 @@ export default function ArchivePage() {
                     </div>
                 )
             }
-        </div >
+        </div>
     );
 }

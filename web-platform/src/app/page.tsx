@@ -370,7 +370,7 @@ export default function Home() {
     return (
       <div className="h-screen w-full bg-[#0A111C] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-        <p className="text-white/40 uppercase tracking-[0.3em] font-bold text-[10px]">Autenticando...</p>
+        <p className="text-white/40 uppercase tracking-[0.3em] font-semibold text-[10px]">Autenticando...</p>
       </div>
     );
   }
@@ -394,10 +394,10 @@ export default function Home() {
         {/* BUSCAR SERVIDOR (HEADER) COM LINHA VERMELHA NA BASE */}
         <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
           <div className="flex justify-between items-center mb-1">
-            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
+            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+              className="lg:hidden h-10 px-4 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2 rounded-none"
             >
               <Menu className="w-5 h-5" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -408,17 +408,17 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="000.000.000-00"
-                className="w-full md:w-80 px-4 py-2 border border-[#888] shadow-inner text-base font-normal bg-[#E8E8E8] outline-none"
+                className="w-full md:w-80 px-4 h-10 border border-[#888] shadow-inner text-base font-medium bg-[#E8E8E8] outline-none rounded-none focus:border-[#1A3351]"
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <div className="flex gap-2">
-                <button onClick={handleSearch} className="flex-1 md:flex-none px-6 md:px-10 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10">Buscar</button>
+              <div className="flex gap-2 h-10">
+                <button onClick={handleSearch} className="flex-1 md:flex-none px-6 md:px-10 h-full bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10 rounded-none">Buscar</button>
                 {userRole !== 'analytic_manager' && userRole !== 'viewer' && (
                   <button
                     onClick={() => setShowManualModal(true)}
-                    className="flex-1 md:flex-none px-4 md:px-8 py-2 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10"
+                    className="flex-1 md:flex-none px-4 md:px-8 h-full bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-sm uppercase border border-black/10 rounded-none"
                   >
                     Inclusão Manual
                   </button>
@@ -436,62 +436,62 @@ export default function Home() {
 
             {/* DADOS DO SERVIDOR */}
             <div className="shrink-0">
-              <h2 className="text-xl lg:text-2xl font-black mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Dados do Servidor</h2>
+              <h2 className="text-xl lg:text-2xl font-bold mb-4 leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Dados do Servidor</h2>
               <div className="space-y-4 lg:space-y-3 text-sm lg:text-base leading-snug pl-1 lg:pl-2">
                 <div className="flex gap-4 items-baseline">
-                  <span className="font-black text-slate-900 w-32 shrink-0">Matrícula:</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Matrícula:</span>
                   <div className="flex gap-2 items-center">
-                    <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
+                    <span className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Matrícula || "---"}</span>
                     {selectedServidor?.contrato && (
-                      <span className="bg-[#E31E24]/10 text-[#E31E24] text-[10px] px-2 py-0.5 rounded font-black border border-[#E31E24]/20 uppercase">Contrato {selectedServidor.contrato}</span>
+                      <span className="bg-[#E31E24]/10 text-[#E31E24] text-[10px] px-2 py-0.5 font-bold border border-[#E31E24]/20 uppercase">Contrato {selectedServidor.contrato}</span>
                     )}
                   </div>
                 </div>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-black text-slate-900 w-32 shrink-0">Data Nasc.:</span>
-                  <span className="font-normal text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{formatBirthInfo(selectedServidor?.["Dt.Nascimento"] || selectedServidor?.Nascimento)}</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Data Nasc.:</span>
+                  <span className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-4 decoration-1">{formatBirthInfo(selectedServidor?.["Dt.Nascimento"] || selectedServidor?.Nascimento)}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-black text-slate-900 w-32 shrink-0">Nome:</span>
-                  <span className="font-normal text-slate-700 uppercase underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Nome || "---"}</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Nome:</span>
+                  <span className="font-semibold text-slate-700 uppercase underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Nome || "---"}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-black text-slate-900 w-32 shrink-0">Cargo:</span>
-                  <span className="font-normal text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Cargo || "---"}</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Cargo:</span>
+                  <span className="font-semibold text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Cargo || "---"}</span>
                 </p>
                 <p className="flex gap-4 items-baseline">
-                  <span className="font-black text-slate-900 w-32 shrink-0">Secretaria:</span>
-                  <span className="font-normal text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Secretaria || "---"}</span>
+                  <span className="font-medium text-slate-500 w-32 shrink-0 uppercase text-[10px]">Secretaria:</span>
+                  <span className="font-semibold text-slate-700 uppercase leading-tight underline decoration-slate-300 underline-offset-4 decoration-1">{selectedServidor?.Secretaria || "---"}</span>
                 </p>
               </div>
             </div>
 
             {/* DEFINIÇÃO DE GHE */}
             <div className="flex-1 flex flex-col gap-4 min-h-0">
-              <h2 className="text-xl lg:text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Definição de GHE</h2>
+              <h2 className="text-xl lg:text-2xl font-bold leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 text-[#1A3351]">Definição de GHE</h2>
               <div className="flex flex-col gap-5 min-h-0">
                 <div className="pl-2">
-                  <p className="text-sm font-black mb-2 uppercase text-slate-900">Função Laboral:</p>
+                  <p className="text-[10px] font-bold mb-2 uppercase text-slate-500">Função Laboral:</p>
                   <div className="relative w-full max-w-xl">
                     <input
                       type="text"
-                      className="w-full px-4 py-2 border border-[#888] shadow-inner text-base font-normal bg-[#E8E8E8] uppercase tracking-tight focus:border-[#1A3351]"
+                      className="w-full px-4 h-10 border border-[#888] shadow-inner text-base font-medium bg-[#E8E8E8] uppercase tracking-tight focus:border-[#1A3351] outline-none rounded-none"
                       value={functionSearch}
                       onChange={(e) => setFunctionSearch(e.target.value)}
                     />
                     {filteredFuncoes.length > 0 && (
-                      <div className="absolute z-20 w-full mt-0.5 bg-[#E8E8E8] border-2 border-[#888] shadow-2xl max-h-56 overflow-y-auto">
+                      <div className="absolute z-20 w-full mt-0 bg-[#E8E8E8] border-2 border-[#888] shadow-2xl max-h-56 overflow-y-auto rounded-none">
                         {filteredFuncoes.map((f, i) => (
                           <button
                             key={i}
-                            className="w-full text-left px-4 py-3 hover:bg-[#1A3351] hover:text-white border-b border-slate-300 last:border-0 font-black text-sm uppercase transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-[#1A3351] hover:text-white border-b border-slate-300 last:border-0 font-bold text-sm uppercase transition-colors"
                             onClick={() => {
                               setSelectedFuncao(f);
                               setFunctionSearch(`${f.Cod} - ${f.Nome || f.FUNÇÃO}`);
                             }}
                           >
-                            <span className="text-[#1A3351] font-black mr-4 group-hover:text-white">[{f.Cod}]</span>
-                            <span className="font-normal">{(f.Nome || f.FUNÇÃO)}</span>
+                            <span className="text-[#1A3351] font-bold mr-4 group-hover:text-white">[{f.Cod}]</span>
+                            <span className="font-medium">{(f.Nome || f.FUNÇÃO)}</span>
                           </button>
                         ))}
                       </div>
@@ -500,10 +500,10 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-4 lg:space-y-3 text-sm lg:text-base pl-1 lg:pl-2">
-                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-black text-slate-900 w-full sm:w-48 shrink-0">GHE Correspondente:</span> <span className="text-[#1A3351] font-bold lg:font-normal text-lg lg:text-xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
+                  <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline"><span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[10px]">GHE Correspondente:</span> <span className="text-[#1A3351] font-bold text-lg lg:text-xl underline decoration-slate-300 underline-offset-4 decoration-1">{selectedFuncao?.GHE || "---"}</span></p>
                   <p className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-baseline">
-                    <span className="font-black text-slate-900 w-full sm:w-48 shrink-0">GHE CONJ:</span>
-                    <span className="text-slate-600 font-normal underline underline-offset-4 decoration-slate-300 decoration-1 tracking-wide">
+                    <span className="font-medium text-slate-500 w-full sm:w-48 shrink-0 uppercase text-[10px]">GHE CONJ:</span>
+                    <span className="text-slate-600 font-semibold underline underline-offset-4 decoration-slate-300 decoration-1 tracking-wide">
                       {selectedFuncao?.["GHE CONJ"]
                         ? (selectedFuncao["GHE CONJ"].toString().toUpperCase().startsWith("ACT")
                           ? selectedFuncao["GHE CONJ"]
@@ -514,13 +514,13 @@ export default function Home() {
                 </div>
 
                 <div className="pl-2">
-                  <p className="text-sm font-black mb-2 uppercase text-slate-900">Tipo de Exame Requerido:</p>
-                  <div className="flex flex-wrap bg-[#888] border-2 border-[#888] rounded-md overflow-hidden w-full sm:w-fit shadow-md">
+                  <p className="text-[10px] font-bold mb-2 uppercase text-slate-500">Tipo de Exame Requerido:</p>
+                  <div className="flex flex-wrap bg-[#888] border-2 border-[#888] overflow-hidden w-full sm:w-fit shadow-md rounded-none">
                     {(["Admissional", "de Retorno ao Trabalho", "Demissional"] as const).map((type) => (
                       <button
                         key={type}
                         onClick={() => setAsoType(type)}
-                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 text-[10px] sm:text-xs font-black transition-all border-r last:border-0 border-[#777] uppercase tracking-tighter ${asoType === type ? "bg-[#1A3351] text-white shadow-inner" : "text-white/70 hover:text-white hover:bg-white/10"
+                        className={`flex-1 sm:flex-none px-4 sm:px-8 h-10 text-[10px] sm:text-xs font-bold transition-all border-r last:border-0 border-[#777] uppercase tracking-tighter rounded-none ${asoType === type ? "bg-[#1A3351] text-white shadow-inner" : "text-white/70 hover:text-white hover:bg-white/10"
                           }`}
                       >
                         {type === "de Retorno ao Trabalho" ? "Retorno ao Trabalho" : type}
@@ -540,40 +540,40 @@ export default function Home() {
 
           {/* COLUNA DIREITA (EXAMES E RISCOS) */}
           <div className="col-span-12 xl:col-span-6 flex flex-col gap-4 min-h-0 overflow-hidden text-black pb-10 xl:pb-0">
-            <h2 className="text-xl lg:text-2xl font-black leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 shrink-0 text-[#1A3351]">Exames e Riscos</h2>
+            <h2 className="text-xl lg:text-2xl font-bold leading-none uppercase tracking-tight border-b-2 border-[#999] pb-2 shrink-0 text-[#1A3351]">Exames e Riscos</h2>
 
             <div className="flex-1 flex flex-col gap-3 overflow-hidden">
               {/* RISCOS E DETALHES */}
               <div className="shrink-0 space-y-3">
                 <div>
-                  <p className="text-[13px] font-black text-slate-900 mb-1.5 uppercase tracking-wider pl-1">Riscos Ocupacionais:</p>
-                  <div className="w-full p-4 bg-[#E8E8E8] border border-[#BBB] font-normal text-sm text-slate-800 rounded shadow-inner uppercase min-h-[44px] flex items-center leading-tight">
+                  <p className="text-[10px] font-medium text-slate-500 mb-1.5 uppercase tracking-wider pl-1">Riscos Ocupacionais:</p>
+                  <div className="w-full p-4 bg-[#E8E8E8] border border-[#BBB] font-semibold text-sm text-slate-800 shadow-inner uppercase min-h-[44px] flex items-center leading-tight">
                     {selectedFuncao ? currentExams.riscos : ""}
                   </div>
                 </div>
                 <div>
-                  <p className="text-[13px] font-black text-slate-900 mb-1.5 uppercase tracking-wider pl-1">Detalhes Adicionais:</p>
-                  <div className="w-full p-4 bg-[#E8E8E8] border border-[#BBB] font-normal text-sm text-slate-800 rounded shadow-inner uppercase min-h-[44px] flex items-center leading-tight">
+                  <p className="text-[10px] font-medium text-slate-500 mb-1.5 uppercase tracking-wider pl-1">Detalhes Adicionais:</p>
+                  <div className="w-full p-4 bg-[#E8E8E8] border border-[#BBB] font-semibold text-sm text-slate-800 shadow-inner uppercase min-h-[44px] flex items-center leading-tight">
                     {selectedFuncao ? currentExams.detalhes : ""}
                   </div>
                 </div>
               </div>
 
               <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                <p className="text-[13px] font-black text-slate-900 mb-1.5 uppercase tracking-wider pl-1">Protocolo de Exames:</p>
-                <div className="flex-1 bg-[#E8E8E8] border border-[#BBB] p-3 sm:p-5 rounded-md overflow-y-auto shadow-inner min-h-[150px]">
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 font-normal text-[13px] text-slate-900">
+                <p className="text-[10px] font-medium text-slate-500 mb-1.5 uppercase tracking-wider pl-1">Protocolo de Exames:</p>
+                <div className="flex-1 bg-[#E8E8E8] border border-[#BBB] p-3 sm:p-5 overflow-y-auto shadow-inner min-h-[150px]">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 font-semibold text-[13px] text-slate-900">
                     {selectedFuncao && currentExams.exames.length > 0 ? (
                       currentExams.exames.map((ex, i) => (
                         <li key={i} className="flex items-center gap-3 border-b border-slate-300 pb-1.5 last:border-0 uppercase tracking-tight leading-none group text-[11px] sm:text-[13px]">
-                          <span className="text-[#1A3351] font-black text-xl leading-none">•</span>
+                          <span className="text-[#1A3351] font-bold text-xl leading-none">•</span>
                           <span className="truncate group-hover:text-[#1A3351] transition-colors">{ex}</span>
                         </li>
                       ))
                     ) : (
                       <div className="col-span-1 sm:col-span-2 h-full flex flex-col items-center justify-center text-slate-400 opacity-50 py-10">
                         <Activity className="w-12 h-12 mb-4" />
-                        <p className="font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-sm sm:text-base text-center">Aguardando Seleção</p>
+                        <p className="font-bold uppercase tracking-[0.2em] sm:tracking-[0.4em] text-sm sm:text-base text-center">Aguardando Seleção</p>
                       </div>
                     )}
                   </ul>
@@ -581,11 +581,11 @@ export default function Home() {
               </div>
 
               {/* BOTÕES DE AÇÃO */}
-              <div className="shrink-0 pt-3 flex flex-col sm:flex-row gap-4 sm:h-[72px] pb-4 sm:pb-0">
+              <div className="shrink-0 pt-3 flex flex-col sm:flex-row gap-4 sm:h-10 pb-4 sm:pb-0">
                 <button
                   disabled={isGenerating || !selectedFuncao || userRole === 'viewer'}
                   onClick={() => requestGeneration('/generate-referral')}
-                  className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#1A3351] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-blue-950 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="w-full sm:flex-1 h-full bg-[#1A3351] text-white font-bold shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-blue-950 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer rounded-none"
                 >
                   {isGenerating ? "Gerando..." : "Gerar Encaminhamento"}
                 </button>
@@ -593,7 +593,7 @@ export default function Home() {
                   <button
                     disabled={isGenerating || !selectedFuncao}
                     onClick={() => setShowDateModal(true)}
-                    className="w-full sm:flex-1 px-4 py-4 sm:py-2 bg-[#28A745] text-white font-black rounded shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full sm:flex-1 h-full bg-[#28A745] text-white font-bold shadow-xl hover:brightness-110 active:translate-y-px transition-all text-[12px] sm:text-[13px] uppercase border-b-4 border-green-800 tracking-wider flex items-center justify-center text-center leading-tight disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer rounded-none"
                   >
                     {isGenerating ? "Gerando..." : "Gerar Arquivo ASO"}
                   </button>
@@ -608,24 +608,24 @@ export default function Home() {
       {/* MODAL DE DATAS DOS EXAMES */}
       {showDateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#D3D3D3] w-full max-w-4xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-            <div className="bg-[#1A3351] p-4 lg:p-6 flex justify-between items-center">
-              <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight text-white">Datas dos Exames</h3>
-              <button onClick={() => setShowDateModal(false)} className="text-white/70 hover:text-white transition-all bg-white/10 p-2 rounded-full">
+          <div className="bg-[#D3D3D3] w-full max-w-4xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200 rounded-none">
+            <div className="bg-[#1A3351] p-4 lg:p-6 flex justify-between items-center text-white">
+              <h3 className="text-lg lg:text-xl font-bold uppercase tracking-tight">Datas dos Exames</h3>
+              <button onClick={() => setShowDateModal(false)} className="text-white/70 hover:text-white transition-all bg-white/10 p-2 rounded-none">
                 <X className="w-5 h-5 lg:w-6 lg:h-6" />
               </button>
             </div>
 
             <div className="p-4 lg:p-8 overflow-y-auto max-h-[70vh]">
-              <p className="text-slate-700 font-black uppercase text-[10px] lg:text-sm mb-6 border-b border-slate-400 pb-2">Informe as datas (DD/MM/AAAA):</p>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <p className="text-slate-700 font-bold uppercase text-[10px] lg:text-sm mb-6 border-b border-slate-400 pb-2">Informe as datas (DD/MM/AAAA):</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-black">
                 {currentExams.exames.map((ex, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 bg-[#B0B0B0]/30 p-3 rounded-lg border border-slate-300 shadow-sm">
-                    <span className="text-[11px] lg:text-sm font-black text-slate-800 uppercase line-clamp-2 flex-1">{ex}:</span>
+                  <div key={i} className="flex items-center justify-between gap-3 bg-[#B0B0B0]/30 p-3 border border-slate-300 shadow-sm rounded-none">
+                    <span className="text-[11px] lg:text-sm font-bold text-slate-800 uppercase line-clamp-2 flex-1">{ex}:</span>
                     <input
                       type="text"
                       inputMode="numeric"
-                      className="w-28 lg:w-32 px-3 py-2 bg-white border border-slate-400 rounded-md font-bold text-center text-sm outline-none focus:border-[#1A3351] shadow-inner text-slate-900"
+                      className="w-28 lg:w-32 h-10 px-3 bg-white border border-slate-400 font-bold text-center text-sm outline-none focus:border-[#1A3351] shadow-inner text-slate-900 rounded-none"
                       value={examDates[i] || ""}
                       onChange={(e) => handleDateChange(i, e.target.value)}
                     />
@@ -638,13 +638,13 @@ export default function Home() {
               <button
                 disabled={isGenerating}
                 onClick={() => requestGeneration('/generate-aso', examDates)}
-                className="w-full lg:w-auto px-12 py-4 bg-[#28A745] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full lg:w-auto px-12 h-12 bg-[#28A745] text-white font-bold uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-green-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
               >
                 {isGenerating ? "Gerando..." : "Confirmar e Gerar ASO"}
               </button>
               <button
                 onClick={() => setShowDateModal(false)}
-                className="w-full lg:w-auto px-12 py-4 bg-[#E31E24] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900"
+                className="w-full lg:w-auto px-12 h-12 bg-[#E31E24] text-white font-bold uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900 rounded-none"
               >
                 Cancelar
               </button>
@@ -655,10 +655,10 @@ export default function Home() {
 
       {/* MODAL DE INCLUSÃO MANUAL */}
       {showManualModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#D3D3D3] w-full max-w-xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-              <h3 className="text-xl font-black uppercase tracking-tight text-white">Inclusão Manual de Servidor</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-black">
+          <div className="bg-[#D3D3D3] w-full max-w-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200 rounded-none">
+            <div className="bg-[#1A3351] p-4 flex justify-between items-center text-white">
+              <h3 className="text-xl font-bold uppercase tracking-tight">Inclusão Manual de Servidor</h3>
               <button onClick={() => setShowManualModal(false)} className="text-white/70 hover:text-white transition-colors">
                 <X className="w-6 h-6" />
               </button>
@@ -667,21 +667,21 @@ export default function Home() {
             <div className="p-8 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-black uppercase text-slate-700">CPF:</label>
+                  <label className="text-xs font-bold uppercase text-slate-700">CPF:</label>
                   <input
                     type="text"
                     placeholder="000.000.000-00"
-                    className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
+                    className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] rounded-none"
                     value={manualData.cpf}
                     onChange={(e) => setManualData({ ...manualData, cpf: e.target.value })}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-black uppercase text-slate-700">Data Nasc. (DD/MM/AAAA):</label>
+                  <label className="text-xs font-bold uppercase text-slate-700">Data Nasc. (DD/MM/AAAA):</label>
                   <input
                     type="text"
                     placeholder="01/01/1980"
-                    className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
+                    className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] rounded-none"
                     value={manualData.nascimento}
                     onChange={(e) => setManualData({ ...manualData, nascimento: e.target.value })}
                   />
@@ -689,28 +689,28 @@ export default function Home() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-black uppercase text-slate-700">Nome Completo:</label>
+                <label className="text-xs font-bold uppercase text-slate-700">Nome Completo:</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase"
+                  className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase rounded-none"
                   value={manualData.nome}
                   onChange={(e) => setManualData({ ...manualData, nome: e.target.value.toUpperCase() })}
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-black uppercase text-slate-700">Cargo:</label>
+                <label className="text-xs font-bold uppercase text-slate-700">Cargo:</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase"
+                  className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] uppercase rounded-none"
                   value={manualData.cargo}
                   onChange={(e) => setManualData({ ...manualData, cargo: e.target.value.toUpperCase() })}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-black uppercase text-slate-700">Secretaria:</label>
+                <label className="text-xs font-bold uppercase text-slate-700">Secretaria:</label>
                 <select
-                  className="w-full px-4 py-2 bg-white border border-slate-400 rounded-md font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351]"
+                  className="w-full h-10 px-4 bg-white border border-slate-400 font-normal text-slate-900 shadow-inner outline-none focus:border-[#1A3351] rounded-none"
                   value={manualData.secretaria}
                   onChange={(e) => setManualData({ ...manualData, secretaria: e.target.value })}
                 >
@@ -741,13 +741,13 @@ export default function Home() {
                   setShowManualModal(false);
                   setCpf(manualData.cpf);
                 }}
-                className="w-full sm:w-auto px-12 py-3 bg-[#1A3351] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-blue-950"
+                className="w-full sm:w-auto px-12 h-12 bg-[#1A3351] text-white font-bold uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-blue-950 rounded-none"
               >
                 Confirmar Inclusão
               </button>
               <button
                 onClick={() => setShowManualModal(false)}
-                className="w-full sm:w-auto px-12 py-3 bg-[#E31E24] text-white font-black uppercase tracking-widest rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900"
+                className="w-full sm:w-auto px-12 h-12 bg-[#E31E24] text-white font-bold uppercase tracking-widest shadow-lg hover:brightness-110 active:scale-95 transition-all text-sm border-b-4 border-red-900 rounded-none"
               >
                 Cancelar
               </button>
@@ -758,10 +758,10 @@ export default function Home() {
 
       {/* MODAL DE SELEÇÃO DE MÚLTIPLAS MATRÍCULAS */}
       {showSelectionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#D3D3D3] w-full max-w-2xl rounded-xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-            <div className="bg-[#1A3351] p-4 flex justify-between items-center">
-              <h3 className="text-xl font-black uppercase tracking-tight text-white">Múltiplas Matrículas Encontradas</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-black">
+          <div className="bg-[#D3D3D3] w-full max-w-2xl shadow-2xl border-2 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200 rounded-none">
+            <div className="bg-[#1A3351] p-4 flex justify-between items-center text-white">
+              <h3 className="text-xl font-bold uppercase tracking-tight">Múltiplas Matrículas Encontradas</h3>
               <button onClick={() => setShowSelectionModal(false)} className="text-white/70 hover:text-white transition-colors">
                 <X className="w-6 h-6" />
               </button>
@@ -777,25 +777,25 @@ export default function Home() {
                       setSelectedServidor(s);
                       setShowSelectionModal(false);
                     }}
-                    className="w-full text-left p-4 bg-white border-2 border-slate-300 rounded-lg hover:border-[#1A3351] hover:bg-slate-50 transition-all group shadow-sm flex flex-col gap-1"
+                    className="w-full text-left p-4 bg-white border-2 border-slate-300 hover:border-[#1A3351] hover:bg-slate-50 transition-all group shadow-sm flex flex-col gap-1 rounded-none"
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-black text-[#1A3351] text-lg uppercase">{s.Nome}</span>
+                      <span className="font-bold text-[#1A3351] text-lg uppercase">{s.Nome}</span>
                       <div className="flex gap-2">
                         {s.contrato && (
-                           <span className="bg-[#E31E24] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Contrato: {s.contrato}</span>
+                           <span className="bg-[#E31E24] text-white text-[10px] font-bold px-2 py-1 rounded-none uppercase tracking-wider">Contrato: {s.contrato}</span>
                         )}
-                        <span className="bg-[#1A3351] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Mat: {s.Matrícula}</span>
+                        <span className="bg-[#1A3351] text-white text-[10px] font-bold px-2 py-1 rounded-none uppercase tracking-wider">Mat: {s.Matrícula}</span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div className="flex flex-col">
-                        <span className="font-black text-slate-500 uppercase text-[9px]">Cargo:</span>
-                        <span className="font-bold text-slate-700 uppercase line-clamp-1">{s.Cargo}</span>
+                        <span className="font-bold text-slate-500 uppercase text-[9px]">Cargo:</span>
+                        <span className="font-medium text-slate-700 uppercase line-clamp-1">{s.Cargo}</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-black text-slate-500 uppercase text-[9px]">Secretaria:</span>
-                        <span className="font-bold text-slate-700 uppercase line-clamp-1">{s.Secretaria}</span>
+                        <span className="font-bold text-slate-500 uppercase text-[9px]">Secretaria:</span>
+                        <span className="font-medium text-slate-700 uppercase line-clamp-1">{s.Secretaria}</span>
                       </div>
                     </div>
                   </button>
@@ -806,7 +806,7 @@ export default function Home() {
             <div className="p-4 bg-[#B0B0B0] flex justify-end border-t border-slate-400">
               <button
                 onClick={() => setShowSelectionModal(false)}
-                className="px-8 py-2 bg-[#E31E24] text-white font-black uppercase tracking-widest rounded-lg shadow-md hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-red-900"
+                className="px-8 h-10 bg-[#E31E24] text-white font-bold uppercase tracking-widest shadow-md hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-red-900 rounded-none"
               >
                 Cancelar
               </button>
