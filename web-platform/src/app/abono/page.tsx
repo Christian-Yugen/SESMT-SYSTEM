@@ -340,7 +340,7 @@ export default function AbonoPage() {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando Abono Salarial...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando Abono Salarial...</p>
             </div>
         );
     }
@@ -371,14 +371,14 @@ export default function AbonoPage() {
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
-                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Abono Salarial</h2>
+                            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Abono Salarial</h2>
                         </div>
                         <div className="flex items-center gap-2">
                             {/* Botão de Impressão com Popover de Opções */}
                             <div className="relative">
                                 <button
                                     onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
-                                    className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
                                     <Printer className="w-4 h-4" />
                                     Gerar Relatório (PDF)
@@ -388,22 +388,22 @@ export default function AbonoPage() {
                                 {isPrintPopoverOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
                                         <div className="p-3 border-b border-slate-100 bg-slate-50">
-                                            <p className="text-[9px] font-black text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
+                                            <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">Escolha a Orientação</p>
                                         </div>
                                         <div className="p-2 space-y-1">
                                             <button
                                                 onClick={() => { setPrintLayout('portrait'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'portrait' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
                                             >
                                                 <span className="text-[10px] font-bold uppercase">↗ Vertical (Retrato)</span>
-                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                {printLayout === 'portrait' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
                                             </button>
                                             <button
                                                 onClick={() => { setPrintLayout('landscape'); setTimeout(() => { window.print(); setIsPrintPopoverOpen(false); }, 100); }}
-                                                className={`w-full text-left p-3 rounded flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
+                                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === 'landscape' ? 'bg-[#E31E24]/10 text-[#E31E24]' : 'hover:bg-slate-100 text-slate-600'}`}
                                             >
                                                 <span className="text-[10px] font-bold uppercase">➡ Horizontal (Paisagem)</span>
-                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-full bg-[#E31E24]" />}
+                                                {printLayout === 'landscape' && <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />}
                                             </button>
                                         </div>
                                     </div>
@@ -412,7 +412,7 @@ export default function AbonoPage() {
 
                             <button
                                 onClick={() => router.push('/abono/analytics')}
-                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
                                 <BarChart3 className="w-4 h-4" />
                                 Indicadores BI
@@ -420,7 +420,7 @@ export default function AbonoPage() {
                             {userRole !== 'analytic_manager' && (
                                 <button
                                     onClick={() => router.push('/abono/new')}
-                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-black rounded shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                 >
                                     <PlusCircle className="w-4 h-4" />
                                     Novo Lançamento
@@ -428,7 +428,7 @@ export default function AbonoPage() {
                             )}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                                className="lg:hidden p-2.5 bg-[#1A3351] rounded-none-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                             >
                                 <Menu className="w-5 h-5" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -471,7 +471,7 @@ export default function AbonoPage() {
                                 {isDatePopoverOpen && (
                                     <div className="absolute top-full right-0 mt-2 w-80 bg-white border-2 border-[#1A3351] shadow-2xl z-[100] p-5 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <div className="flex justify-between items-center mb-6">
-                                            <h4 className="text-sm font-black text-[#1A3351] uppercase tracking-tighter">Definir Período</h4>
+                                            <h4 className="text-sm font-bold text-[#1A3351] uppercase tracking-tighter">Definir Período</h4>
                                             <button onClick={() => setIsDatePopoverOpen(false)} className="text-slate-400 hover:text-red-500 transition-colors">
                                                 <X className="w-5 h-5" />
                                             </button>
@@ -479,11 +479,11 @@ export default function AbonoPage() {
 
                                         <div className="space-y-4">
                                             <div>
-                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Inicial (Início)</label>
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Inicial (Início)</label>
                                                 <div className="relative">
                                                     <input
                                                         type="date"
-                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded focus:border-[#1A3351] transition-colors"
+                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
                                                         value={tempStartDate}
                                                         onChange={(e) => setTempStartDate(e.target.value)}
                                                     />
@@ -491,11 +491,11 @@ export default function AbonoPage() {
                                             </div>
 
                                             <div>
-                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Data Final (Fim)</label>
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Data Final (Fim)</label>
                                                 <div className="relative">
                                                     <input
                                                         type="date"
-                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded focus:border-[#1A3351] transition-colors"
+                                                        className="w-full px-4 py-3 border border-slate-200 bg-slate-50 text-sm font-bold outline-none rounded-none focus:border-[#1A3351] transition-colors"
                                                         value={tempEndDate}
                                                         onChange={(e) => setTempEndDate(e.target.value)}
                                                     />
@@ -511,7 +511,7 @@ export default function AbonoPage() {
                                                         setEndDate("");
                                                         setIsDatePopoverOpen(false);
                                                     }}
-                                                    className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-black uppercase hover:bg-slate-50 transition-all rounded shadow-sm"
+                                                    className="flex-1 py-3 border border-slate-200 text-slate-400 text-xs font-bold uppercase hover:bg-slate-50 transition-all rounded-none shadow-sm"
                                                 >
                                                     Limpar
                                                 </button>
@@ -521,7 +521,7 @@ export default function AbonoPage() {
                                                         setEndDate(tempEndDate);
                                                         setIsDatePopoverOpen(false);
                                                     }}
-                                                    className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-black uppercase hover:brightness-110 transition-all rounded shadow-lg active:scale-[0.98]"
+                                                    className="flex-[2] py-3 bg-[#1A3351] text-white text-xs font-bold uppercase hover:brightness-110 transition-all rounded-none shadow-lg active:scale-[0.98]"
                                                 >
                                                     Filtrar Agora
                                                 </button>
@@ -576,7 +576,7 @@ export default function AbonoPage() {
                                         setNaturezaCargoFilter("all");
                                         setSearchTerm("");
                                     }}
-                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-black uppercase rounded shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
+                                    className="px-6 py-2 bg-[#E31E24] text-white text-[10px] font-bold uppercase rounded-none shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shrink-0"
                                 >
                                     <X className="w-4 h-4" /> ZERAR FILTROS
                                 </button>
@@ -592,38 +592,38 @@ export default function AbonoPage() {
                     <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
                         <div
                             onClick={() => setStatusFilter('all')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-[#1A3351] border-white text-white' : 'bg-white border-[#1A3351] text-[#1A3351]'}`}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-[#1A3351] border-white text-white' : 'bg-white border-[#1A3351] text-[#1A3351]'}`}
                         >
-                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Total Servidores</p>
-                            <h3 className="text-xl lg:text-3xl font-black">{stats.totalServidores}</h3>
+                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Total Servidores</p>
+                            <h3 className="text-xl lg:text-3xl font-bold">{stats.totalServidores}</h3>
                         </div>
                         <div
                             onClick={() => setStatusFilter('all')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-slate-500 border-white text-white' : 'bg-white border-slate-300 text-slate-500'}`}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-slate-500 border-white text-white' : 'bg-white border-slate-300 text-slate-500'}`}
                         >
-                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Benefícios</p>
-                            <h3 className="text-xl lg:text-3xl font-black">{stats.totalBenefits}</h3>
+                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'all' ? 'text-white/60' : 'text-slate-400'}`}>Benefícios</p>
+                            <h3 className="text-xl lg:text-3xl font-bold">{stats.totalBenefits}</h3>
                         </div>
                         <div
                             onClick={() => setStatusFilter('active')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'active' ? 'bg-emerald-600 border-white text-white' : 'bg-white border-emerald-500 text-emerald-600'}`}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'active' ? 'bg-emerald-600 border-white text-white' : 'bg-white border-emerald-500 text-emerald-600'}`}
                         >
-                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'active' ? 'text-white/60' : 'text-slate-400'}`}>Abonos Ativos</p>
-                            <h3 className="text-xl lg:text-3xl font-black">{stats.ativos}</h3>
+                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'active' ? 'text-white/60' : 'text-slate-400'}`}>Abonos Ativos</p>
+                            <h3 className="text-xl lg:text-3xl font-bold">{stats.ativos}</h3>
                         </div>
                         <div
                             onClick={() => setStatusFilter('expired')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'expired' ? 'bg-[#E31E24] border-white text-white' : 'bg-white border-[#E31E24] text-[#E31E24]'}`}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'expired' ? 'bg-[#E31E24] border-white text-white' : 'bg-white border-[#E31E24] text-[#E31E24]'}`}
                         >
-                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'expired' ? 'text-white/60' : 'text-slate-400'}`}>Vencidos</p>
-                            <h3 className="text-xl lg:text-3xl font-black">{stats.vencidos}</h3>
+                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'expired' ? 'text-white/60' : 'text-slate-400'}`}>Vencidos</p>
+                            <h3 className="text-xl lg:text-3xl font-bold">{stats.vencidos}</h3>
                         </div>
                         <div
                             onClick={() => setStatusFilter('finished')}
-                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'finished' ? 'bg-blue-600 border-white text-white' : 'bg-white border-blue-600 text-blue-600'}`}
+                            className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === 'finished' ? 'bg-blue-600 border-white text-white' : 'bg-white border-blue-600 text-blue-600'}`}
                         >
-                            <p className={`text-[9px] lg:text-[10px] font-black uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'finished' ? 'text-white/60' : 'text-slate-400'}`}>Finalizados</p>
-                            <h3 className="text-xl lg:text-3xl font-black">{stats.finalizados}</h3>
+                            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === 'finished' ? 'text-white/60' : 'text-slate-400'}`}>Finalizados</p>
+                            <h3 className="text-xl lg:text-3xl font-bold">{stats.finalizados}</h3>
                         </div>
                     </div>
 
@@ -631,33 +631,33 @@ export default function AbonoPage() {
                     <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                             <div>
-                                <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4">
                                 {/* Filtro de Status */}
-                                <div className="flex items-center gap-1 bg-white/50 p-1 rounded-md shadow-inner border border-black/5">
+                                <div className="flex items-center gap-1 bg-white/50 p-1 rounded-none-none shadow-inner border border-black/5">
                                     <button
                                         onClick={() => setStatusFilter('all')}
-                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'all' ? 'bg-[#1A3351] text-white' : 'text-slate-600 hover:bg-black/5'}`}
+                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'all' ? 'bg-[#1A3351] text-white' : 'text-slate-600 hover:bg-black/5'}`}
                                     >
                                         Todos
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('active')}
-                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'active' ? 'bg-green-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
+                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'active' ? 'bg-green-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
                                     >
                                         Ativos
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('expired')}
-                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'expired' ? 'bg-[#E31E24] text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
+                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'expired' ? 'bg-[#E31E24] text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
                                     >
                                         Vencidos
                                     </button>
                                     <button
                                         onClick={() => setStatusFilter('finished')}
-                                        className={`px-3 py-1 text-[9px] font-black uppercase rounded transition-all ${statusFilter === 'finished' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
+                                        className={`px-3 py-1 text-[9px] font-bold uppercase rounded-none transition-all ${statusFilter === 'finished' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-black/5'}`}
                                     >
                                         Finalizados
                                     </button>
@@ -668,11 +668,11 @@ export default function AbonoPage() {
 
                                 {/* Ordenação */}
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[9px] font-black text-slate-500 uppercase">Ordenar:</span>
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase">Ordenar:</span>
                                     <select
                                         value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value as any)}
-                                        className="bg-white/70 border border-slate-400 text-[9px] font-black uppercase px-2 py-1 outline-none shadow-sm cursor-pointer hover:bg-white transition-colors"
+                                        className="bg-white/70 border border-slate-400 text-[9px] font-bold uppercase px-2 py-1 outline-none shadow-sm cursor-pointer hover:bg-white transition-colors"
                                     >
                                         <option value="alphabetical">Ordem Alfabética</option>
                                         <option value="newest">Mais Novos</option>
@@ -689,11 +689,11 @@ export default function AbonoPage() {
                                         className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedCpf === group.cpf ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-3 rounded-full transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                            <div className={`p-3 rounded-none-none transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
                                                 <User className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <h4 className={`font-black uppercase text-[#1A3351] leading-tight transition-all ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>
+                                                <h4 className={`font-bold uppercase text-[#1A3351] leading-tight transition-all ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>
                                                     {group.nome}
                                                 </h4>
                                                 <div className="flex flex-wrap gap-4 mt-1">
@@ -708,7 +708,7 @@ export default function AbonoPage() {
                                                             <Activity className="w-3 h-3 text-slate-400" /> {group.benefits[0].natureza_cargo}
                                                         </p>
                                                     )}
-                                                    <span className="text-[10px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase">
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded-none-none uppercase">
                                                         {group.benefits.length} {group.benefits.length === 1 ? 'Benefício' : 'Benefícios'}
                                                     </span>
                                                 </div>
@@ -716,15 +716,15 @@ export default function AbonoPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {expandedCpf !== group.cpf && (
-                                                <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-lg border border-slate-200">
+                                                <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-none-none border border-slate-200">
                                                     <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Último Início</p>
-                                                        <p className="text-xs font-black text-[#1A3351]">{formatDate(group.benefits[0].inicio)}</p>
+                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Último Início</p>
+                                                        <p className="text-xs font-bold text-[#1A3351]">{formatDate(group.benefits[0].inicio)}</p>
                                                     </div>
                                                     <div className="w-px h-6 bg-slate-300" />
                                                     <div className="flex flex-col items-start leading-none">
-                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Próximo Término</p>
-                                                        <p className={`text-xs font-black ${(() => {
+                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Próximo Término</p>
+                                                        <p className={`text-xs font-bold ${(() => {
                                                             if (!group.benefits[0].inicio) return 'text-slate-400';
                                                             const parts = group.benefits[0].inicio.split('-');
                                                             const endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
@@ -750,23 +750,23 @@ export default function AbonoPage() {
                                     {expandedCpf === group.cpf && (
                                         <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
                                             <div className="space-y-6">
-                                                <h5 className="text-[11px] font-black uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
+                                                <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 
                                                 <div className="grid grid-cols-1 gap-4">
                                                     {group.benefits.map((record) => (
-                                                        <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-lg hover:border-[#1A3351]/30 transition-colors relative overflow-hidden group/card">
-                                                            <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-full group-hover/card:bg-[#1A3351]/10 transition-colors" />
+                                                        <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-none-none hover:border-[#1A3351]/30 transition-colors relative overflow-hidden group/card">
+                                                            <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-none-none group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                             <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
                                                                 <div className="space-y-1 md:col-span-2">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Vigência</p>
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Vigência</p>
                                                                     <div className="flex flex-col gap-1.5">
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-xs font-black text-slate-400 uppercase min-w-[50px]">Início:</span>
+                                                                            <span className="text-xs font-bold text-slate-400 uppercase min-w-[50px]">Início:</span>
                                                                             <span className="text-sm font-bold text-[#1A3351]">{formatDate(record.inicio)}</span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                            <span className="text-xs font-black text-slate-400 uppercase min-w-[50px]">Término:</span>
+                                                                            <span className="text-xs font-bold text-slate-400 uppercase min-w-[50px]">Término:</span>
                                                                             <span className="text-sm font-bold">
                                                                                 {record.inicio ? (() => {
                                                                                     const parts = record.inicio.split('-');
@@ -782,7 +782,7 @@ export default function AbonoPage() {
                                                                                             <span className={status === 'active' || status === 'renewed' ? 'text-green-600' : status === 'expired' ? 'text-[#E31E24]' : 'text-slate-500'}>
                                                                                                 {endDate.toLocaleDateString('pt-BR')}
                                                                                             </span>
-                                                                                            <span className={`text-[10px] px-2 py-0.5 rounded shadow-sm border font-black ${status === 'active'
+                                                                                            <span className={`text-[10px] px-2 py-0.5 rounded-none shadow-sm border font-bold ${status === 'active'
                                                                                                 ? 'bg-green-500 text-white border-green-600 animate-pulse'
                                                                                                 : status === 'renewed'
                                                                                                     ? 'bg-blue-600 text-white border-blue-700'
@@ -800,20 +800,20 @@ export default function AbonoPage() {
                                                                     </div>
                                                                 </div>
                                                                 <div className="space-y-1 md:col-span-2 text-center md:text-left">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Beneficiário e Natureza</p>
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Beneficiário e Natureza</p>
                                                                     <p className="text-sm font-bold text-slate-700 uppercase truncate">{record.beneficiario_nome || 'PRÓPRIO'}</p>
                                                                     {record.natureza_cargo && (
-                                                                        <span className="text-[10px] font-black text-[#1A3351] bg-[#1A3351]/5 px-2 py-0.5 rounded uppercase border border-[#1A3351]/10">
+                                                                        <span className="text-[10px] font-bold text-[#1A3351] bg-[#1A3351]/5 px-2 py-0.5 rounded-none uppercase border border-[#1A3351]/10">
                                                                             {record.natureza_cargo}
                                                                         </span>
                                                                     )}
                                                                     <p className="text-[8px] text-slate-400 italic mt-2">Atualizado em: {new Date(record.updated_at).toLocaleDateString('pt-BR')}</p>
                                                                 </div>
                                                                 <div className="space-y-1">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase border-b border-slate-100 pb-0.5 mb-1.5">Documento Oficial</p>
+                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase border-b border-slate-100 pb-0.5 mb-1.5">Documento Oficial</p>
                                                                     <div className="space-y-0.5">
                                                                         {record.assomasul_data && (
-                                                                            <p className="text-[10px] font-black text-[#1A3351] uppercase tracking-tighter whitespace-nowrap">
+                                                                            <p className="text-[10px] font-bold text-[#1A3351] uppercase tracking-tighter whitespace-nowrap">
                                                                                 Pub. Assomasul: {formatDate(record.assomasul_data)}
                                                                             </p>
                                                                         )}
@@ -821,7 +821,7 @@ export default function AbonoPage() {
                                                                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Nº Assomasul: {record.assomasul_numero}</p>
                                                                         )}
                                                                         <div className="h-px bg-slate-100 my-1" />
-                                                                        <p className="text-xs font-black text-[#1A3351] uppercase tracking-tighter leading-tight">{record.portaria || '---'}</p>
+                                                                        <p className="text-xs font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">{record.portaria || '---'}</p>
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex flex-col gap-2 items-end justify-center">
@@ -829,14 +829,14 @@ export default function AbonoPage() {
                                                                         <>
                                                                             <button
                                                                                 onClick={() => router.push(`/abono/edit/${record.id}`)}
-                                                                                className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32"
+                                                                                className="px-6 py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32"
                                                                             >
                                                                                 Editar Dados
                                                                             </button>
                                                                             {getBenefitStatus(record, renewalTargetIds) === 'expired' && !record.renovado_por_id && (
                                                                                 <button
                                                                                     onClick={() => router.push(`/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ''}`)}
-                                                                                    className="px-6 py-2 bg-green-600 text-white text-[10px] font-black uppercase rounded shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32 flex items-center justify-center gap-1"
+                                                                                    className="px-6 py-2 bg-green-600 text-white text-[10px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-32 flex items-center justify-center gap-1"
                                                                                 >
                                                                                     <TrendingUp className="w-3 h-3" />
                                                                                     Renovar
@@ -849,10 +849,10 @@ export default function AbonoPage() {
 
                                                             {record.observacoes && (
                                                                 <div className="mt-4 pt-4 border-t border-slate-100">
-                                                                    <p className="text-[11px] font-black text-slate-400 uppercase mb-2 flex items-center gap-1">
+                                                                    <p className="text-[11px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1">
                                                                         <ClipboardList className="w-3.5 h-3.5" /> Informações Adicionais
                                                                     </p>
-                                                                    <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                                                                    <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
                                                                         <p className="text-sm text-slate-700 font-bold uppercase leading-relaxed italic">
                                                                             "{record.observacoes}"
                                                                         </p>
@@ -865,11 +865,11 @@ export default function AbonoPage() {
                                                                     <div className="mt-4 pt-4 border-t border-slate-100">
                                                                         <button
                                                                             onClick={() => setExpandedLogId(expandedLogId === record.id ? null : record.id)}
-                                                                            className={`w-full flex items-center justify-between p-3 rounded border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
+                                                                            className={`w-full flex items-center justify-between p-3 rounded-none border transition-all ${expandedLogId === record.id ? 'bg-[#E31E24] text-white border-[#E31E24] shadow-md' : 'bg-slate-50 text-[#E31E24] border-slate-200 hover:bg-slate-100'}`}
                                                                         >
                                                                             <div className="flex items-center gap-2">
                                                                                 <HistoryIcon className={`w-4 h-4 ${expandedLogId === record.id ? 'text-white' : 'text-[#E31E24]'}`} />
-                                                                                <span className="text-[10px] font-black uppercase tracking-wider">
+                                                                                <span className="text-[10px] font-bold uppercase tracking-wider">
                                                                                     {expandedLogId === record.id ? 'Ocultar Histórico de Auditoria' : `Ver Histórico de Auditoria (${logs[record.id].length})`}
                                                                                 </span>
                                                                             </div>
@@ -881,19 +881,19 @@ export default function AbonoPage() {
                                                                                 {logs[record.id].map((log) => {
                                                                                     const diff = getDiff(log.dados_anteriores, log.dados_novos);
                                                                                     return (
-                                                                                        <div key={log.id} className="text-[10px] p-3 bg-white rounded border border-slate-200 shadow-sm relative overflow-hidden group/log">
+                                                                                        <div key={log.id} className="text-[10px] p-3 bg-white rounded-none border border-slate-200 shadow-sm relative overflow-hidden group/log">
                                                                                             <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
-                                                                                            <div className="flex justify-between font-black uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
+                                                                                            <div className="flex justify-between font-bold uppercase text-slate-500 mb-2 border-b border-slate-200 pb-1">
                                                                                                 <span className="flex items-center gap-1"><User className="w-3 h-3" /> {log.usuario_email}</span>
                                                                                                 <span className="text-slate-400">{new Date(log.data_alteracao).toLocaleDateString('pt-BR')} {new Date(log.data_alteracao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                                                                                             </div>
                                                                                             <div className="space-y-2">
-                                                                                                <p className="font-black text-[#1A3351] uppercase leading-tight">
+                                                                                                <p className="font-bold text-[#1A3351] uppercase leading-tight">
                                                                                                     <span className="text-amber-600">MOTIVO:</span> {log.motivo}
                                                                                                 </p>
                                                                                                 {diff && diff.length > 0 && (
-                                                                                                    <div className="bg-slate-50 p-2 rounded border border-slate-100 space-y-1">
-                                                                                                        <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
+                                                                                                    <div className="bg-slate-50 p-2 rounded-none border border-slate-100 space-y-1">
+                                                                                                        <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Mudanças Realizadas:</p>
                                                                                                         {diff.map((change, i) => (
                                                                                                             <p key={i} className="text-[9px] font-bold text-slate-600 flex items-center gap-2">
                                                                                                                 <ArrowRight className="w-2.5 h-2.5 text-amber-500" /> {change}
@@ -919,7 +919,7 @@ export default function AbonoPage() {
                             )) : (
                                 <div className="p-20 text-center text-slate-400 flex flex-col items-center gap-4">
                                     <ClipboardList className="w-16 h-16 opacity-20" />
-                                    <p className="font-black uppercase tracking-[0.2em]">Nenhum registro encontrado</p>
+                                    <p className="font-bold uppercase tracking-[0.2em]">Nenhum registro encontrado</p>
                                 </div>
                             )}
                         </div>
@@ -940,7 +940,7 @@ export default function AbonoPage() {
                         </div>
                     </div>
                     <div className="text-right">
-                        <h1 className="text-base font-black text-[#1A3351] uppercase tracking-tighter leading-tight">Relatório Gerencial de Abono</h1>
+                        <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">Relatório Gerencial de Abono</h1>
                         <div className="text-[8px] font-bold text-slate-400 uppercase">
                             OP: {userName} | {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
@@ -948,10 +948,10 @@ export default function AbonoPage() {
                 </div >
 
                 {/* RESUMO DOS FILTROS - MAIS DISCRETO */}
-                < div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded" >
+                < div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none" >
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-3.5 bg-[#E31E24]" />
-                        <p className="text-[8px] font-black uppercase text-[#1A3351]">
+                        <p className="text-[8px] font-bold uppercase text-[#1A3351]">
                             REGISTROS: <span className="text-[#E31E24]">{stats.finalRecords.length}</span>
                         </p>
                     </div>
@@ -964,11 +964,11 @@ export default function AbonoPage() {
                 < table className="w-full border-collapse" >
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-300">
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Portaria</th>
-                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Início</th>
-                            <th className="p-1 text-[8px] font-black uppercase text-slate-500 text-center border border-slate-200">Término</th>
-                            <th className="p-1 px-2 text-[8px] font-black uppercase text-slate-500 text-left border border-slate-200">Secretaria</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Portaria</th>
+                            <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">Início</th>
+                            <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">Término</th>
+                            <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Secretaria</th>
                         </tr>
                     </thead>
                     <tbody>

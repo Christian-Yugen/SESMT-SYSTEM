@@ -782,7 +782,7 @@ useEffect(() => {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Atualizando Painel...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-semibold text-xs">Atualizando Painel...</p>
             </div>
         );
     }
@@ -813,12 +813,12 @@ useEffect(() => {
                     <div className={`flex justify-between items-center mb-3 relative ${isPrintPopoverOpen ? 'z-50' : 'z-20'}`}>
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <HistoryIcon className="w-5 lg:w-6 h-5 lg:h-6" />
-                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Histórico</h2>
+                            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Histórico</h2>
                         </div>
                         <div className="flex items-center gap-2 lg:gap-3">
                             <button
                                 onClick={() => router.push('/analytics')}
-                                className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                             >
                                 <BarChart3 className="w-3.5 h-3.5" />
                                 Indicadores BI
@@ -827,7 +827,7 @@ useEffect(() => {
                                 <div className={`relative hidden md:block ${isPrintPopoverOpen ? 'z-[120]' : 'z-10'}`}>
                                     <button
                                         onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
-                                        className="flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-black rounded shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                                        className="flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
                                     >
                                         <Printer className="w-3.5 h-3.5" />
                                         Relatório
@@ -835,9 +835,9 @@ useEffect(() => {
                                     </button>
 
                                     {isPrintPopoverOpen && (
-                                        <div className="absolute top-full right-0 mt-2 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[200] animate-in fade-in slide-in-from-top-2 rounded-lg overflow-hidden">
+                                        <div className="absolute top-full right-0 mt-2 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[200] animate-in fade-in slide-in-from-top-2 rounded-none overflow-hidden">
                                             <div className="p-4 flex flex-col gap-3">
-                                                <h3 className="text-[11px] font-black text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
+                                                <h3 className="text-[11px] font-bold text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
                                                     <Printer className="w-4 h-4 text-[#E31E24]" />
                                                     Opções de Relatório
                                                 </h3>
@@ -850,7 +850,7 @@ useEffect(() => {
                                                         <FileSearch className="w-5 h-5" />
                                                     </div>
                                                     <div className="text-left">
-                                                        <p className="text-[10px] font-black uppercase leading-none mb-1">Vertical</p>
+                                                        <p className="text-[10px] font-bold uppercase leading-none mb-1">Vertical</p>
                                                         <p className="text-[9px] text-slate-400 font-bold uppercase">Formato Retrato (A4)</p>
                                                     </div>
                                                 </button>
@@ -863,7 +863,7 @@ useEffect(() => {
                                                         <Printer className="w-5 h-5" />
                                                     </div>
                                                     <div className="text-left">
-                                                        <p className="text-[10px] font-black uppercase leading-none mb-1">Horizontal</p>
+                                                        <p className="text-[10px] font-bold uppercase leading-none mb-1">Horizontal</p>
                                                         <p className="text-[9px] text-slate-400 font-bold uppercase">Formato Paisagem (A4)</p>
                                                     </div>
                                                 </button>
@@ -903,7 +903,7 @@ useEffect(() => {
                                 <button
                                     onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
                                     className={`
-                                        flex items-center justify-between lg:justify-center gap-2 w-full lg:w-64 h-full bg-[#E8E8E8] border border-[#888] shadow-inner font-black text-[10px] uppercase transition-all px-4
+                                        flex items-center justify-between lg:justify-center gap-2 w-full lg:w-64 h-full bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-[10px] uppercase transition-all px-4
                                         ${(startDate || endDate) ? 'text-[#E31E24] border-[#E31E24]' : 'text-slate-500'}
                                     `}
                                 >
@@ -918,11 +918,11 @@ useEffect(() => {
                                     <div className="absolute top-12 right-0 bg-white border-2 border-[#1A3351] shadow-2xl p-4 z-[100] w-64 animate-in fade-in slide-in-from-top-2">
                                         <div className="flex flex-col gap-4">
                                             <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                                                <span className="text-[10px] font-black text-[#1A3351] uppercase">Definir Período</span>
+                                                <span className="text-[10px] font-bold text-[#1A3351] uppercase">Definir Período</span>
                                                 <button onClick={() => setIsDateFilterOpen(false)}><X className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
                                             </div>
                                             <div className="space-y-1">
-                                                <span className="text-[9px] font-black text-slate-400 uppercase">Data Inicial (Início)</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Data Inicial (Início)</span>
                                                 <input
                                                     type="date"
                                                     className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24]"
@@ -931,7 +931,7 @@ useEffect(() => {
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <span className="text-[9px] font-black text-slate-400 uppercase">Data Final (Fim)</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Data Final (Fim)</span>
                                                 <input
                                                     type="date"
                                                     className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24]"
@@ -942,13 +942,13 @@ useEffect(() => {
                                             <div className="flex gap-2 pt-2">
                                                 <button
                                                     onClick={() => { setStartDate(""); setEndDate(""); }}
-                                                    className="flex-1 py-2 text-[9px] font-black uppercase text-slate-400 hover:text-slate-600 border border-slate-100"
+                                                    className="flex-1 py-2 text-[9px] font-bold uppercase text-slate-400 hover:text-slate-600 border border-slate-100"
                                                 >
                                                     Limpar
                                                 </button>
                                                 <button
                                                     onClick={() => setIsDateFilterOpen(false)}
-                                                    className="flex-[2] py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 shadow-md"
+                                                    className="flex-[2] py-2 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 shadow-md"
                                                 >
                                                     Filtrar Agora
                                                 </button>
@@ -963,7 +963,7 @@ useEffect(() => {
                             <select
                                 value={filterUser}
                                 onChange={(e) => setFilterUser(e.target.value)}
-                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
@@ -975,7 +975,7 @@ useEffect(() => {
                             <select
                                 value={filterType}
                                 onChange={(e) => setFilterType(e.target.value)}
-                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS DOCUMENTOS</option>
                                 <option value="ASO">ASOs</option>
@@ -986,7 +986,7 @@ useEffect(() => {
                                 <div className="relative flex-1 md:flex-none h-full">
                                     <button
                                         onClick={() => setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)}
-                                        className={`flex items-center justify-between gap-2 px-4 h-full bg-[#E8E8E8] border text-[10px] font-black uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
+                                        className={`flex items-center justify-between gap-2 px-4 h-full bg-[#E8E8E8] border text-[10px] font-bold uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? 'border-[#1A3351] text-[#1A3351]' : 'border-[#888] text-slate-500'}`}
                                     >
                                         <span className="truncate">
                                             {selectedAsoSubtypes.length === 0 
@@ -1005,11 +1005,11 @@ useEffect(() => {
                                             <div className="absolute top-full left-0 mt-1 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[150] p-3 animate-in fade-in slide-in-from-top-2">
                                                 <div className="flex flex-col gap-2">
                                                     <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
-                                                        <span className="text-[9px] font-black text-[#1A3351] uppercase">Selecionar Tipos</span>
+                                                        <span className="text-[9px] font-bold text-[#1A3351] uppercase">Selecionar Tipos</span>
                                                         {selectedAsoSubtypes.length > 0 && (
                                                             <button 
                                                                 onClick={() => setSelectedAsoSubtypes([])}
-                                                                className="text-[8px] font-black text-[#E31E24] hover:underline uppercase"
+                                                                className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
                                                             >
                                                                 Limpar
                                                             </button>
@@ -1025,7 +1025,7 @@ useEffect(() => {
                                                     ].map((type) => (
                                                         <label 
                                                             key={type.id} 
-                                                            className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded transition-colors group"
+                                                            className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded-none transition-colors group"
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -1047,7 +1047,7 @@ useEffect(() => {
 
                                                     <button
                                                         onClick={() => setIsAsoSubtypeFilterOpen(false)}
-                                                        className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-black uppercase hover:brightness-110 rounded transition-all"
+                                                        className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 rounded-none transition-all"
                                                     >
                                                         Fechar
                                                     </button>
@@ -1061,7 +1061,7 @@ useEffect(() => {
                             <select
                                 value={filterShift}
                                 onChange={(e) => setFilterShift(e.target.value)}
-                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351]"
                             >
                                 <option value="all">TODOS OS TURNOS</option>
                                 <option value="morning">MANHÃ (07h - 13h)</option>
@@ -1071,7 +1071,7 @@ useEffect(() => {
                             <select
                                 value={filterSecretaria}
                                 onChange={(e) => setFilterSecretaria(e.target.value)}
-                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-black uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
+                                className="flex-1 md:flex-none px-4 h-full bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] max-w-[200px]"
                             >
                                 <option value="all">TODAS SECRETARIAS</option>
                                 {uniqueSecretarias.map(sec => (
@@ -1090,7 +1090,7 @@ useEffect(() => {
                                         setStartDate("");
                                         setEndDate("");
                                     }}
-                                    className="px-4 h-full bg-[#E31E24] text-white text-[10px] font-black uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                                    className="px-4 h-full bg-[#E31E24] text-white text-[10px] font-bold uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all"
                                 >
                                     Zerar Filtros
                                 </button>
@@ -1103,34 +1103,34 @@ useEffect(() => {
                 <div className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-6 lg:space-y-8">
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-blue-600 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Total Registros</p>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-blue-600 shadow-lg transform hover:scale-[1.02] transition-all">
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">Total Registros</p>
                             <div className="flex items-end justify-between">
-                                <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351] leading-none">{stats.total}</h3>
+                                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">{stats.total}</h3>
                                 <HistoryIcon className="w-6 h-6 text-blue-50" />
                             </div>
                         </div>
 
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">ASOs Emitidos</p>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg transform hover:scale-[1.02] transition-all">
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">ASOs Emitidos</p>
                             <div className="flex items-end justify-between">
-                                <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351] leading-none">{stats.asos}</h3>
+                                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">{stats.asos}</h3>
                                 <Activity className="w-6 h-6 text-emerald-50" />
                             </div>
                         </div>
 
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">ENC Emitidos</p>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg transform hover:scale-[1.02] transition-all">
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">ENC Emitidos</p>
                             <div className="flex items-end justify-between">
-                                <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351] leading-none">{stats.encs}</h3>
+                                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">{stats.encs}</h3>
                                 <Building2 className="w-6 h-6 text-red-50" />
                             </div>
                         </div>
 
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-amber-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Operadores</p>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-amber-500 shadow-lg transform hover:scale-[1.02] transition-all">
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">Operadores</p>
                             <div className="flex items-end justify-between">
-                                <h3 className="text-2xl lg:text-3xl font-black text-[#1A3351] leading-none">{stats.uniqueUsers}</h3>
+                                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">{stats.uniqueUsers}</h3>
                                 <User className="w-6 h-6 text-amber-50" />
                             </div>
                         </div>
@@ -1138,20 +1138,20 @@ useEffect(() => {
                     {/* LISTA DE REGISTROS */}
                     <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Log de Processamento Geral</h3>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Log de Processamento Geral</h3>
                             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-slate-600 uppercase">Ordem:</span>
+                                    <span className="text-[10px] font-medium text-slate-600 uppercase">Ordem:</span>
                                     <select
                                         value={sortOrder}
                                         onChange={(e) => setSortOrder(e.target.value)}
-                                        className="bg-[#D3D3D3] border border-slate-400 text-[9px] font-black uppercase px-2 py-1 outline-none focus:border-[#1A3351]"
+                                        className="bg-[#D3D3D3] border border-slate-400 text-[9px] font-bold uppercase px-2 py-1 outline-none focus:border-[#1A3351]"
                                     >
                                         <option value="date-desc">Data e Hora (Recentes)</option>
                                         <option value="alpha">Alfabeto (A-Z)</option>
                                     </select>
                                 </div>
-                                <div className="text-[9px] font-black text-slate-600 uppercase">Mostrando {sortedHistory.length} resultados</div>
+                                <div className="text-[9px] font-medium text-slate-600 uppercase">Mostrando <span className="font-bold">{sortedHistory.length}</span> resultados</div>
                             </div>
                         </div>
                         <div className="divide-y divide-slate-200">
@@ -1167,26 +1167,26 @@ useEffect(() => {
                                             }`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-4 flex-1 w-full">
-                                            <div className={`p-2 lg:p-1.5 rounded transition-colors shrink-0 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                            <div className={`p-2 lg:p-1.5 rounded-none transition-colors shrink-0 ${expandedId === entry.id ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}>
                                                 <ClipboardList className={`${expandedId === entry.id ? 'w-5 h-5' : 'w-4 h-4'}`} />
                                             </div>
                                             <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3 flex-1 min-w-0">
-                                                <h4 className={`font-black uppercase text-[#1A3351] leading-tight truncate transition-all duration-300 ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm'}`}>
+                                                <h4 className={`font-bold uppercase text-[#1A3351] leading-tight truncate transition-all duration-300 ${expandedId === entry.id ? 'text-lg lg:text-xl' : 'text-sm'}`}>
                                                     <span className="flex items-center gap-2">
                                                         {entry.servidor_nome}
                                                         {entry.contrato && (
-                                                            <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black tracking-tighter">C. {entry.contrato}</span>
+                                                            <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 font-bold tracking-tighter">C. {entry.contrato}</span>
                                                         )}
                                                     </span>
                                                 </h4>
                                                 <div className="flex flex-wrap gap-2 items-center">
                                                     {entry.deletion_pending && (
-                                                        <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[8px] lg:text-[9px] font-black tracking-widest shrink-0 animate-pulse">
+                                                        <span className="bg-amber-500 text-white px-2 py-0.5 rounded-none text-[8px] lg:text-[9px] font-bold tracking-widest shrink-0 animate-pulse">
                                                             ⚠️ EXCLUSÃO PENDENTE
                                                         </span>
                                                     )}
                                                     {expandedId === entry.id && !entry.deletion_pending && (
-                                                        <span className="bg-[#1A3351] text-white px-1.5 lg:py-0.5 rounded text-[9px] lg:text-[10px] font-black tracking-widest shrink-0">
+                                                        <span className="bg-[#1A3351] text-white px-1.5 lg:py-0.5 rounded-none text-[9px] lg:text-[10px] font-bold tracking-widest shrink-0">
                                                             REF: #{entry.id}
                                                         </span>
                                                     )}
@@ -1200,15 +1200,15 @@ useEffect(() => {
                                                                 return raw;
                                                             })()}
                                                         </span>
-                                                        {expandedId !== entry.id && <span className="text-slate-500 font-black">#{entry.id}</span>}
+                                                        {expandedId !== entry.id && <span className="text-slate-500 font-bold">#{entry.id}</span>}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className={`flex items-center justify-between lg:justify-end gap-6 w-full lg:w-auto lg:shrink-0 lg:text-right transition-all border-t lg:border-t-0 border-slate-100 pt-2 lg:pt-0 ${expandedId === entry.id ? 'opacity-100' : 'opacity-80'}`}>
                                             <div className="flex flex-col">
-                                                <span className={`font-black text-slate-400 uppercase transition-all ${expandedId === entry.id ? 'text-[10px]' : 'text-[8px]'}`}>Registro</span>
-                                                <span className={`font-bold text-slate-700 transition-all ${expandedId === entry.id ? 'text-xs lg:text-sm' : 'text-[10px]'}`}>
+                                                <span className={`font-medium text-slate-400 uppercase transition-all ${expandedId === entry.id ? 'text-[10px]' : 'text-[8px]'}`}>Registro</span>
+                                                <span className={`font-semibold text-slate-700 transition-all ${expandedId === entry.id ? 'text-xs lg:text-sm' : 'text-[10px]'}`}>
                                                     {new Date(entry.generated_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
@@ -1220,11 +1220,11 @@ useEffect(() => {
                                     {expandedId === entry.id && (
                                         <div className="px-6 pb-6 pt-2 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
                                             {entry.deletion_pending && (
-                                                <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded animate-in fade-in">
+                                                <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-none animate-in fade-in">
                                                     <div className="flex items-start gap-3">
                                                         <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 animate-pulse" />
                                                         <div>
-                                                            <h5 className="text-xs font-black text-amber-800 uppercase mb-1">
+                                                            <h5 className="text-xs font-bold text-amber-800 uppercase mb-1">
                                                                 Registro com Solicitação de Exclusão Pendente
                                                             </h5>
                                                             <p className="text-xs text-amber-700">
@@ -1237,22 +1237,22 @@ useEffect(() => {
                                             )}
                                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-2">
                                                 <div className="lg:col-span-4 flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Cargo</span>
-                                                    <p className="text-[12px] lg:text-[13px] font-black text-[#1A3351] uppercase lg:truncate" title={entry.cargo}>{entry.cargo || "Não registrado"}</p>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Cargo</span>
+                                                    <p className="text-[12px] lg:text-[13px] font-bold text-[#1A3351] uppercase lg:truncate" title={entry.cargo}>{entry.cargo || "Não registrado"}</p>
                                                 </div>
                                                 <div className="lg:col-span-5 flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Secretaria</span>
-                                                    <p className="text-[12px] lg:text-[13px] font-black text-[#1A3351] uppercase lg:truncate" title={entry.secretaria}>{entry.secretaria || "Não registrado"}</p>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1">Secretaria</span>
+                                                    <p className="text-[12px] lg:text-[13px] font-bold text-[#1A3351] uppercase lg:truncate" title={entry.secretaria}>{entry.secretaria || "Não registrado"}</p>
                                                 </div>
                                                 <div className="lg:col-span-3 flex flex-col">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1 lg:text-right">GHE CONJ</span>
-                                                    <p className="text-[11px] font-black text-slate-500 uppercase lg:text-right leading-tight">{entry.ghe_conj || "---"}</p>
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 border-b border-slate-200 pb-1 lg:text-right">GHE CONJ</span>
+                                                    <p className="text-[11px] font-bold text-slate-500 uppercase lg:text-right leading-tight">{entry.ghe_conj || "---"}</p>
                                                 </div>
                                             </div>
                                             <div className="mt-6 pt-3 border-t border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 uppercase tracking-widest">
                                                 <div className="flex flex-col gap-1 flex-1">
                                                     <span className="text-slate-400 font-bold text-[9px]">Operador Responsável:</span>
-                                                    <span className="text-[11px] font-black text-[#1A3351]">
+                                                    <span className="text-[11px] font-bold text-[#1A3351]">
                                                         {entry.operator_name || profilesData[entry.generated_by]?.email || entry.generated_by}
                                                     </span>
                                                 </div>
@@ -1290,16 +1290,16 @@ useEffect(() => {
                                                                 });
                                                                 setIsEditModalOpen(true);
                                                             }}
-                                                            className="flex items-center gap-2 px-4 py-3 lg:py-2 bg-[#1A3351] text-white font-black text-[10px] uppercase rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all"
+                                                            className="flex items-center gap-2 px-4 py-3 lg:py-2 bg-[#1A3351] text-white font-bold text-[10px] uppercase shadow-lg hover:brightness-110 active:scale-95 transition-all"
                                                         >
                                                             <Activity className="w-4 h-4 lg:w-3.5 lg:h-3.5 text-blue-400" />
                                                             <span>Editar / Reemitir</span>
                                                         </button>
                                                     )}
-                                                    <span className="text-[9px] font-bold text-slate-400">Log ID: {entry.id}</span>
+                                                    <span className="text-[9px] font-medium text-slate-400">Log ID: {entry.id}</span>
                                                     {currentUserId === entry.generated_by && userRole !== 'analytic_manager' && (
                                                         entry.deletion_pending ? (
-                                                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white font-black text-[9px] uppercase rounded-lg shadow-md cursor-not-allowed">
+                                                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white font-bold text-[9px] uppercase shadow-md cursor-not-allowed">
                                                                 <AlertCircle className="w-3.5 h-3.5 animate-pulse shrink-0" />
                                                                 <span>Exclusão em Análise</span>
                                                             </div>
@@ -1309,7 +1309,7 @@ useEffect(() => {
                                                                     e.stopPropagation();
                                                                     handleRequestDeletion(entry);
                                                                 }}
-                                                                className="flex items-center gap-2 px-4 py-3 lg:py-2 bg-[#E31E24] text-white font-black text-[10px] uppercase rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all"
+                                                                className="flex items-center gap-2 px-4 py-3 lg:py-2 bg-[#E31E24] text-white font-bold text-[10px] uppercase shadow-lg hover:brightness-110 active:scale-95 transition-all"
                                                             >
                                                                 <Trash2 className="w-4 h-4 lg:w-3.5 lg:h-3.5" />
                                                                 <span>Excluir Registro</span>
@@ -1324,20 +1324,20 @@ useEffect(() => {
                                                 <div className="mt-8 pt-4 border-t border-slate-200">
                                                     <div className="flex items-center gap-2 mb-4">
                                                         <HistoryIcon className="w-4 h-4 text-slate-400" />
-                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Histórico de Alterações (Auditoria)</span>
+                                                        <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Histórico de Alterações (Auditoria)</span>
                                                     </div>
                                                     <div className="space-y-3">
                                                         {entry.edit_history.map((log: any, idx: number) => (
-                                                            <div key={idx} className="bg-white/40 border border-slate-200 rounded-lg p-3 text-[10px] lg:text-[11px] animate-in fade-in slide-in-from-left-2 transition-all">
+                                                            <div key={idx} className="bg-white/40 border border-slate-200 rounded-none p-3 text-[10px] lg:text-[11px] animate-in fade-in slide-in-from-left-2 transition-all">
                                                                 <div className="flex justify-between items-start mb-2">
                                                                     <div className="flex items-center gap-2">
-                                                                        <span className="font-black text-[#1A3351] uppercase">{log.user}</span>
+                                                                        <span className="font-bold text-[#1A3351] uppercase">{log.user}</span>
                                                                         <span className="text-slate-400">•</span>
                                                                         <span className="font-bold text-slate-500 uppercase">{new Date(log.timestamp).toLocaleString('pt-BR')}</span>
                                                                     </div>
-                                                                    <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-black uppercase text-[8px]">Reemitido</div>
+                                                                    <div className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-none font-bold uppercase text-[8px]">Reemitido</div>
                                                                 </div>
-                                                                <p className="font-black text-[#E31E24] uppercase mb-1">Motivo: <span className="text-slate-700 font-bold">{log.motivo || "Não informado"}</span></p>
+                                                                <p className="font-bold text-[#E31E24] uppercase mb-1">Motivo: <span className="text-slate-700 font-bold">{log.motivo || "Não informado"}</span></p>
                                                                 {log.changes && (
                                                                     <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
                                                                         {Object.keys(log.changes.new).map((key) => {
@@ -1346,7 +1346,7 @@ useEffect(() => {
                                                                             if (oldVal !== newVal) {
                                                                                 return (
                                                                                     <span key={key} className="text-[9px] font-bold text-slate-500">
-                                                                                        <span className="uppercase text-slate-400">{key}:</span> {String(oldVal || '---')} → <span className="text-[#1A3351] font-black">{String(newVal || '---')}</span>
+                                                                                        <span className="uppercase text-slate-400">{key}:</span> {String(oldVal || '---')} → <span className="text-[#1A3351] font-bold">{String(newVal || '---')}</span>
                                                                                     </span>
                                                                                 );
                                                                             }
@@ -1363,13 +1363,13 @@ useEffect(() => {
                                     )}
                                 </div>
                             )) : (
-                                <div className="py-20 text-center text-slate-400 uppercase font-black text-xs italic tracking-widest">Nenhum registro encontrado para o período/filtro selecionado</div>
+                                <div className="py-20 text-center text-slate-400 uppercase font-bold text-xs italic tracking-widest">Nenhum registro encontrado para o período/filtro selecionado</div>
                             )}
                         </div>
                     </div>
 
                     <div className="bg-[#B0B0B0] p-4 text-center border-2 border-slate-300 shadow-md">
-                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-600">Powered by UXBRAS® — Gestão Estratégica SESMT</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">Powered by UXBRAS® — Gestão Estratégica SESMT</p>
                     </div>
                 </div>
             </main>
@@ -1377,37 +1377,37 @@ useEffect(() => {
             {/* MODAL DE SOLICITAÇÃO DE EXCLUSÃO */}
             {showDeletionModal && selectedEntryForDeletion && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95">
+                    <div className="bg-white rounded-none shadow-2xl max-w-lg w-full p-6 animate-in fade-in zoom-in-95">
                         <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#E31E24]">
                             <AlertCircle className="w-8 h-8 text-[#E31E24]" />
-                            <h3 className="text-lg font-black uppercase text-[#1A3351]">Solicitar Exclusão de Registro</h3>
+                            <h3 className="text-lg font-bold uppercase text-[#1A3351]">Solicitar Exclusão de Registro</h3>
                         </div>
 
                         <div className="space-y-4 mb-6">
-                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Servidor:</p>
+                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">Servidor:</p>
                                 <p className="font-bold text-[#1A3351]">{selectedEntryForDeletion.servidor_nome}</p>
                             </div>
 
-                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Tipo de Documento:</p>
+                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">Tipo de Documento:</p>
                                 <p className="text-sm text-[#E31E24] font-bold">{selectedEntryForDeletion.aso_type}</p>
                             </div>
 
-                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Log ID:</p>
+                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">Log ID:</p>
                                 <p className="text-sm text-slate-700 font-mono">#{selectedEntryForDeletion.id}</p>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-black text-slate-700 uppercase mb-2">
+                                <label className="block text-xs font-bold text-slate-700 uppercase mb-2">
                                     Motivo da Exclusão <span className="text-[#E31E24]">*</span>
                                 </label>
                                 <textarea
                                     value={deletionReason}
                                     onChange={(e) => setDeletionReason(e.target.value)}
                                     placeholder="Descreva detalhadamente o motivo da solicitação de exclusão..."
-                                    className="w-full px-4 py-3 border-2 border-slate-200 rounded text-sm outline-none focus:border-[#1A3351] transition-all min-h-[120px] resize-none"
+                                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-none text-sm outline-none focus:border-[#1A3351] transition-all min-h-[120px] resize-none"
                                     maxLength={500}
                                 />
                                 <p className="text-xs text-slate-400 mt-1 text-right">
@@ -1415,7 +1415,7 @@ useEffect(() => {
                                 </p>
                             </div>
 
-                            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-none">
                                 <p className="text-xs font-bold text-amber-800 flex items-start gap-2">
                                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                                     <span>
@@ -1434,14 +1434,14 @@ useEffect(() => {
                                     setDeletionReason("");
                                 }}
                                 disabled={processingDeletion}
-                                className="flex-1 py-3 px-4 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded hover:bg-slate-300 transition-all disabled:opacity-50"
+                                className="flex-1 py-3 px-4 bg-slate-200 text-slate-700 font-bold text-xs uppercase rounded-none hover:bg-slate-300 transition-all disabled:opacity-50"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmDeletionRequest}
                                 disabled={processingDeletion || !deletionReason.trim()}
-                                className="flex-[2] py-3 px-4 bg-[#E31E24] text-white font-black text-xs uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-[2] py-3 px-4 bg-[#E31E24] text-white font-bold text-xs uppercase rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {processingDeletion ? (
                                     <>
@@ -1462,13 +1462,13 @@ useEffect(() => {
             {/* MODAL DE EDIÇÃO ASO 2.0 */}
             {isEditModalOpen && editingEntry && editFormData && (
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[250] p-4 backdrop-blur-sm">
-                    <div className="bg-[#D3D3D3] rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 border-4 border-[#1A3351]">
+                    <div className="bg-[#D3D3D3] rounded-none shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 border-4 border-[#1A3351]">
                         {/* Header do Modal */}
                         <div className="bg-[#1A3351] p-6 flex justify-between items-center shrink-0">
                             <div className="flex items-center gap-3">
                                 <Activity className="w-8 h-8 text-[#E31E24]" />
                                 <div>
-                                    <h3 className="text-xl font-black uppercase text-white tracking-tighter">Editor de Evidência Digital</h3>
+                                    <h3 className="text-xl font-bold uppercase text-white tracking-tighter">Editor de Evidência Digital</h3>
                                     <p className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em]">Ajuste de dados para reemissão • ID #{editingEntry.id}</p>
                                 </div>
                             </div>
@@ -1483,41 +1483,41 @@ useEffect(() => {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2 mb-2">
                                     <User className="w-4 h-4 text-[#1A3351]" />
-                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Dados do Servidor</span>
+                                    <span className="text-xs font-bold uppercase text-[#1A3351] tracking-widest">Dados do Servidor</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                                     <div className="md:col-span-6 space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Nome Completo</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Nome Completo</label>
                                         <input
                                             type="text"
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
                                             value={editFormData.servidor_nome}
                                             onChange={(e) => setEditFormData({ ...editFormData, servidor_nome: e.target.value })}
                                         />
                                     </div>
                                     <div className="md:col-span-3 space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">CPF</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">CPF</label>
                                         <input
                                             type="text"
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
                                             value={editFormData.servidor_cpf}
                                             onChange={(e) => setEditFormData({ ...editFormData, servidor_cpf: e.target.value })}
                                         />
                                     </div>
                                     <div className="md:col-span-3 space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Data de Nascimento</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Data de Nascimento</label>
                                         <input
                                             type="date"
-                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2 text-sm font-bold outline-none focus:border-[#E31E24] rounded-lg h-[46px]"
+                                            className="w-full bg-white border-2 border-slate-200 px-4 py-2 text-sm font-bold outline-none focus:border-[#E31E24] rounded-none h-[46px]"
                                             value={editFormData.servidor_nascimento}
                                             onChange={(e) => setEditFormData({ ...editFormData, servidor_nascimento: e.target.value })}
                                         />
                                     </div>
                                     <div className="md:col-span-12 flex gap-4">
                                         <div className="flex-1 space-y-1">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de Documento</label>
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Tipo de Documento</label>
                                             <select
-                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
+                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all cursor-pointer"
                                                 value={editFormData.aso_type}
                                                 onChange={(e) => setEditFormData({ ...editFormData, aso_type: e.target.value })}
                                             >
@@ -1530,10 +1530,10 @@ useEffect(() => {
                                             </select>
                                         </div>
                                         <div className="w-32 space-y-1">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Contrato</label>
+                                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Contrato</label>
                                             <input
                                                 type="text"
-                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
+                                                className="w-full bg-white border-2 border-slate-200 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all"
                                                 value={editFormData.contrato}
                                                 onChange={(e) => setEditFormData({ ...editFormData, contrato: e.target.value })}
                                             />
@@ -1546,18 +1546,18 @@ useEffect(() => {
                             <div className="space-y-4 pt-4 border-t border-black/5">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Building2 className="w-4 h-4 text-[#1A3351]" />
-                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Dados Profissionais</span>
+                                    <span className="text-xs font-bold uppercase text-[#1A3351] tracking-widest">Dados Profissionais</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1 relative">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 flex items-center justify-between">
                                             <span>Cargo</span>
                                             {isSearchingCargo && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
                                         </label>
                                         <input
                                             type="text"
                                             placeholder="Digite para buscar..."
-                                            className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
                                             value={cargoSearch || (editFormData?.cargo || "")}
                                             onChange={(e) => {
                                                 const val = e.target.value.toUpperCase();
@@ -1566,7 +1566,7 @@ useEffect(() => {
                                             }}
                                         />
                                         {filteredCargosSearch.length > 0 && (
-                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none overflow-hidden max-h-48 overflow-y-auto">
                                                 {filteredCargosSearch.map((c) => (
                                                     <div
                                                         key={c}
@@ -1575,7 +1575,7 @@ useEffect(() => {
                                                             setCargoSearch("");
                                                             setFilteredCargosSearch([]);
                                                         }}
-                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-bold text-[#1A3351] uppercase"
                                                     >
                                                         {c}
                                                     </div>
@@ -1584,14 +1584,14 @@ useEffect(() => {
                                         )}
                                     </div>
                                     <div className="space-y-1 relative">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 flex items-center justify-between">
                                             <span>Secretaria</span>
                                             {isSearchingSecretaria && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
                                         </label>
                                         <input
                                             type="text"
                                             placeholder="Digite para buscar..."
-                                            className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                            className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
                                             value={secretariaSearch || (editFormData?.secretaria || "")}
                                             onChange={(e) => {
                                                 const val = e.target.value.toUpperCase();
@@ -1600,7 +1600,7 @@ useEffect(() => {
                                             }}
                                         />
                                         {filteredSecretariasSearch.length > 0 && (
-                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none overflow-hidden max-h-48 overflow-y-auto">
                                                 {filteredSecretariasSearch.map((s) => (
                                                     <div
                                                         key={s}
@@ -1609,7 +1609,7 @@ useEffect(() => {
                                                             setSecretariaSearch("");
                                                             setFilteredSecretariasSearch([]);
                                                         }}
-                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-black text-[#1A3351] uppercase"
+                                                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 text-xs font-bold text-[#1A3351] uppercase"
                                                     >
                                                         {s}
                                                     </div>
@@ -1620,7 +1620,7 @@ useEffect(() => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                     <div className="space-y-1 relative">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1 flex items-center justify-between">
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 flex items-center justify-between">
                                             <span>Função / GHE (Busque para atualizar riscos)</span>
                                             {isSearchingFuncao && <Loader2 className="w-2.5 h-2.5 animate-spin text-blue-500" />}
                                         </label>
@@ -1628,7 +1628,7 @@ useEffect(() => {
                                             <input
                                                 type="text"
                                                 placeholder="Digite para buscar..."
-                                                className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-lg text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
+                                                className="flex-1 bg-white border-2 border-[#1A3351]/10 px-4 py-2.5 rounded-none text-sm font-bold uppercase focus:border-[#E31E24] outline-none transition-all shadow-sm"
                                                 value={funcoesSearch || (editFormData?.function_name || "")}
                                                 onChange={(e) => {
                                                     const val = e.target.value;
@@ -1643,14 +1643,14 @@ useEffect(() => {
                                                         setFilteredFuncoes([]);
                                                         setEditFormData({ ...editFormData, function_name: "", function_ghe: "", risks: "", exams_json: [] });
                                                     }}
-                                                    className="px-3 bg-white border-2 border-slate-200 rounded-lg text-[9px] font-black uppercase hover:bg-slate-50 transition-colors"
+                                                    className="px-3 bg-white border-2 border-slate-200 rounded-none text-[9px] font-bold uppercase hover:bg-slate-50 transition-colors"
                                                 >
                                                     Limpar
                                                 </button>
                                             )}
                                         </div>
                                         {filteredFuncoes.length > 0 && (
-                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+                                            <div className="absolute z-[310] left-0 right-0 mt-1 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none overflow-hidden max-h-64 overflow-y-auto">
                                                 {filteredFuncoes.map((f) => (
                                                     <div
                                                         key={f.id}
@@ -1666,8 +1666,8 @@ useEffect(() => {
                                                         className="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 group transition-colors"
                                                     >
                                                         <div className="flex justify-between items-center mb-0.5">
-                                                            <span className="text-xs font-black text-[#1A3351] uppercase group-hover:text-[#E31E24]">{f.nome}</span>
-                                                            <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">GHE: {f.ghe}</span>
+                                                            <span className="text-xs font-bold text-[#1A3351] uppercase group-hover:text-[#E31E24]">{f.nome}</span>
+                                                            <span className="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded-none text-slate-500 uppercase">GHE: {f.ghe}</span>
                                                         </div>
                                                         {f.cod && <div className="text-[9px] font-bold text-slate-400">CÓD: {f.cod}</div>}
                                                     </div>
@@ -1676,10 +1676,10 @@ useEffect(() => {
                                         )}
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Riscos Ocupacionais (Automático - Não Editável)</label>
+                                        <label className="text-[9px] font-bold text-slate-500 uppercase ml-1">Riscos Ocupacionais (Automático - Não Editável)</label>
                                         <textarea
                                             readOnly
-                                            className="w-full bg-slate-50 border-2 border-slate-200 px-4 py-3 rounded-lg text-sm font-bold uppercase outline-none min-h-[80px] resize-none text-slate-500 italic"
+                                            className="w-full bg-slate-50 border-2 border-slate-200 px-4 py-3 rounded-none text-sm font-bold uppercase outline-none min-h-[80px] resize-none text-slate-500 italic"
                                             value={editFormData.risks}
                                         />
                                     </div>
@@ -1690,16 +1690,16 @@ useEffect(() => {
                             <div className="space-y-4 pt-4 border-t border-black/5">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Activity className="w-4 h-4 text-[#1A3351]" />
-                                    <span className="text-xs font-black uppercase text-[#1A3351] tracking-widest">Exames e Prazos</span>
+                                    <span className="text-xs font-bold uppercase text-[#1A3351] tracking-widest">Exames e Prazos</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {editFormData.exams.map((exam: any, idx: number) => (
-                                        <div key={idx} className="flex gap-2 p-3 bg-white border-2 border-slate-100 rounded-xl shadow-sm">
+                                        <div key={idx} className="flex gap-2 p-3 bg-white border-2 border-slate-100 rounded-none shadow-sm">
                                             <div className="flex-1">
-                                                <p className="text-[9px] font-black text-[#E31E24] uppercase mb-1">{exam.name}</p>
+                                                <p className="text-[9px] font-bold text-[#E31E24] uppercase mb-1">{exam.name}</p>
                                                 <input
                                                     type="date"
-                                                    className="w-full bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-black outline-none focus:border-[#E31E24] rounded"
+                                                    className="w-full bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold outline-none focus:border-[#E31E24] rounded-none"
                                                     value={exam.date.split('/').reverse().join('-')}
                                                     onChange={(e) => {
                                                         const newExams = [...editFormData.exams];
@@ -1712,7 +1712,7 @@ useEffect(() => {
                                         </div>
                                     ))}
                                     {editFormData.exams.length === 0 && (
-                                        <p className="col-span-2 text-center py-4 text-slate-400 text-[10px] font-black uppercase italic italic">Registro legado: O sistema usará o mapeamento original.</p>
+                                        <p className="col-span-2 text-center py-4 text-slate-400 text-[10px] font-bold uppercase italic italic">Registro legado: O sistema usará o mapeamento original.</p>
                                     )}
                                 </div>
                             </div>
@@ -1721,19 +1721,19 @@ useEffect(() => {
                             <div className="space-y-4 pt-4 border-t border-black/5">
                                 <div className="flex items-center gap-2 mb-2">
                                     <HistoryIcon className="w-4 h-4 text-amber-600" />
-                                    <span className="text-xs font-black uppercase text-amber-600 tracking-widest">Justificativa da Alteração (Auditoria)</span>
+                                    <span className="text-xs font-bold uppercase text-amber-600 tracking-widest">Justificativa da Alteração (Auditoria)</span>
                                 </div>
-                                <div className="bg-amber-50 p-4 rounded-xl border-2 border-amber-200">
+                                <div className="bg-amber-50 p-4 rounded-none border-2 border-amber-200">
                                     <textarea
                                         rows={3}
                                         placeholder="DESCREVA O MOTIVO DESTA ALTERAÇÃO (OBRIGATÓRIO PARA SEGURANÇA)..."
-                                        className="w-full bg-white border-2 border-amber-300 px-4 py-3 rounded-lg text-sm font-bold uppercase outline-none focus:border-amber-500 transition-all resize-none"
+                                        className="w-full bg-white border-2 border-amber-300 px-4 py-3 rounded-none text-sm font-bold uppercase outline-none focus:border-amber-500 transition-all resize-none"
                                         value={editFormData.motivo_alteracao}
                                         onChange={(e) => setEditFormData({ ...editFormData, motivo_alteracao: e.target.value })}
                                     />
                                     <div className="flex items-center gap-2 mt-2 text-amber-700">
                                         <AlertCircle className="w-3.5 h-3.5" />
-                                        <p className="text-[9px] font-black uppercase">Este registro será vinculado ao seu perfil para auditoria futura.</p>
+                                        <p className="text-[9px] font-bold uppercase">Este registro será vinculado ao seu perfil para auditoria futura.</p>
                                     </div>
                                 </div>
                             </div>
@@ -1743,7 +1743,7 @@ useEffect(() => {
                         <div className="bg-[#B0B0B0] p-6 flex flex-col sm:flex-row gap-4 shrink-0">
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="flex-1 py-4 px-6 bg-slate-300 text-slate-700 font-black text-xs uppercase rounded-xl hover:bg-slate-400 transition-all active:scale-95"
+                                className="flex-1 py-4 px-6 bg-slate-300 text-slate-700 font-bold text-xs uppercase rounded-none hover:bg-slate-400 transition-all active:scale-95"
                             >
                                 Cancelar Alterações
                             </button>
@@ -1853,7 +1853,7 @@ useEffect(() => {
                                     }
                                 }}
                                 disabled={isSavingEdit}
-                                className="flex-[2] py-4 px-6 bg-[#1A3351] text-white font-black text-xs uppercase rounded-xl shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                className="flex-[2] py-4 px-6 bg-[#1A3351] text-white font-bold text-xs uppercase rounded-none shadow-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                             >
                                 {isSavingEdit ? (
                                     <>

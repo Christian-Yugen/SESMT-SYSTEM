@@ -352,7 +352,7 @@ export default function NewAfastamentoPage() {
                         <button onClick={() => router.push('/afastamentos')} className="p-2 hover:bg-black/5 transition-colors">
                             <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                         </button>
-                        <h2 className="text-xl font-black uppercase tracking-tight text-[#1A3351]">
+                        <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3351]">
                             {formData.renew_from_id ? 'Prorrogar Afastamento' : 'Novo Afastamento'}
                         </h2>
                     </div>
@@ -363,7 +363,7 @@ export default function NewAfastamentoPage() {
                         
                         {/* BUSCA DE SERVIDOR */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Servidor</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Servidor</h3>
                             {!selectedServidor ? (
                                 <div className="flex gap-3 h-14">
                                     <input
@@ -374,7 +374,7 @@ export default function NewAfastamentoPage() {
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && performSearch(searchQuery)}
                                     />
-                                    <button onClick={() => performSearch(searchQuery)} className="bg-[#1A3351] text-white px-8 h-full font-black uppercase text-sm shadow-lg hover:brightness-110 transition-all">
+                                    <button onClick={() => performSearch(searchQuery)} className="bg-[#1A3351] text-white px-8 h-full font-bold uppercase text-sm shadow-lg hover:brightness-110 transition-all">
                                         Buscar
                                     </button>
                                 </div>
@@ -387,31 +387,31 @@ export default function NewAfastamentoPage() {
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 flex-1">
                                                 <div className="md:col-span-2 border-b border-slate-200 pb-2">
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servidor</p>
-                                                    <p className="text-2xl font-black text-[#1A3351] uppercase leading-none">{selectedServidor.nome}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Servidor</p>
+                                                    <p className="text-2xl font-bold text-[#1A3351] uppercase leading-none">{selectedServidor.nome}</p>
                                                     <p className="text-xs font-bold text-slate-500 uppercase mt-1">CPF: {selectedServidor.cpf}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Matrícula / Vínculo</p>
-                                                    <p className="text-sm font-black text-emerald-600 uppercase">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matrícula / Vínculo</p>
+                                                    <p className="text-sm font-bold text-emerald-600 uppercase">
                                                         MAT: {selectedServidor.matricula} • CONTRATO: {selectedServidor.contrato || 'N/D'}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cargo / Natureza</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cargo / Natureza</p>
                                                     <p className="text-xs font-bold text-slate-700 uppercase">
                                                         {selectedServidor.cargo || 'N/D'} {selectedServidor.natureza_cargo ? `(${selectedServidor.natureza_cargo})` : ''}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secretaria</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secretaria</p>
                                                     <p className="text-xs font-bold text-slate-700 uppercase">{selectedServidor.secretaria || 'NÃO INFORMADA'}</p>
                                                 </div>
                                             </div>
                                         </div>
                                         <button 
                                             onClick={() => { setSelectedServidor(null); setAllBonds([]); setSearchQuery(""); }} 
-                                            className="px-4 py-2 border-2 border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all uppercase text-[10px] font-black rounded"
+                                            className="px-4 py-2 border-2 border-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all uppercase text-[10px] font-bold rounded-none"
                                         >
                                             Trocar Servidor
                                         </button>
@@ -420,10 +420,10 @@ export default function NewAfastamentoPage() {
                             )}
 
                             {foundServidores.length > 0 && !selectedServidor && (
-                                <div className="mt-2 border-2 border-[#1A3351] bg-white rounded shadow-2xl relative z-20">
+                                <div className="mt-2 border-2 border-[#1A3351] bg-white rounded-none shadow-2xl relative z-20">
                                     {foundServidores.map((s, idx) => (
                                         <button key={s.id || `${s.matricula}-${s.contrato}-${idx}`} onClick={() => selectServidor(s)} className="w-full text-left p-4 hover:bg-emerald-50 border-b last:border-0">
-                                            <p className="font-black text-[#1A3351] uppercase">{s.nome}</p>
+                                            <p className="font-bold text-[#1A3351] uppercase">{s.nome}</p>
                                             <p className="text-[10px] text-slate-500 uppercase">CPF: {s.cpf} | Matrícula: {s.matricula} | Contrato: {s.contrato}</p>
                                         </button>
                                     ))}
@@ -431,11 +431,11 @@ export default function NewAfastamentoPage() {
                             )}
 
                             {allBonds.length > 1 && (
-                                <div className="mt-4 bg-emerald-50 p-4 rounded border border-emerald-200">
-                                    <p className="text-[10px] font-black text-emerald-700 uppercase mb-2">Atenção: Este servidor possui {allBonds.length} vínculos ativos. O afastamento será aplicado a todos:</p>
+                                <div className="mt-4 bg-emerald-50 p-4 rounded-none border border-emerald-200">
+                                    <p className="text-[10px] font-bold text-emerald-700 uppercase mb-2">Atenção: Este servidor possui {allBonds.length} vínculos ativos. O afastamento será aplicado a todos:</p>
                                     <div className="flex flex-wrap gap-2">
                                         {allBonds.map((b, idx) => (
-                                            <span key={b.id || `${b.matricula}-${b.contrato}-${idx}`} className="bg-white px-3 py-1 rounded text-[10px] font-bold shadow-sm border border-emerald-300">
+                                            <span key={b.id || `${b.matricula}-${b.contrato}-${idx}`} className="bg-white px-3 py-1 rounded-none text-[10px] font-bold shadow-sm border border-emerald-300">
                                                 Matrícula: {b.matricula} (C. {b.contrato})
                                             </span>
                                         ))}
@@ -447,14 +447,14 @@ export default function NewAfastamentoPage() {
                         {/* DADOS DO AFASTAMENTO */}
                         {selectedServidor && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-emerald-500 space-y-6">
-                                <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Informações do Afastamento</h3>
+                                <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Informações do Afastamento</h3>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="flex flex-col md:flex-row gap-6 md:items-end">
                                         <div className="flex-1">
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Tipo de Afastamento</label>
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Tipo de Afastamento</label>
                                             <select 
-                                                className="w-full px-4 py-3 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-[#1A3351]"
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-[#1A3351]"
                                                 value={formData.tipo_afastamento}
                                                 onChange={(e) => setFormData({...formData, tipo_afastamento: e.target.value})}
                                             >
@@ -466,13 +466,13 @@ export default function NewAfastamentoPage() {
                                             </select>
                                         </div>
 
-                                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded group hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer select-none"
+                                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-none group hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer select-none"
                                             onClick={() => setFormData(prev => ({ ...prev, is_acidente_trabalho: !prev.is_acidente_trabalho }))}>
-                                            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${formData.is_acidente_trabalho ? 'bg-red-600 border-red-600 shadow-lg shadow-red-200' : 'border-slate-300 bg-white group-hover:border-red-400'}`}>
+                                            <div className={`w-6 h-6 rounded-none border-2 flex items-center justify-center transition-all ${formData.is_acidente_trabalho ? 'bg-red-600 border-red-600 shadow-lg shadow-red-200' : 'border-slate-300 bg-white group-hover:border-red-400'}`}>
                                                 {formData.is_acidente_trabalho && <Activity className="w-4 h-4 text-white" />}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className={`text-[10px] font-black uppercase leading-none ${formData.is_acidente_trabalho ? 'text-red-700' : 'text-slate-500'}`}>Acidente de Trabalho</span>
+                                                <span className={`text-[10px] font-bold uppercase leading-none ${formData.is_acidente_trabalho ? 'text-red-700' : 'text-slate-500'}`}>Acidente de Trabalho</span>
                                                 <span className="text-[8px] font-bold text-slate-400 uppercase">Marcar se relacionado à ocupação</span>
                                             </div>
                                         </div>
@@ -480,22 +480,22 @@ export default function NewAfastamentoPage() {
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Início</label>
-                                            <input type="date" className="w-full px-4 py-3 border border-slate-300 rounded font-bold" value={formData.data_inicio} onChange={(e) => setFormData({...formData, data_inicio: e.target.value})} />
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Início</label>
+                                            <input type="date" className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold" value={formData.data_inicio} onChange={(e) => setFormData({...formData, data_inicio: e.target.value})} />
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Dias de Afastamento</label>
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Dias de Afastamento</label>
                                             <input 
                                                 type="number" 
                                                 placeholder="QTDE DIAS..." 
-                                                className="w-full px-4 py-3 border border-slate-300 rounded font-bold" 
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold" 
                                                 value={diasAfastamento} 
                                                 onChange={(e) => setDiasAfastamento(e.target.value)} 
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block font-bold text-emerald-600">Fim (Calculado)</label>
-                                            <div className="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded font-black text-emerald-700">
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block font-bold text-emerald-600">Fim (Calculado)</label>
+                                            <div className="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-none font-bold text-emerald-700">
                                                 {formData.data_fim ? new Date(formData.data_fim).toLocaleDateString('pt-BR') : '---'}
                                             </div>
                                         </div>
@@ -504,13 +504,13 @@ export default function NewAfastamentoPage() {
 
                                 {/* SELEÇÃO DE CID */}
                                 <div className="space-y-4 pt-4 border-t border-slate-100">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">CIDs (CID-10 / CID-11)</label>
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">CIDs (CID-10 / CID-11)</label>
                                     <div className="flex gap-2 relative">
                                         <div className="flex-1 relative">
                                             <input 
                                                 type="text" 
                                                 placeholder="CÓDIGO OU NOME DA DOENÇA (Ex: J45 ou Asma)..." 
-                                                className="w-full px-4 py-3 border border-slate-300 rounded font-bold uppercase"
+                                                className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase"
                                                 value={cidInput}
                                                 onChange={(e) => setCidInput(e.target.value.toUpperCase())}
                                                 onKeyDown={(e) => e.key === 'Enter' && addCid()}
@@ -521,7 +521,7 @@ export default function NewAfastamentoPage() {
                                                 </div>
                                             )}
                                             {foundCids.length > 0 && (
-                                                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-[#1A3351] rounded shadow-2xl z-50 max-h-60 overflow-y-auto">
+                                                <div className="absolute left-0 right-0 top-full mt-1 bg-white border-2 border-[#1A3351] rounded-none shadow-2xl z-50 max-h-60 overflow-y-auto">
                                                     {foundCids.map((cid, idx) => (
                                                         <button 
                                                             key={cid.code + idx} 
@@ -529,8 +529,8 @@ export default function NewAfastamentoPage() {
                                                             className="w-full text-left p-3 hover:bg-emerald-50 border-b last:border-0 transition-colors group"
                                                         >
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-xs font-black text-[#1A3351]">{cid.code}</span>
-                                                                <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded uppercase">Cap. {cid.chapter}</span>
+                                                                <span className="text-xs font-bold text-[#1A3351]">{cid.code}</span>
+                                                                <span className="text-[8px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded-none uppercase">Cap. {cid.chapter}</span>
                                                             </div>
                                                             <p className="text-[10px] font-bold text-slate-600 uppercase group-hover:text-emerald-700">
                                                                 {cid.desc}
@@ -540,19 +540,19 @@ export default function NewAfastamentoPage() {
                                                 </div>
                                             )}
                                         </div>
-                                        <button onClick={() => addCid()} className="bg-[#1A3351] text-white px-4 rounded hover:bg-emerald-600 transition-colors h-[46px]">
+                                        <button onClick={() => addCid()} className="bg-[#1A3351] text-white px-4 rounded-none hover:bg-emerald-600 transition-colors h-[46px]">
                                             <Plus className="w-6 h-6" />
                                         </button>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedCids.map((cid, i) => (
-                                            <div key={i} className="flex items-baseline gap-2 bg-emerald-50 border-2 border-emerald-200 px-3 py-2 rounded-lg shadow-sm w-full md:w-[calc(50%-8px)]">
+                                            <div key={i} className="flex items-baseline gap-2 bg-emerald-50 border-2 border-emerald-200 px-3 py-2 rounded-none shadow-sm w-full md:w-[calc(50%-8px)]">
                                                 <div className="flex flex-col min-w-0 flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-black text-emerald-800">{cid.code}</span>
-                                                        <span className="text-[8px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded uppercase">Cap. {cid.chapter}</span>
+                                                        <span className="text-sm font-bold text-emerald-800">{cid.code}</span>
+                                                        <span className="text-[8px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded-none uppercase">Cap. {cid.chapter}</span>
                                                     </div>
-                                                    <p className="text-[10px] font-black text-emerald-700 uppercase leading-tight mt-1 truncate" title={cid.desc}>
+                                                    <p className="text-[10px] font-bold text-emerald-700 uppercase leading-tight mt-1 truncate" title={cid.desc}>
                                                         {cid.desc}
                                                     </p>
                                                     <p className="text-[8px] font-bold text-slate-400 uppercase italic truncate">
@@ -569,37 +569,37 @@ export default function NewAfastamentoPage() {
 
                                 {/* DADOS DE PERÍCIA (Requisito Especial) */}
                                 <div className="space-y-4 pt-4 border-t border-slate-100">
-                                    <h4 className="text-[11px] font-black uppercase text-emerald-600 flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-emerald-600 rounded-full" />
+                                    <h4 className="text-[11px] font-bold uppercase text-emerald-600 flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-emerald-600 rounded-none" />
                                         Dados da Perícia Médica (Obrigatório para Prorrogação)
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Data da Perícia</label>
-                                            <input type="date" className="w-full px-4 py-3 border border-slate-300 rounded font-bold" value={formData.data_pericia} onChange={(e) => setFormData({...formData, data_pericia: e.target.value})} />
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Data da Perícia</label>
+                                            <input type="date" className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold" value={formData.data_pericia} onChange={(e) => setFormData({...formData, data_pericia: e.target.value})} />
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Médico Perito</label>
-                                            <input type="text" placeholder="NOME DO PERITO..." className="w-full px-4 py-3 border border-slate-300 rounded font-bold uppercase" value={formData.perito_nome} onChange={(e) => setFormData({...formData, perito_nome: e.target.value})} />
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Médico Perito</label>
+                                            <input type="text" placeholder="NOME DO PERITO..." className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase" value={formData.perito_nome} onChange={(e) => setFormData({...formData, perito_nome: e.target.value})} />
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">CRM / MS</label>
-                                            <input type="text" placeholder="CRM/MS 0000..." className="w-full px-4 py-3 border border-slate-300 rounded font-bold uppercase" value={formData.perito_crm} onChange={(e) => setFormData({...formData, perito_crm: e.target.value})} />
+                                            <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">CRM / MS</label>
+                                            <input type="text" placeholder="CRM/MS 0000..." className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase" value={formData.perito_crm} onChange={(e) => setFormData({...formData, perito_crm: e.target.value})} />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="pt-4">
-                                    <label className="text-[11px] font-black uppercase text-slate-600 mb-1 block">Observações Gerais</label>
-                                    <textarea rows={3} className="w-full px-4 py-3 border border-slate-300 rounded font-bold uppercase resize-none" value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} placeholder="Informaçõe adicionais..." />
+                                    <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">Observações Gerais</label>
+                                    <textarea rows={3} className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase resize-none" value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} placeholder="Informaçõe adicionais..." />
                                 </div>
 
                                 <div className="mt-10 flex justify-end gap-4 border-t pt-8">
-                                    <button onClick={() => router.push('/afastamentos')} className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-600">Cancelar</button>
+                                    <button onClick={() => router.push('/afastamentos')} className="px-6 py-3 text-[10px] font-bold uppercase text-slate-400 hover:text-slate-600">Cancelar</button>
                                     <button 
                                         onClick={handleSave} 
                                         disabled={saving}
-                                        className="px-12 py-3 bg-emerald-600 text-white font-black uppercase text-sm rounded shadow-lg hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-emerald-900"
+                                        className="px-12 py-3 bg-emerald-600 text-white font-bold uppercase text-sm rounded-none shadow-lg hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-2 border-b-4 border-emerald-900"
                                     >
                                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Salvar e Gerar Portaria
@@ -615,10 +615,10 @@ export default function NewAfastamentoPage() {
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                         <div className="bg-white max-w-md w-full p-8 shadow-2xl border-t-[8px] border-emerald-500 animate-in zoom-in-95 duration-300">
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6">
+                                <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-none flex items-center justify-center mb-6">
                                     <CheckCircle2 className="w-12 h-12" />
                                 </div>
-                                <h3 className="text-2xl font-black text-[#1A3351] uppercase tracking-tighter mb-2">Afastamento Registrado!</h3>
+                                <h3 className="text-2xl font-bold text-[#1A3351] uppercase tracking-tighter mb-2">Afastamento Registrado!</h3>
                                 <p className="text-slate-500 text-sm font-bold uppercase mb-8">O registro foi concluído e a Portaria Nº {generatedPortaria?.numero}/{generatedPortaria?.ano} foi gerada com sucesso.</p>
                                 
                                 <div className="grid grid-cols-1 gap-3 w-full">
@@ -627,7 +627,7 @@ export default function NewAfastamentoPage() {
                                             ...generatedPortaria,
                                             data_portaria: new Date().toLocaleDateString('pt-BR')
                                         }, 'view')}
-                                        className="flex items-center justify-center gap-3 w-full py-4 bg-[#1A3351] text-white font-black uppercase text-xs rounded hover:brightness-110 transition-all shadow-lg"
+                                        className="flex items-center justify-center gap-3 w-full py-4 bg-[#1A3351] text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                                     >
                                         <Eye className="w-4 h-4" /> Visualizar Portaria PDF
                                     </button>
@@ -636,13 +636,13 @@ export default function NewAfastamentoPage() {
                                             ...generatedPortaria,
                                             data_portaria: new Date().toLocaleDateString('pt-BR')
                                         }, 'download')}
-                                        className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-black uppercase text-xs rounded hover:brightness-110 transition-all shadow-lg"
+                                        className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                                     >
                                         <Printer className="w-4 h-4" /> Baixar Portaria PDF
                                     </button>
                                     <button 
                                         onClick={() => router.push('/afastamentos')}
-                                        className="w-full py-4 text-slate-400 font-black uppercase text-[10px] hover:text-[#1A3351] transition-all pt-4"
+                                        className="w-full py-4 text-slate-400 font-bold uppercase text-[10px] hover:text-[#1A3351] transition-all pt-4"
                                     >
                                         Voltar ao Painel
                                     </button>

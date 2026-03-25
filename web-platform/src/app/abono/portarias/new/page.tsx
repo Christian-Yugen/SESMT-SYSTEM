@@ -275,15 +275,15 @@ export default function NewPortariaPage() {
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => router.push('/abono/portarias')} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+                            <button onClick={() => router.push('/abono/portarias')} className="p-2 hover:bg-black/5 rounded-none transition-colors">
                                 <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
                             </button>
                             <div>
-                                <h2 className="text-xl font-black leading-none uppercase tracking-tight text-[#1A3351]">Nova Portaria</h2>
-                                <p className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em] mt-1">Criação de Portaria de Abono Salarial</p>
+                                <h2 className="text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Nova Portaria</h2>
+                                <p className="text-[9px] font-bold text-black/40 uppercase tracking-[0.2em] mt-1">Criação de Portaria de Abono Salarial</p>
                             </div>
                         </div>
-                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded text-white active:scale-90 transition-transform">
+                        <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 bg-[#1A3351] rounded-none text-white active:scale-90 transition-transform">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>
@@ -294,7 +294,7 @@ export default function NewPortariaPage() {
 
                         {/* BUSCAR SERVIDOR */}
                         <div className="bg-white p-6 shadow-xl border-l-4 border-[#1A3351]">
-                            <h3 className="text-sm font-black uppercase text-slate-400 mb-4 tracking-widest">Passo 1: Identificar Servidor</h3>
+                            <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">Passo 1: Identificar Servidor</h3>
                             <div className="flex gap-3">
                                 <input
                                     type="text"
@@ -310,7 +310,7 @@ export default function NewPortariaPage() {
                                 <button
                                     onClick={handleSearch}
                                     disabled={searching}
-                                    className="px-8 py-3 bg-[#1A3351] text-white font-black uppercase text-sm rounded hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2"
+                                    className="px-8 py-3 bg-[#1A3351] text-white font-bold uppercase text-sm rounded-none hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2"
                                 >
                                     {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                     Buscar
@@ -319,9 +319,9 @@ export default function NewPortariaPage() {
 
                             {/* LISTA DE RESULTADOS */}
                             {foundServidores.length > 0 && !selectedServidor && (
-                                <div className="mt-2 border-2 border-[#1A3351] bg-white overflow-hidden rounded shadow-2xl animate-in fade-in slide-in-from-top-2 z-10 relative">
+                                <div className="mt-2 border-2 border-[#1A3351] bg-white overflow-hidden rounded-none shadow-2xl animate-in fade-in slide-in-from-top-2 z-10 relative">
                                     <div className="bg-[#1A3351] px-4 py-2 flex justify-between items-center">
-                                        <p className="text-[10px] font-black text-white uppercase tracking-widest">Sugestões Encontradas</p>
+                                        <p className="text-[10px] font-bold text-white uppercase tracking-widest">Sugestões Encontradas</p>
                                         <button onClick={() => setFoundServidores([])} className="text-white hover:text-red-400">
                                             <X className="w-4 h-4" />
                                         </button>
@@ -334,17 +334,17 @@ export default function NewPortariaPage() {
                                                 className="w-full text-left p-4 border-b border-slate-100 hover:bg-[#E31E24]/5 transition-colors group flex justify-between items-center"
                                             >
                                                 <div>
-                                                    <p className="text-sm font-black text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
+                                                    <p className="text-sm font-bold text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
                                                     <div className="flex gap-4 mt-1">
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
                                                         <p className="text-[10px] font-bold text-amber-600 uppercase">Matrícula: {s.matricula}</p>
                                                         {s.contrato && (
-                                                            <p className="text-[10px] font-black text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
+                                                            <p className="text-[10px] font-bold text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
                                                         )}
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">Cargo: {s.cargo}</p>
                                                     </div>
                                                 </div>
-                                                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded text-[9px] font-black text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
+                                                <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
                                                     Selecionar
                                                 </div>
                                             </button>
@@ -354,41 +354,41 @@ export default function NewPortariaPage() {
                             )}
 
                             {selectedServidor && (
-                                <div className="mt-6 p-5 bg-white border-2 border-slate-200 rounded-lg shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="mt-6 p-5 bg-white border-2 border-slate-200 rounded-none shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                     <div className="flex items-center gap-4 pb-2 border-b border-slate-100">
-                                        <div className="w-12 h-12 bg-[#1A3351] rounded flex items-center justify-center text-white shrink-0">
+                                        <div className="w-12 h-12 bg-[#1A3351] rounded-none flex items-center justify-center text-white shrink-0">
                                             <User className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servidor Selecionado</p>
-                                            <p className="text-xl font-black uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Servidor Selecionado</p>
+                                            <p className="text-xl font-bold uppercase text-[#1A3351]">{selectedServidor.Nome}</p>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 pt-2 text-sm">
                                         <div className="flex items-center gap-2 md:col-span-2">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Cargo:</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">Cargo:</p>
                                             <p className="font-bold uppercase text-[#1A3351]">{selectedServidor.Cargo}</p>
                                         </div>
                                         <div className="flex items-center gap-2 md:col-span-2">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Secretaria:</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">Secretaria:</p>
                                             <p className="font-bold uppercase text-[#1A3351]">{selectedServidor.Secretaria}</p>
                                         </div>
                                         <div className="flex items-center gap-2 md:col-span-2">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Lotação:</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">Lotação:</p>
                                             <p className="font-bold uppercase text-[#1A3351]">{selectedServidor["Local de Trabalho"] || "---"}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Matrícula:</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">Matrícula:</p>
                                             <div className="flex items-center gap-2">
                                                 <p className="font-bold text-slate-700">{selectedServidor.Matrícula}</p>
                                                 {selectedServidor.contrato && (
-                                                    <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded font-black uppercase">Contrato {selectedServidor.contrato}</span>
+                                                    <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded-none font-bold uppercase">Contrato {selectedServidor.contrato}</span>
                                                 )}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase w-20 shrink-0">Sexo:</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">Sexo:</p>
                                             <p className="font-bold uppercase text-slate-700">{selectedServidor.Sexo === 'F' ? 'Feminino' : 'Masculino'}</p>
                                         </div>
                                     </div>
@@ -399,15 +399,15 @@ export default function NewPortariaPage() {
                         {/* DADOS DA PORTARIA */}
                         {selectedServidor && (
                             <div className="bg-white p-6 shadow-xl border-l-4 border-amber-500 animate-in slide-in-from-bottom-4 duration-500">
-                                <h3 className="text-sm font-black uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados da Portaria</h3>
+                                <h3 className="text-sm font-bold uppercase text-slate-400 mb-6 tracking-widest">Passo 2: Dados da Portaria</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                                     {/* Número da Portaria */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Nº da Portaria *</label>
+                                        <label className="text-[10px] font-bold uppercase text-slate-600 pl-1">Nº da Portaria *</label>
                                         <input
                                             type="number"
-                                            className="w-full px-3 py-2 border border-slate-300 rounded font-black bg-white uppercase text-xl text-[#1A3351] text-center focus:border-amber-500 outline-none"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded-none font-bold bg-white uppercase text-xl text-[#1A3351] text-center focus:border-amber-500 outline-none"
                                             value={formData.numero}
                                             onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
                                         />
@@ -417,10 +417,10 @@ export default function NewPortariaPage() {
 
                                     {/* Período Início */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Período Início *</label>
+                                        <label className="text-[10px] font-bold uppercase text-slate-600 pl-1">Período Início *</label>
                                         <input
                                             type="date"
-                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-[#fcfcfc] text-sm text-[#1A3351]"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-sm text-[#1A3351]"
                                             value={formData.periodo_inicio}
                                             onChange={(e) => {
                                                 const inicio = e.target.value;
@@ -443,29 +443,29 @@ export default function NewPortariaPage() {
 
                                     {/* Período Fim */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Período Fim *</label>
+                                        <label className="text-[10px] font-bold uppercase text-slate-600 pl-1">Período Fim *</label>
                                         <input
                                             type="date"
                                             readOnly
-                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded-none font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                             value={formData.periodo_fim}
                                         />
                                     </div>
 
                                     {/* Data da Portaria */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-600 pl-1">Data Emissão</label>
+                                        <label className="text-[10px] font-bold uppercase text-slate-600 pl-1">Data Emissão</label>
                                         <input
                                             type="date"
                                             readOnly
-                                            className="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded-none font-bold bg-slate-100 text-sm text-[#1A3351] cursor-not-allowed"
                                             value={formData.data_portaria}
                                         />
                                     </div>
 
                                     <div className="lg:col-span-12 flex items-center">
-                                        <div className="bg-emerald-50 border border-emerald-100 px-3 py-2 rounded w-full">
-                                            <p className="text-[8px] font-black text-emerald-700 uppercase mb-0.5">Vigência Calculada</p>
+                                        <div className="bg-emerald-50 border border-emerald-100 px-3 py-2 rounded-none w-full">
+                                            <p className="text-[8px] font-bold text-emerald-700 uppercase mb-0.5">Vigência Calculada</p>
                                             <p className="text-[10px] font-bold text-emerald-600 uppercase">
                                                 {formData.periodo_inicio && formData.periodo_fim
                                                     ? `${formatDateBR(formData.periodo_inicio)} até ${formatDateBR(formData.periodo_fim)}`
@@ -477,9 +477,9 @@ export default function NewPortariaPage() {
                                 </div>
 
                                 {/* Barra de Preview */}
-                                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                                    <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Prévia do Cabeçalho</p>
-                                    <p className="text-sm font-black text-[#1A3351] uppercase">
+                                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-none">
+                                    <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2">Prévia do Cabeçalho</p>
+                                    <p className="text-sm font-bold text-[#1A3351] uppercase">
                                         PORTARIA Nº {formData.numero || "---"}/SEGP/DGP/{new Date().getFullYear()}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
@@ -491,20 +491,20 @@ export default function NewPortariaPage() {
                                 <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
                                     <button
                                         onClick={() => router.push('/abono/portarias')}
-                                        className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 transition-all"
+                                        className="px-6 py-3 text-[10px] font-bold uppercase text-slate-400 hover:text-slate-600 transition-all"
                                     >
                                         Cancelar
                                     </button>
                                     <button
                                         onClick={handlePreview}
-                                        className="px-8 py-3 bg-[#1A3351] text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                        className="px-8 py-3 bg-[#1A3351] text-white font-bold uppercase text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                                     >
                                         <Eye className="w-4 h-4" />
                                         PDF
                                     </button>
                                     <button
                                         onClick={handleDownloadDOCX}
-                                        className="px-8 py-3 bg-blue-600 text-white font-black uppercase text-sm rounded shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                                        className="px-8 py-3 bg-blue-600 text-white font-bold uppercase text-sm rounded-none shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                                     >
                                         <Download className="w-4 h-4" />
                                         Word
@@ -512,7 +512,7 @@ export default function NewPortariaPage() {
                                     <button
                                         onClick={handleSave}
                                         disabled={saving}
-                                        className="px-12 py-3 bg-green-600 text-white font-black uppercase text-sm rounded shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-green-800"
+                                        className="px-12 py-3 bg-green-600 text-white font-bold uppercase text-sm rounded-none shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-4 border-green-800"
                                     >
                                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Salvar e Gerar PDF

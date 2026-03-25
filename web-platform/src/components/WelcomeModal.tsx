@@ -87,8 +87,8 @@ export default function WelcomeModal({ userName }: WelcomeModalProps) {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Mensagem do Sistema</h2>
-            <h1 className="text-4xl font-black text-[#1A3351] leading-tight tracking-tight">
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">Mensagem do Sistema</h2>
+            <h1 className="text-4xl font-bold text-[#1A3351] leading-tight tracking-tight">
               {greeting}, <span className="bg-gradient-to-r from-[#1A3351] to-blue-600 bg-clip-text text-transparent">{userName}</span>!
             </h1>
             
@@ -108,7 +108,7 @@ export default function WelcomeModal({ userName }: WelcomeModalProps) {
                  Iniciar Expediente <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                </span>
             </button>
-            <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Powered by UXBRAS® SESMT Digital</p>
+            <p className="text-[9px] font-medium text-slate-300 uppercase tracking-widest">Powered by UXBRAS® SESMT Digital</p>
           </div>
         </div>
       </div>

@@ -138,7 +138,7 @@ export default function AfastamentoPortariasPage() {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-emerald-600 animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando Portarias...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando Portarias...</p>
             </div>
         );
     }
@@ -153,9 +153,9 @@ export default function AfastamentoPortariasPage() {
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <FileText className="w-6 h-6" />
-                            <h2 className="text-xl font-black uppercase tracking-tight">Portarias de Afastamento</h2>
+                            <h2 className="text-xl font-bold uppercase tracking-tight">Portarias de Afastamento</h2>
                         </div>
-                        <button onClick={() => router.push('/afastamentos/new')} className="bg-emerald-600 text-white px-6 py-2 rounded font-black text-[10px] uppercase shadow-md">
+                        <button onClick={() => router.push('/afastamentos/new')} className="bg-emerald-600 text-white px-6 py-2 rounded-none font-bold text-[10px] uppercase shadow-md">
                             Nova Portaria
                         </button>
                     </div>
@@ -173,24 +173,24 @@ export default function AfastamentoPortariasPage() {
                 </section>
 
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
-                    <div className="bg-white border-2 border-slate-300 shadow-xl rounded-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl rounded-none overflow-hidden">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400">
-                            <h3 className="text-sm font-black uppercase text-[#1A3351]">Registro de Portarias Geradas</h3>
+                            <h3 className="text-sm font-bold uppercase text-[#1A3351]">Registro de Portarias Geradas</h3>
                         </div>
                         <div className="divide-y divide-slate-100">
                             {filteredRecords.map((record: PortariaRecord) => (
                                 <div key={record.id} className="p-4 lg:px-8 hover:bg-slate-50 flex flex-col lg:flex-row justify-between items-center gap-4 transition-all">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-2 bg-[#1A3351] text-white rounded">
+                                        <div className="p-2 bg-[#1A3351] text-white rounded-none">
                                             <FileText className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-[#1A3351] uppercase">{record.servidor_nome}</h4>
+                                            <h4 className="font-bold text-[#1A3351] uppercase">{record.servidor_nome}</h4>
                                             <p className="text-[10px] font-bold text-slate-500 uppercase">Portaria Nº {record.numero}/{record.ano} • {record.tipo_afastamento}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => handleViewPDF(record)} className="flex items-center gap-2 px-4 py-2 bg-[#1A3351] text-white text-[10px] font-black uppercase rounded shadow hover:brightness-110">
+                                        <button onClick={() => handleViewPDF(record)} className="flex items-center gap-2 px-4 py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase rounded-none shadow hover:brightness-110">
                                             <Eye className="w-3.5 h-3.5" /> Ver PDF
                                         </button>
                                         <button onClick={() => {
@@ -209,7 +209,7 @@ export default function AfastamentoPortariasPage() {
                                                 perito_crm: record.perito_crm,
                                                 servidor_contrato: record.servidor_contrato
                                             }, 'download');
-                                        }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase rounded shadow hover:brightness-110">
+                                        }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-[10px] font-bold uppercase rounded-none shadow hover:brightness-110">
                                             <Printer className="w-3.5 h-3.5" /> Baixar
                                         </button>
                                     </div>

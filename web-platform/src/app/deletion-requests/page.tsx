@@ -266,7 +266,7 @@ export default function DeletionRequestsPage() {
         return (
             <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="w-12 h-12 text-[#E31E24] animate-spin" />
-                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-black text-xs">Carregando...</p>
+                <p className="text-[#1A3351] uppercase tracking-[0.3em] font-bold text-xs">Carregando...</p>
             </div>
         );
     }
@@ -295,11 +295,11 @@ export default function DeletionRequestsPage() {
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <Trash2 className="w-5 lg:w-6 h-5 lg:h-6" />
-                            <h2 className="text-lg lg:text-xl font-black leading-none uppercase tracking-tight">Gerenciar Exclusões</h2>
+                            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">Gerenciar Exclusões</h2>
                         </div>
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden p-2.5 bg-[#1A3351] rounded-lg text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                            className="lg:hidden h-10 px-4 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
                         >
                             <Menu className="w-5 h-5" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
@@ -309,25 +309,25 @@ export default function DeletionRequestsPage() {
                     <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                         <button
                             onClick={() => setFilterStatus('all')}
-                            className={`px-4 py-2 font-black text-[9px] uppercase transition-all whitespace-nowrap rounded ${filterStatus === 'all' ? 'bg-[#1A3351] text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
+                            className={`h-9 px-4 font-bold text-[9px] uppercase transition-all whitespace-nowrap rounded-none ${filterStatus === 'all' ? 'bg-[#1A3351] text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
                         >
                             Todas ({requests.length})
                         </button>
                         <button
                             onClick={() => setFilterStatus('pending')}
-                            className={`px-4 py-2 font-black text-[9px] uppercase transition-all whitespace-nowrap rounded ${filterStatus === 'pending' ? 'bg-[#E31E24] text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
+                            className={`h-9 px-4 font-bold text-[9px] uppercase transition-all whitespace-nowrap rounded-none ${filterStatus === 'pending' ? 'bg-[#E31E24] text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
                         >
                             Pendentes ({pendingCount})
                         </button>
                         <button
                             onClick={() => setFilterStatus('approved')}
-                            className={`px-4 py-2 font-black text-[9px] uppercase transition-all whitespace-nowrap rounded ${filterStatus === 'approved' ? 'bg-emerald-600 text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
+                            className={`h-9 px-4 font-bold text-[9px] uppercase transition-all whitespace-nowrap rounded-none ${filterStatus === 'approved' ? 'bg-emerald-600 text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
                         >
                             Aprovadas ({approvedCount})
                         </button>
                         <button
                             onClick={() => setFilterStatus('rejected')}
-                            className={`px-4 py-2 font-black text-[9px] uppercase transition-all whitespace-nowrap rounded ${filterStatus === 'rejected' ? 'bg-slate-600 text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
+                            className={`h-9 px-4 font-bold text-[9px] uppercase transition-all whitespace-nowrap rounded-none ${filterStatus === 'rejected' ? 'bg-slate-600 text-white shadow-md' : 'bg-[#E8E8E8] text-slate-500 hover:bg-slate-200'}`}
                         >
                             Rejeitadas ({rejectedCount})
                         </button>
@@ -336,7 +336,7 @@ export default function DeletionRequestsPage() {
                             <button
                                 onClick={handleRetroactiveCleanup}
                                 disabled={processingAction}
-                                className="ml-auto px-4 py-2 bg-amber-500 text-white font-black text-[9px] uppercase rounded shadow-md hover:bg-amber-600 transition-all flex items-center gap-2 disabled:opacity-50"
+                                className="ml-auto h-9 px-4 bg-amber-500 text-white font-bold text-[9px] uppercase rounded-none shadow-md hover:bg-amber-600 transition-all flex items-center gap-2 disabled:opacity-50"
                                 title="Processar solicitações aprovadas cujos registros ainda persistem no banco"
                             >
                                 <HistoryIcon className="w-3 h-3" />
@@ -350,24 +350,24 @@ export default function DeletionRequestsPage() {
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 shrink-0">
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Pendentes</p>
-                            <h3 className="text-2xl lg:text-3xl font-black text-[#E31E24] leading-none">{pendingCount}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Pendentes</p>
+                            <h3 className="text-2xl lg:text-3xl font-bold text-[#E31E24] leading-none">{pendingCount}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Aprovadas</p>
-                            <h3 className="text-2xl lg:text-3xl font-black text-emerald-600 leading-none">{approvedCount}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-none transform hover:scale-[1.02] transition-all">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Aprovadas</p>
+                            <h3 className="text-2xl lg:text-3xl font-bold text-emerald-600 leading-none">{approvedCount}</h3>
                         </div>
-                        <div className="bg-white p-4 lg:p-6 border-l-4 border-slate-400 shadow-lg rounded-xl lg:rounded-none transform hover:scale-[1.02] transition-all hidden sm:block">
-                            <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Rejeitadas</p>
-                            <h3 className="text-2xl lg:text-3xl font-black text-slate-600 leading-none">{rejectedCount}</h3>
+                        <div className="bg-white p-4 lg:p-6 border-l-4 border-slate-400 shadow-lg rounded-none transform hover:scale-[1.02] transition-all hidden sm:block">
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Rejeitadas</p>
+                            <h3 className="text-2xl lg:text-3xl font-bold text-slate-600 leading-none">{rejectedCount}</h3>
                         </div>
                     </div>
 
                     {/* LISTA DE SOLICITAÇÕES */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-[#1A3351]">Solicitações de Exclusão</h3>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Solicitações de Exclusão</h3>
                         </div>
                         <div className="divide-y divide-slate-200">
                             {filteredRequests.length > 0 ? filteredRequests.map((request) => (
@@ -381,29 +381,29 @@ export default function DeletionRequestsPage() {
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-2 rounded ${request.status === 'pending' ? 'bg-[#E31E24]/10 text-[#E31E24]' :
-                                                request.status === 'approved' ? 'bg-green-100 text-green-600' :
-                                                    'bg-slate-100 text-slate-500'
+                                            <div className={`p-2 rounded-none border ${request.status === 'pending' ? 'bg-[#E31E24]/10 text-[#E31E24] border-[#E31E24]/20' :
+                                                request.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
+                                                    'bg-slate-50 text-slate-500 border-slate-200'
                                                 }`}>
                                                 {request.status === 'pending' ? <AlertTriangle className="w-5 h-5" /> :
                                                     request.status === 'approved' ? <CheckCircle className="w-5 h-5" /> :
                                                         <XCircle className="w-5 h-5" />}
                                             </div>
                                             <div>
-                                                <h4 className="font-black uppercase text-[#1A3351] text-sm">
+                                                <h4 className="font-bold uppercase text-[#1A3351] text-sm leading-tight">
                                                     {request.original_data?.servidor_nome || 'Nome não disponível'}
                                                 </h4>
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase">
+                                                <p className="text-[10px] font-medium text-slate-500 uppercase">
                                                     {request.original_data?.aso_type || 'Tipo não disponível'}
                                                 </p>
-                                                <p className="text-[9px] font-bold text-slate-400 mt-1">
-                                                    Solicitado por: <span className="text-[#E31E24]">{request.requester_name}</span>
+                                                <p className="text-[9px] font-medium text-slate-400 mt-1">
+                                                    Solicitado por: <span className="text-[#E31E24] font-bold">{request.requester_name}</span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <div className="text-right">
-                                                <span className="text-[9px] font-black text-slate-400 uppercase block">Solicitado em</span>
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase block">Solicitado em</span>
                                                 <span className="text-[11px] font-bold text-slate-700">
                                                     {new Date(request.requested_at).toLocaleString('pt-BR')}
                                                 </span>
@@ -415,18 +415,18 @@ export default function DeletionRequestsPage() {
                                     {/* Detalhes Expandidos */}
                                     {expandedId === request.id && (
                                         <div className="px-6 pb-6 pt-4 bg-[#1A3351]/5 border-t border-slate-200">
-                                            <div className="bg-white p-4 rounded border border-slate-200 mb-4">
-                                                <h5 className="text-[10px] font-black text-slate-400 uppercase mb-2">Motivo da Exclusão:</h5>
+                                            <div className="bg-white p-4 rounded-none border border-slate-200 mb-4">
+                                                <h5 className="text-[10px] font-bold text-slate-400 uppercase mb-2">Motivo da Exclusão:</h5>
                                                 <p className="text-sm text-[#1A3351] font-semibold leading-relaxed">{request.deletion_reason}</p>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                <div className="bg-white p-3 rounded border border-slate-200">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Cargo</span>
+                                                <div className="bg-white p-3 rounded-none border border-slate-200">
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Cargo</span>
                                                     <p className="text-sm font-bold text-[#1A3351]">{request.original_data?.cargo || 'N/A'}</p>
                                                 </div>
-                                                <div className="bg-white p-3 rounded border border-slate-200">
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase block mb-1">Secretaria</span>
+                                                <div className="bg-white p-3 rounded-none border border-slate-200">
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Secretaria</span>
                                                     <p className="text-sm font-bold text-[#1A3351]">{request.original_data?.secretaria || 'N/A'}</p>
                                                 </div>
                                             </div>
@@ -436,15 +436,15 @@ export default function DeletionRequestsPage() {
                                                     <button
                                                         onClick={() => handleApproveRequest(request)}
                                                         disabled={processingAction}
-                                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-600 text-white font-black text-xs uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+                                                        className="flex-1 flex items-center justify-center gap-2 h-12 bg-green-600 text-white font-bold text-xs uppercase rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 border-b-4 border-green-800"
                                                     >
                                                         <CheckCircle className="w-4 h-4" />
-                                                        {processingAction ? 'Processando...' : 'Aprovar e Excluir Definitivamente'}
+                                                        {processingAction ? 'Processando...' : 'Aprovar e Excluir'}
                                                     </button>
                                                     <button
                                                         onClick={() => handleRejectRequest(request.id)}
                                                         disabled={processingAction}
-                                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-600 text-white font-black text-xs uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+                                                        className="flex-1 flex items-center justify-center gap-2 h-12 bg-slate-600 text-white font-bold text-xs uppercase rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 border-b-4 border-slate-800"
                                                     >
                                                         <XCircle className="w-4 h-4" />
                                                         {processingAction ? 'Processando...' : 'Rejeitar Solicitação'}
@@ -453,10 +453,10 @@ export default function DeletionRequestsPage() {
                                             )}
 
                                             {request.status !== 'pending' && (
-                                                <div className="bg-white p-3 rounded border border-slate-200 mt-4">
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Revisado por</p>
+                                                <div className="bg-white p-3 rounded-none border border-slate-200 mt-4">
+                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Revisado por</p>
                                                     <p className="text-sm font-bold text-[#1A3351]">{request.reviewer_name || 'N/A'}</p>
-                                                    <p className="text-[10px] text-slate-500 mt-1">
+                                                    <p className="text-[10px] text-slate-500 mt-1 font-medium">
                                                         em {request.reviewed_at ? new Date(request.reviewed_at).toLocaleString('pt-BR') : 'N/A'}
                                                     </p>
                                                 </div>
@@ -465,7 +465,7 @@ export default function DeletionRequestsPage() {
                                     )}
                                 </div>
                             )) : (
-                                <div className="py-20 text-center text-slate-400 uppercase font-black text-xs italic tracking-widest">
+                                <div className="py-20 text-center text-slate-400 uppercase font-bold text-xs italic tracking-widest">
                                     {filterStatus === 'all' ? 'Nenhuma solicitação encontrada' : `Nenhuma solicitação ${filterStatus === 'pending' ? 'pendente' : filterStatus === 'approved' ? 'aprovada' : 'rejeitada'}`}
                                 </div>
                             )}
@@ -476,44 +476,44 @@ export default function DeletionRequestsPage() {
 
             {/* MODAL DE CONFIRMAÇÃO DE APROVAÇÃO */}
             {showApprovalModal && selectedRequest && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
-                    <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in-95">
-                        <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#E31E24]">
-                            <AlertTriangle className="w-8 h-8 text-[#E31E24]" />
-                            <h3 className="text-lg font-black uppercase text-[#1A3351]">Confirmar Exclusão Definitiva</h3>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4 text-black">
+                    <div className="bg-white rounded-none shadow-2xl max-w-md w-full border-4 border-[#1A3351] animate-in fade-in zoom-in-95">
+                        <div className="bg-[#1A3351] p-6 flex items-center gap-3 border-b-2 border-white/10">
+                            <AlertTriangle className="w-8 h-8 text-amber-500" />
+                            <h3 className="text-lg font-bold uppercase text-white tracking-tight">Confirmar Exclusão</h3>
                         </div>
 
-                        <div className="space-y-4 mb-6">
+                        <div className="p-8 space-y-6">
                             <p className="text-sm font-bold text-slate-700">
-                                Esta ação é <span className="text-[#E31E24] uppercase">IRREVERSÍVEL</span>. O registro será PERMANENTEMENTE excluído do banco de dados.
+                                Esta ação é <span className="text-[#E31E24] uppercase font-bold">IRREVERSÍVEL</span>. O registro será PERMANENTEMENTE excluído do banco de dados.
                             </p>
 
-                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Servidor:</p>
+                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">Servidor:</p>
                                 <p className="font-bold text-[#1A3351]">{selectedRequest.original_data?.servidor_nome}</p>
                             </div>
 
-                            <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                                <p className="text-xs font-black text-slate-500 uppercase mb-1">Motivo da exclusão:</p>
-                                <p className="text-sm text-slate-700">{selectedRequest.deletion_reason}</p>
+                            <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
+                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">Motivo da exclusão:</p>
+                                <p className="text-sm text-slate-700 font-medium">{selectedRequest.deletion_reason}</p>
                             </div>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="p-6 bg-[#B0B0B0] flex gap-3 border-t border-slate-300">
                             <button
                                 onClick={() => {
                                     setShowApprovalModal(false);
                                     setSelectedRequest(null);
                                 }}
                                 disabled={processingAction}
-                                className="flex-1 py-3 px-4 bg-slate-200 text-slate-700 font-black text-xs uppercase rounded hover:bg-slate-300 transition-all disabled:opacity-50"
+                                className="flex-1 h-12 bg-white text-slate-700 font-bold text-xs uppercase rounded-none border border-slate-400 hover:bg-slate-50 transition-all disabled:opacity-50"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={confirmApproval}
                                 disabled={processingAction}
-                                className="flex-[2] py-3 px-4 bg-[#E31E24] text-white font-black text-xs uppercase rounded shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-[2] h-12 bg-[#E31E24] text-white font-bold text-xs uppercase rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2 border-b-4 border-red-900"
                             >
                                 {processingAction ? (
                                     <>
@@ -523,7 +523,7 @@ export default function DeletionRequestsPage() {
                                 ) : (
                                     <>
                                         <Trash2 className="w-4 h-4" />
-                                        Confirmar Exclusão Definitiva
+                                        Confirmar Exclusão
                                     </>
                                 )}
                             </button>
