@@ -156,7 +156,7 @@ export default function Sidebar({
             <>
               <button 
                 onClick={() => router.push('/')}
-                className={`w-full flex items-center gap-1.5 p-3 rounded-lg transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
+                className={`w-full flex items-center gap-1.5 p-3 transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
               >
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                 <span>Criar documentos</span>
@@ -165,7 +165,7 @@ export default function Sidebar({
               {userRole !== 'viewer' && (
                 <button
                   onClick={() => router.push('/referrals')}
-                  className={`w-full flex items-center gap-1.5 p-3 rounded-lg transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/referrals') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
+                  className={`w-full flex items-center gap-1.5 p-3 transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/referrals') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
                 >
                   <ClipboardList className="w-4 h-4 shrink-0" />
                   <span>Central de Evidências</span>
@@ -179,7 +179,7 @@ export default function Sidebar({
             <div className="space-y-1">
               <button
                 onClick={() => setIsBenefitsOpen(!isBenefitsOpen)}
-                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
               >
                 <div className="flex items-center gap-1.5">
                   <HeartPulse className="w-4 h-4 shrink-0" />
@@ -189,7 +189,7 @@ export default function Sidebar({
               </button>
 
               {isBenefitsOpen && (
-                <div className="flex flex-col space-y-1 bg-black/10 rounded-lg p-1">
+                <div className="flex flex-col space-y-1 bg-black/10 p-1">
                   {userRole !== 'social_assistant' && (
                     <>
                       {(userRole === 'admin' || userRole === 'nurse') && (
@@ -213,7 +213,7 @@ export default function Sidebar({
                     <div className="space-y-1">
                       <button
                         onClick={() => setIsAbonoOpen(!isAbonoOpen)}
-                        className={`w-full flex items-center justify-between p-2 pl-9 rounded-lg font-bold text-[10px] uppercase tracking-wider group ${pathname.startsWith('/abono') ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                        className={`w-full flex items-center justify-between p-2 pl-9 font-bold text-[10px] uppercase tracking-wider group ${pathname.startsWith('/abono') ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
                       >
                         <div className="flex items-center gap-2">
                           <ClipboardList className="w-3.5 h-3.5 shrink-0 group-hover:text-indigo-400 transition-colors" />
@@ -257,7 +257,7 @@ export default function Sidebar({
             <div className="pt-2">
               <button
                 onClick={() => setShowSyncModal(true)}
-                className="w-full flex items-center justify-between p-3 rounded-lg transition-all font-bold text-xs uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                className="w-full flex items-center justify-between p-3 transition-all font-bold text-xs uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20"
               >
                 <div className="flex items-center gap-1.5">
                   <CloudDownload className={`w-4 h-4 shrink-0 ${isSyncing ? 'animate-bounce' : ''}`} />
@@ -272,7 +272,7 @@ export default function Sidebar({
             <div className="space-y-1">
               <button
                 onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
               >
                 <div className="flex items-center gap-1.5">
                   <HistoryIcon className="w-4 h-4 shrink-0" />
@@ -282,17 +282,17 @@ export default function Sidebar({
               </button>
 
               {isHistoryOpen && (
-                <div className="flex flex-col space-y-1 bg-black/10 rounded-lg p-1">
+                <div className="flex flex-col space-y-1 bg-black/10 p-1">
                   <button
                     onClick={() => router.push('/history')}
-                    className={`w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive('/history') ? 'text-white bg-white/5' : 'text-white/60 hover:text-white'}`}
+                    className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive('/history') ? 'text-white bg-white/5' : 'text-white/60 hover:text-white'}`}
                   >
                     <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
                     <span>Log Principal</span>
                   </button>
                   <button
                     onClick={() => router.push('/analytics')}
-                    className={`w-full flex items-center gap-1.5 p-2 pl-9 rounded-lg transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive('/analytics') ? 'text-white bg-white/5' : 'text-white/60 hover:text-white'}`}
+                    className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive('/analytics') ? 'text-white bg-white/5' : 'text-white/60 hover:text-white'}`}
                   >
                     <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                     <span>Indicadores BI</span>
@@ -305,7 +305,7 @@ export default function Sidebar({
           {userRole !== 'social_assistant' && (
             <button
               onClick={() => router.push('/archive')}
-              className={`w-full flex items-center gap-1.5 p-3 rounded-lg transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/archive') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
+              className={`w-full flex items-center gap-1.5 p-3 transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap ${isActive('/archive') ? 'bg-white/10 text-white shadow-sm border border-white/5' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
             >
               <FolderOpen className="w-4 h-4 shrink-0" />
               <span>Arquivo Médico</span>
@@ -316,7 +316,7 @@ export default function Sidebar({
             <div className="space-y-1">
               <button
                 onClick={() => setIsAdminOpen(!isAdminOpen)}
-                className="w-full flex items-center justify-between p-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
+                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
               >
                 <div className="flex items-center gap-1.5">
                   <UsersIcon className="w-4 h-4 shrink-0" />
@@ -326,22 +326,22 @@ export default function Sidebar({
               </button>
 
               {isAdminOpen && (
-                <div className="flex flex-col space-y-1 bg-black/10 rounded-lg p-1">
-                  <button onClick={() => router.push('/users')} className={`w-full flex items-center gap-2 p-2.5 pl-9 rounded-md transition-all font-bold text-[10px] uppercase tracking-wider ${isActive('/users') ? 'text-white bg-white/5' : 'text-white/50 hover:text-white'}`}>
+                <div className="flex flex-col space-y-1 bg-black/10 p-1">
+                  <button onClick={() => router.push('/users')} className={`w-full flex items-center gap-2 p-2.5 pl-9 transition-all font-bold text-[10px] uppercase tracking-wider ${isActive('/users') ? 'text-white bg-white/5' : 'text-white/50 hover:text-white'}`}>
                     <UsersIcon className="w-3.5 h-3.5" />
                     <span>Gestão de Usuários</span>
                   </button>
-                  <button onClick={() => router.push('/deletion-requests')} className={`w-full flex items-center gap-2 p-2.5 pl-9 rounded-md transition-all font-bold text-[10px] uppercase tracking-wider ${isActive('/deletion-requests') ? 'text-white bg-white/5' : 'text-white/50 hover:text-white'}`}>
+                  <button onClick={() => router.push('/deletion-requests')} className={`w-full flex items-center gap-2 p-2.5 pl-9 transition-all font-bold text-[10px] uppercase tracking-wider ${isActive('/deletion-requests') ? 'text-white bg-white/5' : 'text-white/50 hover:text-white'}`}>
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Exclusões Pendentes</span>
                   </button>
-                  <button onClick={() => setShowGreetingsManager(true)} className="w-full flex items-center gap-2 p-2.5 pl-9 rounded-md text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider">
+                  <button onClick={() => setShowGreetingsManager(true)} className="w-full flex items-center gap-2 p-2.5 pl-9 text-white/50 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider">
                     <MessageSquarePlus className="w-3.5 h-3.5" />
                     <span>Boas-Vindas</span>
                   </button>
                   <button 
                     onClick={() => setShowSyncModal(true)} 
-                    className={`w-full flex items-center justify-between p-2.5 pl-9 rounded-md transition-all font-bold text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? 'text-amber-500' : 'text-white/50 hover:text-white'}`}
+                    className={`w-full flex items-center justify-between p-2.5 pl-9 transition-all font-bold text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? 'text-amber-500' : 'text-white/50 hover:text-white'}`}
                   >
                     <div className="flex items-center gap-2">
                       <CloudDownload className={`w-3.5 h-3.5 ${isSyncing ? 'animate-bounce' : ''}`} />

@@ -462,7 +462,7 @@ export default function AnalyticsPage() {
                         .stat-value { font-size: 16px; font-weight: 900; color: #1A3351; }
 
                         .footer { margin-top: 30px; font-size: 7.5px; text-align: center; color: #777; border-top: 1px solid #eee; padding-top: 10px; font-weight: normal; }
-                        .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; border-radius: 2px; }
+                        .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; border-radius: 0px; }
                         .lgpd-title { font-size: 8px; font-weight: 900; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block; }
                         .lgpd-text { font-size: 8px; color: #333; text-align: justify; margin: 0; line-height: 1.4; font-weight: 500; }
                     </style>

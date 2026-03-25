@@ -44,7 +44,7 @@ export default function GreetingsManagerModal({ isOpen, onClose, userId }: Greet
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-[#D3D3D3] w-full max-w-xl rounded-2xl shadow-2xl border-4 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 text-black">
+      <div className="bg-[#D3D3D3] w-full max-w-xl rounded-none shadow-2xl border-4 border-[#1A3351] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 text-black">
         <div className="bg-[#1A3351] p-6 flex justify-between items-center text-white">
           <div className="flex items-center gap-3">
             <MessageSquarePlus className="w-8 h-8 text-blue-400" />
@@ -59,7 +59,7 @@ export default function GreetingsManagerModal({ isOpen, onClose, userId }: Greet
         </div>
 
         <div className="p-8 space-y-6">
-          <div className="bg-blue-50 border-l-4 border-[#1A3351] p-4 rounded-r-xl">
+          <div className="bg-blue-50 border-l-4 border-[#1A3351] p-4 rounded-none">
             <p className="text-xs font-bold text-[#1A3351]/80 leading-relaxed italic">
               "Esta mensagem aparecerá no primeiro login do dia para todos os operadores, logo após a saudação de Bom dia/Boa tarde."
             </p>
@@ -71,7 +71,7 @@ export default function GreetingsManagerModal({ isOpen, onClose, userId }: Greet
               value={newGreeting}
               onChange={(e) => setNewGreeting(e.target.value)}
               placeholder="Ex: Que seu dia seja produtivo e repleto de realizações!"
-              className="w-full h-32 p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-[#1A3351] focus:ring-4 focus:ring-[#1A3351]/10 outline-none transition-all font-medium text-slate-700 resize-none"
+              className="w-full h-32 p-4 bg-white border-2 border-slate-200 rounded-none focus:border-[#1A3351] focus:ring-4 focus:ring-[#1A3351]/10 outline-none transition-all font-medium text-slate-700 resize-none"
             />
           </div>
 
@@ -79,14 +79,14 @@ export default function GreetingsManagerModal({ isOpen, onClose, userId }: Greet
               <button 
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex-1 py-4 bg-[#1A3351] text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-xl hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-blue-950 flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-[#1A3351] text-white font-black uppercase tracking-[0.2em] rounded-none shadow-xl hover:brightness-110 active:scale-95 transition-all text-xs border-b-4 border-blue-950 flex items-center justify-center gap-2"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 {isSaving ? "Salvando..." : "Atualizar Mensagem"}
               </button>
               <button 
                 onClick={onClose}
-                className="px-8 py-4 bg-slate-200 text-slate-500 font-black uppercase tracking-[0.2em] rounded-xl hover:bg-slate-300 transition-all text-xs"
+                className="px-8 py-4 bg-slate-200 text-slate-500 font-black uppercase tracking-[0.2em] rounded-none hover:bg-slate-300 transition-all text-xs"
               >
                 Cancelar
               </button>
