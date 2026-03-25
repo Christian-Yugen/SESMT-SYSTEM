@@ -266,7 +266,7 @@ export default function NewAfastamentoPage() {
                         perito_crm: formData.perito_crm || null,
                         observacoes: formData.observacoes,
                         situacao: 'EM_ANDAMENTO',
-                        criado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
+                        criado_por: user?.id || null, 
                         hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
                     })
                     .select()
@@ -293,7 +293,7 @@ export default function NewAfastamentoPage() {
                         numero: nextNumber,
                         ano: currentYear,
                         data_emissao: new Date().toISOString().split('T')[0],
-                        criado_por: user?.id
+                        criado_por: user?.id || null
                     })
                     .select()
                     .single();
