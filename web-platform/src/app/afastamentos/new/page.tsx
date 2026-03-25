@@ -266,7 +266,8 @@ export default function NewAfastamentoPage() {
                         perito_crm: formData.perito_crm || null,
                         observacoes: formData.observacoes,
                         situacao: 'EM_ANDAMENTO',
-                        criado_por: user?.id
+                        criado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
+                        hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
                     })
                     .select()
                     .single();
