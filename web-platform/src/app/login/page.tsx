@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Loader2, Lock, User, ShieldCheck, Activity, Eye, EyeOff } from "lucide-react";
-import { syncProfile } from "@/lib/auth-utils";
+import { syncProfile, safeGetSession, handleAuthError } from "@/lib/auth-utils";
 
 export default function LoginPage() {
     const [mode, setMode] = useState<"login" | "signup" | "forgot-password">("login");
@@ -20,7 +20,12 @@ export default function LoginPage() {
 
     useEffect(() => {
         const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session, error } = await safeGetSession();
+            if (error) {
+                await handleAuthError(error);
+                return;
+            }
+            
             if (session) {
                 router.push("/");
             }

@@ -35,23 +35,31 @@ if (typeof window !== 'undefined') {
         }
     });
 
-    // Intercepta erros silenciosos do auto-refresh ao inicializar
-    supabase.auth.getSession().then(({ error }) => {
-        if (error) {
-            const isRefreshError = error.message?.includes('Refresh Token Not Found') || 
-                                 error.message?.includes('invalid refresh token') ||
-                                 error.status === 400;
-            
-            if (isRefreshError) {
-                console.warn("Sessão expirada detectada. Limpando storage...");
-                localStorage.removeItem('sesmt-auth-session');
-                // Não forçamos redirect aqui se já estivermos na login, o middleware/páginas tratam
-                if (!window.location.pathname.includes('/login')) {
-                    supabase.auth.signOut().finally(() => {
-                        window.location.href = '/login';
-                    });
+    // Intercepta erros do auto-refresh ao inicializar para continuar a sincronização de dados mesmo sem sessão
+    const storageKey = 'sesmt-auth-session';
+    const hasExistingSession = !!localStorage.getItem(storageKey);
+
+    if (hasExistingSession) {
+        supabase.auth.getSession().then(({ error }) => {
+            if (error) {
+                const errorMessage = error.message || '';
+                const isRefreshError = errorMessage.includes('Refresh Token Not Found') || 
+                                     errorMessage.includes('invalid refresh token') ||
+                                     error.status === 400;
+                
+                if (isRefreshError) {
+                    console.warn("Sessão expirada detectada na inicialização. Limpando...");
+                    localStorage.removeItem(storageKey);
+                    
+                    if (!window.location.pathname.includes('/login')) {
+                        supabase.auth.signOut().finally(() => {
+                            window.location.href = '/login';
+                        });
+                    }
                 }
             }
-        }
-    });
+        }).catch(() => {
+            // Suprime erros de rede ou outros na inicialização silenciosa, mas nao completamente de modo a não atrapalhar o funcionamento do sistema
+        });
+    }
 }

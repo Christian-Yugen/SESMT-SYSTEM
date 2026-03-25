@@ -371,10 +371,6 @@ export default function NewAbonoPage() {
                                                     <p className="text-sm font-bold text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">{s.nome}</p>
                                                     <div className="flex gap-4 mt-1">
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase">CPF: {s.cpf}</p>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase text-amber-600">Matrícula: {s.matricula}</p>
-                                                        {s.contrato && (
-                                                            <p className="text-[10px] font-bold text-[#E31E24] uppercase">Contrato: {s.contrato}</p>
-                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
@@ -395,15 +391,6 @@ export default function NewAbonoPage() {
                                     <div>
                                         <p className="text-[11px] font-bold text-slate-400 uppercase">Cargo</p>
                                         <p className="font-bold uppercase text-sm text-[#1A3351]">{selectedServidor.Cargo}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase">Matrícula</p>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm font-bold text-[#1A3351]">{selectedServidor.Matrícula}</p>
-                                            {selectedServidor.contrato && (
-                                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded-none font-bold">C. {selectedServidor.contrato}</span>
-                                            )}
-                                        </div>
                                     </div>
                                     <div>
                                         <p className="text-[11px] font-bold text-slate-400 uppercase">Secretaria</p>

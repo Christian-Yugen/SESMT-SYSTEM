@@ -145,6 +145,27 @@ export default function AnalyticsPage() {
     const [showHourAnalysis, setShowHourAnalysis] = useState(false);
     const [selectedDay, setSelectedDay] = useState<number | 'all'>('all');
 
+    // Smart Header Logic
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+    const [scrollUpStart, setScrollUpStart] = useState(0);
+
+    const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const scrollTop = e.currentTarget.scrollTop;
+        const isScrollingDown = scrollTop > lastScrollTop;
+
+        if (isScrollingDown) {
+            setScrollUpStart(scrollTop);
+            if (scrollTop > 150 && showHeader) setShowHeader(false);
+        } else {
+            // Só mostra se subiu mais de 250px desde o ponto mais baixo ou chegou no topo
+            if ((scrollUpStart - scrollTop > 250) || scrollTop < 50) {
+                if (!showHeader) setShowHeader(true);
+            }
+        }
+        setLastScrollTop(scrollTop);
+    };
+
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -570,8 +591,15 @@ export default function AnalyticsPage() {
 
             {/* MAIN */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
+                <div
+                    onScroll={handleMainScroll}
+                    className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
+                >
                 {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+                {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
+                <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                    <div className="overflow-hidden">
+                        <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
                             <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
@@ -800,10 +828,12 @@ export default function AnalyticsPage() {
                         )}
 
                     </div>
-                </section>
+                        </section>
+                    </div>
+                </div>
 
                 {/* CONTENT */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 p-4 space-y-4">
                     {/* BIG NUMBERS */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
@@ -1151,6 +1181,7 @@ export default function AnalyticsPage() {
                             Powered by UXBRAS® — Executive Intelligence System
                         </p>
                     </footer>
+                </div>
                 </div>
             </main>
         </div>

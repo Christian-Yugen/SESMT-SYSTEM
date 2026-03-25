@@ -77,19 +77,6 @@ export const generateASOPDF = (
     drawLabelValue('CARGO:', (servidor.Cargo || "").toUpperCase(), 14, y);
     y += 5.5;
     drawLabelValue('LOTACAO:', (servidor.Secretaria || "").toUpperCase(), 14, y);
-    y += 5.5;
-    
-    doc.setFont('times', 'bold');
-    doc.text('MATRÍCULA:', 14, y);
-    doc.setFont('times', 'normal');
-    doc.text(servidor.Matrícula || "---", valueStartX, y);
-
-    if (servidor.contrato) {
-        doc.setFont('times', 'bold');
-        doc.text('CONTRATO:', 75, y);
-        doc.setFont('times', 'normal');
-        doc.text(servidor.contrato, 102, y);
-    }
     y += 8; // Texto NR-7 subindo para ficar mais próximo da Lotação
 
     // 4. Texto Legal (NR-7) - Justificado, Maior e com mais espaçamento entre linhas
@@ -304,13 +291,6 @@ export const generateReferralPDF = (
     doc.text('SETOR:', 14, y);
     doc.setFont('helvetica', 'normal');
     doc.text((servidor.Secretaria || "").toUpperCase(), 35, y);
-    y += 6;
-    doc.setFont('helvetica', 'bold');
-    doc.text('MATRÍCULA:', 14, y);
-    doc.setFont('helvetica', 'normal');
-    const matriculaDoc = servidor.Matrícula || "---";
-    const contratoDoc = servidor.contrato ? ` (CONTRATO ${servidor.contrato})` : "";
-    doc.text(matriculaDoc + contratoDoc, 42, y);
     y += 10;
 
     // Texto de Solicitação Médica
