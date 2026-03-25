@@ -365,6 +365,8 @@ export default function AfastamentosPage() {
             }
             await supabase.from('afastamentos_logs').insert({ 
                 afastamento_id: editingRecord.id, 
+                usuario_id: user?.id,
+                usuario_email: user?.email,
                 alterado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
                 dados_anteriores: oldData, 
                 dados_novos: { ...newData, hash_auditoria: auditHash }, 
@@ -394,6 +396,8 @@ export default function AfastamentosPage() {
             
             await supabase.from('afastamentos_logs').insert({ 
                 afastamento_id: editingRecord.id, 
+                usuario_id: user?.id,
+                usuario_email: user?.email,
                 alterado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
                 dados_anteriores: { observacoes: editingRecord.observacoes }, 
                 dados_novos: { observacoes: noteFormData, hash_auditoria: auditHash }, 
