@@ -8,7 +8,7 @@ import {
     ChevronDown, ChevronUp,
     User, Calendar, ClipboardList, Search, Printer, PlusCircle,
     Building2, CheckCircle2, Clock, RotateCcw, Eye, EyeOff, Pencil, FileEdit, Save,
-    FileText
+    FileText, History as HistoryIcon, Users as UsersIcon
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
@@ -40,9 +40,11 @@ interface AfastamentoRecord {
     observacoes: string;
     renovado_por_id: number | null;
     criado_em: string;
-    afastamento_cids?: CIDRecord[];
+    criado_por: string;
+    hash_auditoria?: string;
+    afastamento_cids?: { cid_codigo: string; cid_descricao: string; cid_capitulo: string }[];
     is_acidente_trabalho: boolean;
-    portarias_afastamento?: { numero: string; ano: string; data_emissao: string }[];
+    portarias_afastamento?: { numero: number; ano: number; data_emissao: string }[];
 }
 
 interface CIDRecord {
@@ -130,6 +132,7 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
 
 export default function AfastamentosPage() {
     const [records, setRecords] = useState<AfastamentoRecord[]>([]);
+    const [logs, setLogs] = useState<Record<number, any[]>>({});
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -137,6 +140,7 @@ export default function AfastamentosPage() {
     const [expandedCpf, setExpandedCpf] = useState<string | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("Usuário");
+    const [profilesMap, setProfilesMap] = useState<Record<string, string>>({});
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired' | 'alert' | 'finished'>('all');
     const [sortBy, setSortBy] = useState<'alphabetical' | 'newest' | 'oldest'>('alphabetical');
     const [secretariaFilter, setSecretariaFilter] = useState<string>('all');
@@ -215,6 +219,31 @@ export default function AfastamentosPage() {
                 return { ...r, dias_afastado: null };
             });
             setRecords(withDays);
+
+            // Carregar Logs de Auditoria
+            const { data: logsData } = await supabase
+                .from('afastamentos_logs')
+                .select('*')
+                .order('data_alteracao', { ascending: false });
+
+            if (logsData) {
+                const logsMap: Record<number, any[]> = {};
+                logsData.forEach((log: any) => {
+                    if (!logsMap[log.afastamento_id]) logsMap[log.afastamento_id] = [];
+                    logsMap[log.afastamento_id].push(log);
+                });
+                setLogs(logsMap);
+            }
+
+            // Carregar Mapeamento de Perfis (para resolver UUIDs)
+            const { data: profilesData } = await supabase.from('profiles').select('id, full_name, email');
+            if (profilesData) {
+                const pMap: Record<string, string> = {};
+                profilesData.forEach(p => {
+                    pMap[p.id] = p.full_name || p.email || p.id;
+                });
+                setProfilesMap(pMap);
+            }
         }
         setLoading(false);
     }
@@ -299,18 +328,29 @@ export default function AfastamentosPage() {
             const oldData = { data_inicio: editingRecord.data_inicio, data_fim: editingRecord.data_fim, is_acidente_trabalho: editingRecord.is_acidente_trabalho, cids: editingRecord.afastamento_cids?.map(c => c.cid_codigo) || [] };
             const newData = { data_inicio: editFormData.data_inicio, data_fim: newDataFim, is_acidente_trabalho: editFormData.is_acidente_trabalho, cids: editFormData.cids.map(c => c.code) };
 
+
+            const auditHash = `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
             await supabase.from('afastamentos').update({ 
                 data_inicio: editFormData.data_inicio, 
                 data_fim: newDataFim, 
                 dias_afastado: days,
-                is_acidente_trabalho: editFormData.is_acidente_trabalho 
+                is_acidente_trabalho: editFormData.is_acidente_trabalho,
+                hash_auditoria: auditHash 
             }).eq('id', editingRecord.id);
             await supabase.from('afastamento_cids').delete().eq('afastamento_id', editingRecord.id);
             for (const cid of editFormData.cids) {
                 const chapter = getCIDChapter(cid.code);
                 await supabase.from('afastamento_cids').insert({ afastamento_id: editingRecord.id, cid_codigo: cid.code, cid_descricao: cid.desc, cid_capitulo: chapter?.capitulo || 'Desconhecido' });
             }
-            await supabase.from('afastamentos_logs').insert({ afastamento_id: editingRecord.id, alterado_por: user?.email || 'Sistema', dados_anteriores: oldData, dados_novos: newData, motivo_alteracao: "Edição manual" });
+            await supabase.from('afastamentos_logs').insert({ 
+                afastamento_id: editingRecord.id, 
+                alterado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
+                dados_anteriores: oldData, 
+                dados_novos: { ...newData, hash_auditoria: auditHash }, 
+                motivo_alteracao: "Edição manual",
+                hash_auditoria: auditHash
+            });
             loadRecords();
             setIsEditModalOpen(false);
             alert("Alterações salvas com sucesso!");
@@ -322,8 +362,25 @@ export default function AfastamentosPage() {
         if (!editingRecord) return;
         setIsSavingNote(true);
         try {
-            const { error } = await supabase.from('afastamentos').update({ observacoes: noteFormData }).eq('id', editingRecord.id);
+            const { data: { user } } = await supabase.auth.getUser();
+            const auditHash = `AF-NOTE-${Date.now().toString(36).toUpperCase()}`;
+            
+            const { error } = await supabase.from('afastamentos').update({ 
+                observacoes: noteFormData,
+                hash_auditoria: auditHash
+            }).eq('id', editingRecord.id);
+            
             if (error) throw error;
+            
+            await supabase.from('afastamentos_logs').insert({ 
+                afastamento_id: editingRecord.id, 
+                alterado_por: user?.user_metadata?.full_name || user?.email || 'Sistema', 
+                dados_anteriores: { observacoes: editingRecord.observacoes }, 
+                dados_novos: { observacoes: noteFormData, hash_auditoria: auditHash }, 
+                motivo_alteracao: "Atualização de anotações",
+                hash_auditoria: auditHash
+            });
+
             loadRecords();
             setIsNotesModalOpen(false);
             alert("Anotação salva com sucesso!");
@@ -739,14 +796,16 @@ export default function AfastamentosPage() {
                                     </div>
 
                                     {expandedCpf === group.cpf && (
-                                        <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
-                                            <h5 className="text-[11px] font-black uppercase text-slate-400 tracking-[0.2em] border-b pb-2 mb-6">Histórico de Afastamentos</h5>
-                                            <div className="grid grid-cols-1 gap-4">
-                                                {group.items.map((record) => {
-                                                    const status = getStatus(record);
-                                                    return (
-                                                        <div key={record.id} className="bg-white p-6 border border-slate-200 shadow-sm rounded-lg hover:border-[#1A3351]/30 transition-colors relative overflow-hidden">
-                                                            <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-full" />
+                                        <div className="px-4 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                            <div className="space-y-6">
+                                                <h5 className="text-[11px] font-black uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
+
+                                                <div className="grid grid-cols-1 gap-6">
+                                                    {group.items.map((record) => {
+                                                        const status = getStatus(record);
+                                                        return (
+                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm rounded-xl hover:border-[#1A3351]/30 transition-all relative overflow-hidden group/card">
+                                                                <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 rounded-full group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                             {/* INFO GRID - 3 colunas */}
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
@@ -850,49 +909,66 @@ export default function AfastamentosPage() {
                                                             </div>
 
                                                             {/* PAINEL CID EXPANDIDO */}
-                                                            {revealedCids.has(record.id) && (() => {
-                                                                return (
-                                                                    <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
-                                                                        <div className="flex flex-col gap-3">
-                                                                            {/* CID-10 SECTION */}
-                                                                            {record.afastamento_cids && record.afastamento_cids.length > 0 && (
-                                                                                <div className="divide-y divide-slate-100">
-                                                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
-                                                                                    {record.afastamento_cids.map((cid) => (
-                                                                                        <CIDDetailItem key={cid.id} cid={cid} />
-                                                                                    ))}
-                                                                                </div>
-                                                                            )}
-
-                                                                            {/* ANOTAÇÕES SECTION */}
-                                                                            <div className="bg-slate-50/50 p-3 rounded border border-slate-200/50">
-                                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                                                                    <ClipboardList className="w-3 h-3" /> Anotações do Registro
-                                                                                </p>
-                                                                                {record.observacoes ? (
-                                                                                    <p className="text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-wrap">{record.observacoes}</p>
-                                                                                ) : (
-                                                                                    <p className="text-[10px] font-bold text-slate-400 italic">Nenhuma anotação registrada para este afastamento.</p>
-                                                                                )}
+                                                            {revealedCids.has(record.id) && (
+                                                                <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
+                                                                    <div className="flex flex-col gap-3">
+                                                                        {/* CID-10 SECTION */}
+                                                                        {record.afastamento_cids && record.afastamento_cids.length > 0 && (
+                                                                            <div className="divide-y divide-slate-100">
+                                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Diagnósticos CID-10</p>
+                                                                                {record.afastamento_cids.map((cid: any) => (
+                                                                                    <CIDDetailItem key={cid.id} cid={cid} />
+                                                                                ))}
                                                                             </div>
+                                                                        )}
+
+                                                                        {/* ANOTAÇÕES SECTION */}
+                                                                        <div className="bg-slate-50/50 p-3 rounded border border-slate-200/50">
+                                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                                                <ClipboardList className="w-3 h-3" /> Anotações do Registro
+                                                                            </p>
+                                                                            {record.observacoes ? (
+                                                                                <p className="text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-wrap">{record.observacoes}</p>
+                                                                            ) : (
+                                                                                <p className="text-[10px] font-bold text-slate-400 italic">Nenhuma anotação registrada para este afastamento.</p>
+                                                                            )}
                                                                         </div>
                                                                     </div>
-                                                                );
-                                                            })()}
+                                                                </div>
+                                                            )}
+                                                            {/* INFO DE AUDITORIA - SEM NEGRITO, TOTALMENTE UNIFICADO */}
+                                                            <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end text-[10px] items-center gap-1.5 font-normal text-slate-500 uppercase tracking-tighter relative z-10 transition-opacity hover:opacity-100 opacity-80">
+                                                                <span>Criado por:</span>
+                                                                <span className="text-slate-600">{profilesMap[record.criado_por] || record.criado_por || 'Sistema'}</span>
+                                                                <span className="lowercase">({new Date(record.criado_em).toLocaleString('pt-BR')})</span>
+                                                                
+                                                                {logs[record.id] && logs[record.id].length > 0 && (
+                                                                    <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
+                                                                        <span>Modificado por:</span>
+                                                                        <span className="text-slate-600">{profilesMap[logs[record.id][0].alterado_por] || logs[record.id][0].alterado_por}</span>
+                                                                        <span className="lowercase">({new Date(logs[record.id][0].data_alteracao).toLocaleString('pt-BR')})</span>
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
+                                                                    <span>Audit ID</span>
+                                                                    <span className="text-slate-700 tracking-tight">#{record.hash_auditoria || `AF-${record.id}`}</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    );
-                                                })}
+                                                    )})}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             )) : (
-                                <div className="p-8 text-center text-slate-500 font-bold uppercase text-xs">Nenhum registro encontrado para os filtros selecionados.</div>
-                            )}
-                        </div>
+                            <div className="p-8 text-center text-slate-500 font-bold uppercase text-xs">Nenhum registro encontrado para os filtros selecionados.</div>
+                        )}
                     </div>
                 </div>
-            </main>
+            </div>
+        </main>
 
             {/* MODAL DE EDIÇÃO */}
             {isEditModalOpen && editingRecord && (
