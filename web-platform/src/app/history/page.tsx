@@ -825,8 +825,11 @@ useEffect(() => {
                 />
             )}
 
+            {/* Overlay de Foco Progressivo */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedId ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
 
                 {/* HEADER COM DASHBOARD E FILTROS DE DATA */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
@@ -1184,11 +1187,11 @@ useEffect(() => {
                                 <div key={entry.id} className="group">
                                     <div
                                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${entry.deletion_pending
+                                        className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-[6px] relative ${entry.deletion_pending
                                             ? 'bg-amber-50/50 border-amber-500 opacity-60'
                                             : expandedId === entry.id
-                                                ? 'bg-[#1A3351]/5 border-[#1A3351]'
-                                                : 'border-transparent'
+                                                ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.03] -mx-2 mb-2 rounded-sm ring-1 ring-black/5'
+                                                : 'bg-white border-transparent z-10 hover:border-slate-300'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-4 flex-1 w-full">
@@ -1243,7 +1246,7 @@ useEffect(() => {
 
                                     {/* Detalhes Expandidos */}
                                     {expandedId === entry.id && (
-                                        <div className="px-6 pb-6 pt-2 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
+                                        <div className="px-6 pb-6 pt-4 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl mb-4 ring-1 ring-black/5">
                                             {entry.deletion_pending && (
                                                 <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-none animate-in fade-in">
                                                     <div className="flex items-start gap-3">

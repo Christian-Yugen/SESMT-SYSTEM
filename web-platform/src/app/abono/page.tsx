@@ -384,6 +384,9 @@ export default function AbonoPage() {
                 />
             )}
 
+            {/* Overlay de Foco Progressivo */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedCpf ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+
             {/* ÁREA PRINCIPAL */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
                 <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
@@ -685,7 +688,7 @@ export default function AbonoPage() {
                             </div>
                             <div className={`divide-y divide-slate-200 transition-colors duration-500 ${expandedCpf ? 'bg-slate-900/10 backdrop-blur-[1px]' : ''}`}>
                                 {groupedRecords.length > 0 ? groupedRecords.map((group) => (
-                                    <div key={group.cpf} className={`transition-all duration-500 ${expandedCpf === group.cpf ? 'z-50 relative scale-[1.01] shadow-[0_35px_80px_-15px_rgba(0,0,0,0.35)] ring-2 ring-[#1A3351]/20 bg-white translate-y-[-4px]' : expandedCpf ? 'opacity-25 blur-[1.5px] grayscale-[0.5] pointer-events-none scale-[0.98]' : 'z-0 opacity-100'}`}>
+                                    <div key={group.cpf} className={`transition-all duration-500 ${expandedCpf === group.cpf ? 'z-50 relative scale-[1.03] shadow-2xl ring-2 ring-[#1A3351]/10 bg-white -mx-2 rounded-sm' : expandedCpf ? 'opacity-30 blur-[1px] grayscale-[0.2] pointer-events-none scale-[0.98]' : 'z-0 opacity-100'}`}>
                                         <div
                                             onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)}
                                             className={`px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-8 ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351]' : 'border-transparent'}`}

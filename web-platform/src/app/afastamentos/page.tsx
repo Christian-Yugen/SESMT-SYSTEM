@@ -560,6 +560,8 @@ export default function AfastamentosPage() {
                 {isSidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />}
             </div>
 
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedCpf ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+
             <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
                 {/* HEADER */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
@@ -745,9 +747,12 @@ export default function AfastamentosPage() {
                         <div className="divide-y divide-slate-200">
                             {groupedRecords.length > 0 ? groupedRecords.map((group) => (
                                 <div key={group.cpf}>
-                                    <div onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)} className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedCpf === group.cpf ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}>
+                                    <div 
+                                        onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)} 
+                                        className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-8 relative ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2' : 'bg-white border-transparent z-10 hover:border-slate-300'}`}
+                                    >
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-3 transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
+                                            <div className={`p-3 transition-all duration-500 rounded-none ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white rotate-3 scale-110 shadow-lg' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
                                             <div>
                                                 <h4 className={`font-bold uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
                                                 <div className="flex flex-wrap gap-4 mt-1 items-center">
@@ -819,7 +824,7 @@ export default function AfastamentosPage() {
                                     </div>
 
                                     {expandedCpf === group.cpf && (
-                                        <div className="px-4 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                        <div className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5">
                                             <div className="space-y-6">
                                                 <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 
