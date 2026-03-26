@@ -208,10 +208,8 @@ export default function ReferralsPage() {
                 onClick={() => setExpandedId(null)}
                 className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
             >
-                <div
-                    onScroll={handleMainScroll}
-                    className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
-                >
+                <div className="flex-1 flex flex-col relative overflow-hidden">
+
 
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
@@ -379,7 +377,8 @@ export default function ReferralsPage() {
                 </div>
 
                 {/* CONTEÚDO SCROLLÁVEL */}
-                <div className="flex-1 p-4 md:p-6 lg:p-10 space-y-8">
+                <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 space-y-8">
+
 
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -626,6 +625,7 @@ export default function ReferralsPage() {
                     </div>
                 </div>
                 </div>
+
             </main>
         </div>
     );

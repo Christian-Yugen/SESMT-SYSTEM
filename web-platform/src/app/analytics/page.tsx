@@ -591,10 +591,8 @@ export default function AnalyticsPage() {
 
             {/* MAIN */}
             <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
-                <div
-                    onScroll={handleMainScroll}
-                    className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
-                >
+                <div className="flex-1 flex flex-col relative overflow-hidden">
+
                 {/* HEADER */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
@@ -833,7 +831,8 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* CONTENT */}
-                <div className="flex-1 p-4 space-y-4">
+                <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 space-y-4">
+
                     {/* BIG NUMBERS */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
                         <div className="bg-white p-3 lg:p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">

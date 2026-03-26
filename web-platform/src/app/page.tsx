@@ -411,10 +411,8 @@ export default function Home() {
 
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
-        <div
-          onScroll={handleMainScroll}
-          className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
-        >
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+
 
         {/* BUSCAR SERVIDOR (HEADER) - Smart Dynamic Header com Colapso de Espaço */}
         <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
@@ -458,7 +456,8 @@ export default function Home() {
         </div>
 
         {/* CONTAINER DE DADOS (2 COLUNAS) */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] min-h-0 mx-auto w-full">
+        <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] min-h-0 mx-auto w-full relative">
+
 
           {/* COLUNA ESQUERDA (DADOS E GHE) */}
           <div className="col-span-12 xl:col-span-6 flex flex-col gap-6 min-h-0">
