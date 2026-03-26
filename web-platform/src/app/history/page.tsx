@@ -826,10 +826,14 @@ useEffect(() => {
             )}
 
             {/* Overlay de Foco Progressivo */}
-            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedId ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedId ? 'opacity-100' : 'opacity-0'}`} />
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main 
+                onClick={() => setExpandedId(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+            >
 
                 {/* HEADER COM DASHBOARD E FILTROS DE DATA */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
@@ -1186,7 +1190,7 @@ useEffect(() => {
                             {sortedHistory.length > 0 ? sortedHistory.map((entry) => (
                                 <div key={entry.id} className="group">
                                     <div
-                                        onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                                        onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === entry.id ? null : entry.id); }}
                                         className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-[6px] relative ${entry.deletion_pending
                                             ? 'bg-amber-50/50 border-amber-500 opacity-60'
                                             : expandedId === entry.id

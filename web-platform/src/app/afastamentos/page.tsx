@@ -105,24 +105,24 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
     const displayCode = details?.code || normalizeCID(cid.cid_codigo);
 
     return (
-        <div className="py-2 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3 group/cid">
-            <div className="flex flex-col items-center justify-center bg-slate-100 text-[#1A3351] rounded-none px-2 py-1 min-w-[60px] border border-slate-200 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-colors">
-                <span className="text-[7px] font-bold uppercase opacity-60 tracking-wider leading-none">Código</span>
-                <span className="text-sm font-bold tracking-wide leading-none">{displayCode}</span>
+        <div className="py-3 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 group/cid border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors px-2 -mx-2">
+            <div className="flex flex-col items-center justify-center bg-[#1A3351]/5 text-[#1A3351] rounded-none px-3 py-2 min-w-[70px] border border-[#1A3351]/10 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-all shadow-sm">
+                <span className="text-[8px] font-bold uppercase opacity-60 tracking-wider mb-1">Código</span>
+                <span className="text-base font-black tracking-tight leading-none">{displayCode}</span>
             </div>
-            <div className="flex flex-col justify-center">
-                <div className="flex items-baseline gap-2">
-                    <span className="text-[8px] font-bold text-slate-400 uppercase leading-none">Descrição:</span>
-                    <p className="text-xs font-semibold text-[#1A3351] leading-tight">{details?.desc || cid.cid_descricao || '—'}</p>
+            <div className="flex flex-col justify-center gap-1.5">
+                <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Descrição:</span>
+                    <p className="text-sm font-bold text-[#1A3351] leading-snug uppercase">{details?.desc || cid.cid_descricao || '—'}</p>
                 </div>
-                <div className="flex flex-wrap gap-x-4 mt-0.5">
-                    <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Cap:</span>
-                        <span className="text-[10px] font-bold text-emerald-700">{details?.chapter || cid.cid_capitulo || '—'}</span>
+                <div className="flex flex-wrap gap-x-6 gap-y-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Capitulo:</span>
+                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100">{details?.chapter || cid.cid_capitulo || '—'}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Grupo:</span>
-                        <span className="text-[10px] font-medium text-slate-500 truncate max-w-[400px]">{details?.chapter_desc || '—'}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Grupo:</span>
+                        <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight">{details?.chapter_desc || '—'}</span>
                     </div>
                 </div>
             </div>
@@ -560,9 +560,13 @@ export default function AfastamentosPage() {
                 {isSidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />}
             </div>
 
-            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedCpf ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedCpf ? 'opacity-100' : 'opacity-0'}`} />
 
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main 
+                onClick={() => setExpandedCpf(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+            >
                 {/* HEADER */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
@@ -748,7 +752,7 @@ export default function AfastamentosPage() {
                             {groupedRecords.length > 0 ? groupedRecords.map((group) => (
                                 <div key={group.cpf}>
                                     <div 
-                                        onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)} 
+                                        onClick={(e) => { e.stopPropagation(); setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf); }} 
                                         className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-8 relative ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2' : 'bg-white border-transparent z-10 hover:border-slate-300'}`}
                                     >
                                         <div className="flex items-center gap-4 flex-1">
@@ -756,6 +760,7 @@ export default function AfastamentosPage() {
                                             <div>
                                                 <h4 className={`font-bold uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
                                                 <div className="flex flex-wrap gap-4 mt-1 items-center">
+                                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">M: {group.items[0].servidor_matricula} | C: {group.items[0].servidor_contrato}</p>
                                                     <p className="text-[10px] font-medium text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
                                                     {group.items[0].servidor_secretaria && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
                                                     {group.items[0].natureza_cargo && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}

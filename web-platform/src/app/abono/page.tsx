@@ -385,10 +385,14 @@ export default function AbonoPage() {
             )}
 
             {/* Overlay de Foco Progressivo */}
-            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedCpf ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedCpf ? 'opacity-100' : 'opacity-0'}`} />
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main 
+                onClick={() => setExpandedCpf(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+            >
                 <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
                     {/* HEADER */}
                     {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
@@ -686,11 +690,11 @@ export default function AbonoPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className={`divide-y divide-slate-200 transition-colors duration-500 ${expandedCpf ? 'bg-slate-900/10 backdrop-blur-[1px]' : ''}`}>
+                            <div className="divide-y divide-slate-200 transition-colors duration-500">
                                 {groupedRecords.length > 0 ? groupedRecords.map((group) => (
-                                    <div key={group.cpf} className={`transition-all duration-500 ${expandedCpf === group.cpf ? 'z-50 relative scale-[1.03] shadow-2xl ring-2 ring-[#1A3351]/10 bg-white -mx-2 rounded-sm' : expandedCpf ? 'opacity-30 blur-[1px] grayscale-[0.2] pointer-events-none scale-[0.98]' : 'z-0 opacity-100'}`}>
+                                    <div key={group.cpf} className={`transition-all duration-500 relative ${expandedCpf === group.cpf ? 'z-[50] scale-[1.02] shadow-2xl ring-1 ring-black/5 bg-white' : 'z-10 transition-opacity opacity-100'}`}>
                                         <div
-                                            onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)}
+                                            onClick={(e) => { e.stopPropagation(); setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf); }}
                                             className={`px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-8 ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351]' : 'border-transparent'}`}
                                         >
                                             <div className="flex items-center gap-5 flex-1">
@@ -709,6 +713,7 @@ export default function AbonoPage() {
                                                         )}
                                                     </div>
                                                     <div className="flex flex-wrap gap-4 mt-1">
+                                                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">M: {group.benefits[0].matricula} | C: {group.benefits[0].contrato}</p>
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">CPF: {formatCpf(group.cpf)}</p>
                                                         {group.benefits[0].secretaria && (
                                                             <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
@@ -760,7 +765,7 @@ export default function AbonoPage() {
                                         </div>
 
                                         {expandedCpf === group.cpf && (
-                                            <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                            <div className="px-6 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-2 duration-300 relative z-[50] -mx-2 shadow-2xl">
                                                 <div className="space-y-6">
                                                     <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 

@@ -200,10 +200,14 @@ export default function ReferralsPage() {
             />
 
             {/* Overlay de Foco Progressivo */}
-            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 ${expandedId ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} />
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedId ? 'opacity-100' : 'opacity-0'}`} />
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main 
+                onClick={() => setExpandedId(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+            >
                 <div
                     onScroll={handleMainScroll}
                     className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
@@ -418,9 +422,9 @@ export default function ReferralsPage() {
 
                         <div className="divide-y divide-slate-100">
                             {sortedReferrals.length > 0 ? sortedReferrals.map((entry) => (
-                                <div key={entry.id} className="group">
+                                <div key={entry.id} className={`group transition-all duration-500 relative ${expandedId === entry.id ? 'z-[50] bg-white' : 'z-10'}`}>
                                     <div
-                                        onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                                        onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === entry.id ? null : entry.id); }}
                                         className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-white cursor-pointer transition-all duration-500 border-l-[8px] relative ${expandedId === entry.id ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2 rounded-sm ring-1 ring-black/5' : 'bg-white border-transparent z-10 hover:border-slate-300'}`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
@@ -460,7 +464,7 @@ export default function ReferralsPage() {
 
                                     {/* DETALHES DA EVIDÊNCIA */}
                                     {expandedId === entry.id && (
-                                        <div className="px-4 lg:px-8 pb-8 pt-4 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-4 duration-300">
+                                        <div className="px-4 lg:px-8 pb-8 pt-4 bg-white border-t border-slate-200 animate-in slide-in-from-top-4 duration-300 relative z-[50] -mx-2 shadow-2xl">
                                             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 mt-2">
                                                 <div className="md:col-span-8 space-y-4">
                                                     <div>
