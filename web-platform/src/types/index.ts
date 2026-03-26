@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface Servidor {
     Nome?: string;
     CPF?: string;
@@ -32,6 +34,8 @@ export interface ExamesMap {
 }
 
 export interface AbonoRecord {
+    servidor_contrato: ReactNode;
+    servidor_matricula: ReactNode;
     id: number;
     cpf: string;
     nome: string;

@@ -105,24 +105,24 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
     const displayCode = details?.code || normalizeCID(cid.cid_codigo);
 
     return (
-        <div className="py-2 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-3 group/cid">
-            <div className="flex flex-col items-center justify-center bg-slate-100 text-[#1A3351] rounded-none px-2 py-1 min-w-[60px] border border-slate-200 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-colors">
-                <span className="text-[7px] font-bold uppercase opacity-60 tracking-wider leading-none">Código</span>
-                <span className="text-sm font-bold tracking-wide leading-none">{displayCode}</span>
+        <div className="py-3 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 group/cid border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors px-2 -mx-2">
+            <div className="flex flex-col items-center justify-center bg-[#1A3351]/5 text-[#1A3351] rounded-none px-3 py-2 min-w-[70px] border border-[#1A3351]/10 group-hover/cid:bg-[#1A3351] group-hover/cid:text-white transition-all shadow-sm">
+                <span className="text-[8px] font-bold uppercase opacity-60 tracking-wider mb-1">Código</span>
+                <span className="text-base font-black tracking-tight leading-none">{displayCode}</span>
             </div>
-            <div className="flex flex-col justify-center">
-                <div className="flex items-baseline gap-2">
-                    <span className="text-[8px] font-bold text-slate-400 uppercase leading-none">Descrição:</span>
-                    <p className="text-xs font-semibold text-[#1A3351] leading-tight">{details?.desc || cid.cid_descricao || '—'}</p>
+            <div className="flex flex-col justify-center gap-1.5">
+                <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Descrição:</span>
+                    <p className="text-sm font-bold text-[#1A3351] leading-snug uppercase">{details?.desc || cid.cid_descricao || '—'}</p>
                 </div>
-                <div className="flex flex-wrap gap-x-4 mt-0.5">
-                    <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Cap:</span>
-                        <span className="text-[10px] font-bold text-emerald-700">{details?.chapter || cid.cid_capitulo || '—'}</span>
+                <div className="flex flex-wrap gap-x-6 gap-y-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Capitulo:</span>
+                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-100">{details?.chapter || cid.cid_capitulo || '—'}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Grupo:</span>
-                        <span className="text-[10px] font-medium text-slate-500 truncate max-w-[400px]">{details?.chapter_desc || '—'}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Grupo:</span>
+                        <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight">{details?.chapter_desc || '—'}</span>
                     </div>
                 </div>
             </div>
@@ -560,11 +560,17 @@ export default function AfastamentosPage() {
                 {isSidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />}
             </div>
 
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedCpf ? 'opacity-100' : 'opacity-0'}`} />
+
+            <main 
+                onClick={() => setExpandedCpf(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+            >
                 {/* HEADER */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
@@ -704,7 +710,7 @@ export default function AfastamentosPage() {
                     </div>
 
                     {/* LISTA */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Afastamento</h3>
                             <div className="flex flex-wrap items-center gap-4">
@@ -745,12 +751,16 @@ export default function AfastamentosPage() {
                         <div className="divide-y divide-slate-200">
                             {groupedRecords.length > 0 ? groupedRecords.map((group) => (
                                 <div key={group.cpf}>
-                                    <div onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)} className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedCpf === group.cpf ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}>
+                                    <div 
+                                        onClick={(e) => { e.stopPropagation(); setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf); }} 
+                                        className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-8 relative ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2' : 'bg-white border-transparent z-10 hover:border-slate-300'}`}
+                                    >
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className={`p-3 transition-colors ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
+                                            <div className={`p-3 transition-all duration-500 rounded-none ${expandedCpf === group.cpf ? 'bg-[#1A3351] text-white rotate-3 scale-110 shadow-lg' : 'bg-slate-100 text-slate-400'}`}><User className="w-6 h-6" /></div>
                                             <div>
                                                 <h4 className={`font-bold uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? 'text-xl' : 'text-base'}`}>{group.nome}</h4>
                                                 <div className="flex flex-wrap gap-4 mt-1 items-center">
+                                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">M: {group.items[0].servidor_matricula} | C: {group.items[0].servidor_contrato}</p>
                                                     <p className="text-[10px] font-medium text-slate-500 uppercase">CPF: {formatCpf(group.cpf)}</p>
                                                     {group.items[0].servidor_secretaria && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Building2 className="w-3 h-3 text-slate-400" /> {group.items[0].servidor_secretaria}</p>}
                                                     {group.items[0].natureza_cargo && <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1"><Activity className="w-3 h-3 text-slate-400" /> {group.items[0].natureza_cargo}</p>}
@@ -819,7 +829,7 @@ export default function AfastamentosPage() {
                                     </div>
 
                                     {expandedCpf === group.cpf && (
-                                        <div className="px-4 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                        <div className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5">
                                             <div className="space-y-6">
                                                 <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 
@@ -827,7 +837,7 @@ export default function AfastamentosPage() {
                                                     {group.items.map((record) => {
                                                         const status = getStatus(record);
                                                         return (
-                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-hidden group/card">
+                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-visible group/card">
                                                                 <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                             {/* INFO GRID - 3 colunas */}
@@ -991,7 +1001,6 @@ export default function AfastamentosPage() {
                     </div>
                 </div>
             </div>
-        </main>
 
             {/* MODAL DE EDIÇÃO */}
             {isEditModalOpen && editingRecord && (
@@ -1177,6 +1186,7 @@ export default function AfastamentosPage() {
                 <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
                     <p className="text-[7.5px] font-normal text-slate-500">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
                 </div>
+            </div>
 
                 <style jsx global>{`
                     @media print {
@@ -1214,7 +1224,7 @@ export default function AfastamentosPage() {
                         }
                     }
                 `}</style>
-            </div>
+            </main>
         </div>
     );
 }

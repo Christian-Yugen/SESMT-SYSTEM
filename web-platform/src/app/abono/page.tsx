@@ -384,13 +384,21 @@ export default function AbonoPage() {
                 />
             )}
 
+            {/* Overlay de Foco Progressivo */}
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedCpf ? 'opacity-100' : 'opacity-0'}`} />
+
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
-                <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
+            <main 
+                onClick={() => setExpandedCpf(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+            >
+                <div className="flex-1 flex flex-col relative overflow-visible">
+
                     {/* HEADER */}
                     {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                     <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                        <div className="overflow-hidden">
+                        <div className="overflow-visible">
                             <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                                 <div className="flex justify-between items-center mb-3">
                             <div className="flex items-center gap-3 text-[#1A3351]">
@@ -612,7 +620,8 @@ export default function AbonoPage() {
                 </div>
 
                     {/* CONTEÚDO */}
-                    <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
+                    <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
+
 
                         {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
                         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
@@ -654,7 +663,7 @@ export default function AbonoPage() {
                         </div>
 
                         {/* LISTA DE REGISTROS */}
-                        <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                        <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
                             <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Abono</h3>
                                 <div className="flex flex-wrap items-center gap-4">
@@ -683,11 +692,11 @@ export default function AbonoPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className={`divide-y divide-slate-200 transition-colors duration-500 ${expandedCpf ? 'bg-slate-900/10 backdrop-blur-[1px]' : ''}`}>
+                            <div className="divide-y divide-slate-200 transition-colors duration-500">
                                 {groupedRecords.length > 0 ? groupedRecords.map((group) => (
-                                    <div key={group.cpf} className={`transition-all duration-500 ${expandedCpf === group.cpf ? 'z-50 relative scale-[1.01] shadow-[0_35px_80px_-15px_rgba(0,0,0,0.35)] ring-2 ring-[#1A3351]/20 bg-white translate-y-[-4px]' : expandedCpf ? 'opacity-25 blur-[1.5px] grayscale-[0.5] pointer-events-none scale-[0.98]' : 'z-0 opacity-100'}`}>
+                                    <div key={group.cpf} className={`transition-all duration-500 relative ${expandedCpf === group.cpf ? 'z-[50] scale-[1.02] shadow-2xl ring-1 ring-black/5 bg-white' : 'z-10 transition-opacity opacity-100'}`}>
                                         <div
-                                            onClick={() => setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf)}
+                                            onClick={(e) => { e.stopPropagation(); setExpandedCpf(expandedCpf === group.cpf ? null : group.cpf); }}
                                             className={`px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-8 ${expandedCpf === group.cpf ? 'bg-white border-[#1A3351]' : 'border-transparent'}`}
                                         >
                                             <div className="flex items-center gap-5 flex-1">
@@ -706,6 +715,7 @@ export default function AbonoPage() {
                                                         )}
                                                     </div>
                                                     <div className="flex flex-wrap gap-4 mt-1">
+                                                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">M: {group.benefits[0].servidor_matricula} | C: {group.benefits[0].servidor_contrato}</p>
                                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">CPF: {formatCpf(group.cpf)}</p>
                                                         {group.benefits[0].secretaria && (
                                                             <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
@@ -757,14 +767,14 @@ export default function AbonoPage() {
                                         </div>
 
                                         {expandedCpf === group.cpf && (
-                                            <div className="px-6 md:px-12 py-8 bg-slate-50 border-t border-slate-100 animate-in slide-in-from-top-2 duration-300">
+                                            <div className="px-6 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-2 duration-300 relative z-[50] -mx-2 shadow-2xl">
                                                 <div className="space-y-6">
                                                     <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">Histórico de Benefícios</h5>
 
-                                                    <div className="bg-white border-2 border-slate-200 shadow-sm overflow-hidden">
+                                                    <div className="bg-white border-2 border-slate-200 shadow-sm overflow-visible">
                                                         {group.benefits.map((record, index) => (
                                                             <div key={record.id}>
-                                                                <div className="p-6 relative overflow-hidden group/card transition-colors hover:bg-slate-50/50">
+                                                                <div className="p-6 relative overflow-visible group/card transition-colors hover:bg-slate-50/50">
                                                                     <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-[#1A3351]/5 rounded-none-none group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                                     <div className="grid grid-cols-1 md:grid-cols-6 gap-6 relative z-10">
@@ -938,12 +948,11 @@ export default function AbonoPage() {
                         </div>
                     </div>
                 </div>
-            </main>
 
             {/* RELATÓRIO PDF (OCULTO NA TELA, VISÍVEL NA IMPRESSÃO) */}
-            < div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto" >
+            <div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto" >
                 {/* CABEÇALHO OFICIAL - ULTRA COMPACTO */}
-                < div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2" >
+                <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2" >
                     <div className="flex items-center gap-3">
                         <img src="/images/logo.png" alt="Logo" className="h-12 w-auto object-contain" />
                         <div className="h-10 w-[1px] bg-slate-200 mx-1" />
@@ -958,10 +967,10 @@ export default function AbonoPage() {
                             OP: {userName} | {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                     </div>
-                </div >
+                </div>
 
                 {/* RESUMO DOS FILTROS - MAIS DISCRETO */}
-                < div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none" >
+                <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none" >
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-3.5 bg-[#E31E24]" />
                         <p className="text-[8px] font-bold uppercase text-[#1A3351]">
@@ -971,10 +980,10 @@ export default function AbonoPage() {
                     <p className="text-[7.5px] font-medium uppercase text-slate-400 truncate max-w-[60%] italic">
                         FILTROS: {stats.printFilters}
                     </p>
-                </div >
+                </div>
 
                 {/* TABELA DE DADOS - MÁXIMA COMPACTAÇÃO E SEM NEGRITOS DESNECESSÁRIOS */}
-                < table className="w-full border-collapse" >
+                <table className="w-full border-collapse" >
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-300">
                             <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">Nome do Servidor</th>
@@ -1014,13 +1023,14 @@ export default function AbonoPage() {
                             );
                         })}
                     </tbody>
-                </table >
+                </table>
 
 
                 {/* RODAPÉ DO PDF */}
-                < div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60" >
+                <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
                     <p className="text-[7.5px] font-normal text-slate-500">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
-                </div >
+                </div>
+            </div>
 
                 <style jsx global>{`
                     @media print {
@@ -1045,7 +1055,7 @@ export default function AbonoPage() {
                         }
                     }
                 `}</style>
-            </div >
-        </div >
+            </main>
+        </div>
     );
 }

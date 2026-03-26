@@ -28,6 +28,8 @@ interface DeletionRequest {
         aso_type?: string;
         cargo?: string;
         secretaria?: string;
+        matricula?: string;
+        contrato?: string;
         generated_at?: string;
     };
 }
@@ -47,6 +49,20 @@ export default function DeletionRequestsPage() {
     const [showApprovalModal, setShowApprovalModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<DeletionRequest | null>(null);
     const [processingAction, setProcessingAction] = useState(false);
+
+    // Smart Header Logic
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+
+    const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const scrollTop = e.currentTarget.scrollTop;
+        if (scrollTop > lastScrollTop && scrollTop > 150) {
+            if (showHeader) setShowHeader(false);
+        } else if (scrollTop < lastScrollTop) {
+            if (!showHeader) setShowHeader(true);
+        }
+        setLastScrollTop(scrollTop);
+    };
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -288,10 +304,18 @@ export default function DeletionRequestsPage() {
                 />
             )}
 
+            {/* Overlay de Foco Progressivo */}
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedId ? 'opacity-100' : 'opacity-0'}`} />
+
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
-                {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
+            <main 
+                onClick={() => setExpandedId(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+            >
+                <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
+                    {/* HEADER */}
+                    <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
                             <Trash2 className="w-5 lg:w-6 h-5 lg:h-6" />
@@ -347,7 +371,7 @@ export default function DeletionRequestsPage() {
                 </section>
 
                 {/* CONTEÚDO */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+                <div className="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 shrink-0">
                         <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-none transform hover:scale-[1.02] transition-all">
@@ -365,16 +389,16 @@ export default function DeletionRequestsPage() {
                     </div>
 
                     {/* LISTA DE SOLICITAÇÕES */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden rounded-none">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Solicitações de Exclusão</h3>
                         </div>
                         <div className="divide-y divide-slate-200">
                             {filteredRequests.length > 0 ? filteredRequests.map((request) => (
-                                <div key={request.id} className="group">
+                                <div key={request.id} className={`group transition-all duration-500 relative ${expandedId === request.id ? 'z-[50] bg-white shadow-2xl scale-[1.01] -mx-2' : 'z-10'}`}>
                                     <div
-                                        onClick={() => setExpandedId(expandedId === request.id ? null : request.id)}
-                                        className={`px-6 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${expandedId === request.id ? 'bg-[#1A3351]/5 border-[#E31E24]' :
+                                        onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === request.id ? null : request.id); }}
+                                        className={`px-6 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 bg-white ${expandedId === request.id ? 'border-[#E31E24]' :
                                             request.status === 'pending' ? 'border-[#E31E24]' :
                                                 request.status === 'approved' ? 'border-green-500' :
                                                     'border-slate-400'
@@ -393,8 +417,13 @@ export default function DeletionRequestsPage() {
                                                 <h4 className="font-bold uppercase text-[#1A3351] text-sm leading-tight">
                                                     {request.original_data?.servidor_nome || 'Nome não disponível'}
                                                 </h4>
-                                                <p className="text-[10px] font-medium text-slate-500 uppercase">
+                                                <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-2">
                                                     {request.original_data?.aso_type || 'Tipo não disponível'}
+                                                    {(request.original_data?.matricula || request.original_data?.contrato) && (
+                                                        <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 border border-slate-200 text-[8px] font-bold">
+                                                            M: {request.original_data?.matricula || '---'} | C: {request.original_data?.contrato || '---'}
+                                                        </span>
+                                                    )}
                                                 </p>
                                                 <p className="text-[9px] font-medium text-slate-400 mt-1">
                                                     Solicitado por: <span className="text-[#E31E24] font-bold">{request.requester_name}</span>
@@ -414,7 +443,7 @@ export default function DeletionRequestsPage() {
 
                                     {/* Detalhes Expandidos */}
                                     {expandedId === request.id && (
-                                        <div className="px-6 pb-6 pt-4 bg-[#1A3351]/5 border-t border-slate-200">
+                                        <div className="px-6 pb-6 pt-4 bg-white border-t border-slate-200 relative z-[50]">
                                             <div className="bg-white p-4 rounded-none border border-slate-200 mb-4">
                                                 <h5 className="text-[10px] font-bold text-slate-400 uppercase mb-2">Motivo da Exclusão:</h5>
                                                 <p className="text-sm text-[#1A3351] font-semibold leading-relaxed">{request.deletion_reason}</p>
@@ -472,7 +501,6 @@ export default function DeletionRequestsPage() {
                         </div>
                     </div>
                 </div>
-            </main>
 
             {/* MODAL DE CONFIRMAÇÃO DE APROVAÇÃO */}
             {showApprovalModal && selectedRequest && (
@@ -531,6 +559,8 @@ export default function DeletionRequestsPage() {
                     </div>
                 </div>
             )}
+                </div>
+            </main>
         </div>
     );
 }

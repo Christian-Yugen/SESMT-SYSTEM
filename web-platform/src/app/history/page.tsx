@@ -75,6 +75,11 @@ export default function HistoryPage() {
     const [editFormData, setEditFormData] = useState<any>(null);
     const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+    // Estados para o Smart Header (Scroll)
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+    const [scrollUpStart, setScrollUpStart] = useState(0);
+
     // Estados de busca (UI) e carregamento
     const [cargoSearch, setCargoSearch] = useState("");
     const [filteredCargosSearch, setFilteredCargosSearch] = useState<string[]>([]);
@@ -335,7 +340,8 @@ useEffect(() => {
         const matchesSearch = entry.servidor_nome.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesUser = filterUser === "all" || entry.generated_by === filterUser;
         const matchesSecretaria = filterSecretaria === "all" || entry.secretaria === filterSecretaria;
-        const entryType = entry.aso_type.toLowerCase().includes('aso') ? 'ASO' : (entry.aso_type.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
+        const asoTypeRaw = entry.aso_type || "";
+        const entryType = asoTypeRaw.toLowerCase().includes('aso') ? 'ASO' : (asoTypeRaw.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
         const matchesType = filterType === "all" || entryType === filterType;
         
         const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || (
@@ -345,7 +351,15 @@ useEffect(() => {
         );
 
         // Filtro de Data
-        const entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
+        // Filtro de Data - Proteção contra datas inválidas
+        let entryDate = "";
+        try {
+            if (entry.generated_at) {
+                entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
+            }
+        } catch (e) {
+            console.error("Data inválida:", entry.generated_at);
+        }
         const matchesStartDate = !startDate || entryDate >= startDate;
         const matchesEndDate = !endDate || entryDate <= endDate;
 
@@ -787,9 +801,6 @@ useEffect(() => {
         );
     }
 
-    const [showHeader, setShowHeader] = useState(true);
-    const [lastScrollTop, setLastScrollTop] = useState(0);
-    const [scrollUpStart, setScrollUpStart] = useState(0);
 
     const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const scrollTop = e.currentTarget.scrollTop;
@@ -825,13 +836,20 @@ useEffect(() => {
                 />
             )}
 
+            {/* Overlay de Foco Progressivo */}
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedId ? 'opacity-100' : 'opacity-0'}`} />
+
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
+            <main 
+                onClick={() => setExpandedId(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+            >
 
                 {/* HEADER COM DASHBOARD E FILTROS DE DATA */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className={`flex justify-between items-center mb-3 relative ${isPrintPopoverOpen ? 'z-50' : 'z-20'}`}>
                         <div className="flex items-center gap-3 text-[#1A3351]">
@@ -991,7 +1009,9 @@ useEffect(() => {
                                 <option value="all">TODOS OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
                                     <option key={uid} value={uid}>
-                                        {profilesData[uid]?.email || history.find(h => h.generated_by === uid)?.operator_name || `ID: ${uid.substring(0, 8)}`}
+                                        {profilesData[uid]?.email || 
+                                         history.find(h => h.generated_by === uid)?.operator_name || 
+                                         `ID: ${String(uid || "---").substring(0, 8)}`}
                                     </option>
                                 ))}
                             </select>
@@ -1161,7 +1181,7 @@ useEffect(() => {
                         </div>
                     </div>
                     {/* LISTA DE REGISTROS */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Log de Processamento Geral</h3>
                             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -1183,12 +1203,12 @@ useEffect(() => {
                             {sortedHistory.length > 0 ? sortedHistory.map((entry) => (
                                 <div key={entry.id} className="group">
                                     <div
-                                        onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-4 ${entry.deletion_pending
+                                        onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === entry.id ? null : entry.id); }}
+                                        className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-[6px] relative ${entry.deletion_pending
                                             ? 'bg-amber-50/50 border-amber-500 opacity-60'
                                             : expandedId === entry.id
-                                                ? 'bg-[#1A3351]/5 border-[#1A3351]'
-                                                : 'border-transparent'
+                                                ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.03] -mx-2 mb-2 rounded-sm ring-1 ring-black/5'
+                                                : 'bg-white border-transparent z-10 hover:border-slate-300'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-4 flex-1 w-full">
@@ -1243,7 +1263,7 @@ useEffect(() => {
 
                                     {/* Detalhes Expandidos */}
                                     {expandedId === entry.id && (
-                                        <div className="px-6 pb-6 pt-2 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
+                                        <div className="px-6 pb-6 pt-4 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl mb-4 ring-1 ring-black/5">
                                             {entry.deletion_pending && (
                                                 <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-none animate-in fade-in">
                                                     <div className="flex items-start gap-3">
@@ -1397,7 +1417,6 @@ useEffect(() => {
                         <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">Powered by UXBRAS® — Gestão Estratégica SESMT</p>
                     </div>
                 </div>
-            </main>
 
             {/* MODAL DE SOLICITAÇÃO DE EXCLUSÃO */}
             {showDeletionModal && selectedEntryForDeletion && (
@@ -1896,6 +1915,7 @@ useEffect(() => {
                     </div>
                 </div>
             )}
+            </main>
         </div>
     );
 }

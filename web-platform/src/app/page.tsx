@@ -136,13 +136,23 @@ export default function Home() {
 
 
   const handleSearch = async () => {
-    const cleanCpf = cpf.replace(/\D/g, "");
-    if (!cleanCpf) return;
+    const cleanQuery = cpf.trim();
+    if (!cleanQuery) return;
 
-    const { data: results, error } = await supabase
-      .from('servidores')
-      .select('*')
-      .eq('cpf', cleanCpf);
+    const cleanCpf = cleanQuery.replace(/\D/g, "");
+    
+    let query = supabase.from('servidores').select('*');
+    
+    // Busca por Nome se não for puramente numérico ou se o usuário desejar
+    // A busca sempre tenta os dois campos para maior flexibilidade
+    if (cleanCpf.length > 0) {
+      query = query.or(`cpf.ilike.%${cleanCpf}%,nome.ilike.%${cleanQuery}%`);
+    } else {
+      query = query.ilike('nome', `%${cleanQuery}%`);
+    }
+
+    const { data: results, error } = await query;
+
 
     if (error) {
       console.error("Erro ao buscar servidor:", error);
@@ -410,18 +420,17 @@ export default function Home() {
       />
 
       {/* ÁREA PRINCIPAL */}
-      <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
-        <div
-          onScroll={handleMainScroll}
-          className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
-        >
+      <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
+        <div className="flex-1 flex flex-col relative overflow-visible">
+
 
         {/* BUSCAR SERVIDOR (HEADER) - Smart Dynamic Header com Colapso de Espaço */}
         <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-          <div className="overflow-hidden">
+          <div className="overflow-visible">
             <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
               <div className="flex justify-between items-center mb-1">
-            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
+            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Registro</h2>
+
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden h-10 px-4 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2 rounded-none"
@@ -434,7 +443,8 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
               <input
                 type="text"
-                placeholder="000.000.000-00"
+                placeholder="NOME OU CPF DO SERVIDOR..."
+
                 className="w-full md:w-80 px-4 h-10 border border-[#888] shadow-inner text-base font-medium bg-[#E8E8E8] outline-none rounded-none focus:border-[#1A3351]"
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}
@@ -458,7 +468,8 @@ export default function Home() {
         </div>
 
         {/* CONTAINER DE DADOS (2 COLUNAS) */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] min-h-0 mx-auto w-full">
+        <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 xl:p-10 grid grid-cols-12 gap-8 lg:gap-6 xl:gap-10 max-w-[1600px] min-h-0 mx-auto w-full relative">
+
 
           {/* COLUNA ESQUERDA (DADOS E GHE) */}
           <div className="col-span-12 xl:col-span-6 flex flex-col gap-6 min-h-0">

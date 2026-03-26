@@ -199,16 +199,21 @@ export default function ReferralsPage() {
                 setIsSidebarOpen={setIsSidebarOpen}
             />
 
+            {/* Overlay de Foco Progressivo */}
+            {/* Overlay de Foco Progressivo - Agora com pointer-events-none para não bloquear o scroll */}
+            <div className={`fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none ${expandedId ? 'opacity-100' : 'opacity-0'}`} />
+
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
-                <div
-                    onScroll={handleMainScroll}
-                    className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative"
-                >
+            <main 
+                onClick={() => setExpandedId(null)}
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+            >
+                <div className="flex-1 flex flex-col relative overflow-visible">
+
 
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                             <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
@@ -372,7 +377,8 @@ export default function ReferralsPage() {
                 </div>
 
                 {/* CONTEÚDO SCROLLÁVEL */}
-                <div className="flex-1 p-4 md:p-6 lg:p-10 space-y-8">
+                <div onScroll={handleMainScroll} className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 space-y-8">
+
 
                     {/* STATS CARDS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -391,7 +397,7 @@ export default function ReferralsPage() {
                     </div>
 
                     {/* LISTA DE REGISTROS (DIGITAL LEDGER) */}
-                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-none">
+                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-visible rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-[#1A3351]">Registro Digital de Emissões</h3>
@@ -415,10 +421,10 @@ export default function ReferralsPage() {
 
                         <div className="divide-y divide-slate-100">
                             {sortedReferrals.length > 0 ? sortedReferrals.map((entry) => (
-                                <div key={entry.id} className="group">
+                                <div key={entry.id} className={`group transition-all duration-500 relative ${expandedId === entry.id ? 'z-[50] bg-white' : 'z-10'}`}>
                                     <div
-                                        onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
-                                        className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-slate-50 cursor-pointer transition-all border-l-[6px] ${expandedId === entry.id ? 'bg-[#1A3351]/5 border-[#1A3351]' : 'border-transparent'}`}
+                                        onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === entry.id ? null : entry.id); }}
+                                        className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-white cursor-pointer transition-all duration-500 border-l-[8px] relative ${expandedId === entry.id ? 'bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2 rounded-sm ring-1 ring-black/5' : 'bg-white border-transparent z-10 hover:border-slate-300'}`}
                                     >
                                         <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
                                             <div className={`p-2 lg:p-2.5 shadow-sm transition-all duration-300 shrink-0 border-2 ${expandedId === entry.id ? 'bg-[#1A3351] text-white border-[#1A3351]' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
@@ -457,7 +463,7 @@ export default function ReferralsPage() {
 
                                     {/* DETALHES DA EVIDÊNCIA */}
                                     {expandedId === entry.id && (
-                                        <div className="px-4 lg:px-8 pb-8 pt-4 bg-[#1A3351]/5 border-t border-slate-200 animate-in slide-in-from-top-4 duration-300">
+                                        <div className="px-4 lg:px-8 pb-8 pt-4 bg-white border-t border-slate-200 animate-in slide-in-from-top-4 duration-300 relative z-[50] -mx-2 shadow-2xl">
                                             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 mt-2">
                                                 <div className="md:col-span-8 space-y-4">
                                                     <div>
@@ -619,6 +625,7 @@ export default function ReferralsPage() {
                     </div>
                 </div>
                 </div>
+
             </main>
         </div>
     );

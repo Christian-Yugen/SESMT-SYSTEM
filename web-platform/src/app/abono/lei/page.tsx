@@ -121,7 +121,7 @@ export default function AbonoLeiPage() {
             )}
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden print:bg-white">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible print:bg-white">
 
                 {/* TOP BAR / GLASS HEADER */}
                 <header className="bg-white/90 backdrop-blur-md border-b-4 border-blue-600 px-6 py-4 flex items-center justify-between shadow-lg shrink-0 z-30 print:hidden">

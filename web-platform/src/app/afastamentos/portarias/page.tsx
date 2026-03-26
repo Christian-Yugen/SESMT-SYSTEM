@@ -147,7 +147,7 @@ export default function AfastamentoPortariasPage() {
         <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black overflow-x-hidden">
             <Sidebar userRole={userRole} userName={userName} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible">
                 {/* HEADER */}
                 <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-emerald-500 shrink-0 shadow-lg font-sans">
                     <div className="flex justify-between items-center mb-3">
@@ -173,7 +173,7 @@ export default function AfastamentoPortariasPage() {
                 </section>
 
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
-                    <div className="bg-white border-2 border-slate-300 shadow-xl rounded-none overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl rounded-none overflow-visible">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400">
                             <h3 className="text-sm font-bold uppercase text-[#1A3351]">Registro de Portarias Geradas</h3>
                         </div>

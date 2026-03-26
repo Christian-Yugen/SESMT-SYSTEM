@@ -345,7 +345,7 @@ export default function NewAfastamentoPage() {
         <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black overflow-x-hidden">
             <Sidebar userRole={userRole} userName={userName} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
             
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
                 {/* HEADER */}
                 <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-emerald-500 shrink-0 shadow-lg">
                     <div className="flex items-center gap-3">

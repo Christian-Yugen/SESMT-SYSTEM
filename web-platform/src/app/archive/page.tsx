@@ -78,6 +78,20 @@ export default function ArchivePage() {
     const [showReturnModal, setShowReturnModal] = useState(false);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
 
+    // Smart Header Logic
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+
+    const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const scrollTop = e.currentTarget.scrollTop;
+        if (scrollTop > lastScrollTop && scrollTop > 150) {
+            if (showHeader) setShowHeader(false);
+        } else if (scrollTop < lastScrollTop) {
+            if (!showHeader) setShowHeader(true);
+        }
+        setLastScrollTop(scrollTop);
+    };
+
     // Estados dos formulários
     const [withdrawData, setWithdrawData] = useState({
         servidor_nome: "",
@@ -303,10 +317,12 @@ export default function ArchivePage() {
             />
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
-
-                {/* HEADER */}
-                <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
+                <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
+                    {/* STICKY HEADER WRAPPER */}
+                    <div className={`sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+                        {/* HEADER */}
+                        <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
                     <div className="flex justify-between items-center mb-1">
                         <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Arquivo Médico</h2>
                         <button
@@ -363,9 +379,10 @@ export default function ArchivePage() {
                         </div>
                     </div>
                 </section>
+            </div>
 
                 {/* RESULTADOS */}
-                <div className="flex-1 p-4 lg:p-6 overflow-y-auto font-bold uppercase">
+                <div className="flex-1 p-4 lg:p-6 font-bold uppercase">
                     {folders.length === 0 && !loading && (
                         <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-50 py-12">
                             <Archive className="w-20 lg:w-24 h-20 lg:h-24 mb-4" />
@@ -463,7 +480,7 @@ export default function ArchivePage() {
                         ))}
                     </div>
                 </div>
-            </main>
+            </div>
 
             {/* MODAL: REGISTRAR RETIRADA */}
             {
@@ -698,6 +715,7 @@ export default function ArchivePage() {
                     </div>
                 )
             }
+            </main>
         </div>
     );
 }
