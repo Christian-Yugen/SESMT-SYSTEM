@@ -224,7 +224,7 @@ export default function UsersPage() {
             )}
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
                 <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
                     {/* HEADER */}
                     <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
@@ -266,7 +266,7 @@ export default function UsersPage() {
                 {/* CONTEÚDO */}
                 <div className="flex-1 p-4 md:p-6 lg:p-8 space-y-8">
 
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden rounded-none">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex justify-between items-center text-black">
                             <h3 className="text-xs font-bold uppercase tracking-widest">Base de Acessos Autorizados</h3>
                             <div className="text-[9px] font-bold text-slate-600 uppercase">Total: {filteredProfiles.length} Usuários</div>

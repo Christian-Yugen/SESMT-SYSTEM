@@ -311,7 +311,7 @@ export default function DeletionRequestsPage() {
             {/* ÁREA PRINCIPAL */}
             <main 
                 onClick={() => setExpandedId(null)}
-                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
             >
                 <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
                     {/* HEADER */}
@@ -389,7 +389,7 @@ export default function DeletionRequestsPage() {
                     </div>
 
                     {/* LISTA DE SOLICITAÇÕES */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden rounded-none">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Solicitações de Exclusão</h3>
                         </div>
@@ -500,6 +500,7 @@ export default function DeletionRequestsPage() {
                             )}
                         </div>
                     </div>
+                </div>
 
             {/* MODAL DE CONFIRMAÇÃO DE APROVAÇÃO */}
             {showApprovalModal && selectedRequest && (
@@ -558,6 +559,7 @@ export default function DeletionRequestsPage() {
                     </div>
                 </div>
             )}
+                </div>
             </main>
         </div>
     );

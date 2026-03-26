@@ -32,6 +32,8 @@ export interface ExamesMap {
 }
 
 export interface AbonoRecord {
+    servidor_contrato: ReactNode;
+    servidor_matricula: ReactNode;
     id: number;
     cpf: string;
     nome: string;

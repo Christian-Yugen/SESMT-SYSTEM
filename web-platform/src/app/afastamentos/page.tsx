@@ -565,12 +565,12 @@ export default function AfastamentosPage() {
 
             <main 
                 onClick={() => setExpandedCpf(null)}
-                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
             >
                 {/* HEADER */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3 text-[#1A3351]">
@@ -710,7 +710,7 @@ export default function AfastamentosPage() {
                     </div>
 
                     {/* LISTA */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Registros de Afastamento</h3>
                             <div className="flex flex-wrap items-center gap-4">
@@ -837,7 +837,7 @@ export default function AfastamentosPage() {
                                                     {group.items.map((record) => {
                                                         const status = getStatus(record);
                                                         return (
-                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-hidden group/card">
+                                                            <div key={record.id} className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-visible group/card">
                                                                 <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                                             {/* INFO GRID - 3 colunas */}
@@ -1000,6 +1000,7 @@ export default function AfastamentosPage() {
                         )}
                     </div>
                 </div>
+            </div>
 
             {/* MODAL DE EDIÇÃO */}
             {isEditModalOpen && editingRecord && (
@@ -1185,6 +1186,7 @@ export default function AfastamentosPage() {
                 <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
                     <p className="text-[7.5px] font-normal text-slate-500">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
                 </div>
+            </div>
 
                 <style jsx global>{`
                     @media print {
@@ -1223,7 +1225,6 @@ export default function AfastamentosPage() {
                     }
                 `}</style>
             </main>
-            </div>
         </div>
     );
 }

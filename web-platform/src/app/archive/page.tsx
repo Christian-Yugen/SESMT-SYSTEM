@@ -317,7 +317,7 @@ export default function ArchivePage() {
             />
 
             {/* ÁREA PRINCIPAL */}
-            <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-hidden relative">
+            <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
                 <div onScroll={handleMainScroll} className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden relative">
                     {/* STICKY HEADER WRAPPER */}
                     <div className={`sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
@@ -477,8 +477,10 @@ export default function ArchivePage() {
                                     </button>
                                 </div>
                             </div>
+                        ))}
                     </div>
                 </div>
+            </div>
 
             {/* MODAL: REGISTRAR RETIRADA */}
             {

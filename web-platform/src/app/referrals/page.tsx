@@ -206,14 +206,14 @@ export default function ReferralsPage() {
             {/* ÁREA PRINCIPAL */}
             <main 
                 onClick={() => setExpandedId(null)}
-                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
             >
-                <div className="flex-1 flex flex-col relative overflow-hidden">
+                <div className="flex-1 flex flex-col relative overflow-visible">
 
 
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                             <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-3">
@@ -397,7 +397,7 @@ export default function ReferralsPage() {
                     </div>
 
                     {/* LISTA DE REGISTROS (DIGITAL LEDGER) */}
-                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-none">
+                    <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-visible rounded-none">
                         <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-[#1A3351]">Registro Digital de Emissões</h3>

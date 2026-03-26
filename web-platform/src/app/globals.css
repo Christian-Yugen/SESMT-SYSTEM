@@ -31,3 +31,26 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Fix geral: permitir que popovers/dropdowns não sejam cortados por containers com sombra
+   Ajustes seguros: tornar containers com sombra overflow-visible e dar z-index maior
+   para popovers com borda e sombra. */
+.shadow-2xl,
+.shadow-xl,
+.shadow-md,
+.shadow-sm,
+.group\/card,
+.group .card {
+  overflow: visible !important;
+}
+
+/* Popovers que usam border-2 + shadow-2xl (padrão no projeto) devem ficar acima */
+.border-2.shadow-2xl,
+.border-2.shadow-xl {
+  z-index: 9999 !important;
+}
+
+/* Garante que elementos absolutamente posicionados com classe popover apareçam acima */
+[class*="pop"] {
+  z-index: 9999 !important;
+}

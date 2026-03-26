@@ -843,13 +843,13 @@ useEffect(() => {
             {/* ÁREA PRINCIPAL */}
             <main 
                 onClick={() => setExpandedId(null)}
-                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
+                className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
             >
 
                 {/* HEADER COM DASHBOARD E FILTROS DE DATA */}
                 {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
                 <div className={`grid transition-all duration-500 ease-in-out ${showHeader ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
-                    <div className="overflow-hidden">
+                    <div className="overflow-visible">
                         <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
                     <div className={`flex justify-between items-center mb-3 relative ${isPrintPopoverOpen ? 'z-50' : 'z-20'}`}>
                         <div className="flex items-center gap-3 text-[#1A3351]">
@@ -1181,7 +1181,7 @@ useEffect(() => {
                         </div>
                     </div>
                     {/* LISTA DE REGISTROS */}
-                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden">
+                    <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
                         <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">Log de Processamento Geral</h3>
                             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
