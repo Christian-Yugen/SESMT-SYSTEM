@@ -945,10 +945,8 @@ export default function AbonoPage() {
                                     </div>
                                 )}
                             </div>
-                        </div>
                     </div>
                 </div>
-            </main>
 
             {/* RELATÓRIO PDF (OCULTO NA TELA, VISÍVEL NA IMPRESSÃO) */}
             < div id="print-area" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto" >
@@ -1055,6 +1053,7 @@ export default function AbonoPage() {
                         }
                     }
                 `}</style>
+            </main>
             </div >
         </div >
     );

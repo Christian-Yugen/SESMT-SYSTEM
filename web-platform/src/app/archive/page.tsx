@@ -377,8 +377,9 @@ export default function ArchivePage() {
                                 </button>
                             </div>
                         </div>
-                    </section>
-                </div>
+                    </div>
+                </section>
+            </div>
 
                 {/* RESULTADOS */}
                 <div className="flex-1 p-4 lg:p-6 font-bold uppercase">
@@ -476,10 +477,8 @@ export default function ArchivePage() {
                                     </button>
                                 </div>
                             </div>
-                        ))}
                     </div>
                 </div>
-            </main>
 
             {/* MODAL: REGISTRAR RETIRADA */}
             {
@@ -713,7 +712,7 @@ export default function ArchivePage() {
                         </div>
                     </div>
                 )
-                </div>
+            }
             </main>
         </div>
     );

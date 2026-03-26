@@ -136,13 +136,23 @@ export default function Home() {
 
 
   const handleSearch = async () => {
-    const cleanCpf = cpf.replace(/\D/g, "");
-    if (!cleanCpf) return;
+    const cleanQuery = cpf.trim();
+    if (!cleanQuery) return;
 
-    const { data: results, error } = await supabase
-      .from('servidores')
-      .select('*')
-      .eq('cpf', cleanCpf);
+    const cleanCpf = cleanQuery.replace(/\D/g, "");
+    
+    let query = supabase.from('servidores').select('*');
+    
+    // Busca por Nome se não for puramente numérico ou se o usuário desejar
+    // A busca sempre tenta os dois campos para maior flexibilidade
+    if (cleanCpf.length > 0) {
+      query = query.or(`cpf.ilike.%${cleanCpf}%,nome.ilike.%${cleanQuery}%`);
+    } else {
+      query = query.ilike('nome', `%${cleanQuery}%`);
+    }
+
+    const { data: results, error } = await query;
+
 
     if (error) {
       console.error("Erro ao buscar servidor:", error);
@@ -419,7 +429,8 @@ export default function Home() {
           <div className="overflow-hidden">
             <section className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? 'translate-y-0' : '-translate-y-1/2'}`}>
               <div className="flex justify-between items-center mb-1">
-            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Servidor</h2>
+            <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">Buscar Registro</h2>
+
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden h-10 px-4 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2 rounded-none"
@@ -432,7 +443,8 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
               <input
                 type="text"
-                placeholder="000.000.000-00"
+                placeholder="NOME OU CPF DO SERVIDOR..."
+
                 className="w-full md:w-80 px-4 h-10 border border-[#888] shadow-inner text-base font-medium bg-[#E8E8E8] outline-none rounded-none focus:border-[#1A3351]"
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}

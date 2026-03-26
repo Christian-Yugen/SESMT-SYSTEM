@@ -1000,8 +1000,6 @@ export default function AfastamentosPage() {
                         )}
                     </div>
                 </div>
-            </div>
-        </main>
 
             {/* MODAL DE EDIÇÃO */}
             {isEditModalOpen && editingRecord && (
@@ -1224,6 +1222,7 @@ export default function AfastamentosPage() {
                         }
                     }
                 `}</style>
+            </main>
             </div>
         </div>
     );

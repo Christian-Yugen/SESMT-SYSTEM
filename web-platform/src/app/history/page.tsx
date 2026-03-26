@@ -75,6 +75,11 @@ export default function HistoryPage() {
     const [editFormData, setEditFormData] = useState<any>(null);
     const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+    // Estados para o Smart Header (Scroll)
+    const [showHeader, setShowHeader] = useState(true);
+    const [lastScrollTop, setLastScrollTop] = useState(0);
+    const [scrollUpStart, setScrollUpStart] = useState(0);
+
     // Estados de busca (UI) e carregamento
     const [cargoSearch, setCargoSearch] = useState("");
     const [filteredCargosSearch, setFilteredCargosSearch] = useState<string[]>([]);
@@ -335,7 +340,8 @@ useEffect(() => {
         const matchesSearch = entry.servidor_nome.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesUser = filterUser === "all" || entry.generated_by === filterUser;
         const matchesSecretaria = filterSecretaria === "all" || entry.secretaria === filterSecretaria;
-        const entryType = entry.aso_type.toLowerCase().includes('aso') ? 'ASO' : (entry.aso_type.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
+        const asoTypeRaw = entry.aso_type || "";
+        const entryType = asoTypeRaw.toLowerCase().includes('aso') ? 'ASO' : (asoTypeRaw.toLowerCase().includes('encaminhamento') ? 'Encaminhamento' : 'Outros');
         const matchesType = filterType === "all" || entryType === filterType;
         
         const matchesAsoSubtype = selectedAsoSubtypes.length === 0 || (
@@ -345,7 +351,15 @@ useEffect(() => {
         );
 
         // Filtro de Data
-        const entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
+        // Filtro de Data - Proteção contra datas inválidas
+        let entryDate = "";
+        try {
+            if (entry.generated_at) {
+                entryDate = new Date(entry.generated_at).toISOString().split('T')[0];
+            }
+        } catch (e) {
+            console.error("Data inválida:", entry.generated_at);
+        }
         const matchesStartDate = !startDate || entryDate >= startDate;
         const matchesEndDate = !endDate || entryDate <= endDate;
 
@@ -787,9 +801,6 @@ useEffect(() => {
         );
     }
 
-    const [showHeader, setShowHeader] = useState(true);
-    const [lastScrollTop, setLastScrollTop] = useState(0);
-    const [scrollUpStart, setScrollUpStart] = useState(0);
 
     const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const scrollTop = e.currentTarget.scrollTop;
@@ -998,7 +1009,9 @@ useEffect(() => {
                                 <option value="all">TODOS OPERADORES</option>
                                 {uniqueUsersList.map(uid => (
                                     <option key={uid} value={uid}>
-                                        {profilesData[uid]?.email || history.find(h => h.generated_by === uid)?.operator_name || `ID: ${uid.substring(0, 8)}`}
+                                        {profilesData[uid]?.email || 
+                                         history.find(h => h.generated_by === uid)?.operator_name || 
+                                         `ID: ${String(uid || "---").substring(0, 8)}`}
                                     </option>
                                 ))}
                             </select>
@@ -1404,7 +1417,6 @@ useEffect(() => {
                         <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">Powered by UXBRAS® — Gestão Estratégica SESMT</p>
                     </div>
                 </div>
-            </main>
 
             {/* MODAL DE SOLICITAÇÃO DE EXCLUSÃO */}
             {showDeletionModal && selectedEntryForDeletion && (
@@ -1903,6 +1915,7 @@ useEffect(() => {
                     </div>
                 </div>
             )}
+            </main>
         </div>
     );
 }

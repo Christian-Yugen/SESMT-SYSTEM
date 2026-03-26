@@ -414,7 +414,6 @@ export default function UsersPage() {
                         <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">Powered by UXBRAS® — Controle de Segurança SESMT</p>
                     </div>
                 </div>
-            </main>
 
             {/* MODAL DE CONVITE (NOVO OPERADOR) */}
             {isInviteModalOpen && (

@@ -500,8 +500,6 @@ export default function DeletionRequestsPage() {
                             )}
                         </div>
                     </div>
-                </div>
-            </main>
 
             {/* MODAL DE CONFIRMAÇÃO DE APROVAÇÃO */}
             {showApprovalModal && selectedRequest && (
@@ -560,7 +558,6 @@ export default function DeletionRequestsPage() {
                     </div>
                 </div>
             )}
-                </div>
             </main>
         </div>
     );
