@@ -129,6 +129,7 @@ export default function AbonoAnalyticsPage() {
   const [endDate, setEndDate] = useState("");
   const [filterNatureza, setFilterNatureza] = useState("all");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [isStatusFilterOpen, setIsStatusFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -580,6 +581,38 @@ export default function AbonoAnalyticsPage() {
 
             <ActionIconButton
               className="hidden md:block"
+              icon={<Filter className="w-4 h-4" />}
+              label="Filtro contextual de status"
+              variant="contextual"
+              active={filterStatus !== "all"}
+              open={isStatusFilterOpen}
+              onToggle={setIsStatusFilterOpen}
+              showMenuIndicator
+            >
+              <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                <div className="p-3 space-y-2">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                    Status do Abono
+                  </p>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                      setIsStatusFilterOpen(false);
+                    }}
+                    className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                  >
+                    <option value="all">TODOS STATUS</option>
+                    <option value="active">ATIVOS</option>
+                    <option value="expired">VENCIDOS</option>
+                    <option value="finished">FINALIZADOS</option>
+                  </select>
+                </div>
+              </div>
+            </ActionIconButton>
+
+            <ActionIconButton
+              className="hidden md:block"
               icon={<Printer className="w-4 h-4" />}
               label="Gerar relatório analítico"
               variant="primary"
@@ -619,19 +652,6 @@ export default function AbonoAnalyticsPage() {
                   : []
               }
             />
-
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] min-w-[190px]"
-              >
-                <option value="all">TODOS STATUS</option>
-                <option value="active">ATIVOS</option>
-                <option value="expired">VENCIDOS</option>
-                <option value="finished">FINALIZADOS</option>
-              </select>
-            </div>
           </div>
         </section>
 

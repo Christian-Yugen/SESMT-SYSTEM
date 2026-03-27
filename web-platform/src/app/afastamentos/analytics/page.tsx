@@ -118,6 +118,7 @@ export default function AfastamentosAnalyticsPage() {
   const [endDate, setEndDate] = useState("");
   const [filterNatureza, setFilterNatureza] = useState("all");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [isNaturezaFilterOpen, setIsNaturezaFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -475,6 +476,40 @@ export default function AfastamentosAnalyticsPage() {
 
             <ActionIconButton
               className="hidden md:block"
+              icon={<Filter className="w-4 h-4" />}
+              label="Filtro contextual de natureza do cargo"
+              variant="contextual"
+              active={filterNatureza !== "all"}
+              open={isNaturezaFilterOpen}
+              onToggle={setIsNaturezaFilterOpen}
+              showMenuIndicator
+            >
+              <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                <div className="p-3 space-y-2">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                    Natureza do Cargo
+                  </p>
+                  <select
+                    value={filterNatureza}
+                    onChange={(e) => {
+                      setFilterNatureza(e.target.value);
+                      setIsNaturezaFilterOpen(false);
+                    }}
+                    className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                  >
+                    <option value="all">TODAS NATUREZAS</option>
+                    {uniqueNaturezas.map((n) => (
+                      <option key={n} value={n}>
+                        {String(n).toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </ActionIconButton>
+
+            <ActionIconButton
+              className="hidden md:block"
               icon={<Printer className="w-4 h-4" />}
               label="Imprimir vista analítica"
               variant="primary"
@@ -504,21 +539,6 @@ export default function AfastamentosAnalyticsPage() {
                   : []
               }
             />
-
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={filterNatureza}
-                onChange={(e) => setFilterNatureza(e.target.value)}
-                className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] min-w-[200px]"
-              >
-                <option value="all">TODAS NATUREZAS</option>
-                {uniqueNaturezas.map((n) => (
-                  <option key={n} value={n}>
-                    {String(n).toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         </section>
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 
-type Variant = "filter" | "primary" | "success" | "danger";
+type Variant = "filter" | "primary" | "success" | "danger" | "contextual";
 
 interface Props {
   icon: React.ReactNode;
@@ -41,6 +41,13 @@ function getVariantClasses(variant: Variant, active: boolean, open: boolean) {
       return "bg-[#b91c1c] border-[#ef4444] text-white";
     }
     return "bg-[#E31E24] border-[#E31E24] text-white hover:brightness-110";
+  }
+
+  if (variant === "contextual") {
+    if (active || open) {
+      return "bg-[#7C2D12] border-[#9A3412] text-white";
+    }
+    return "bg-[#FDE68A] border-[#F59E0B] text-[#7C2D12] hover:bg-[#FCD34D] hover:border-[#D97706]";
   }
 
   if (active || open) {
