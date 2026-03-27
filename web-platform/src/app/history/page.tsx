@@ -16,9 +16,7 @@ import {
   History as HistoryIcon,
   BarChart3,
   User,
-  Calendar,
   ClipboardList,
-  Search,
   Filter,
   Printer,
   Users as UsersIcon,
@@ -28,7 +26,6 @@ import {
   AlertCircle,
   Building2,
   Loader2,
-  MessageSquarePlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -36,6 +33,7 @@ import { ensureISO } from "@/lib/utils";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
+import ActionIconButton from "@/components/filters/ActionIconButton";
 import {
   type FilterState,
   matchesUnifiedNameCpfSearch,
@@ -1036,129 +1034,122 @@ export default function HistoryPage() {
             <section
               className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
             >
-              <div
-                className={`flex justify-between items-center mb-3 relative ${isPrintPopoverOpen ? "z-50" : "z-20"}`}
-              >
-                <div className="flex items-center gap-3 text-[#1A3351]">
-                  <HistoryIcon className="w-5 lg:w-6 h-5 lg:h-6" />
-                  <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">
-                    Histórico
-                  </h2>
+              <div className="flex items-center gap-3 relative z-20">
+                <div className="flex items-center gap-2 shrink-0 text-[#1A3351]">
+                  <HistoryIcon className="w-5 h-5" />
+                  <div>
+                    <h2 className="text-base font-bold leading-none uppercase tracking-tight">
+                      Histórico
+                    </h2>
+                    <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                      SESMT • Evidências
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 lg:gap-3">
-                  <button
-                    onClick={() => router.push("/analytics")}
-                    className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+
+                <div className="flex-1 min-w-0">
+                  <CompactFilterBar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                    isDateFilterOpen={isDateFilterOpen}
+                    setIsDateFilterOpen={setIsDateFilterOpen}
+                    filterUser={filterUser}
+                    setFilterUser={setFilterUser}
+                    filterSecretaria={filterSecretaria}
+                    setFilterSecretaria={setFilterSecretaria}
+                    filterAsoType={filterType}
+                    setFilterAsoType={setFilterType}
+                    uniqueUsersList={uniqueUsersList}
+                    uniqueSecretarias={uniqueSecretarias}
+                    referrals={history}
+                    operatorsMap={operatorsMap}
+                    clearAllFilters={clearAllFilters}
+                    searchPlaceholder="NOME OU CPF DO SERVIDOR..."
+                    userLabelDefault="OPERADORES"
+                    secretariaLabelDefault="SECRETARIAS"
+                    asoTypeLabelDefault="TIPO DOCUMENTO"
+                    asoTypeOptions={historyTypeOptions}
+                  />
+                </div>
+
+                <ActionIconButton
+                  className="hidden md:block"
+                  icon={<BarChart3 className="w-4 h-4" />}
+                  label="Abrir indicadores BI"
+                  variant="primary"
+                  onClick={() => router.push("/analytics")}
+                />
+                {(userRole === "admin" || userRole === "nurse") && (
+                  <ActionIconButton
+                    className="hidden md:block"
+                    icon={<Printer className="w-4 h-4" />}
+                    label="Gerar relatório"
+                    variant="primary"
+                    open={isPrintPopoverOpen}
+                    onToggle={setIsPrintPopoverOpen}
+                    showMenuIndicator
                   >
-                    <BarChart3 className="w-3.5 h-3.5" />
-                    Indicadores BI
-                  </button>
-                  {(userRole === "admin" || userRole === "nurse") && (
-                    <div
-                      className={`relative hidden md:block ${isPrintPopoverOpen ? "z-[120]" : "z-10"}`}
-                    >
-                      <button
-                        onClick={() =>
-                          setIsPrintPopoverOpen(!isPrintPopoverOpen)
-                        }
-                        className="flex items-center justify-center gap-2 px-6 h-10 bg-[#1A3351] text-white font-bold shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                      >
-                        <Printer className="w-3.5 h-3.5" />
-                        Relatório
-                        <ChevronDown
-                          className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? "rotate-180" : ""}`}
-                        />
-                      </button>
+                    <div className="w-64 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2 rounded-none overflow-hidden">
+                      <div className="p-4 flex flex-col gap-3">
+                        <h3 className="text-[11px] font-bold text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
+                          <Printer className="w-4 h-4 text-[#E31E24]" />
+                          Opções de Relatório
+                        </h3>
 
-                      {isPrintPopoverOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[200] animate-in fade-in slide-in-from-top-2 rounded-none overflow-hidden">
-                          <div className="p-4 flex flex-col gap-3">
-                            <h3 className="text-[11px] font-bold text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
-                              <Printer className="w-4 h-4 text-[#E31E24]" />
-                              Opções de Relatório
-                            </h3>
-
-                            <button
-                              onClick={() => handlePrintRequest("portrait")}
-                              className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
-                            >
-                              <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
-                                <FileSearch className="w-5 h-5" />
-                              </div>
-                              <div className="text-left">
-                                <p className="text-[10px] font-bold uppercase leading-none mb-1">
-                                  Vertical
-                                </p>
-                                <p className="text-[9px] text-slate-400 font-bold uppercase">
-                                  Formato Retrato (A4)
-                                </p>
-                              </div>
-                            </button>
-
-                            <button
-                              onClick={() => handlePrintRequest("landscape")}
-                              className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
-                            >
-                              <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
-                                <Printer className="w-5 h-5" />
-                              </div>
-                              <div className="text-left">
-                                <p className="text-[10px] font-bold uppercase leading-none mb-1">
-                                  Horizontal
-                                </p>
-                                <p className="text-[9px] text-slate-400 font-bold uppercase">
-                                  Formato Paisagem (A4)
-                                </p>
-                              </div>
-                            </button>
+                        <button
+                          onClick={() => handlePrintRequest("portrait")}
+                          className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
+                        >
+                          <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                            <FileSearch className="w-5 h-5" />
                           </div>
-                          <div className="bg-[#1A3351]/5 px-4 py-2 border-t border-slate-100 italic text-[8px] text-slate-500 text-center font-bold">
-                            SELECIONE A ORIENTAÇÃO PARA IMPRIMIR
+                          <div className="text-left">
+                            <p className="text-[10px] font-bold uppercase leading-none mb-1">
+                              Vertical
+                            </p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase">
+                              Formato Retrato (A4)
+                            </p>
                           </div>
-                        </div>
-                      )}
+                        </button>
+
+                        <button
+                          onClick={() => handlePrintRequest("landscape")}
+                          className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
+                        >
+                          <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                            <Printer className="w-5 h-5" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-[10px] font-bold uppercase leading-none mb-1">
+                              Horizontal
+                            </p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase">
+                              Formato Paisagem (A4)
+                            </p>
+                          </div>
+                        </button>
+                      </div>
+                      <div className="bg-[#1A3351]/5 px-4 py-2 border-t border-slate-100 italic text-[8px] text-slate-500 text-center font-bold">
+                        SELECIONE A ORIENTAÇÃO PARA IMPRIMIR
+                      </div>
                     </div>
-                  )}
-                  <button
-                    onClick={() => setIsSidebarOpen(true)}
-                    className="lg:hidden p-2.5 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
-                  >
-                    <Menu className="w-5 h-5" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                      Menu
-                    </span>
-                  </button>
-                </div>
+                  </ActionIconButton>
+                )}
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden h-9 w-9 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
               </div>
 
-              <div className="flex flex-col gap-3 relative z-10">
-                <CompactFilterBar
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  startDate={startDate}
-                  setStartDate={setStartDate}
-                  endDate={endDate}
-                  setEndDate={setEndDate}
-                  isDateFilterOpen={isDateFilterOpen}
-                  setIsDateFilterOpen={setIsDateFilterOpen}
-                  filterUser={filterUser}
-                  setFilterUser={setFilterUser}
-                  filterSecretaria={filterSecretaria}
-                  setFilterSecretaria={setFilterSecretaria}
-                  filterAsoType={filterType}
-                  setFilterAsoType={setFilterType}
-                  uniqueUsersList={uniqueUsersList}
-                  uniqueSecretarias={uniqueSecretarias}
-                  referrals={history}
-                  operatorsMap={operatorsMap}
-                  clearAllFilters={clearAllFilters}
-                  searchPlaceholder="NOME OU CPF DO SERVIDOR..."
-                  userLabelDefault="OPERADORES"
-                  secretariaLabelDefault="SECRETARIAS"
-                  asoTypeLabelDefault="TIPO DOCUMENTO"
-                  asoTypeOptions={historyTypeOptions}
-                />
-
+              <div className="flex flex-col gap-3 relative z-10 mt-3">
                 <FilterChips
                   searchTerm={normalizeSearchTerm(searchTerm)}
                   startDate={startDate}

@@ -43,7 +43,6 @@ import {
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import Sidebar from "@/components/layout/Sidebar";
-import { MessageSquarePlus } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
@@ -754,22 +753,58 @@ export default function AnalyticsPage() {
           >
             <div className="overflow-visible">
               <section
-                className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+                className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
                     <div>
-                      <h1 className="text-lg lg:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                      <h1 className="text-base lg:text-lg font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
                         SESMT <span className="text-blue-700">Analytics</span>
                       </h1>
-                      <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest mt-1">
+                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
                         Business Intelligence
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+
+                  <div className="flex-1 min-w-0">
+                    <CompactFilterBar
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      startDate={startDate}
+                      setStartDate={setStartDate}
+                      endDate={endDate}
+                      setEndDate={setEndDate}
+                      isDateFilterOpen={isDateFilterOpen}
+                      setIsDateFilterOpen={setIsDateFilterOpen}
+                      filterUser={filterUser}
+                      setFilterUser={setFilterUser}
+                      filterSecretaria={filterSecretaria}
+                      setFilterSecretaria={setFilterSecretaria}
+                      filterAsoType={filterAsoType}
+                      setFilterAsoType={setFilterAsoType}
+                      uniqueUsersList={uniqueUsersList}
+                      uniqueSecretarias={uniqueSecretarias}
+                      referrals={referralOperators}
+                      operatorsMap={operatorsMap}
+                      clearAllFilters={clearAllFilters}
+                      searchPlaceholder="BUSCAR POR NOME OU CPF..."
+                      userLabelDefault="OPERADORES"
+                      secretariaLabelDefault="SECRETARIAS"
+                      asoTypeLabelDefault="DOCUMENTO"
+                      asoTypeOptions={[
+                        "all",
+                        "ASO",
+                        "Encaminhamento",
+                        "Outros",
+                      ]}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
                     <ActionIconButton
                       className="hidden md:block"
                       icon={<HistoryIcon className="w-4 h-4" />}
@@ -798,44 +833,15 @@ export default function AnalyticsPage() {
                     />
                     <button
                       onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden p-2.5 bg-[#1A3351] rounded-none-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
+                      className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
                     >
-                      <Menu className="w-5 h-5" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        Menu
-                      </span>
+                      <Menu className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
                 {/* FILTROS PADRONIZADOS */}
-                <div className="mt-4">
-                  <CompactFilterBar
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    startDate={startDate}
-                    setStartDate={setStartDate}
-                    endDate={endDate}
-                    setEndDate={setEndDate}
-                    isDateFilterOpen={isDateFilterOpen}
-                    setIsDateFilterOpen={setIsDateFilterOpen}
-                    filterUser={filterUser}
-                    setFilterUser={setFilterUser}
-                    filterSecretaria={filterSecretaria}
-                    setFilterSecretaria={setFilterSecretaria}
-                    filterAsoType={filterAsoType}
-                    setFilterAsoType={setFilterAsoType}
-                    uniqueUsersList={uniqueUsersList}
-                    uniqueSecretarias={uniqueSecretarias}
-                    referrals={referralOperators}
-                    operatorsMap={operatorsMap}
-                    clearAllFilters={clearAllFilters}
-                    searchPlaceholder="BUSCAR POR NOME OU CPF..."
-                    userLabelDefault="OPERADORES"
-                    secretariaLabelDefault="SECRETARIAS"
-                    asoTypeLabelDefault="DOCUMENTO"
-                    asoTypeOptions={["all", "ASO", "Encaminhamento", "Outros"]}
-                  />
+                <div className="mt-3">
                   <FilterChips
                     searchTerm={normalizeSearchTerm(searchTerm)}
                     startDate={startDate}
