@@ -2,7 +2,16 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { Menu, ChevronUp, ChevronDown, ClipboardList, Printer, Loader2, CreditCard, Activity } from "lucide-react";
+import {
+  Menu,
+  ChevronUp,
+  ChevronDown,
+  ClipboardList,
+  Printer,
+  Loader2,
+  CreditCard,
+  Activity,
+} from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -34,7 +43,6 @@ export default function ReferralsPage() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchCpf, setSearchCpf] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
@@ -167,15 +175,17 @@ export default function ReferralsPage() {
   );
 
   const filteredReferrals = referrals.filter((entry) => {
-    const matchesSearch = entry.servidor_nome
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCpf =
-      !searchCpf ||
-      (entry.servidor_cpf &&
-        entry.servidor_cpf
-          .replace(/\D/g, "")
-          .includes(searchCpf.replace(/\D/g, "")));
+    const cleanQuery = searchTerm.trim();
+    const cleanDigits = cleanQuery.replace(/\D/g, "");
+    const matchesSearch =
+      cleanDigits.length > 0
+        ? entry.servidor_nome
+            .toLowerCase()
+            .includes(cleanQuery.toLowerCase()) ||
+          (entry.servidor_cpf
+            ? entry.servidor_cpf.replace(/\D/g, "").includes(cleanDigits)
+            : false)
+        : entry.servidor_nome.toLowerCase().includes(cleanQuery.toLowerCase());
     const matchesUser =
       filterUser === "all" || entry.generated_by === filterUser;
     const matchesSecretaria =
@@ -191,7 +201,6 @@ export default function ReferralsPage() {
 
     return (
       matchesSearch &&
-      matchesCpf &&
       matchesUser &&
       matchesSecretaria &&
       matchesAsoType &&
@@ -283,8 +292,6 @@ export default function ReferralsPage() {
                     <CompactFilterBar
                       searchTerm={searchTerm}
                       setSearchTerm={setSearchTerm}
-                      searchCpf={searchCpf}
-                      setSearchCpf={setSearchCpf}
                       startDate={startDate}
                       setStartDate={setStartDate}
                       endDate={endDate}
@@ -303,7 +310,6 @@ export default function ReferralsPage() {
                       operatorsMap={operatorsMap}
                       clearAllFilters={() => {
                         setSearchTerm("");
-                        setSearchCpf("");
                         setFilterUser("all");
                         setFilterSecretaria("all");
                         setFilterAsoType("all");
@@ -325,7 +331,6 @@ export default function ReferralsPage() {
                 {/* Chips de filtros ativos — só aparece quando há filtro */}
                 <FilterChips
                   searchTerm={searchTerm}
-                  searchCpf={searchCpf}
                   startDate={startDate}
                   endDate={endDate}
                   filterUser={filterUser}

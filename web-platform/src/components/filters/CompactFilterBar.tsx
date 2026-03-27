@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import {
-  CreditCard,
   Calendar,
   Users,
   Building2,
@@ -11,7 +10,6 @@ import {
 } from "lucide-react";
 import { countActiveFilters } from "./filtersUtils";
 import SearchField from "./SearchField";
-import CpfField from "./CpfField";
 import SelectFilter from "./SelectFilter";
 
 type ReferralOperatorEntry = {
@@ -22,8 +20,6 @@ type ReferralOperatorEntry = {
 interface Props {
   searchTerm: string;
   setSearchTerm: (v: string) => void;
-  searchCpf: string;
-  setSearchCpf: (v: string) => void;
   startDate: string;
   setStartDate: (v: string) => void;
   endDate: string;
@@ -103,8 +99,6 @@ export default function CompactFilterBar(props: Props) {
   const {
     searchTerm,
     setSearchTerm,
-    searchCpf,
-    setSearchCpf,
     startDate,
     setStartDate,
     endDate,
@@ -132,7 +126,6 @@ export default function CompactFilterBar(props: Props) {
 
   const activeCount = countActiveFilters({
     searchTerm,
-    searchCpf,
     startDate,
     endDate,
     filterUser,
@@ -153,7 +146,7 @@ export default function CompactFilterBar(props: Props) {
         <SearchField
           value={searchTerm}
           onChange={setSearchTerm}
-          placeholder="NOME DO SERVIDOR..."
+          placeholder="NOME OU CPF DO SERVIDOR..."
         />
       </div>
 
@@ -171,19 +164,6 @@ export default function CompactFilterBar(props: Props) {
             )}
           </button>
         </div>
-
-        <FilterIconButton
-          id="cpf"
-          open={openPopover === "cpf"}
-          onToggle={togglePopover}
-          title="CPF"
-          active={Boolean(searchCpf)}
-          icon={<CreditCard className="w-4 h-4" />}
-        >
-          <div className="w-64 p-3">
-            <CpfField value={searchCpf} onChange={setSearchCpf} />
-          </div>
-        </FilterIconButton>
 
         <FilterIconButton
           id="date"

@@ -45,7 +45,7 @@ export default function FilterToolbar(props: FilterToolbarProps) {
         uniqueUsersList, uniqueSecretarias, referrals, operatorsMap, clearAllFilters
     } = props;
 
-    const activeCount = countActiveFilters({ searchTerm, searchCpf, startDate, endDate, filterUser, filterSecretaria, filterAsoType });
+    const activeCount = countActiveFilters({ searchTerm, startDate, endDate, filterUser, filterSecretaria, filterAsoType });
 
     return (
         <div className="flex flex-col gap-3">

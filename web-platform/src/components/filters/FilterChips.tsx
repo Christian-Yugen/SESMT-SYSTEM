@@ -8,7 +8,6 @@ type ReferralOperatorEntry = {
 
 interface Props {
   searchTerm: string;
-  searchCpf: string;
   startDate: string;
   endDate: string;
   filterUser: string;
@@ -20,7 +19,6 @@ interface Props {
 
 export default function FilterChips({
   searchTerm,
-  searchCpf,
   startDate,
   endDate,
   filterUser,
@@ -33,8 +31,7 @@ export default function FilterChips({
   const chips: Chip[] = [];
 
   if (searchTerm.trim())
-    chips.push({ key: "nome", label: `Nome: ${searchTerm}` });
-  if (searchCpf.trim()) chips.push({ key: "cpf", label: `CPF: ${searchCpf}` });
+    chips.push({ key: "busca", label: `Busca: ${searchTerm}` });
   if (startDate || endDate)
     chips.push({
       key: "date",
