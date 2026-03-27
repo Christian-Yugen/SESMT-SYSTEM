@@ -37,6 +37,11 @@ interface Props {
   referrals: ReferralOperatorEntry[];
   operatorsMap: Record<string, string>;
   clearAllFilters: () => void;
+  searchPlaceholder?: string;
+  userLabelDefault?: string;
+  secretariaLabelDefault?: string;
+  asoTypeLabelDefault?: string;
+  asoTypeOptions?: string[];
 }
 
 type PopoverId = "date" | "user" | "secretaria" | "asoType" | null;
@@ -117,6 +122,11 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     referrals,
     operatorsMap,
     clearAllFilters,
+    searchPlaceholder,
+    userLabelDefault,
+    secretariaLabelDefault,
+    asoTypeLabelDefault,
+    asoTypeOptions,
   } = props;
 
   const [openPopover, setOpenPopover] = useState<PopoverId>(null);
@@ -136,6 +146,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
 
   const operatorOptions = ["all", ...uniqueUsersList];
   const secretariaOptions = ["all", ...uniqueSecretarias];
+  const typeOptions = asoTypeOptions ?? ["all", "ADMISS", "DEMISS", "RETORNO"];
 
   const togglePopover = (id: PopoverId) => {
     setOpenPopover((current) => (current === id ? null : id));
@@ -147,7 +158,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         <SearchField
           value={searchTerm}
           onChange={setSearchTerm}
-          placeholder="NOME OU CPF DO SERVIDOR..."
+          placeholder={searchPlaceholder ?? "NOME OU CPF DO SERVIDOR..."}
         />
       </div>
 
@@ -232,7 +243,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
               value={filterUser}
               onChange={setFilterUser}
               options={operatorOptions}
-              labelDefault="OPERADORES"
+              labelDefault={userLabelDefault ?? "OPERADORES"}
               renderOption={(uid: string) =>
                 referrals.find((referral) => referral.generated_by === uid)
                   ?.operator_name ||
@@ -257,7 +268,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
               value={filterSecretaria}
               onChange={setFilterSecretaria}
               options={secretariaOptions}
-              labelDefault="SECRETARIAS"
+              labelDefault={secretariaLabelDefault ?? "SECRETARIAS"}
             />
           </div>
         </FilterIconButton>
@@ -275,8 +286,8 @@ export default function CompactFilterBar(props: Readonly<Props>) {
               className="w-full"
               value={filterAsoType}
               onChange={setFilterAsoType}
-              options={["all", "ADMISS", "DEMISS", "RETORNO"]}
-              labelDefault="TIPOS ASO"
+              options={typeOptions}
+              labelDefault={asoTypeLabelDefault ?? "TIPOS ASO"}
             />
           </div>
         </FilterIconButton>

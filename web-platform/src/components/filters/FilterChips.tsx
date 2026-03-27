@@ -15,6 +15,7 @@ interface Props {
   filterAsoType: string;
   referrals: ReferralOperatorEntry[];
   operatorsMap: Record<string, string>;
+  extraChips?: Array<{ key: string; label: string }>;
 }
 
 export default function FilterChips({
@@ -26,6 +27,7 @@ export default function FilterChips({
   filterAsoType,
   referrals,
   operatorsMap,
+  extraChips,
 }: Readonly<Props>) {
   type Chip = { label: string; key: string };
   const chips: Chip[] = [];
@@ -48,6 +50,9 @@ export default function FilterChips({
     chips.push({ key: "sec", label: filterSecretaria });
   if (filterAsoType && filterAsoType !== "all")
     chips.push({ key: "aso", label: filterAsoType });
+  if (extraChips?.length) {
+    chips.push(...extraChips);
+  }
 
   if (chips.length === 0) return null;
 
