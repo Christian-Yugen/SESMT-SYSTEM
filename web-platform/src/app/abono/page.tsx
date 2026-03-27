@@ -556,160 +556,159 @@ export default function AbonoPage() {
           >
             <div className="overflow-visible">
               <section
-                className={`bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+                className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-3 text-[#1A3351]">
-                    <ClipboardList className="w-5 lg:w-6 h-5 lg:h-6" />
-                    <h2 className="text-lg lg:text-xl font-bold leading-none uppercase tracking-tight">
-                      Abono Salarial
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {/* Botão de Impressão com Popover de Opções */}
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setIsPrintPopoverOpen(!isPrintPopoverOpen)
-                        }
-                        className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                      >
-                        <Printer className="w-4 h-4" />
-                        Gerar Relatório (PDF)
-                        <ChevronDown
-                          className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? "rotate-180" : ""}`}
-                        />
-                      </button>
-
-                      {isPrintPopoverOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
-                          <div className="p-3 border-b border-slate-100 bg-slate-50">
-                            <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
-                              Escolha a Orientação
-                            </p>
-                          </div>
-                          <div className="p-2 space-y-1">
-                            <button
-                              onClick={() => {
-                                setPrintLayout("portrait");
-                                setTimeout(() => {
-                                  window.print();
-                                  setIsPrintPopoverOpen(false);
-                                }, 100);
-                              }}
-                              className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                            >
-                              <span className="text-[10px] font-bold uppercase">
-                                ↗ Vertical (Retrato)
-                              </span>
-                              {printLayout === "portrait" && (
-                                <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
-                              )}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setPrintLayout("landscape");
-                                setTimeout(() => {
-                                  window.print();
-                                  setIsPrintPopoverOpen(false);
-                                }, 100);
-                              }}
-                              className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                            >
-                              <span className="text-[10px] font-bold uppercase">
-                                ➡ Horizontal (Paisagem)
-                              </span>
-                              {printLayout === "landscape" && (
-                                <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 shrink-0 text-[#1A3351]">
+                    <ClipboardList className="w-5 h-5" />
+                    <div>
+                      <h2 className="text-base font-bold leading-none uppercase tracking-tight">
+                        Abono Salarial
+                      </h2>
+                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                        SESMT • Beneficios
+                      </p>
                     </div>
-
-                    <button
-                      onClick={() => router.push("/abono/analytics")}
-                      className="hidden md:flex items-center justify-center gap-2 px-4 h-10 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                    >
-                      <BarChart3 className="w-4 h-4" />
-                      Indicadores BI
-                    </button>
-                    {userRole !== "analytic_manager" && (
-                      <button
-                        onClick={() => router.push("/abono/new")}
-                        className="hidden md:flex items-center justify-center gap-2 px-6 h-10 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                      >
-                        <PlusCircle className="w-4 h-4" />
-                        Novo Lançamento
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden p-2.5 bg-[#1A3351] rounded-none-none text-white active:scale-95 transition-all shadow-md flex items-center gap-2"
-                    >
-                      <Menu className="w-5 h-5" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        Menu
-                      </span>
-                    </button>
                   </div>
+                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+
+                  <div className="flex-1 min-w-0">
+                    <CompactFilterBar
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      startDate={startDate}
+                      setStartDate={setStartDate}
+                      endDate={endDate}
+                      setEndDate={setEndDate}
+                      isDateFilterOpen={isDateFilterOpen}
+                      setIsDateFilterOpen={setIsDateFilterOpen}
+                      filterUser={"all"}
+                      setFilterUser={() => {}}
+                      filterSecretaria={secretariaFilter}
+                      setFilterSecretaria={setFilterSecretaria}
+                      filterAsoType={naturezaCargoFilter}
+                      setFilterAsoType={setNaturezaCargoFilter}
+                      uniqueUsersList={[]}
+                      uniqueSecretarias={secretarias}
+                      referrals={[]}
+                      operatorsMap={operatorsMap}
+                      clearAllFilters={clearAllFilters}
+                      searchPlaceholder="BUSCAR POR NOME OU CPF..."
+                      secretariaLabelDefault="SECRETARIAS"
+                      asoTypeLabelDefault="NATUREZA CARGO"
+                      asoTypeOptions={["all", ...naturezas]}
+                      showUserFilter={false}
+                    />
+                  </div>
+
+                  <div className="relative hidden md:block shrink-0">
+                    <button
+                      onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
+                      className="flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      PDF
+                      <ChevronDown
+                        className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {isPrintPopoverOpen && (
+                      <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
+                        <div className="p-3 border-b border-slate-100 bg-slate-50">
+                          <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                            Escolha a Orientação
+                          </p>
+                        </div>
+                        <div className="p-2 space-y-1">
+                          <button
+                            onClick={() => {
+                              setPrintLayout("portrait");
+                              setTimeout(() => {
+                                window.print();
+                                setIsPrintPopoverOpen(false);
+                              }, 100);
+                            }}
+                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                          >
+                            <span className="text-[10px] font-bold uppercase">
+                              ↗ Vertical (Retrato)
+                            </span>
+                            {printLayout === "portrait" && (
+                              <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setPrintLayout("landscape");
+                              setTimeout(() => {
+                                window.print();
+                                setIsPrintPopoverOpen(false);
+                              }, 100);
+                            }}
+                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                          >
+                            <span className="text-[10px] font-bold uppercase">
+                              ➡ Horizontal (Paisagem)
+                            </span>
+                            {printLayout === "landscape" && (
+                              <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => router.push("/abono/analytics")}
+                    className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    BI
+                  </button>
+                  {userRole !== "analytic_manager" && (
+                    <button
+                      onClick={() => router.push("/abono/new")}
+                      className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      Novo
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                  >
+                    <Menu className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <CompactFilterBar
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    startDate={startDate}
-                    setStartDate={setStartDate}
-                    endDate={endDate}
-                    setEndDate={setEndDate}
-                    isDateFilterOpen={isDateFilterOpen}
-                    setIsDateFilterOpen={setIsDateFilterOpen}
-                    filterUser={"all"}
-                    setFilterUser={() => {}}
-                    filterSecretaria={secretariaFilter}
-                    setFilterSecretaria={setFilterSecretaria}
-                    filterAsoType={naturezaCargoFilter}
-                    setFilterAsoType={setNaturezaCargoFilter}
-                    uniqueUsersList={[]}
-                    uniqueSecretarias={secretarias}
-                    referrals={[]}
-                    operatorsMap={operatorsMap}
-                    clearAllFilters={clearAllFilters}
-                    searchPlaceholder="BUSCAR POR NOME OU CPF..."
-                    secretariaLabelDefault="SECRETARIAS"
-                    asoTypeLabelDefault="NATUREZA CARGO"
-                    asoTypeOptions={["all", ...naturezas]}
-                    showUserFilter={false}
-                  />
-
-                  <FilterChips
-                    searchTerm={normalizeSearchTerm(searchTerm)}
-                    startDate={startDate}
-                    endDate={endDate}
-                    filterUser={"all"}
-                    filterSecretaria={secretariaFilter}
-                    filterAsoType={naturezaCargoFilter}
-                    referrals={[]}
-                    operatorsMap={operatorsMap}
-                    extraChips={
-                      statusFilter !== "all"
-                        ? [
-                            {
-                              key: "status",
-                              label:
-                                statusFilter === "active"
-                                  ? "Status: Ativos"
-                                  : statusFilter === "expired"
-                                    ? "Status: Vencidos"
-                                    : "Status: Finalizados",
-                            },
-                          ]
-                        : []
-                    }
-                  />
-                </div>
+                <FilterChips
+                  searchTerm={normalizeSearchTerm(searchTerm)}
+                  startDate={startDate}
+                  endDate={endDate}
+                  filterUser={"all"}
+                  filterSecretaria={secretariaFilter}
+                  filterAsoType={naturezaCargoFilter}
+                  referrals={[]}
+                  operatorsMap={operatorsMap}
+                  extraChips={
+                    statusFilter !== "all"
+                      ? [
+                          {
+                            key: "status",
+                            label:
+                              statusFilter === "active"
+                                ? "Status: Ativos"
+                                : statusFilter === "expired"
+                                  ? "Status: Vencidos"
+                                  : "Status: Finalizados",
+                          },
+                        ]
+                      : []
+                  }
+                />
               </section>
             </div>
           </div>
