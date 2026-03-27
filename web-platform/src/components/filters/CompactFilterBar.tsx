@@ -42,6 +42,7 @@ interface Props {
   secretariaLabelDefault?: string;
   asoTypeLabelDefault?: string;
   asoTypeOptions?: string[];
+  showUserFilter?: boolean;
 }
 
 type PopoverId = "date" | "user" | "secretaria" | "asoType" | null;
@@ -127,6 +128,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     secretariaLabelDefault,
     asoTypeLabelDefault,
     asoTypeOptions,
+    showUserFilter = true,
   } = props;
 
   const [openPopover, setOpenPopover] = useState<PopoverId>(null);
@@ -229,30 +231,32 @@ export default function CompactFilterBar(props: Readonly<Props>) {
           </div>
         </FilterIconButton>
 
-        <FilterIconButton
-          id="user"
-          open={openPopover === "user"}
-          onToggle={togglePopover}
-          title="Operadores"
-          active={filterUser !== "all"}
-          icon={<Users className="w-4 h-4" />}
-        >
-          <div className="w-64 p-3">
-            <SelectFilter
-              className="w-full"
-              value={filterUser}
-              onChange={setFilterUser}
-              options={operatorOptions}
-              labelDefault={userLabelDefault ?? "OPERADORES"}
-              renderOption={(uid: string) =>
-                referrals.find((referral) => referral.generated_by === uid)
-                  ?.operator_name ||
-                operatorsMap[uid] ||
-                `ID: ${uid.substring(0, 8)}`
-              }
-            />
-          </div>
-        </FilterIconButton>
+        {showUserFilter && (
+          <FilterIconButton
+            id="user"
+            open={openPopover === "user"}
+            onToggle={togglePopover}
+            title="Operadores"
+            active={filterUser !== "all"}
+            icon={<Users className="w-4 h-4" />}
+          >
+            <div className="w-64 p-3">
+              <SelectFilter
+                className="w-full"
+                value={filterUser}
+                onChange={setFilterUser}
+                options={operatorOptions}
+                labelDefault={userLabelDefault ?? "OPERADORES"}
+                renderOption={(uid: string) =>
+                  referrals.find((referral) => referral.generated_by === uid)
+                    ?.operator_name ||
+                  operatorsMap[uid] ||
+                  `ID: ${uid.substring(0, 8)}`
+                }
+              />
+            </div>
+          </FilterIconButton>
+        )}
 
         <FilterIconButton
           id="secretaria"
