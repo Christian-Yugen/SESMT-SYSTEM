@@ -28,6 +28,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { AbonoRecord } from "@/types";
+import ActionIconButton from "@/components/filters/ActionIconButton";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import {
@@ -601,80 +602,75 @@ export default function AbonoPage() {
                     />
                   </div>
 
-                  <div className="relative hidden md:block shrink-0">
-                    <button
-                      onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
-                      className="flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      PDF
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-
-                    {isPrintPopoverOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
-                        <div className="p-3 border-b border-slate-100 bg-slate-50">
-                          <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
-                            Escolha a Orientação
-                          </p>
-                        </div>
-                        <div className="p-2 space-y-1">
-                          <button
-                            onClick={() => {
-                              setPrintLayout("portrait");
-                              setTimeout(() => {
-                                window.print();
-                                setIsPrintPopoverOpen(false);
-                              }, 100);
-                            }}
-                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                          >
-                            <span className="text-[10px] font-bold uppercase">
-                              ↗ Vertical (Retrato)
-                            </span>
-                            {printLayout === "portrait" && (
-                              <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setPrintLayout("landscape");
-                              setTimeout(() => {
-                                window.print();
-                                setIsPrintPopoverOpen(false);
-                              }, 100);
-                            }}
-                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                          >
-                            <span className="text-[10px] font-bold uppercase">
-                              ➡ Horizontal (Paisagem)
-                            </span>
-                            {printLayout === "landscape" && (
-                              <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => router.push("/abono/analytics")}
-                    className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
+                  <ActionIconButton
+                    className="hidden md:block"
+                    icon={<Printer className="w-4 h-4" />}
+                    label="Gerar relatório PDF"
+                    variant="primary"
+                    open={isPrintPopoverOpen}
+                    onToggle={setIsPrintPopoverOpen}
+                    showMenuIndicator
                   >
-                    <BarChart3 className="w-3.5 h-3.5" />
-                    BI
-                  </button>
+                    <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
+                      <div className="p-3 border-b border-slate-100 bg-slate-50">
+                        <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                          Escolha a Orientação
+                        </p>
+                      </div>
+                      <div className="p-2 space-y-1">
+                        <button
+                          onClick={() => {
+                            setPrintLayout("portrait");
+                            setTimeout(() => {
+                              window.print();
+                              setIsPrintPopoverOpen(false);
+                            }, 100);
+                          }}
+                          className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                        >
+                          <span className="text-[10px] font-bold uppercase">
+                            ↗ Vertical (Retrato)
+                          </span>
+                          {printLayout === "portrait" && (
+                            <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPrintLayout("landscape");
+                            setTimeout(() => {
+                              window.print();
+                              setIsPrintPopoverOpen(false);
+                            }, 100);
+                          }}
+                          className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                        >
+                          <span className="text-[10px] font-bold uppercase">
+                            ➡ Horizontal (Paisagem)
+                          </span>
+                          {printLayout === "landscape" && (
+                            <div className="w-1.5 h-1.5 rounded-none-none bg-[#E31E24]" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </ActionIconButton>
+
+                  <ActionIconButton
+                    className="hidden md:block"
+                    icon={<BarChart3 className="w-4 h-4" />}
+                    label="Abrir indicadores BI"
+                    variant="primary"
+                    onClick={() => router.push("/abono/analytics")}
+                  />
                   {userRole !== "analytic_manager" && (
-                    <button
+                    <ActionIconButton
+                      className="hidden md:block"
+                      icon={<PlusCircle className="w-4 h-4" />}
+                      label="Novo lançamento"
+                      variant="success"
                       onClick={() => router.push("/abono/new")}
-                      className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-green-600 text-white font-bold rounded-none shadow-md hover:bg-green-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
-                    >
-                      <PlusCircle className="w-3.5 h-3.5" />
-                      Novo
-                    </button>
+                    />
                   )}
                   <button
                     onClick={() => setIsSidebarOpen(true)}

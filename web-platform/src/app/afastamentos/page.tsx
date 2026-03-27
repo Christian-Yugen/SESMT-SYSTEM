@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
+import ActionIconButton from "@/components/filters/ActionIconButton";
 import {
   type FilterState,
   matchesUnifiedNameCpfSearch,
@@ -548,14 +549,12 @@ export default function AfastamentosPage() {
         .eq("afastamento_id", editingRecord.id);
       for (const cid of editFormData.cids) {
         const chapter = getCIDChapter(cid.code);
-        await supabase
-          .from("afastamento_cids")
-          .insert({
-            afastamento_id: editingRecord.id,
-            cid_codigo: cid.code,
-            cid_descricao: cid.desc,
-            cid_capitulo: chapter?.capitulo || "Desconhecido",
-          });
+        await supabase.from("afastamento_cids").insert({
+          afastamento_id: editingRecord.id,
+          cid_codigo: cid.code,
+          cid_descricao: cid.desc,
+          cid_capitulo: chapter?.capitulo || "Desconhecido",
+        });
       }
       await supabase.from("afastamentos_logs").insert({
         afastamento_id: editingRecord.id,
@@ -968,76 +967,73 @@ export default function AfastamentosPage() {
                   />
                 </div>
                 {/* Botões de ação */}
-                <div className="relative hidden md:block shrink-0">
-                  <button
-                    onClick={() => setIsPrintPopoverOpen(!isPrintPopoverOpen)}
-                    className="flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10"
-                  >
-                    <Printer className="w-3.5 h-3.5" />
-                    PDF
-                    <ChevronDown
-                      className={`w-3 h-3 transition-transform ${isPrintPopoverOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {isPrintPopoverOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-56 bg-white border-2 border-[#1A3351] shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
-                      <div className="p-3 border-b border-slate-100 bg-slate-50">
-                        <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
-                          Escolha a Orientação
-                        </p>
-                      </div>
-                      <div className="p-2 space-y-1">
-                        <button
-                          onClick={() => {
-                            setPrintLayout("portrait");
-                            setTimeout(() => {
-                              window.print();
-                              setIsPrintPopoverOpen(false);
-                            }, 100);
-                          }}
-                          className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                        >
-                          <span className="text-[10px] font-bold uppercase">
-                            ↗ Vertical (Retrato)
-                          </span>
-                          {printLayout === "portrait" && (
-                            <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setPrintLayout("landscape");
-                            setTimeout(() => {
-                              window.print();
-                              setIsPrintPopoverOpen(false);
-                            }, 100);
-                          }}
-                          className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                        >
-                          <span className="text-[10px] font-bold uppercase">
-                            ➡ Horizontal (Paisagem)
-                          </span>
-                          {printLayout === "landscape" && (
-                            <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                          )}
-                        </button>
-                      </div>
+                <ActionIconButton
+                  className="hidden md:block"
+                  icon={<Printer className="w-4 h-4" />}
+                  label="Gerar relatório PDF"
+                  variant="primary"
+                  open={isPrintPopoverOpen}
+                  onToggle={setIsPrintPopoverOpen}
+                  showMenuIndicator
+                >
+                  <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
+                    <div className="p-3 border-b border-slate-100 bg-slate-50">
+                      <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                        Escolha a Orientação
+                      </p>
                     </div>
-                  )}
-                </div>
-                <button
+                    <div className="p-2 space-y-1">
+                      <button
+                        onClick={() => {
+                          setPrintLayout("portrait");
+                          setTimeout(() => {
+                            window.print();
+                            setIsPrintPopoverOpen(false);
+                          }, 100);
+                        }}
+                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                      >
+                        <span className="text-[10px] font-bold uppercase">
+                          ↗ Vertical (Retrato)
+                        </span>
+                        {printLayout === "portrait" && (
+                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPrintLayout("landscape");
+                          setTimeout(() => {
+                            window.print();
+                            setIsPrintPopoverOpen(false);
+                          }, 100);
+                        }}
+                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                      >
+                        <span className="text-[10px] font-bold uppercase">
+                          ➡ Horizontal (Paisagem)
+                        </span>
+                        {printLayout === "landscape" && (
+                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </ActionIconButton>
+                <ActionIconButton
+                  className="hidden md:block"
+                  icon={<BarChart3 className="w-4 h-4" />}
+                  label="Abrir indicadores BI"
+                  variant="primary"
                   onClick={() => router.push("/afastamentos/analytics")}
-                  className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-[#1A3351] text-white font-bold rounded-none shadow-md hover:brightness-110 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  BI
-                </button>
-                <button
+                />
+                <ActionIconButton
+                  className="hidden md:block"
+                  icon={<PlusCircle className="w-4 h-4" />}
+                  label="Novo afastamento"
+                  variant="success"
                   onClick={() => router.push("/afastamentos/new")}
-                  className="hidden md:flex items-center justify-center gap-1.5 px-3 h-9 bg-emerald-600 text-white font-bold rounded-none shadow-md hover:bg-emerald-700 active:scale-95 transition-all text-[10px] uppercase border border-black/10 shrink-0"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" /> Novo
-                </button>
+                />
                 <button
                   onClick={() => setIsSidebarOpen(true)}
                   className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
