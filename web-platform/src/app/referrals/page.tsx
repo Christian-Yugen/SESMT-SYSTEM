@@ -15,6 +15,11 @@ import {
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
+import {
+  type FilterState,
+  matchesUnifiedNameCpfSearch,
+  normalizeSearchTerm,
+} from "@/components/filters/filtersUtils";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
@@ -38,11 +43,21 @@ interface ReferralEntry {
 }
 
 export default function ReferralsPage() {
+  const INITIAL_FILTERS: FilterState = {
+    searchTerm: "",
+    startDate: "",
+    endDate: "",
+    filterUser: "all",
+    filterSecretaria: "all",
+    filterAsoType: "all",
+  };
+
   const [referrals, setReferrals] = useState<ReferralEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
@@ -70,13 +85,37 @@ export default function ReferralsPage() {
     setLastScrollTop(scrollTop);
   };
 
-  // Filtros
-  const [filterUser, setFilterUser] = useState("all");
-  const [filterSecretaria, setFilterSecretaria] = useState("all");
-  const [filterAsoType, setFilterAsoType] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("date-desc");
+
+  const setSearchTerm = (value: string) => {
+    setFilters((prev) => ({ ...prev, searchTerm: value }));
+  };
+  const setStartDate = (value: string) => {
+    setFilters((prev) => ({ ...prev, startDate: value }));
+  };
+  const setEndDate = (value: string) => {
+    setFilters((prev) => ({ ...prev, endDate: value }));
+  };
+  const setFilterUser = (value: string) => {
+    setFilters((prev) => ({ ...prev, filterUser: value }));
+  };
+  const setFilterSecretaria = (value: string) => {
+    setFilters((prev) => ({ ...prev, filterSecretaria: value }));
+  };
+  const setFilterAsoType = (value: string) => {
+    setFilters((prev) => ({ ...prev, filterAsoType: value }));
+  };
+  const clearAllFilters = () => {
+    setFilters(INITIAL_FILTERS);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(filters.searchTerm);
+    }, 180);
+
+    return () => clearTimeout(timer);
+  }, [filters.searchTerm]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -175,29 +214,26 @@ export default function ReferralsPage() {
   );
 
   const filteredReferrals = referrals.filter((entry) => {
-    const cleanQuery = searchTerm.trim();
-    const cleanDigits = cleanQuery.replace(/\D/g, "");
-    const matchesSearch =
-      cleanDigits.length > 0
-        ? entry.servidor_nome
-            .toLowerCase()
-            .includes(cleanQuery.toLowerCase()) ||
-          (entry.servidor_cpf
-            ? entry.servidor_cpf.replace(/\D/g, "").includes(cleanDigits)
-            : false)
-        : entry.servidor_nome.toLowerCase().includes(cleanQuery.toLowerCase());
+    const matchesSearch = matchesUnifiedNameCpfSearch(
+      entry.servidor_nome,
+      entry.servidor_cpf,
+      debouncedSearchTerm,
+    );
     const matchesUser =
-      filterUser === "all" || entry.generated_by === filterUser;
+      filters.filterUser === "all" || entry.generated_by === filters.filterUser;
     const matchesSecretaria =
-      filterSecretaria === "all" || entry.secretaria === filterSecretaria;
+      filters.filterSecretaria === "all" ||
+      entry.secretaria === filters.filterSecretaria;
     const matchesAsoType =
-      filterAsoType === "all" ||
-      entry.aso_type.toUpperCase().includes(filterAsoType.toUpperCase());
+      filters.filterAsoType === "all" ||
+      entry.aso_type
+        .toUpperCase()
+        .includes(filters.filterAsoType.toUpperCase());
 
     // Filtro de Data
     const entryDate = new Date(entry.generated_at).toISOString().split("T")[0];
-    const matchesStartDate = !startDate || entryDate >= startDate;
-    const matchesEndDate = !endDate || entryDate <= endDate;
+    const matchesStartDate = !filters.startDate || entryDate >= filters.startDate;
+    const matchesEndDate = !filters.endDate || entryDate <= filters.endDate;
 
     return (
       matchesSearch &&
@@ -290,32 +326,25 @@ export default function ReferralsPage() {
                   {/* Toolbar compacta de filtros (busca + ícones) */}
                   <div className="flex-1 min-w-0">
                     <CompactFilterBar
-                      searchTerm={searchTerm}
+                      searchTerm={filters.searchTerm}
                       setSearchTerm={setSearchTerm}
-                      startDate={startDate}
+                      startDate={filters.startDate}
                       setStartDate={setStartDate}
-                      endDate={endDate}
+                      endDate={filters.endDate}
                       setEndDate={setEndDate}
                       isDateFilterOpen={isDateFilterOpen}
                       setIsDateFilterOpen={setIsDateFilterOpen}
-                      filterUser={filterUser}
+                      filterUser={filters.filterUser}
                       setFilterUser={setFilterUser}
-                      filterSecretaria={filterSecretaria}
+                      filterSecretaria={filters.filterSecretaria}
                       setFilterSecretaria={setFilterSecretaria}
-                      filterAsoType={filterAsoType}
+                      filterAsoType={filters.filterAsoType}
                       setFilterAsoType={setFilterAsoType}
                       uniqueUsersList={uniqueUsersList}
                       uniqueSecretarias={uniqueSecretarias}
                       referrals={referrals}
                       operatorsMap={operatorsMap}
-                      clearAllFilters={() => {
-                        setSearchTerm("");
-                        setFilterUser("all");
-                        setFilterSecretaria("all");
-                        setFilterAsoType("all");
-                        setStartDate("");
-                        setEndDate("");
-                      }}
+                      clearAllFilters={clearAllFilters}
                     />
                   </div>
 
@@ -330,12 +359,12 @@ export default function ReferralsPage() {
 
                 {/* Chips de filtros ativos — só aparece quando há filtro */}
                 <FilterChips
-                  searchTerm={searchTerm}
-                  startDate={startDate}
-                  endDate={endDate}
-                  filterUser={filterUser}
-                  filterSecretaria={filterSecretaria}
-                  filterAsoType={filterAsoType}
+                  searchTerm={normalizeSearchTerm(filters.searchTerm)}
+                  startDate={filters.startDate}
+                  endDate={filters.endDate}
+                  filterUser={filters.filterUser}
+                  filterSecretaria={filters.filterSecretaria}
+                  filterAsoType={filters.filterAsoType}
                   referrals={referrals}
                   operatorsMap={operatorsMap}
                 />

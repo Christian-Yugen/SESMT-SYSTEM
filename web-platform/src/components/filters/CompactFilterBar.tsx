@@ -39,7 +39,7 @@ interface Props {
   clearAllFilters: () => void;
 }
 
-type PopoverId = "cpf" | "date" | "user" | "secretaria" | "asoType" | null;
+type PopoverId = "date" | "user" | "secretaria" | "asoType" | null;
 
 function FilterIconButton({
   id,
@@ -49,7 +49,7 @@ function FilterIconButton({
   title,
   active,
   children,
-}: {
+}: Readonly<{
   id: PopoverId;
   open: boolean;
   onToggle: (id: PopoverId) => void;
@@ -57,7 +57,7 @@ function FilterIconButton({
   title: string;
   active: boolean;
   children: React.ReactNode;
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,18 +71,20 @@ function FilterIconButton({
     return () => document.removeEventListener("mousedown", handler);
   }, [open, onToggle]);
 
+  let buttonStateClass =
+    "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-[#1A3351]";
+  if (active) {
+    buttonStateClass = "bg-[#1A3351] border-[#1A3351] text-white";
+  } else if (open) {
+    buttonStateClass = "bg-slate-100 border-slate-300 text-[#1A3351]";
+  }
+
   return (
     <div className="relative" ref={ref}>
       <button
         title={title}
         onClick={() => onToggle(open ? null : id)}
-        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all ${
-          active
-            ? "bg-[#1A3351] border-[#1A3351] text-white"
-            : open
-              ? "bg-slate-100 border-slate-300 text-[#1A3351]"
-              : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-[#1A3351]"
-        }`}
+        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 ${buttonStateClass}`}
       >
         {icon}
       </button>
@@ -95,7 +97,7 @@ function FilterIconButton({
   );
 }
 
-export default function CompactFilterBar(props: Props) {
+export default function CompactFilterBar(props: Readonly<Props>) {
   const {
     searchTerm,
     setSearchTerm,
@@ -103,7 +105,6 @@ export default function CompactFilterBar(props: Props) {
     setStartDate,
     endDate,
     setEndDate,
-    isDateFilterOpen,
     setIsDateFilterOpen,
     filterUser,
     setFilterUser,
@@ -141,8 +142,8 @@ export default function CompactFilterBar(props: Props) {
   };
 
   return (
-    <div className="w-full flex items-center gap-3">
-      <div className="flex-1 min-w-0 max-w-2xl">
+    <div className="w-full flex items-center justify-between gap-3">
+      <div className="flex-1 min-w-0">
         <SearchField
           value={searchTerm}
           onChange={setSearchTerm}
@@ -175,7 +176,9 @@ export default function CompactFilterBar(props: Props) {
         >
           <div className="w-72 p-4 space-y-3">
             <div className="space-y-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Data inicial</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase">
+                Data inicial
+              </span>
               <input
                 type="date"
                 className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
@@ -184,7 +187,9 @@ export default function CompactFilterBar(props: Props) {
               />
             </div>
             <div className="space-y-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Data final</span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase">
+                Data final
+              </span>
               <input
                 type="date"
                 className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
@@ -229,7 +234,8 @@ export default function CompactFilterBar(props: Props) {
               options={operatorOptions}
               labelDefault="OPERADORES"
               renderOption={(uid: string) =>
-                referrals.find((referral) => referral.generated_by === uid)?.operator_name ||
+                referrals.find((referral) => referral.generated_by === uid)
+                  ?.operator_name ||
                 operatorsMap[uid] ||
                 `ID: ${uid.substring(0, 8)}`
               }
