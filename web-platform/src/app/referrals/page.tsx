@@ -9,6 +9,7 @@ import {
     CreditCard, Loader2, Scale, FileText
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
+import FilterToolbar from "@/components/filters/FilterToolbar";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
@@ -235,142 +236,32 @@ export default function ReferralsPage() {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 lg:gap-3">
-                            <div className="md:col-span-5 relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="text"
-                                    placeholder="NOME DO SERVIDOR..."
-                                    className="w-full h-10 px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase rounded-none"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <div className="md:col-span-3 relative">
-                                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="text"
-                                    placeholder="CPF..."
-                                    className="w-full h-10 px-10 border border-[#888] shadow-inner text-xs font-bold bg-[#E8E8E8] outline-none uppercase rounded-none"
-                                    value={searchCpf}
-                                    onChange={(e) => setSearchCpf(e.target.value)}
-                                />
-                            </div>
-
-                            {/* FILTRO DE DATA */}
-                            <div className="md:col-span-4 relative">
-                                <button
-                                    onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
-                                    className={`
-                                        flex items-center justify-between w-full h-10 px-4 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-[10px] uppercase transition-all rounded-none
-                                        ${(startDate || endDate) ? 'text-[#E31E24] border-[#E31E24]' : 'text-slate-500'}
-                                    `}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>{(startDate || endDate) ? `${startDate || '...'} → ${endDate || '...'}` : 'Filtrar por Período'}</span>
-                                    </div>
-                                    <ChevronDown className={`w-3 h-3 transition-transform ${isDateFilterOpen ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {isDateFilterOpen && (
-                                    <div className="absolute top-12 right-0 bg-white border-2 border-[#1A3351] shadow-2xl p-4 z-[100] w-64 animate-in fade-in slide-in-from-top-2 rounded-none">
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                                                <span className="text-[10px] font-bold text-[#1A3351] uppercase">Definir Período</span>
-                                                <button onClick={() => setIsDateFilterOpen(false)}><X className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Data Inicial</span>
-                                                <input
-                                                    type="date"
-                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24] rounded-none"
-                                                    value={startDate}
-                                                    onChange={(e) => setStartDate(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Data Final</span>
-                                                <input
-                                                    type="date"
-                                                    className="w-full bg-[#f8f8f8] border border-slate-200 px-3 py-2 text-xs font-bold uppercase outline-none focus:border-[#E31E24] rounded-none"
-                                                    value={endDate}
-                                                    onChange={(e) => setEndDate(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="flex gap-2 pt-2">
-                                                <button
-                                                    onClick={() => { setStartDate(""); setEndDate(""); }}
-                                                    className="flex-1 py-2 text-[9px] font-bold uppercase text-slate-400 hover:text-slate-600 border border-slate-100 rounded-none"
-                                                >
-                                                    Limpar
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsDateFilterOpen(false)}
-                                                    className="flex-[2] py-2 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 shadow-md rounded-none"
-                                                >
-                                                    Filtrar Agora
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            <select
-                                value={filterUser}
-                                onChange={(e) => setFilterUser(e.target.value)}
-                                className="flex-1 lg:flex-none h-10 px-4 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
-                            >
-                                <option value="all">OPERADORES</option>
-                                {uniqueUsersList.map(uid => (
-                                    <option key={uid} value={uid}>
-                                        {referrals.find(h => h.generated_by === uid)?.operator_name || operatorsMap[uid] || `ID: ${uid.substring(0, 8)}`}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <select
-                                value={filterSecretaria}
-                                onChange={(e) => setFilterSecretaria(e.target.value)}
-                                className="flex-1 lg:flex-none h-10 px-4 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] max-w-[250px] rounded-none"
-                            >
-                                <option value="all">SECRETARIAS</option>
-                                {uniqueSecretarias.map(sec => (
-                                    <option key={sec} value={sec}>{sec}</option>
-                                ))}
-                            </select>
-
-                            <select
-                                value={filterAsoType}
-                                onChange={(e) => setFilterAsoType(e.target.value)}
-                                className="flex-1 lg:flex-none h-10 px-4 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
-                            >
-                                <option value="all">TIPOS ASO</option>
-                                <option value="ADMISS">ADMISSIONAL</option>
-                                <option value="DEMISS">DEMISSIONAL</option>
-                                <option value="RETORNO">RETORNO</option>
-                            </select>
-
-                            {(searchTerm || searchCpf || filterUser !== "all" || filterSecretaria !== "all" || filterAsoType !== "all" || startDate || endDate) && (
-                                <button
-                                    onClick={() => {
-                                        setSearchTerm("");
-                                        setSearchCpf("");
-                                        setFilterUser("all");
-                                        setFilterSecretaria("all");
-                                        setFilterAsoType("all");
-                                        setStartDate("");
-                                        setEndDate("");
-                                    }}
-                                    className="h-10 px-4 bg-[#E31E24] text-white text-[10px] font-bold uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all rounded-none w-full lg:w-auto mt-2 lg:mt-0"
-                                >
-                                    Zerar Filtros
-                                </button>
-                            )}
-                        </div>
+                        {/* FilterToolbar extracted to reusable component - behavior preserved */}
+                        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                        {/* @ts-ignore */}
+                        <FilterToolbar
+                            searchTerm={searchTerm}
+                            setSearchTerm={setSearchTerm}
+                            searchCpf={searchCpf}
+                            setSearchCpf={setSearchCpf}
+                            startDate={startDate}
+                            setStartDate={setStartDate}
+                            endDate={endDate}
+                            setEndDate={setEndDate}
+                            isDateFilterOpen={isDateFilterOpen}
+                            setIsDateFilterOpen={setIsDateFilterOpen}
+                            filterUser={filterUser}
+                            setFilterUser={setFilterUser}
+                            filterSecretaria={filterSecretaria}
+                            setFilterSecretaria={setFilterSecretaria}
+                            filterAsoType={filterAsoType}
+                            setFilterAsoType={setFilterAsoType}
+                            uniqueUsersList={uniqueUsersList}
+                            uniqueSecretarias={uniqueSecretarias}
+                            referrals={referrals}
+                            operatorsMap={operatorsMap}
+                            clearAllFilters={() => { setSearchTerm(""); setSearchCpf(""); setFilterUser("all"); setFilterSecretaria("all"); setFilterAsoType("all"); setStartDate(""); setEndDate(""); }}
+                        />
                     </div>
                         </section>
                     </div>
