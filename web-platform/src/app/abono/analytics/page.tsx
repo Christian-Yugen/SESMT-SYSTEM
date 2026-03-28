@@ -334,7 +334,7 @@ export default function AbonoAnalyticsPage() {
     }));
 
     return { byMonth, byStatus, bySecretaria, byNatureza };
-  }, [filteredRecords]);
+  }, [filteredRecords, renewalTargetIds]);
 
   const handlePrintReport = () => {
     const printWindow = window.open("", "_blank");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   getCIDChapter,
   searchCIDs,
@@ -263,45 +263,56 @@ export default function AfastamentosPage() {
     return () => clearTimeout(timer);
   }, [cidEditInput]);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { session, error } = await safeGetSession();
-        if (error) {
-          await handleAuthError(error);
-          return;
-        }
-        if (session) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
-          if (data) {
-            setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse") {
-              router.push("/");
-              return;
-            }
-          }
-          const name =
-            session.user.user_metadata?.full_name ||
-            session.user.email?.split("@")[0] ||
-            "Usuário";
-          setUserName(name);
-        } else {
-          router.push("/login");
-          return;
-        }
-        loadRecords();
-      } catch (err) {
-        await handleAuthError(err);
-      }
-    };
-    checkAuth();
-  }, [router]);
+  const runAutoRepair = useCallback(async (data: AfastamentoRecord[]) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-  async function loadRecords() {
+      // 1. Records that have 'renovado_por_id' but are still 'EM_ANDAMENTO'
+      const toProrrogar = data.filter(
+        (r) => r.situacao === "EM_ANDAMENTO" && r.renovado_por_id !== null,
+      );
+
+      // 2. Records that are clearly expired (over 30 days ago) and still 'EM_ANDAMENTO'
+      // We only do this for records that are definitely in the past to avoid false positives
+      const toFinalize = data.filter((r) => {
+        if (r.situacao !== "EM_ANDAMENTO") return false;
+        if (!r.data_fim) return false;
+        const end = new Date(r.data_fim + "T00:00:00");
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        return end < thirtyDaysAgo;
+      });
+
+      if (toProrrogar.length > 0) {
+        console.log(`Fixing ${toProrrogar.length} records to PRORROGADO...`);
+        await supabase
+          .from("afastamentos")
+          .update({ situacao: "PRORROGADO" })
+          .in(
+            "id",
+            toProrrogar.map((r) => r.id),
+          );
+        toProrrogar.forEach((r) => (r.situacao = "PRORROGADO")); // Update local ref
+      }
+
+      if (toFinalize.length > 0) {
+        console.log(`Fixing ${toFinalize.length} records to FINALIZADO...`);
+        await supabase
+          .from("afastamentos")
+          .update({ situacao: "FINALIZADO" })
+          .in(
+            "id",
+            toFinalize.map((r) => r.id),
+          );
+        toFinalize.forEach((r) => (r.situacao = "FINALIZADO")); // Update local ref
+      }
+    } catch (err) {
+      console.error("Error in auto-repair:", err);
+    }
+  }, []);
+
+  const loadRecords = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("afastamentos")
@@ -354,56 +365,45 @@ export default function AfastamentosPage() {
       }
     }
     setLoading(false);
-  }
+  }, [runAutoRepair]);
 
-  async function runAutoRepair(data: AfastamentoRecord[]) {
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // 1. Records that have 'renovado_por_id' but are still 'EM_ANDAMENTO'
-      const toProrrogar = data.filter(
-        (r) => r.situacao === "EM_ANDAMENTO" && r.renovado_por_id !== null,
-      );
-
-      // 2. Records that are clearly expired (over 30 days ago) and still 'EM_ANDAMENTO'
-      // We only do this for records that are definitely in the past to avoid false positives
-      const toFinalize = data.filter((r) => {
-        if (r.situacao !== "EM_ANDAMENTO") return false;
-        if (!r.data_fim) return false;
-        const end = new Date(r.data_fim + "T00:00:00");
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 30);
-        return end < thirtyDaysAgo;
-      });
-
-      if (toProrrogar.length > 0) {
-        console.log(`Fixing ${toProrrogar.length} records to PRORROGADO...`);
-        await supabase
-          .from("afastamentos")
-          .update({ situacao: "PRORROGADO" })
-          .in(
-            "id",
-            toProrrogar.map((r) => r.id),
-          );
-        toProrrogar.forEach((r) => (r.situacao = "PRORROGADO")); // Update local ref
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { session, error } = await safeGetSession();
+        if (error) {
+          await handleAuthError(error);
+          return;
+        }
+        if (session) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
+          if (data) {
+            setUserRole(data.role);
+            if (data.role !== "admin" && data.role !== "nurse") {
+              router.push("/");
+              return;
+            }
+          }
+          const name =
+            session.user.user_metadata?.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Usuário";
+          setUserName(name);
+        } else {
+          router.push("/login");
+          return;
+        }
+        loadRecords();
+      } catch (err) {
+        await handleAuthError(err);
       }
-
-      if (toFinalize.length > 0) {
-        console.log(`Fixing ${toFinalize.length} records to FINALIZADO...`);
-        await supabase
-          .from("afastamentos")
-          .update({ situacao: "FINALIZADO" })
-          .in(
-            "id",
-            toFinalize.map((r) => r.id),
-          );
-        toFinalize.forEach((r) => (r.situacao = "FINALIZADO")); // Update local ref
-      }
-    } catch (err) {
-      console.error("Error in auto-repair:", err);
-    }
-  }
+    };
+    checkAuth();
+  }, [router, loadRecords]);
 
   async function handleAltaMedica(record: AfastamentoRecord) {
     if (

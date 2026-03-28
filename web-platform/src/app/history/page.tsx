@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   FileSearch,
@@ -239,6 +239,9 @@ export default function HistoryPage() {
   const [funcoesSearch, setFuncoesSearch] = useState("");
   const [filteredFuncoes, setFilteredFuncoes] = useState<FuncaoRecord[]>([]);
   const [isSearchingFuncao, setIsSearchingFuncao] = useState(false);
+  const [profilesData, setProfilesData] = useState<
+    Record<string, { email: string; role: string }>
+  >({});
 
   // Busca de Cargo no Servidor com Debounce
   useEffect(() => {
@@ -400,6 +403,47 @@ export default function HistoryPage() {
     syncExamsAndRisks();
   }, [editFormData?.aso_type, editFormData?.function_ghe, isEditModalOpen]);
 
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+
+    // Força o Next.js a atualizar o cache do roteador
+    router.refresh();
+
+    // Carrega o histórico com um "cache breaker" manual
+    const cacheBreaker = Date.now();
+
+    // Buscamos o histórico e os perfis em paralelo
+    const [histRes, profRes] = await Promise.all([
+      supabase
+        .from("aso_history")
+        .select("*")
+        .neq("id", -cacheBreaker)
+        .order("generated_at", { ascending: false }),
+      supabase.from("profiles").select("id, email, role"),
+    ]);
+
+    const profMap: Record<string, { email: string; role: string }> = {};
+    if (profRes.data) {
+      profRes.data.forEach((p) => {
+        profMap[p.id] = { email: p.email, role: p.role };
+      });
+      setProfilesData(profMap);
+    }
+
+    if (!histRes.error && histRes.data) {
+      // Injetamos o creator_role para facilitar a lógica de UI
+      const enrichedHistory = histRes.data.map((h) => ({
+        ...h,
+        creator_role: profMap[h.generated_by]?.role || "unknown",
+      }));
+      setHistory(enrichedHistory);
+    } else if (histRes.error) {
+      console.error("Erro ao carregar histórico:", histRes.error);
+    }
+
+    setLoading(false);
+  }, [router]);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -441,7 +485,7 @@ export default function HistoryPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router, userRole]);
+  }, [router, loadHistory]);
 
   // Redirecionamento para perfis sem acesso ao histórico
   useEffect(() => {
@@ -451,51 +495,6 @@ export default function HistoryPage() {
       router.push("/");
     }
   }, [userRole, router]);
-
-  const [profilesData, setProfilesData] = useState<
-    Record<string, { email: string; role: string }>
-  >({});
-
-  async function loadHistory() {
-    setLoading(true);
-
-    // Força o Next.js a atualizar o cache do roteador
-    router.refresh();
-
-    // Carrega o histórico com um "cache breaker" manual
-    const cacheBreaker = Date.now();
-
-    // Buscamos o histórico e os perfis em paralelo
-    const [histRes, profRes] = await Promise.all([
-      supabase
-        .from("aso_history")
-        .select("*")
-        .neq("id", -cacheBreaker)
-        .order("generated_at", { ascending: false }),
-      supabase.from("profiles").select("id, email, role"),
-    ]);
-
-    const profMap: Record<string, { email: string; role: string }> = {};
-    if (profRes.data) {
-      profRes.data.forEach((p) => {
-        profMap[p.id] = { email: p.email, role: p.role };
-      });
-      setProfilesData(profMap);
-    }
-
-    if (!histRes.error && histRes.data) {
-      // Injetamos o creator_role para facilitar a lógica de UI
-      const enrichedHistory = histRes.data.map((h) => ({
-        ...h,
-        creator_role: profMap[h.generated_by]?.role || "unknown",
-      }));
-      setHistory(enrichedHistory);
-    } else if (histRes.error) {
-      console.error("Erro ao carregar histórico:", histRes.error);
-    }
-
-    setLoading(false);
-  }
 
   const uniqueUsersList = useMemo(
     () => Array.from(new Set(history.map((h) => h.generated_by))),
