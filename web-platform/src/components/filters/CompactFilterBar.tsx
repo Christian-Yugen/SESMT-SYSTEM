@@ -45,6 +45,10 @@ interface Props {
   asoTypeLabelDefault?: string;
   asoTypeOptions?: string[];
   showUserFilter?: boolean;
+  showDateFilter?: boolean;
+  showSecretariaFilter?: boolean;
+  showAsoTypeFilter?: boolean;
+  onSearchKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   activeFilterCount?: number;
 }
 
@@ -137,6 +141,10 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     asoTypeLabelDefault,
     asoTypeOptions,
     showUserFilter = true,
+    showDateFilter = true,
+    showSecretariaFilter = true,
+    showAsoTypeFilter = true,
+    onSearchKeyDown,
     activeFilterCount,
   } = props;
 
@@ -182,6 +190,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
           value={searchTerm}
           onChange={setSearchTerm}
           placeholder={searchPlaceholder ?? "NOME OU CPF DO SERVIDOR..."}
+          onKeyDown={onSearchKeyDown}
         />
       </div>
 
@@ -200,57 +209,59 @@ export default function CompactFilterBar(props: Readonly<Props>) {
           </button>
         </div>
 
-        <FilterIconButton
-          id="date"
-          open={openPopover === "date"}
-          onToggle={togglePopover}
-          title="Período"
-          active={Boolean(startDate || endDate)}
-          icon={<Calendar className="w-4 h-4" />}
-        >
-          <div className="w-72 p-4 space-y-3">
-            <div className="space-y-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">
-                Data inicial
-              </span>
-              <input
-                type="date"
-                className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-              />
+        {showDateFilter && (
+          <FilterIconButton
+            id="date"
+            open={openPopover === "date"}
+            onToggle={togglePopover}
+            title="Período"
+            active={Boolean(startDate || endDate)}
+            icon={<Calendar className="w-4 h-4" />}
+          >
+            <div className="w-72 p-4 space-y-3">
+              <div className="space-y-1">
+                <span className="text-[9px] font-bold text-slate-400 uppercase">
+                  Data inicial
+                </span>
+                <input
+                  type="date"
+                  className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[9px] font-bold text-slate-400 uppercase">
+                  Data final
+                </span>
+                <input
+                  type="date"
+                  className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    setStartDate("");
+                    setEndDate("");
+                    setOpenPopover(null);
+                  }}
+                  className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-slate-700 rounded-none"
+                >
+                  Limpar
+                </button>
+                <button
+                  onClick={() => setOpenPopover(null)}
+                  className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 rounded-none"
+                >
+                  Aplicar
+                </button>
+              </div>
             </div>
-            <div className="space-y-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">
-                Data final
-              </span>
-              <input
-                type="date"
-                className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
-            </div>
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                  setOpenPopover(null);
-                }}
-                className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-slate-700 rounded-none"
-              >
-                Limpar
-              </button>
-              <button
-                onClick={() => setOpenPopover(null)}
-                className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 rounded-none"
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
-        </FilterIconButton>
+          </FilterIconButton>
+        )}
 
         {showUserFilter && (
           <FilterIconButton
@@ -279,43 +290,47 @@ export default function CompactFilterBar(props: Readonly<Props>) {
           </FilterIconButton>
         )}
 
-        <FilterIconButton
-          id="secretaria"
-          open={openPopover === "secretaria"}
-          onToggle={togglePopover}
-          title="Secretarias"
-          active={filterSecretaria !== "all"}
-          icon={<Building2 className="w-4 h-4" />}
-        >
-          <div className="w-64 p-3">
-            <SelectFilter
-              className="w-full"
-              value={filterSecretaria}
-              onChange={setFilterSecretaria}
-              options={secretariaOptions}
-              labelDefault={secretariaLabelDefault ?? "SECRETARIAS"}
-            />
-          </div>
-        </FilterIconButton>
+        {showSecretariaFilter && (
+          <FilterIconButton
+            id="secretaria"
+            open={openPopover === "secretaria"}
+            onToggle={togglePopover}
+            title="Secretarias"
+            active={filterSecretaria !== "all"}
+            icon={<Building2 className="w-4 h-4" />}
+          >
+            <div className="w-64 p-3">
+              <SelectFilter
+                className="w-full"
+                value={filterSecretaria}
+                onChange={setFilterSecretaria}
+                options={secretariaOptions}
+                labelDefault={secretariaLabelDefault ?? "SECRETARIAS"}
+              />
+            </div>
+          </FilterIconButton>
+        )}
 
-        <FilterIconButton
-          id="asoType"
-          open={openPopover === "asoType"}
-          onToggle={togglePopover}
-          title="Tipos ASO"
-          active={filterAsoType !== "all"}
-          icon={<FileText className="w-4 h-4" />}
-        >
-          <div className="w-52 p-3">
-            <SelectFilter
-              className="w-full"
-              value={filterAsoType}
-              onChange={setFilterAsoType}
-              options={typeOptions}
-              labelDefault={asoTypeLabelDefault ?? "TIPOS ASO"}
-            />
-          </div>
-        </FilterIconButton>
+        {showAsoTypeFilter && (
+          <FilterIconButton
+            id="asoType"
+            open={openPopover === "asoType"}
+            onToggle={togglePopover}
+            title="Tipos ASO"
+            active={filterAsoType !== "all"}
+            icon={<FileText className="w-4 h-4" />}
+          >
+            <div className="w-52 p-3">
+              <SelectFilter
+                className="w-full"
+                value={filterAsoType}
+                onChange={setFilterAsoType}
+                options={typeOptions}
+                labelDefault={asoTypeLabelDefault ?? "TIPOS ASO"}
+              />
+            </div>
+          </FilterIconButton>
+        )}
 
         {activeCount > 0 && (
           <ActionIconButton
