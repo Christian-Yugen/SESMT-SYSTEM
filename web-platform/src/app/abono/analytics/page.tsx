@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
   BarChart,
@@ -439,9 +440,11 @@ export default function AbonoAnalyticsPage() {
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <img
+          <Image
             src="/images/logo_white.png"
             alt="SESMT"
+            width={160}
+            height={56}
             className="h-14 w-auto object-contain mt-2 mb-2"
           />
           <div className="text-center w-full px-1 mt-2">

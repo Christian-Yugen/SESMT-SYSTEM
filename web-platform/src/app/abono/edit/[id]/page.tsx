@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, use } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -270,9 +271,11 @@ export default function EditAbonoPage({
             </button>
           </div>
           <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
-            <img
+            <Image
               src="/images/logo_white.png"
               alt="SESMT"
+              width={160}
+              height={56}
               className="h-14 w-auto object-contain"
             />
           </div>

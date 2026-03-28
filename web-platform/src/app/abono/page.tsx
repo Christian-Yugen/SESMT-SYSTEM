@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
   Activity,
@@ -1299,10 +1300,13 @@ export default function AbonoPage() {
           {/* CABEÇALHO OFICIAL - ULTRA COMPACTO */}
           <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/images/logo.png"
                 alt="Logo"
+                width={160}
+                height={48}
                 className="h-12 w-auto object-contain"
+                priority
               />
               <div className="h-10 w-[1px] bg-slate-200 mx-1" />
               <div className="flex flex-col">
