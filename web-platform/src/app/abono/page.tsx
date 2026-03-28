@@ -309,7 +309,7 @@ export default function AbonoPage() {
       const day = parseInt(parts[2]);
       const date = new Date(year, month, day);
       return date.toLocaleDateString("pt-BR");
-    } catch (e) {
+    } catch {
       return "---";
     }
   };
@@ -385,7 +385,7 @@ export default function AbonoPage() {
 
       // Novo lançamento ou renovação antiga -> ATIVO
       return "active";
-    } catch (e) {
+    } catch {
       return "inactive";
     }
   };

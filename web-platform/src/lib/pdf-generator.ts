@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Servidor, Funcao, ExameData } from "@/types";
+import { Servidor, ExameData } from "@/types";
 
 import { formatBirthInfo, formatDate } from "./utils";
 
@@ -22,7 +22,7 @@ export const generateASOPDF = (
   try {
     const logoUrl = window.location.origin + "/images/logo.png";
     doc.addImage(logoUrl, "PNG", 14, 10, 35, 15);
-  } catch (e) {
+  } catch {
     console.warn("Logo não carregado no PDF.");
   }
 
@@ -285,7 +285,7 @@ export const generateReferralPDF = (
   try {
     const logoUrl = window.location.origin + "/images/logo.png";
     doc.addImage(logoUrl, "PNG", 14, 6, 45, 20);
-  } catch (e) {
+  } catch {
     console.warn("Logo não carregado no PDF.");
   }
 
