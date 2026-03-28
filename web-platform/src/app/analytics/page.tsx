@@ -39,6 +39,7 @@ import {
   FolderOpen,
   ChevronDown,
   Trash2,
+  Clock3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -47,6 +48,7 @@ import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import {
+  countActiveFilters,
   type FilterState,
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
@@ -146,6 +148,7 @@ export default function AnalyticsPage() {
   const [filterShift, setFilterShift] = useState("all");
   const [selectedAsoSubtypes, setSelectedAsoSubtypes] = useState<string[]>([]);
   const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
+  const [isShiftFilterOpen, setIsShiftFilterOpen] = useState(false);
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
   const setSearchTerm = (value: string) =>
@@ -176,6 +179,7 @@ export default function AnalyticsPage() {
     setSelectedAsoSubtypes([]);
     setIsDateFilterOpen(false);
     setIsAsoSubtypeFilterOpen(false);
+    setIsShiftFilterOpen(false);
   };
 
   const [operatorsMap, setOperatorsMap] = useState<Record<string, string>>({});
@@ -205,6 +209,19 @@ export default function AnalyticsPage() {
   }, [history, operatorsMap]);
   const [showHourAnalysis, setShowHourAnalysis] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | "all">("all");
+
+  const baseActiveFilterCount = countActiveFilters({
+    searchTerm,
+    startDate,
+    endDate,
+    filterUser,
+    filterSecretaria,
+    filterAsoType,
+  });
+  const headerActiveFilterCount =
+    baseActiveFilterCount +
+    (filterShift !== "all" ? 1 : 0) +
+    (selectedAsoSubtypes.length > 0 ? 1 : 0);
 
   // Smart Header Logic
   const [showHeader, setShowHeader] = useState(true);
@@ -801,10 +818,111 @@ export default function AnalyticsPage() {
                         "Encaminhamento",
                         "Outros",
                       ]}
+                      activeFilterCount={headerActiveFilterCount}
                     />
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <ActionIconButton
+                      icon={<Clock3 className="w-4 h-4" />}
+                      label="Filtro contextual de turno"
+                      variant="contextual"
+                      active={filterShift !== "all"}
+                      open={isShiftFilterOpen}
+                      onToggle={setIsShiftFilterOpen}
+                      showMenuIndicator
+                    >
+                      <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                        <div className="p-3 space-y-2">
+                          <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                            Turno de Geração
+                          </p>
+                          <select
+                            value={filterShift}
+                            onChange={(e) => {
+                              setFilterShift(e.target.value);
+                              setIsShiftFilterOpen(false);
+                            }}
+                            className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                          >
+                            <option value="all">TODOS OS TURNOS</option>
+                            <option value="morning">MANHÃ (07h - 13h)</option>
+                            <option value="afternoon">TARDE (13h - 18h)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </ActionIconButton>
+
+                    {filterAsoType === "ASO" && (
+                      <ActionIconButton
+                        icon={<ClipboardList className="w-4 h-4" />}
+                        label="Filtro contextual de subtipos ASO"
+                        variant="contextual"
+                        active={selectedAsoSubtypes.length > 0}
+                        open={isAsoSubtypeFilterOpen}
+                        onToggle={setIsAsoSubtypeFilterOpen}
+                        showMenuIndicator
+                      >
+                        <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden text-black">
+                          <div className="p-3 space-y-2">
+                            <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                              <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
+                                Subtipos ASO
+                              </span>
+                              {selectedAsoSubtypes.length > 0 && (
+                                <button
+                                  onClick={() => setSelectedAsoSubtypes([])}
+                                  className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
+                                >
+                                  Limpar
+                                </button>
+                              )}
+                            </div>
+
+                            {[
+                              { id: "ADMISS", label: "ADMISSIONAL" },
+                              { id: "DEMISS", label: "DEMISSIONAL" },
+                              { id: "RETORNO", label: "RETORNO AO TRABALHO" },
+                              { id: "MUDANÇA", label: "MUDANÇA DE FUNÇÃO" },
+                              { id: "PERIÓDIC", label: "PERIÓDICO" },
+                            ].map((type) => (
+                              <label
+                                key={type.id}
+                                className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer transition-colors group"
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                  checked={selectedAsoSubtypes.includes(
+                                    type.id,
+                                  )}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedAsoSubtypes([
+                                        ...selectedAsoSubtypes,
+                                        type.id,
+                                      ]);
+                                    } else {
+                                      setSelectedAsoSubtypes(
+                                        selectedAsoSubtypes.filter(
+                                          (s) => s !== type.id,
+                                        ),
+                                      );
+                                    }
+                                  }}
+                                />
+                                <span
+                                  className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
+                                >
+                                  {type.label}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </ActionIconButton>
+                    )}
+
                     <ActionIconButton
                       className="hidden md:block"
                       icon={<HistoryIcon className="w-4 h-4" />}
@@ -840,7 +958,6 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
 
-                {/* FILTROS PADRONIZADOS */}
                 <div className="mt-3">
                   <FilterChips
                     searchTerm={normalizeSearchTerm(searchTerm)}
@@ -873,125 +990,6 @@ export default function AnalyticsPage() {
                         : []),
                     ]}
                   />
-                </div>
-
-                {/* PAINEL AVANÇADO DA ANALYTICS */}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <select
-                    value={filterShift}
-                    onChange={(e) => setFilterShift(e.target.value)}
-                    className="flex-1 md:flex-none px-4 py-2 bg-[#E8E8E8] border border-[#888] shadow-inner text-[10px] font-bold uppercase outline-none cursor-pointer focus:border-[#1A3351]"
-                  >
-                    <option value="all">TODOS OS TURNOS</option>
-                    <option value="morning">MANHÃ (07h - 13h)</option>
-                    <option value="afternoon">TARDE (13h - 18h)</option>
-                  </select>
-
-                  {filterAsoType === "ASO" && (
-                    <div className="relative flex-1 md:flex-none">
-                      <button
-                        onClick={() =>
-                          setIsAsoSubtypeFilterOpen(!isAsoSubtypeFilterOpen)
-                        }
-                        className={`flex items-center justify-between gap-2 px-4 py-2 bg-[#E8E8E8] border text-[10px] font-bold uppercase outline-none transition-all min-w-[200px] ${selectedAsoSubtypes.length > 0 ? "border-[#1A3351] text-[#1A3351]" : "border-[#888] text-slate-500"}`}
-                      >
-                        <span className="truncate">
-                          {selectedAsoSubtypes.length === 0
-                            ? "TODOS TIPOS DE ASO"
-                            : `ASO: ${selectedAsoSubtypes.length} SELEC.`}
-                        </span>
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform ${isAsoSubtypeFilterOpen ? "rotate-180" : ""}`}
-                        />
-                      </button>
-
-                      {isAsoSubtypeFilterOpen && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-[140]"
-                            onClick={() => setIsAsoSubtypeFilterOpen(false)}
-                          />
-                          <div className="absolute top-full left-0 mt-1 w-64 bg-white border-2 border-[#1A3351] shadow-2xl z-[150] p-3 animate-in fade-in slide-in-from-top-2 overflow-hidden text-black">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
-                                <span className="text-[9px] font-bold text-[#1A3351] uppercase">
-                                  Selecionar Tipos
-                                </span>
-                                {selectedAsoSubtypes.length > 0 && (
-                                  <button
-                                    onClick={() => setSelectedAsoSubtypes([])}
-                                    className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
-                                  >
-                                    Limpar
-                                  </button>
-                                )}
-                              </div>
-
-                              {[
-                                { id: "ADMISS", label: "ADMISSIONAL" },
-                                { id: "DEMISS", label: "DEMISSIONAL" },
-                                { id: "RETORNO", label: "RETORNO AO TRABALHO" },
-                                { id: "MUDANÇA", label: "MUDANÇA DE FUNÇÃO" },
-                                { id: "PERIÓDIC", label: "PERIÓDICO" },
-                              ].map((type) => (
-                                <label
-                                  key={type.id}
-                                  className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer transition-colors group"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    className="w-4 h-4 accent-[#1A3351] cursor-pointer"
-                                    checked={selectedAsoSubtypes.includes(
-                                      type.id,
-                                    )}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedAsoSubtypes([
-                                          ...selectedAsoSubtypes,
-                                          type.id,
-                                        ]);
-                                      } else {
-                                        setSelectedAsoSubtypes(
-                                          selectedAsoSubtypes.filter(
-                                            (s) => s !== type.id,
-                                          ),
-                                        );
-                                      }
-                                    }}
-                                  />
-                                  <span
-                                    className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
-                                  >
-                                    {type.label}
-                                  </span>
-                                </label>
-                              ))}
-
-                              <button
-                                onClick={() => setIsAsoSubtypeFilterOpen(false)}
-                                className="mt-2 w-full py-2 bg-[#1A3351] text-white text-[9px] font-bold uppercase hover:brightness-110 transition-all"
-                              >
-                                Fechar
-                              </button>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {(filterShift !== "all" ||
-                    selectedAsoSubtypes.length > 0) && (
-                    <button
-                      onClick={() => {
-                        setFilterShift("all");
-                        setSelectedAsoSubtypes([]);
-                      }}
-                      className="bg-[#E31E24] text-white px-4 py-2 text-[10px] font-bold uppercase shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all"
-                    >
-                      <X className="w-3 h-3" /> Limpar Avançado
-                    </button>
-                  )}
                 </div>
               </section>
             </div>

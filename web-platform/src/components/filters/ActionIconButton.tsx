@@ -70,6 +70,8 @@ export default function ActionIconButton({
   className,
 }: Readonly<Props>) {
   const ref = useRef<HTMLDivElement>(null);
+  const tooltipClass =
+    "pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap border border-[#1A3351] bg-[#1A3351] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-white opacity-0 shadow-lg transition-opacity duration-200 delay-150 group-hover:opacity-100 group-focus-within:opacity-100";
 
   useEffect(() => {
     if (!open || !onToggle || !children) return;
@@ -117,9 +119,7 @@ export default function ActionIconButton({
         )}
       </button>
 
-      <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap border border-slate-200 bg-white px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#1A3351] opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-        {label}
-      </span>
+      <span className={tooltipClass}>{label}</span>
 
       {open && children && (
         <div className="absolute right-0 top-11 z-[110]">{children}</div>

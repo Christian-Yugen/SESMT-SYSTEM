@@ -68,6 +68,8 @@ function FilterIconButton({
   children: React.ReactNode;
 }>) {
   const ref = useRef<HTMLDivElement>(null);
+  const tooltipClass =
+    "pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap border border-[#1A3351] bg-[#1A3351] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-white opacity-0 shadow-lg transition-opacity duration-200 delay-150 group-hover:opacity-100 group-focus-within:opacity-100";
 
   useEffect(() => {
     if (!open) return;
@@ -89,14 +91,17 @@ function FilterIconButton({
   }
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative group" ref={ref}>
       <button
+        type="button"
         title={title}
+        aria-label={title}
         onClick={() => onToggle(open ? null : id)}
-        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 ${buttonStateClass}`}
+        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
       >
         {icon}
       </button>
+      <span className={tooltipClass}>{title}</span>
       {open && (
         <div className="absolute right-0 top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
           {children}

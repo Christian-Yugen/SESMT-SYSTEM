@@ -26,6 +26,7 @@ import {
   AlertCircle,
   Building2,
   Loader2,
+  Clock3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -1095,7 +1096,7 @@ export default function HistoryPage() {
                 </div>
 
                 <ActionIconButton
-                  icon={<UsersIcon className="w-4 h-4" />}
+                  icon={<Clock3 className="w-4 h-4" />}
                   label="Filtro contextual de turno"
                   variant="contextual"
                   active={filterShift !== "all"}
