@@ -3,11 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
   FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
   X,
   Menu,
@@ -17,11 +13,7 @@ import {
   BarChart3,
   User,
   ClipboardList,
-  Filter,
   Printer,
-  Users as UsersIcon,
-  TrendingUp,
-  FolderOpen,
   Trash2,
   AlertCircle,
   Building2,
@@ -89,9 +81,7 @@ export default function HistoryPage() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
-    "landscape",
-  );
+  const [, setPrintLayout] = useState<"portrait" | "landscape">("landscape");
   const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
   const [userName, setUserName] = useState<string>("Usuário");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -467,11 +457,6 @@ export default function HistoryPage() {
     setLoading(false);
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   const uniqueUsersList = useMemo(
     () => Array.from(new Set(history.map((h) => h.generated_by))),
     [history],
@@ -529,7 +514,7 @@ export default function HistoryPage() {
       if (entry.generated_at) {
         entryDate = new Date(entry.generated_at).toISOString().split("T")[0];
       }
-    } catch (e) {
+    } catch {
       console.error("Data inválida:", entry.generated_at);
     }
     const matchesStartDate =
@@ -848,6 +833,8 @@ export default function HistoryPage() {
       printWindow.print();
     }, 500);
   };
+
+  void handlePrintReport;
 
   const handlePrintRequest = (layout: "portrait" | "landscape") => {
     setPrintLayout(layout);

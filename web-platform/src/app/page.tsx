@@ -1,29 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
   X,
   Menu,
   Search,
-  History as HistoryIcon,
-  Users as UsersIcon,
-  BarChart3,
   ClipboardList,
-  TrendingUp,
-  FolderOpen,
-  ChevronDown,
-  Trash2,
-  Scale,
   FileText,
-  CloudDownload,
-  RefreshCw,
-  CheckCircle2,
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -138,10 +122,6 @@ export default function Home() {
     }
   }, [userRole, router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
   const [manualData, setManualData] = useState({
     cpf: "",
     nome: "",
@@ -371,9 +351,6 @@ export default function Home() {
       // Salva Histórico no Supabase (Processo Online)
       try {
         // Prepara lista de exames para o histórico (Evidência Digital) - Filtra Exame Clínico para Encaminhamentos
-        const examsList = currentExams.exames
-          .filter((ex) => ex.toUpperCase() !== "EXAME CLÍNICO")
-          .join(", ");
         const functionName =
           selectedFuncao?.Nome ||
           selectedFuncao?.FUNÇÃO ||

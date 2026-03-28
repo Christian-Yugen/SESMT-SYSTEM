@@ -1,33 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
-  Activity,
   X,
   Menu,
-  ChevronDown,
-  ChevronUp,
   UserPlus,
   Shield,
   UserRound,
-  Users as UsersIcon,
-  Filter,
   Trash2,
   Edit,
   Save,
   ShieldCheck,
   Mail,
-  History as HistoryIcon,
-  ClipboardList,
-  BarChart3,
-  TrendingUp,
-  FolderOpen,
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -141,11 +126,6 @@ export default function UsersPage() {
     }
     setLoading(false);
   }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   const handleUpdateRole = async (userId: string, newRole: string) => {
     const { error } = await supabase
@@ -643,10 +623,10 @@ export default function UsersPage() {
 
                   <div className="p-4 bg-blue-50 border-l-4 border-[#1A3351] rounded-none">
                     <p className="text-[10px] text-blue-800 leading-relaxed italic font-medium">
-                      * O perfil será criado como "PRÉ-AUTORIZADO". Quando o
-                      usuário realizar o primeiro acesso com este e-mail, o
-                      sistema vinculará automaticamente o acesso à role
-                      escolhida.
+                      * O perfil será criado como &ldquo;PRÉ-AUTORIZADO&rdquo;.
+                      Quando o usuário realizar o primeiro acesso com este
+                      e-mail, o sistema vinculará automaticamente o acesso à
+                      role escolhida.
                     </p>
                   </div>
 

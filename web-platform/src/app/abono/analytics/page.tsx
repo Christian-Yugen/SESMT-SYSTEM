@@ -20,19 +20,14 @@ import {
 } from "recharts";
 import {
   LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
   LogOut,
   Activity,
   X,
   Menu,
-  ChevronDown,
   Building2,
   History as HistoryIcon,
   Users as UsersIcon,
   BarChart3,
-  Calendar,
   Filter,
   ClipboardList,
   TrendingUp,
@@ -48,17 +43,6 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
-
-/** Utilitário: Verifica se o benefício está ativo (1 ano de vigência) */
-const isBenefitActive = (inicio: string) => {
-  if (!inicio) return false;
-  const startDate = new Date(inicio + "T00:00:00");
-  const endDate = new Date(startDate);
-  endDate.setFullYear(startDate.getFullYear() + 1);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today <= endDate;
-};
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {

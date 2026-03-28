@@ -161,11 +161,6 @@ export default function ArchivePage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
 

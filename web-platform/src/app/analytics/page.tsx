@@ -19,26 +19,15 @@ import {
   LabelList,
 } from "recharts";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
-  X,
+  FileSearch,
   Menu,
   Building2,
   History as HistoryIcon,
-  Users as UsersIcon,
   BarChart3,
-  Calendar,
-  Filter,
   ClipboardList,
   TrendingUp,
   Printer,
-  FolderOpen,
-  ChevronDown,
-  Trash2,
   Clock3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -583,11 +572,6 @@ export default function AnalyticsPage() {
     "#8b5cf6",
     "#ec4899",
   ];
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   const handlePrintReport = () => {
     const printWindow = window.open("", "_blank");

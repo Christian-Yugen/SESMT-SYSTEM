@@ -20,14 +20,10 @@ import {
 } from "recharts";
 import {
   LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
   LogOut,
   Activity,
   X,
   Menu,
-  ChevronDown,
   Building2,
   History as HistoryIcon,
   Users as UsersIcon,
@@ -37,13 +33,9 @@ import {
   ClipboardList,
   TrendingUp,
   Printer,
-  FolderOpen,
-  Scale,
-  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
-import { capitalizeName } from "@/lib/portaria-utils";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
@@ -109,7 +101,7 @@ export default function AfastamentosAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
   // Filtros

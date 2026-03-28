@@ -3,13 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
-  X,
   Menu,
   ChevronDown,
   ChevronUp,
@@ -36,13 +30,6 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
-
-// Tipos adicionais para o relatório
-interface PrintData {
-  operator: string;
-  timestamp: string;
-  filters: string;
-}
 
 // Normaliza CPF removendo caracteres não numéricos para agrupamento consistente
 const normalizeCpf = (cpf: string) => cpf.replace(/\D/g, "");
@@ -231,11 +218,6 @@ export default function AbonoPage() {
     setLoading(false);
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   const secretarias = useMemo(() => {
     const unique = new Set(
       records
@@ -421,7 +403,7 @@ export default function AbonoPage() {
       );
     });
 
-    let result = Object.values(groups);
+    const result = Object.values(groups);
 
     // Apply Sorting do grupo (baseado no benefício mais recente do grupo filtrado)
     if (sortBy === "alphabetical") {
@@ -1152,7 +1134,7 @@ export default function AbonoPage() {
                                         </p>
                                         <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
                                           <p className="text-sm text-slate-700 font-bold uppercase leading-relaxed italic">
-                                            "{record.observacoes}"
+                                            &ldquo;{record.observacoes}&rdquo;
                                           </p>
                                         </div>
                                       </div>

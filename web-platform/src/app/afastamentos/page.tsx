@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   getCIDChapter,
-  getCIDDetails,
   searchCIDs,
   getCIDDetailsFromDB,
   normalizeCID,
@@ -30,8 +29,6 @@ import {
   FileEdit,
   Save,
   FileText,
-  History as HistoryIcon,
-  Users as UsersIcon,
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -45,7 +42,6 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
 import { generateServidorReportPDF } from "@/lib/afastamento-report-pdf";
-import { generateAfastamentosListPDF } from "@/lib/afastamentos-list-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import { BarChart3 } from "lucide-react";
@@ -100,35 +96,6 @@ const formatCpf = (cpf: string) => {
   if (digits.length !== 11) return cpf;
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
 };
-
-function CIDBadge({ code }: { code: string }) {
-  const [details, setDetails] = useState<any>(null);
-  const normalized = normalizeCID(code);
-  useEffect(() => {
-    getCIDDetailsFromDB(normalized).then(setDetails);
-  }, [normalized]);
-  if (!details)
-    return (
-      <span className="text-[13px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-none animate-pulse">
-        {normalized || code}
-      </span>
-    );
-  return (
-    <div className="group relative">
-      <span className="text-[13px] font-bold bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200/50 cursor-help hover:bg-emerald-200 transition-colors">
-        {details.code}
-      </span>
-      <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none z-50 text-left">
-        <p className="text-[10px] font-bold text-white bg-[#1A3351] px-2 py-0.5 rounded-none uppercase inline-block mb-1">
-          Cap. {details.chapter}
-        </p>
-        <p className="text-xs font-semibold text-slate-800 uppercase leading-snug">
-          {details.desc}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function CIDDetailItem({ cid }: { cid: CIDRecord }) {
   const [details, setDetails] = useState<any>(null);
@@ -231,7 +198,6 @@ export default function AfastamentosPage() {
     setCargoFilter("all");
   };
   const {
-    searchTerm,
     startDate,
     endDate,
     filterSecretaria: secretariaFilter,
@@ -829,7 +795,7 @@ export default function AfastamentosPage() {
     Object.values(groups).forEach((g) =>
       g.items.sort((a, b) => b.data_inicio.localeCompare(a.data_inicio)),
     );
-    let result = Object.values(groups);
+    const result = Object.values(groups);
     if (sortBy === "alphabetical")
       result.sort((a, b) => a.nome.localeCompare(b.nome));
     else if (sortBy === "newest")
