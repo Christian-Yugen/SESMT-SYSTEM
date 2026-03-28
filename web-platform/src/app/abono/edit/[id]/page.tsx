@@ -11,25 +11,19 @@ import {
   FileSearch,
   HeartPulse,
   LogOut,
-  Activity,
   X,
   Menu,
   ClipboardList,
-  Search,
   Save,
   ChevronLeft,
   Loader2,
-  User,
-  Calendar,
   History as HistoryIcon,
-  BarChart3,
   FolderOpen,
-  Users as UsersIcon,
   TrendingUp,
   Scale,
   FileText,
 } from "lucide-react";
-import { Servidor, AbonoRecord } from "@/types";
+import { Servidor } from "@/types";
 
 export default function EditAbonoPage({
   params,
@@ -45,7 +39,7 @@ export default function EditAbonoPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string>("Usuário");
+  const [, setUserName] = useState<string>("Usuário");
 
   // Form data
   const [formData, setFormData] = useState({
@@ -99,7 +93,7 @@ export default function EditAbonoPage({
 
       // 2. Fetch Servidor info by CPF (busca com e sem máscara)
       const cleanCpf = abono.cpf.replace(/\D/g, "");
-      const { data: servidor, error: servError } = await supabase
+      const { data: servidor } = await supabase
         .from("servidores")
         .select("*")
         .or(`cpf.eq.${abono.cpf},cpf.eq.${cleanCpf}`)

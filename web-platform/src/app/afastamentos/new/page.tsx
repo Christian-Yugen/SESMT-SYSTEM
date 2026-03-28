@@ -5,48 +5,26 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
-  X,
-  Menu,
-  ClipboardList,
-  Search,
   Save,
   ChevronLeft,
   Loader2,
   User,
-  Calendar,
-  History as HistoryIcon,
-  BarChart3,
-  FolderOpen,
-  Users as UsersIcon,
-  TrendingUp,
-  Scale,
   Plus,
   Trash2,
   CheckCircle2,
-  History,
   Printer,
-  Download,
   Eye,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import {
   getCIDChapter,
-  getCIDDetails,
   CIDDetails,
   searchCIDs,
   getCIDDetailsFromDB,
   normalizeCID,
 } from "@/lib/cid-utils";
-import {
-  generateAfastamentoPDF,
-  AfastamentoPortariaData,
-} from "@/lib/afastamento-portaria-pdf";
+import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 
 interface Servidor {
   id?: number;
@@ -69,7 +47,7 @@ export default function NewAfastamentoPage() {
   );
   const [allBonds, setAllBonds] = useState<Servidor[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [searching, setSearching] = useState(false);
+  const [, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [generatedPortaria, setGeneratedPortaria] = useState<any>(null);
@@ -95,22 +73,25 @@ export default function NewAfastamentoPage() {
   const [searchingCids, setSearchingCids] = useState(false);
   const [diasAfastamento, setDiasAfastamento] = useState<string>("");
 
-  const selectServidor = useCallback(async (s: Servidor) => {
-    setSelectedServidor(s);
+  const selectServidor = useCallback(
+    async (s: Servidor) => {
+      setSelectedServidor(s);
 
-    // Se for homem, não pode estar em Licença Maternidade
-    const isMale = s.sexo === "M" || s.sexo === "MASCULINO";
-    if (isMale && formData.tipo_afastamento === "LICENÇA MATERNIDADE") {
-      setFormData((prev) => ({ ...prev, tipo_afastamento: "AUX. DOENÇA" }));
-    }
+      // Se for homem, não pode estar em Licença Maternidade
+      const isMale = s.sexo === "M" || s.sexo === "MASCULINO";
+      if (isMale && formData.tipo_afastamento === "LICENÇA MATERNIDADE") {
+        setFormData((prev) => ({ ...prev, tipo_afastamento: "AUX. DOENÇA" }));
+      }
 
-    const { data: bonds } = await supabase
-      .from("servidores")
-      .select("*")
-      .eq("cpf", s.cpf);
-    if (bonds) setAllBonds(bonds);
-    setFoundServidores([]);
-  }, [formData.tipo_afastamento]);
+      const { data: bonds } = await supabase
+        .from("servidores")
+        .select("*")
+        .eq("cpf", s.cpf);
+      if (bonds) setAllBonds(bonds);
+      setFoundServidores([]);
+    },
+    [formData.tipo_afastamento],
+  );
 
   const performSearch = useCallback(
     async (queryStr: string, autoSelectFirst = false) => {
@@ -286,7 +267,7 @@ export default function NewAfastamentoPage() {
         .limit(1)
         .maybeSingle();
 
-      let nextNumber = (lastPortaria?.numero || 0) + 1;
+      const nextNumber = (lastPortaria?.numero || 0) + 1;
 
       // Se for prorrogação, vamos buscar os registros anteriores (siblings) para vincular corretamente
       let previousRecords: any[] = [];

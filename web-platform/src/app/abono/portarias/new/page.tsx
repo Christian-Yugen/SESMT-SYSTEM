@@ -2,33 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   X,
   Menu,
-  ClipboardList,
   Search,
   Save,
   ChevronLeft,
   Loader2,
   User,
-  Calendar,
-  History as HistoryIcon,
-  BarChart3,
-  FolderOpen,
-  Users as UsersIcon,
-  TrendingUp,
-  Scale,
-  FileText,
   Eye,
-  ChevronDown,
   Download,
 } from "lucide-react";
 import { Servidor } from "@/types";
@@ -48,9 +33,7 @@ export default function NewPortariaPage() {
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
-  const [nextNumero, setNextNumero] = useState(1934);
-  const [showPreview, setShowPreview] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -285,11 +268,6 @@ export default function NewPortariaPage() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
   };
 
   return (

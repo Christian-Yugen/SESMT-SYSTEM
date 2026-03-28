@@ -3,27 +3,12 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
-  X,
   Menu,
   ChevronDown,
   ChevronUp,
   History as HistoryIcon,
-  BarChart3,
-  User,
-  Calendar,
-  ClipboardList,
   Printer,
-  Users as UsersIcon,
-  TrendingUp,
-  FolderOpen,
-  Trash2,
   Loader2,
-  Scale,
   FileText,
   PlusCircle,
   Download,
@@ -31,7 +16,7 @@ import {
   Building2,
   PencilLine,
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -66,13 +51,12 @@ export default function PortariasPage() {
   const [records, setRecords] = useState<PortariaRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
   const [sortOrder, setSortOrder] = useState("date-desc");
   const [logs, setLogs] = useState<Record<number, any[]>>({});
 
@@ -159,11 +143,6 @@ export default function PortariasPage() {
     });
     return () => subscription.unsubscribe();
   }, [router, loadRecords]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -289,8 +268,8 @@ export default function PortariasPage() {
         if (nValInput === undefined) nValInput = next["genero"];
       }
 
-      let pVal = pValInput ?? "---";
-      let nVal = nValInput ?? "---";
+      const pVal = pValInput ?? "---";
+      const nVal = nValInput ?? "---";
 
       // Se for igual (ou ambos nulos/indefinidos), não registra mudança
       if (pVal === nVal) return;
@@ -765,7 +744,7 @@ export default function PortariasPage() {
                               </h5>
                             </div>
                             <div className="space-y-3">
-                              {logs[entry.id].map((log, idx) => {
+                              {logs[entry.id].map((log) => {
                                 const changes = getDiff(
                                   log.dados_anteriores,
                                   log.dados_novos,

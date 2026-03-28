@@ -9,9 +9,7 @@ import {
   FileSearch,
   HeartPulse,
   LogOut,
-  Activity,
   X,
-  Menu,
   History as HistoryIcon,
   Users as UsersIcon,
   BarChart3,
@@ -50,7 +48,7 @@ export default function Sidebar({
 
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
-  const [isAfastamentosOpen, setIsAfastamentosOpen] = useState(false);
+  const [, setIsAfastamentosOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 

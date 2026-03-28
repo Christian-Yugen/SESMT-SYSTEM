@@ -11,7 +11,6 @@ import {
   FileSearch,
   HeartPulse,
   LogOut,
-  Activity,
   X,
   Menu,
   ClipboardList,
@@ -19,12 +18,8 @@ import {
   Save,
   ChevronLeft,
   Loader2,
-  User,
-  Calendar,
   History as HistoryIcon,
-  BarChart3,
   FolderOpen,
-  Users as UsersIcon,
   TrendingUp,
   Scale,
   FileText,
@@ -42,7 +37,7 @@ export default function NewAbonoPage() {
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string>("Usuário");
+  const [, setUserName] = useState<string>("Usuário");
 
   // Form data
   const [formData, setFormData] = useState({
