@@ -7,10 +7,12 @@ import {
   Building2,
   FileText,
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { countActiveFilters } from "./filtersUtils";
 import SearchField from "./SearchField";
 import SelectFilter from "./SelectFilter";
+import ActionIconButton from "./ActionIconButton";
 
 type ReferralOperatorEntry = {
   generated_by: string;
@@ -43,6 +45,7 @@ interface Props {
   asoTypeLabelDefault?: string;
   asoTypeOptions?: string[];
   showUserFilter?: boolean;
+  activeFilterCount?: number;
 }
 
 type PopoverId = "date" | "user" | "secretaria" | "asoType" | null;
@@ -129,6 +132,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     asoTypeLabelDefault,
     asoTypeOptions,
     showUserFilter = true,
+    activeFilterCount,
   } = props;
 
   const [openPopover, setOpenPopover] = useState<PopoverId>(null);
@@ -137,7 +141,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     setIsDateFilterOpen(openPopover === "date");
   }, [openPopover, setIsDateFilterOpen]);
 
-  const activeCount = countActiveFilters({
+  const baseActiveCount = countActiveFilters({
     searchTerm,
     startDate,
     endDate,
@@ -145,6 +149,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     filterSecretaria,
     filterAsoType,
   });
+  const activeCount = activeFilterCount ?? baseActiveCount;
 
   const operatorOptions = ["all", ...uniqueUsersList];
   const secretariaOptions = ["all", ...uniqueSecretarias];
@@ -297,15 +302,15 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         </FilterIconButton>
 
         {activeCount > 0 && (
-          <button
+          <ActionIconButton
+            icon={<X className="w-4 h-4" />}
+            label="Limpar filtros ativos"
+            variant="danger"
             onClick={() => {
               clearAllFilters();
               setOpenPopover(null);
             }}
-            className="ml-2 h-9 px-3 bg-[#E31E24] text-white text-[10px] font-bold uppercase shadow-sm hover:brightness-110 active:scale-95 transition-all rounded-none"
-          >
-            Limpar
-          </button>
+          />
         )}
       </div>
     </div>
