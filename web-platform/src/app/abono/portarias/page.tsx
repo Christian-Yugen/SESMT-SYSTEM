@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
@@ -80,6 +80,38 @@ export default function PortariasPage() {
     setMounted(true);
   }, []);
 
+  const loadLogs = useCallback(async () => {
+    const { data: logsData } = await supabase
+      .from("portarias_abono_logs")
+      .select("*")
+      .order("data_alteracao", { ascending: false });
+
+    if (logsData) {
+      const logsMap: Record<number, any[]> = {};
+      logsData.forEach((log: any) => {
+        if (!logsMap[log.portaria_id]) logsMap[log.portaria_id] = [];
+        logsMap[log.portaria_id].push(log);
+      });
+      setLogs(logsMap);
+    }
+  }, []);
+
+  const loadRecords = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("portarias_abono")
+      .select("*")
+      .order("numero", { ascending: false });
+
+    if (!error && data) {
+      setRecords(data);
+      await loadLogs();
+    } else if (error) {
+      console.error("Erro ao carregar portarias:", error);
+    }
+    setLoading(false);
+  }, [loadLogs]);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -126,39 +158,7 @@ export default function PortariasPage() {
       if (event === "SIGNED_OUT") router.push("/login");
     });
     return () => subscription.unsubscribe();
-  }, [router]);
-
-  async function loadLogs() {
-    const { data: logsData } = await supabase
-      .from("portarias_abono_logs")
-      .select("*")
-      .order("data_alteracao", { ascending: false });
-
-    if (logsData) {
-      const logsMap: Record<number, any[]> = {};
-      logsData.forEach((log: any) => {
-        if (!logsMap[log.portaria_id]) logsMap[log.portaria_id] = [];
-        logsMap[log.portaria_id].push(log);
-      });
-      setLogs(logsMap);
-    }
-  }
-
-  async function loadRecords() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("portarias_abono")
-      .select("*")
-      .order("numero", { ascending: false });
-
-    if (!error && data) {
-      setRecords(data);
-      await loadLogs();
-    } else if (error) {
-      console.error("Erro ao carregar portarias:", error);
-    }
-    setLoading(false);
-  }
+  }, [router, loadRecords]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
