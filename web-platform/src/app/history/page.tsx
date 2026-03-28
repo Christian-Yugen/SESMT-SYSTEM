@@ -158,13 +158,18 @@ export default function HistoryPage() {
   } = filters;
 
   useEffect(() => {
-    if (filterType === "ASO") {
-      setIsAsoSubtypeFilterOpen(true);
-      return;
-    }
+    // Delay para permitir transição suave do popover anterior
+    const timer = setTimeout(() => {
+      if (filterType === "ASO") {
+        setIsAsoSubtypeFilterOpen(true);
+        return;
+      }
 
-    setSelectedAsoSubtypes([]);
-    setIsAsoSubtypeFilterOpen(false);
+      setSelectedAsoSubtypes([]);
+      setIsAsoSubtypeFilterOpen(false);
+    }, 200); // Aguarda o popover anterior fechar (150ms) + margem (50ms)
+
+    return () => clearTimeout(timer);
   }, [filterType]);
 
   const baseActiveFilterCount = countActiveFilters({

@@ -146,6 +146,17 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     setIsDateFilterOpen(openPopover === "date");
   }, [openPopover, setIsDateFilterOpen]);
 
+  // Fechar popover de tipo quando seleção é feita
+  useEffect(() => {
+    if (openPopover === "asoType" && filterAsoType !== "all") {
+      // Pequeno delay para transição suave
+      const timer = setTimeout(() => {
+        setOpenPopover(null);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [filterAsoType, openPopover]);
+
   const baseActiveCount = countActiveFilters({
     searchTerm,
     startDate,
