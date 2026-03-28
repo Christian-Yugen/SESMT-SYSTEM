@@ -100,3 +100,67 @@ export interface AfastamentoRecord {
     data_emissao: string;
   }[];
 }
+
+/** Registro de log de auditoria (abono/portaria). */
+export interface AuditLogRecord {
+  id: number;
+  usuario_email: string;
+  data_alteracao: string;
+  motivo: string;
+  dados_anteriores?: Record<string, string>;
+  dados_novos?: Record<string, string>;
+  portaria_id?: number;
+  abono_id?: number;
+  [key: string]: unknown;
+}
+
+/** Resultado bruto de busca de servidor no banco. */
+export interface ServidorSearchResult {
+  id?: number;
+  cpf: string;
+  nome: string;
+  cargo: string;
+  matricula: string;
+  nascimento?: string;
+  secretaria: string;
+  natureza_cargo?: string;
+  contrato?: string;
+  sexo?: string;
+  local_trabalho?: string;
+}
+
+/**
+ * Item de exame armazenado em exams_json (formato novo ou legado).
+ * No formato novo é um objeto { name, date }; no legado pode ser uma string.
+ */
+export type ExamJsonItem = { name: string; date?: string } | string;
+
+/** Registro de portaria de afastamento retornado pelo join com afastamentos. */
+export interface AfastamentoPortariaJoinRow {
+  id: number;
+  numero: number;
+  ano: number;
+  data_emissao: string;
+  afastamento_id: number;
+  created_at: string;
+  afastamentos: {
+    servidor_nome: string;
+    servidor_matricula: string;
+    natureza_cargo: string;
+    servidor_secretaria: string;
+    tipo_afastamento: string;
+    data_inicio: string;
+    data_fim: string;
+    perito_nome: string;
+    perito_crm: string;
+    servidor_contrato?: string;
+  };
+}
+
+/** Item pendente de sincronização de ASO. */
+export interface PendingSyncRecord {
+  servidor_nome: string;
+  aso_type: string;
+  servidor_nascimento?: string;
+  [key: string]: unknown;
+}

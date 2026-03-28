@@ -24,7 +24,10 @@ import {
   getCIDDetailsFromDB,
   normalizeCID,
 } from "@/lib/cid-utils";
-import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
+import {
+  generateAfastamentoPDF,
+  AfastamentoPortariaData,
+} from "@/lib/afastamento-portaria-pdf";
 
 interface Servidor {
   id?: number;
@@ -50,7 +53,10 @@ export default function NewAfastamentoPage() {
   const [, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [generatedPortaria, setGeneratedPortaria] = useState<any>(null);
+  const [generatedPortaria, setGeneratedPortaria] = useState<Omit<
+    AfastamentoPortariaData,
+    "data_portaria"
+  > | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
@@ -270,7 +276,11 @@ export default function NewAfastamentoPage() {
       const nextNumber = (lastPortaria?.numero || 0) + 1;
 
       // Se for prorrogação, vamos buscar os registros anteriores (siblings) para vincular corretamente
-      let previousRecords: any[] = [];
+      let previousRecords: Array<{
+        id: number;
+        servidor_matricula: string;
+        servidor_contrato: string;
+      }> = [];
       if (formData.renew_from_id) {
         const { data: baseRec } = await supabase
           .from("afastamentos")
@@ -389,9 +399,11 @@ export default function NewAfastamentoPage() {
       }
 
       setShowSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert("Erro ao salvar: " + err.message);
+      alert(
+        "Erro ao salvar: " + (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
       setSaving(false);
     }
@@ -870,29 +882,31 @@ export default function NewAfastamentoPage() {
 
                 <div className="grid grid-cols-1 gap-3 w-full">
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      if (!generatedPortaria) return;
                       generateAfastamentoPDF(
                         {
                           ...generatedPortaria,
                           data_portaria: new Date().toLocaleDateString("pt-BR"),
                         },
                         "view",
-                      )
-                    }
+                      );
+                    }}
                     className="flex items-center justify-center gap-3 w-full py-4 bg-[#1A3351] text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                   >
                     <Eye className="w-4 h-4" /> Visualizar Portaria PDF
                   </button>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      if (!generatedPortaria) return;
                       generateAfastamentoPDF(
                         {
                           ...generatedPortaria,
                           data_portaria: new Date().toLocaleDateString("pt-BR"),
                         },
                         "download",
-                      )
-                    }
+                      );
+                    }}
                     className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                   >
                     <Printer className="w-4 h-4" /> Baixar Portaria PDF

@@ -29,6 +29,7 @@ import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
 import SyncModal from "@/components/SyncModal";
 import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import WelcomeModal from "@/components/WelcomeModal";
+import { PendingSyncRecord } from "@/types";
 
 interface SidebarProps {
   userRole: string | null;
@@ -55,7 +56,7 @@ export default function Sidebar({
   // States for Admin Modals (Centralized)
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [showGreetingsManager, setShowGreetingsManager] = useState(false);
-  const [pendingSyncs, setPendingSyncs] = useState<any[]>([]);
+  const [pendingSyncs, setPendingSyncs] = useState<PendingSyncRecord[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 

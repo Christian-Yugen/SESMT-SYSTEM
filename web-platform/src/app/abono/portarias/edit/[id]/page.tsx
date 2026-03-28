@@ -16,7 +16,7 @@ import {
   Eye,
   Download,
 } from "lucide-react";
-import { Servidor } from "@/types";
+import { Servidor, AuditLogRecord } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 import { generatePortariaDOCX } from "@/lib/portaria-docx";
 import { capitalizeName } from "@/lib/portaria-utils";
@@ -58,7 +58,7 @@ export default function EditPortariaPage({
   const [userName, setUserName] = useState<string>("Usuário");
   const [, setMounted] = useState(false);
   const [originalData, setOriginalData] = useState<PortariaRecord | null>(null);
-  const [changeLogs, setChangeLogs] = useState<any[]>([]);
+  const [changeLogs, setChangeLogs] = useState<AuditLogRecord[]>([]);
 
   const [formData, setFormData] = useState({
     numero: "",
@@ -279,9 +279,12 @@ export default function EditPortariaPage({
 
       alert("Portaria atualizada com sucesso!");
       router.push("/abono/portarias");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao atualizar portaria:", error);
-      alert("Erro ao atualizar: " + error.message);
+      alert(
+        "Erro ao atualizar: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     } finally {
       setSaving(false);
     }
@@ -597,7 +600,7 @@ export default function EditPortariaPage({
                   <HistoryIcon className="w-4 h-4" /> Trilha de Auditoria
                 </h3>
                 <div className="space-y-4">
-                  {changeLogs.map((log: any) => (
+                  {changeLogs.map((log) => (
                     <div
                       key={log.id}
                       className="text-[11px] p-4 bg-slate-50 rounded-none border border-slate-200"

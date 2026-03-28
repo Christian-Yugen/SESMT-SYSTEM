@@ -16,7 +16,7 @@ import {
   Eye,
   Download,
 } from "lucide-react";
-import { Servidor } from "@/types";
+import { Servidor, ServidorSearchResult } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 import { generatePortariaDOCX } from "@/lib/portaria-docx";
 import { getLotadoGrammar, capitalizeName } from "@/lib/portaria-utils";
@@ -24,7 +24,9 @@ import { getLotadoGrammar, capitalizeName } from "@/lib/portaria-utils";
 export default function NewPortariaPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [foundServidores, setFoundServidores] = useState<any[]>([]);
+  const [foundServidores, setFoundServidores] = useState<
+    ServidorSearchResult[]
+  >([]);
   const [selectedServidor, setSelectedServidor] = useState<Servidor | null>(
     null,
   );
@@ -129,7 +131,7 @@ export default function NewPortariaPage() {
     }
   };
 
-  const selectServidor = (s: any) => {
+  const selectServidor = (s: ServidorSearchResult) => {
     setSelectedServidor({
       "CPF.": s.cpf,
       Nome: s.nome,
@@ -262,9 +264,12 @@ export default function NewPortariaPage() {
 
       alert("Portaria registrada com sucesso!");
       router.push("/abono/portarias");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao salvar portaria:", error);
-      alert("Erro ao salvar: " + error.message);
+      alert(
+        "Erro ao salvar: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     } finally {
       setSaving(false);
     }

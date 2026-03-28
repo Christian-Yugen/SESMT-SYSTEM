@@ -24,12 +24,14 @@ import {
   Scale,
   FileText,
 } from "lucide-react";
-import { Servidor } from "@/types";
+import { Servidor, ServidorSearchResult } from "@/types";
 
 export default function NewAbonoPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [foundServidores, setFoundServidores] = useState<any[]>([]);
+  const [foundServidores, setFoundServidores] = useState<
+    ServidorSearchResult[]
+  >([]);
   const [selectedServidor, setSelectedServidor] = useState<Servidor | null>(
     null,
   );
@@ -165,7 +167,7 @@ export default function NewAbonoPage() {
     }
   };
 
-  const selectServidor = (s: any) => {
+  const selectServidor = (s: ServidorSearchResult) => {
     setSelectedServidor({
       "CPF.": s.cpf,
       Nome: s.nome,
@@ -242,9 +244,12 @@ export default function NewAbonoPage() {
           : "Abono salarial registrado com sucesso!",
       );
       router.push("/abono");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao salvar abono:", error);
-      alert("Erro ao salvar: " + error.message);
+      alert(
+        "Erro ao salvar: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     } finally {
       setSaving(false);
     }

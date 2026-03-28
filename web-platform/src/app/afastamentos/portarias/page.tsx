@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
+import { AfastamentoPortariaJoinRow } from "@/types";
 
 interface PortariaRecord {
   id: number;
@@ -25,7 +26,7 @@ interface PortariaRecord {
   data_fim: string;
   perito_nome: string;
   perito_crm: string;
-  servidor_contrato: string;
+  servidor_contrato?: string;
 }
 
 export default function AfastamentoPortariasPage() {
@@ -100,19 +101,21 @@ export default function AfastamentoPortariasPage() {
       .order("numero", { ascending: false });
 
     if (!error && data) {
-      const formatted: PortariaRecord[] = data.map((r: any) => ({
-        ...r,
-        servidor_nome: r.afastamentos.servidor_nome,
-        servidor_matricula: r.afastamentos.servidor_matricula,
-        natureza_cargo: r.afastamentos.natureza_cargo,
-        servidor_secretaria: r.afastamentos.servidor_secretaria,
-        tipo_afastamento: r.afastamentos.tipo_afastamento,
-        data_inicio: r.afastamentos.data_inicio,
-        data_fim: r.afastamentos.data_fim,
-        perito_nome: r.afastamentos.perito_nome,
-        perito_crm: r.afastamentos.perito_crm,
-        servidor_contrato: r.afastamentos.servidor_contrato,
-      }));
+      const formatted: PortariaRecord[] = data.map(
+        (r: AfastamentoPortariaJoinRow) => ({
+          ...r,
+          servidor_nome: r.afastamentos.servidor_nome,
+          servidor_matricula: r.afastamentos.servidor_matricula,
+          natureza_cargo: r.afastamentos.natureza_cargo,
+          servidor_secretaria: r.afastamentos.servidor_secretaria,
+          tipo_afastamento: r.afastamentos.tipo_afastamento,
+          data_inicio: r.afastamentos.data_inicio,
+          data_fim: r.afastamentos.data_fim,
+          perito_nome: r.afastamentos.perito_nome,
+          perito_crm: r.afastamentos.perito_crm,
+          servidor_contrato: r.afastamentos.servidor_contrato,
+        }),
+      );
       setRecords(formatted);
     }
     setLoading(false);

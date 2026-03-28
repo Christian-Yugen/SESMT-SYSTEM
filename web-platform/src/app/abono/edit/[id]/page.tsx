@@ -23,7 +23,7 @@ import {
   Scale,
   FileText,
 } from "lucide-react";
-import { Servidor } from "@/types";
+import { Servidor, AbonoRecord, AuditLogRecord } from "@/types";
 
 export default function EditAbonoPage({
   params,
@@ -52,8 +52,8 @@ export default function EditAbonoPage({
     motivo_alteracao: "",
     beneficiario_nome: "",
   });
-  const [originalData, setOriginalData] = useState<any>(null);
-  const [changeLogs, setChangeLogs] = useState<any[]>([]);
+  const [originalData, setOriginalData] = useState<AbonoRecord | null>(null);
+  const [changeLogs, setChangeLogs] = useState<AuditLogRecord[]>([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -119,7 +119,7 @@ export default function EditAbonoPage({
           Matrícula: "---",
           "Dt.Nascimento": "---",
           Secretaria: "---",
-        } as any);
+        });
       }
     } catch (err) {
       console.error(err);
@@ -224,9 +224,12 @@ export default function EditAbonoPage({
 
       alert("Registro atualizado com sucesso!");
       router.push("/abono");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao atualizar abono:", error);
-      alert("Erro ao atualizar: " + error.message);
+      alert(
+        "Erro ao atualizar: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     } finally {
       setSaving(false);
     }
@@ -619,7 +622,7 @@ export default function EditAbonoPage({
                   (Segurança)
                 </h3>
                 <div className="space-y-4">
-                  {changeLogs.map((log: any) => (
+                  {changeLogs.map((log) => (
                     <div
                       key={log.id}
                       className="text-[11px] p-3 bg-slate-50 rounded-none border border-slate-200"

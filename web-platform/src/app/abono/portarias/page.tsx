@@ -26,6 +26,7 @@ import {
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import { AuditLogRecord } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 
 interface PortariaRecord {
@@ -58,7 +59,7 @@ export default function PortariasPage() {
   const [userName, setUserName] = useState<string>("Usuário");
   const [, setMounted] = useState(false);
   const [sortOrder, setSortOrder] = useState("date-desc");
-  const [logs, setLogs] = useState<Record<number, any[]>>({});
+  const [logs, setLogs] = useState<Record<number, AuditLogRecord[]>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -71,10 +72,12 @@ export default function PortariasPage() {
       .order("data_alteracao", { ascending: false });
 
     if (logsData) {
-      const logsMap: Record<number, any[]> = {};
-      logsData.forEach((log: any) => {
-        if (!logsMap[log.portaria_id]) logsMap[log.portaria_id] = [];
-        logsMap[log.portaria_id].push(log);
+      const logsMap: Record<number, AuditLogRecord[]> = {};
+      logsData.forEach((log: AuditLogRecord) => {
+        const pid = log.portaria_id;
+        if (pid == null) return;
+        if (!logsMap[pid]) logsMap[pid] = [];
+        logsMap[pid].push(log);
       });
       setLogs(logsMap);
     }
@@ -207,7 +210,10 @@ export default function PortariasPage() {
     }
   };
 
-  const getDiff = (prev: any, next: any) => {
+  const getDiff = (
+    prev: Record<string, string> | undefined,
+    next: Record<string, string> | undefined,
+  ) => {
     if (!prev || !next) return null;
     const changes: string[] = [];
 
@@ -215,7 +221,7 @@ export default function PortariasPage() {
     // Incluímos variações para suportar logs antigos (lotacao/servidor_lotacao)
     const fieldMapping: Record<
       string,
-      { label: string; formatter?: (val: any) => string }
+      { label: string; formatter?: (val: string) => string }
     > = {
       numero: { label: "NÚMERO" },
       servidor_genero: {

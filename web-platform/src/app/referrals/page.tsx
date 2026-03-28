@@ -22,6 +22,7 @@ import {
 } from "@/components/filters/filtersUtils";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import { ExamJsonItem } from "@/types";
 
 interface ReferralEntry {
   id: number;
@@ -37,7 +38,7 @@ interface ReferralEntry {
   generated_by: string;
   exams?: string[];
   risks?: string;
-  exams_json?: any;
+  exams_json?: ExamJsonItem[];
   servidor_nascimento?: string;
   contrato?: string;
 }
@@ -590,17 +591,21 @@ export default function ReferralsPage() {
                                   ) {
                                     return entry.exams_json
                                       .filter(
-                                        (ex: any) =>
-                                          (ex.name || ex).toUpperCase() !==
-                                          "EXAME CLÍNICO",
+                                        (ex: ExamJsonItem) =>
+                                          (typeof ex === "string"
+                                            ? ex
+                                            : ex.name
+                                          ).toUpperCase() !== "EXAME CLÍNICO",
                                       )
-                                      .map((exam: any, i: number) => (
+                                      .map((exam: ExamJsonItem, i: number) => (
                                         <div
                                           key={i}
                                           className="flex items-center gap-2 text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight"
                                         >
                                           <div className="w-1.5 h-1.5 bg-[#E31E24] rounded-none shrink-0" />
-                                          {exam.name || exam}
+                                          {typeof exam === "string"
+                                            ? exam
+                                            : exam.name}
                                         </div>
                                       ));
                                   }
@@ -691,8 +696,8 @@ export default function ReferralsPage() {
                                 const exams =
                                   entry.exams_json &&
                                   Array.isArray(entry.exams_json)
-                                    ? entry.exams_json.map(
-                                        (e: any) => e.name || e,
+                                    ? entry.exams_json.map((e: ExamJsonItem) =>
+                                        typeof e === "string" ? e : e.name,
                                       )
                                     : examsMatch && examsMatch[1]
                                       ? examsMatch[1]
