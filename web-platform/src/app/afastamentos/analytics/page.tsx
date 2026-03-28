@@ -48,6 +48,7 @@ import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import {
+  countActiveFilters,
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
@@ -202,7 +203,17 @@ export default function AfastamentosAnalyticsPage() {
     setStartDate("");
     setEndDate("");
     setIsDateFilterOpen(false);
+    setIsNaturezaFilterOpen(false);
   };
+
+  const headerActiveFilterCount =
+    countActiveFilters({
+      searchTerm,
+      startDate,
+      endDate,
+      filterSecretaria,
+      filterAsoType: filterTipo,
+    }) + (filterNatureza !== "all" ? 1 : 0);
 
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
@@ -471,6 +482,7 @@ export default function AfastamentosAnalyticsPage() {
                 asoTypeLabelDefault="TIPO AFASTAMENTO"
                 asoTypeOptions={["all", ...uniqueTipos]}
                 showUserFilter={false}
+                activeFilterCount={headerActiveFilterCount}
               />
             </div>
 
