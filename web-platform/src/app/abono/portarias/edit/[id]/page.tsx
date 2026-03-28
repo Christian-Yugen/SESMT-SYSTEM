@@ -103,7 +103,7 @@ export default function EditPortariaPage({
             session.user.email?.split("@")[0] ||
             "Usuário";
           setUserName(name);
-          loadData();
+          await loadData();
         } else {
           router.push("/login");
         }
@@ -111,61 +111,62 @@ export default function EditPortariaPage({
         await handleAuthError(err);
       }
     };
+
+    async function loadData() {
+      setLoading(true);
+      try {
+        // 1. Fetch Portaria Record
+        const { data: portaria, error: portariaError } = await supabase
+          .from("portarias_abono")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (portariaError || !portaria) {
+          alert("Erro ao carregar registro de portaria.");
+          router.push("/abono/portarias");
+          return;
+        }
+
+        setFormData({
+          numero: portaria.numero.toString(),
+          periodo_inicio: portaria.periodo_inicio,
+          periodo_fim: portaria.periodo_fim,
+          data_portaria: portaria.data_portaria,
+          genero: portaria.servidor_genero,
+          lotacao: portaria.servidor_lotacao,
+          motivo_alteracao: "",
+        });
+        setOriginalData(portaria);
+
+        // Fetch Logs
+        const { data: logs } = await supabase
+          .from("portarias_abono_logs")
+          .select("*")
+          .eq("portaria_id", id)
+          .order("data_alteracao", { ascending: false });
+        if (logs) setChangeLogs(logs);
+
+        // 2. Mock selected servidor for UI from portaria data
+        setSelectedServidor({
+          Nome: portaria.servidor_nome,
+          Cargo: portaria.servidor_cargo,
+          Matrícula: portaria.servidor_matricula,
+          Secretaria: "---", // Could fetch from servidores table but portaria has main info
+          "CPF.": portaria.servidor_cpf,
+          Sexo: portaria.servidor_genero,
+          "Local de Trabalho": portaria.servidor_lotacao,
+          contrato: portaria.servidor_contrato,
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     checkAuth();
   }, [id, router]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      // 1. Fetch Portaria Record
-      const { data: portaria, error: portariaError } = await supabase
-        .from("portarias_abono")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (portariaError || !portaria) {
-        alert("Erro ao carregar registro de portaria.");
-        router.push("/abono/portarias");
-        return;
-      }
-
-      setFormData({
-        numero: portaria.numero.toString(),
-        periodo_inicio: portaria.periodo_inicio,
-        periodo_fim: portaria.periodo_fim,
-        data_portaria: portaria.data_portaria,
-        genero: portaria.servidor_genero,
-        lotacao: portaria.servidor_lotacao,
-        motivo_alteracao: "",
-      });
-      setOriginalData(portaria);
-
-      // Fetch Logs
-      const { data: logs } = await supabase
-        .from("portarias_abono_logs")
-        .select("*")
-        .eq("portaria_id", id)
-        .order("data_alteracao", { ascending: false });
-      if (logs) setChangeLogs(logs);
-
-      // 2. Mock selected servidor for UI from portaria data
-      setSelectedServidor({
-        Nome: portaria.servidor_nome,
-        Cargo: portaria.servidor_cargo,
-        Matrícula: portaria.servidor_matricula,
-        Secretaria: "---", // Could fetch from servidores table but portaria has main info
-        "CPF.": portaria.servidor_cpf,
-        Sexo: portaria.servidor_genero,
-        "Local de Trabalho": portaria.servidor_lotacao,
-        contrato: portaria.servidor_contrato,
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDateBR = (dateStr: string) => {
     if (!dateStr) return "";

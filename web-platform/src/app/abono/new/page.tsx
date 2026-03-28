@@ -136,7 +136,7 @@ export default function NewAbonoPage() {
     }, 400); // 400ms de delay para não sobrecarregar o banco
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, selectedServidor]);
 
   const performSearch = async (queryStr: string) => {
     setSearching(true);

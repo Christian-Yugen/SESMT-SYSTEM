@@ -68,58 +68,59 @@ export default function AfastamentoPortariasPage() {
           router.push("/login");
           return;
         }
-        loadRecords();
+        await loadRecords();
       } catch (err) {
         await handleAuthError(err);
       }
     };
+
+    async function loadRecords() {
+      setLoading(true);
+      // Joins with 'afastamentos' to get server details
+      const { data, error } = await supabase
+        .from("portarias_afastamento")
+        .select(
+          `
+                  *,
+                  afastamentos (
+                      servidor_nome,
+                      servidor_matricula,
+                      natureza_cargo,
+                      servidor_secretaria,
+                      tipo_afastamento,
+                      data_inicio,
+                      data_fim,
+                      perito_nome,
+                      perito_crm,
+                      servidor_contrato
+                  )
+              `,
+        )
+        .order("numero", { ascending: false });
+
+      if (!error && data) {
+        const formatted: PortariaRecord[] = data.map(
+          (r: AfastamentoPortariaJoinRow) => ({
+            ...r,
+            servidor_nome: r.afastamentos.servidor_nome,
+            servidor_matricula: r.afastamentos.servidor_matricula,
+            natureza_cargo: r.afastamentos.natureza_cargo,
+            servidor_secretaria: r.afastamentos.servidor_secretaria,
+            tipo_afastamento: r.afastamentos.tipo_afastamento,
+            data_inicio: r.afastamentos.data_inicio,
+            data_fim: r.afastamentos.data_fim,
+            perito_nome: r.afastamentos.perito_nome,
+            perito_crm: r.afastamentos.perito_crm,
+            servidor_contrato: r.afastamentos.servidor_contrato,
+          }),
+        );
+        setRecords(formatted);
+      }
+      setLoading(false);
+    }
+
     checkAuth();
   }, [router]);
-
-  async function loadRecords() {
-    setLoading(true);
-    // Joins with 'afastamentos' to get server details
-    const { data, error } = await supabase
-      .from("portarias_afastamento")
-      .select(
-        `
-                *,
-                afastamentos (
-                    servidor_nome,
-                    servidor_matricula,
-                    natureza_cargo,
-                    servidor_secretaria,
-                    tipo_afastamento,
-                    data_inicio,
-                    data_fim,
-                    perito_nome,
-                    perito_crm,
-                    servidor_contrato
-                )
-            `,
-      )
-      .order("numero", { ascending: false });
-
-    if (!error && data) {
-      const formatted: PortariaRecord[] = data.map(
-        (r: AfastamentoPortariaJoinRow) => ({
-          ...r,
-          servidor_nome: r.afastamentos.servidor_nome,
-          servidor_matricula: r.afastamentos.servidor_matricula,
-          natureza_cargo: r.afastamentos.natureza_cargo,
-          servidor_secretaria: r.afastamentos.servidor_secretaria,
-          tipo_afastamento: r.afastamentos.tipo_afastamento,
-          data_inicio: r.afastamentos.data_inicio,
-          data_fim: r.afastamentos.data_fim,
-          perito_nome: r.afastamentos.perito_nome,
-          perito_crm: r.afastamentos.perito_crm,
-          servidor_contrato: r.afastamentos.servidor_contrato,
-        }),
-      );
-      setRecords(formatted);
-    }
-    setLoading(false);
-  }
 
   const filteredRecords = useMemo(() => {
     return records.filter(
