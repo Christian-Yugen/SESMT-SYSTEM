@@ -38,6 +38,10 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type {
+  AfastamentoStatusFilter,
+  SortOrder,
+} from "@/components/filters/types";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
@@ -45,46 +49,26 @@ import { generateServidorReportPDF } from "@/lib/afastamento-report-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import { BarChart3 } from "lucide-react";
+import type { AfastamentoRecord } from "@/types";
+import type { CIDDetails } from "@/lib/cid-utils";
 
-interface AfastamentoRecord {
+/** Entrada de log de auditoria de afastamento. */
+interface AfastamentoLog {
   id: number;
-  servidor_cpf: string;
-  servidor_nome: string;
-  servidor_matricula: string;
-  servidor_contrato: string;
-  servidor_secretaria: string;
-  servidor_cargo: string;
-  natureza_cargo: string;
-  tipo_afastamento: string;
-  data_inicio: string;
-  data_fim: string;
-  data_pericia: string;
-  dias_afastado: number | null;
-  perito_nome: string;
-  perito_crm: string;
-  situacao: "EM_ANDAMENTO" | "FINALIZADO" | "PRORROGADO";
-  status: string;
-  observacoes: string;
-  renovado_por_id: number | null;
-  criado_em: string;
-  criado_por: string;
+  afastamento_id: number;
+  usuario_id?: string;
+  usuario_email?: string;
+  alterado_por: string;
+  dados_anteriores?: Record<string, unknown>;
+  dados_novos?: Record<string, unknown>;
+  motivo_alteracao?: string;
   hash_auditoria?: string;
-  afastamento_cids?: {
-    cid_codigo: string;
-    cid_descricao: string;
-    cid_capitulo: string;
-  }[];
-  is_acidente_trabalho: boolean;
-  portarias_afastamento?: {
-    numero: number;
-    ano: number;
-    data_emissao: string;
-  }[];
+  data_alteracao: string;
 }
 
 interface CIDRecord {
-  id: number;
-  afastamento_id: number;
+  id?: number;
+  afastamento_id?: number;
   cid_codigo: string;
   cid_descricao: string;
   cid_capitulo: string;
@@ -98,7 +82,7 @@ const formatCpf = (cpf: string) => {
 };
 
 function CIDDetailItem({ cid }: { cid: CIDRecord }) {
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<CIDDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -166,7 +150,7 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
 
 export default function AfastamentosPage() {
   const [records, setRecords] = useState<AfastamentoRecord[]>([]);
-  const [logs, setLogs] = useState<Record<number, any[]>>({});
+  const [logs, setLogs] = useState<Record<number, AfastamentoLog[]>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -253,13 +237,13 @@ export default function AfastamentosPage() {
     data_inicio: "",
     dias_afastado: "",
     is_acidente_trabalho: false,
-    cids: [] as any[],
+    cids: [] as CIDDetails[],
   });
   const [noteFormData, setNoteFormData] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [cidEditInput, setCidEditInput] = useState("");
-  const [foundCids, setFoundCids] = useState<any[]>([]);
+  const [foundCids, setFoundCids] = useState<CIDDetails[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -349,8 +333,8 @@ export default function AfastamentosPage() {
         .order("data_alteracao", { ascending: false });
 
       if (logsData) {
-        const logsMap: Record<number, any[]> = {};
-        logsData.forEach((log: any) => {
+        const logsMap: Record<number, AfastamentoLog[]> = {};
+        logsData.forEach((log: AfastamentoLog) => {
           if (!logsMap[log.afastamento_id]) logsMap[log.afastamento_id] = [];
           logsMap[log.afastamento_id].push(log);
         });
@@ -536,8 +520,10 @@ export default function AfastamentosPage() {
       loadRecords();
       setIsEditModalOpen(false);
       alert("Alterações salvas com sucesso!");
-    } catch (err: any) {
-      alert("Erro ao salvar: " + err.message);
+    } catch (err: unknown) {
+      alert(
+        "Erro ao salvar: " + (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
       setIsSavingEdit(false);
     }
@@ -577,14 +563,17 @@ export default function AfastamentosPage() {
       loadRecords();
       setIsNotesModalOpen(false);
       alert("Anotação salva com sucesso!");
-    } catch (err: any) {
-      alert("Erro ao salvar anotação: " + err.message);
+    } catch (err: unknown) {
+      alert(
+        "Erro ao salvar anotação: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
       setIsSavingNote(false);
     }
   }
 
-  const handleViewPortaria = (record: any) => {
+  const handleViewPortaria = (record: AfastamentoRecord) => {
     const portaria = record.portarias_afastamento?.[0];
     if (!portaria) {
       alert("Portaria não encontrada para este registro.");
@@ -1136,7 +1125,9 @@ export default function AfastamentosPage() {
                   ].map((btn) => (
                     <button
                       key={btn.key}
-                      onClick={() => setStatusFilter(btn.key as any)}
+                      onClick={() =>
+                        setStatusFilter(btn.key as AfastamentoStatusFilter)
+                      }
                       className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + " text-white shadow-md" : "text-slate-600 hover:bg-black/5"}`}
                     >
                       {btn.label}
@@ -1199,7 +1190,7 @@ export default function AfastamentosPage() {
                     </span>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
+                      onChange={(e) => setSortBy(e.target.value as SortOrder)}
                       className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer"
                     >
                       <option value="alphabetical">Ordem Alfabética</option>
@@ -1602,7 +1593,7 @@ export default function AfastamentosPage() {
                                                 Diagnósticos CID-10
                                               </p>
                                               {record.afastamento_cids.map(
-                                                (cid: any) => (
+                                                (cid) => (
                                                   <CIDDetailItem
                                                     key={cid.id}
                                                     cid={cid}

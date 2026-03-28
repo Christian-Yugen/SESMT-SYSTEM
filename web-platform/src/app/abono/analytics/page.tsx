@@ -43,6 +43,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { AbonoRecord } from "@/types";
+import type { RechartsTickProps } from "@/components/filters/types";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -73,9 +75,8 @@ function wrapLabel(text: string, maxCharsPerLine: number) {
 }
 
 /** Tick customizado para YAxis do ranking */
-function SecretariaTick(props: any) {
-  const { x, y, payload } = props;
-  const lines = wrapLabel(payload?.value, 22);
+function SecretariaTick({ x = 0, y = 0, payload }: RechartsTickProps) {
+  const lines = wrapLabel(payload?.value ?? "", 22);
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -99,7 +100,7 @@ function SecretariaTick(props: any) {
 }
 
 export default function AbonoAnalyticsPage() {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AbonoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
@@ -207,7 +208,7 @@ export default function AbonoAnalyticsPage() {
         filterSecretaria === "all" || r.secretaria === filterSecretaria;
       const matchesNatureza =
         filterNatureza === "all" || r.natureza_cargo === filterNatureza;
-      const entryDate = r.inicio;
+      const entryDate = r.inicio ?? "";
       const matchesStartDate = !startDate || entryDate >= startDate;
       const matchesEndDate = !endDate || entryDate <= endDate;
 
@@ -793,7 +794,7 @@ export default function AbonoAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"
@@ -861,7 +862,7 @@ export default function AbonoAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"

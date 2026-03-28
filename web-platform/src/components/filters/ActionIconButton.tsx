@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
+import type { ActionButtonVariant } from "./types";
 
-type Variant = "filter" | "primary" | "success" | "danger" | "contextual";
+type Variant = ActionButtonVariant;
 
 interface Props {
   icon: React.ReactNode;

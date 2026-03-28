@@ -8,6 +8,7 @@ import CpfField from "./CpfField";
 import DateRangePopover from "./DateRangePopover";
 import SelectFilter from "./SelectFilter";
 import { countActiveFilters } from "./filtersUtils";
+import type { ReferralOperatorEntry } from "./types";
 
 interface FilterToolbarProps {
     searchTerm: string;
@@ -28,7 +29,7 @@ interface FilterToolbarProps {
     setFilterAsoType: (v: string) => void;
     uniqueUsersList: string[];
     uniqueSecretarias: string[];
-    referrals: any[];
+    referrals: ReferralOperatorEntry[];
     operatorsMap: Record<string, string>;
     clearAllFilters: () => void;
 }

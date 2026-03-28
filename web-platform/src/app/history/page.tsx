@@ -33,6 +33,43 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { ExamEntry } from "@/types";
+
+/** Entrada de histórico de edições de auditoria do ASO. */
+interface EditHistoryEntry {
+  user: string;
+  timestamp: string;
+  motivo?: string;
+  changes?: {
+    old: Record<string, unknown>;
+    new: Record<string, unknown>;
+  };
+}
+
+/** Registro de função occupacional retornado da tabela `funcoes`. */
+interface FuncaoRecord {
+  id: number;
+  nome: string;
+  ghe: string;
+  cod?: string;
+  aso_type?: string;
+}
+
+/** Dados do formulário de edição / reemissão de ASO 2.0. */
+interface EditFormData {
+  servidor_nome: string;
+  servidor_cpf: string;
+  servidor_nascimento: string;
+  cargo?: string;
+  secretaria?: string;
+  aso_type: string;
+  function_name: string;
+  function_ghe: string;
+  risks: string;
+  exams: ExamEntry[];
+  contrato: string;
+  motivo_alteracao: string;
+}
 
 interface HistoryEntry {
   id: number;
@@ -52,7 +89,7 @@ interface HistoryEntry {
   exams_json?: { name: string; date: string }[];
   risks?: string;
   function_name?: string;
-  edit_history?: any[];
+  edit_history?: EditHistoryEntry[];
   // Campo virtual para permissões
   creator_role?: string;
 }
@@ -178,7 +215,7 @@ export default function HistoryPage() {
   // Estados para Edição ASO 2.0
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<HistoryEntry | null>(null);
-  const [editFormData, setEditFormData] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState<EditFormData | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Estados para o Smart Header (Scroll)
@@ -200,7 +237,7 @@ export default function HistoryPage() {
   const [isSearchingSecretaria, setIsSearchingSecretaria] = useState(false);
 
   const [funcoesSearch, setFuncoesSearch] = useState("");
-  const [filteredFuncoes, setFilteredFuncoes] = useState<any[]>([]);
+  const [filteredFuncoes, setFilteredFuncoes] = useState<FuncaoRecord[]>([]);
   const [isSearchingFuncao, setIsSearchingFuncao] = useState(false);
 
   // Busca de Cargo no Servidor com Debounce
@@ -350,11 +387,14 @@ export default function HistoryPage() {
           date: new Date().toLocaleDateString("pt-BR"),
         }));
 
-        setEditFormData((prev: any) => ({
-          ...prev,
-          risks: data.riscos + (data.detalhes ? `\n${data.detalhes}` : ""),
-          exams: newExams,
-        }));
+        setEditFormData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            risks: data.riscos + (data.detalhes ? `\n${data.detalhes}` : ""),
+            exams: newExams,
+          };
+        });
       }
     }
     syncExamsAndRisks();
@@ -1655,7 +1695,7 @@ export default function HistoryPage() {
                               </div>
                               <div className="space-y-3">
                                 {entry.edit_history.map(
-                                  (log: any, idx: number) => (
+                                  (log: EditHistoryEntry, idx: number) => (
                                     <div
                                       key={idx}
                                       className="bg-white/40 border border-slate-200 rounded-none p-3 text-[10px] lg:text-[11px] animate-in fade-in slide-in-from-left-2 transition-all"
@@ -1684,35 +1724,40 @@ export default function HistoryPage() {
                                           {log.motivo || "Não informado"}
                                         </span>
                                       </p>
-                                      {log.changes && (
-                                        <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
-                                          {Object.keys(log.changes.new).map(
-                                            (key) => {
-                                              const oldVal =
-                                                log.changes.old[key];
-                                              const newVal =
-                                                log.changes.new[key];
-                                              if (oldVal !== newVal) {
-                                                return (
-                                                  <span
-                                                    key={key}
-                                                    className="text-[9px] font-bold text-slate-500"
-                                                  >
-                                                    <span className="uppercase text-slate-400">
-                                                      {key}:
-                                                    </span>{" "}
-                                                    {String(oldVal || "---")} →{" "}
-                                                    <span className="text-[#1A3351] font-bold">
-                                                      {String(newVal || "---")}
+                                      {(() => {
+                                        const changes = log.changes;
+                                        if (!changes) return null;
+                                        return (
+                                          <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
+                                            {Object.keys(changes.new).map(
+                                              (key) => {
+                                                const oldVal = changes.old[key];
+                                                const newVal = changes.new[key];
+                                                if (oldVal !== newVal) {
+                                                  return (
+                                                    <span
+                                                      key={key}
+                                                      className="text-[9px] font-bold text-slate-500"
+                                                    >
+                                                      <span className="uppercase text-slate-400">
+                                                        {key}:
+                                                      </span>{" "}
+                                                      {String(oldVal || "---")}{" "}
+                                                      →{" "}
+                                                      <span className="text-[#1A3351] font-bold">
+                                                        {String(
+                                                          newVal || "---",
+                                                        )}
+                                                      </span>
                                                     </span>
-                                                  </span>
-                                                );
-                                              }
-                                              return null;
-                                            },
-                                          )}
-                                        </div>
-                                      )}
+                                                  );
+                                                }
+                                                return null;
+                                              },
+                                            )}
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                   ),
                                 )}
@@ -2093,7 +2138,7 @@ export default function HistoryPage() {
                                 function_name: "",
                                 function_ghe: "",
                                 risks: "",
-                                exams_json: [],
+                                exams: [],
                               });
                             }}
                             className="px-3 bg-white border-2 border-slate-200 rounded-none text-[9px] font-bold uppercase hover:bg-slate-50 transition-colors"
@@ -2158,7 +2203,7 @@ export default function HistoryPage() {
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {editFormData.exams.map((exam: any, idx: number) => (
+                    {editFormData.exams.map((exam: ExamEntry, idx: number) => (
                       <div
                         key={idx}
                         className="flex gap-2 p-3 bg-white border-2 border-slate-100 rounded-none shadow-sm"
@@ -2330,13 +2375,15 @@ export default function HistoryPage() {
                       };
 
                       const currentExamsMock = {
-                        exames: editFormData.exams.map((e: any) => e.name),
+                        exames: editFormData.exams.map(
+                          (e: ExamEntry) => e.name,
+                        ),
                         riscos: "",
                         detalhes: editFormData.risks,
                       };
 
                       const datesMock = editFormData.exams.map(
-                        (e: any) => e.date,
+                        (e: ExamEntry) => e.date,
                       );
                       const operatorName = userName.toUpperCase();
 

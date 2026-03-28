@@ -44,6 +44,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { AfastamentoRecord } from "@/types";
+import type { RechartsTickProps } from "@/components/filters/types";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) e limpa prefixos */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -71,9 +73,8 @@ function wrapLabel(text: string, maxCharsPerLine: number) {
 }
 
 /** Tick customizado para YAxis do ranking */
-function SecretariaTick(props: any) {
-  const { x, y, payload } = props;
-  const lines = wrapLabel(payload?.value, 20);
+function SecretariaTick({ x = 0, y = 0, payload }: RechartsTickProps) {
+  const lines = wrapLabel(payload?.value ?? "", 20);
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -97,7 +98,7 @@ function SecretariaTick(props: any) {
 }
 
 export default function AfastamentosAnalyticsPage() {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AfastamentoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
@@ -245,7 +246,7 @@ export default function AfastamentosAnalyticsPage() {
     endDate,
   ]);
 
-  const getStatus = (record: any) => {
+  const getStatus = (record: AfastamentoRecord) => {
     if (record.situacao === "FINALIZADO" || record.situacao === "PRORROGADO")
       return "finished";
     const today = new Date();
@@ -323,7 +324,7 @@ export default function AfastamentosAnalyticsPage() {
     const impactMap: Record<string, number> = {};
     filteredRecords.forEach((r) => {
       const s = r.servidor_secretaria || "NÃO INFORMADA";
-      const days = parseInt(r.dias_afastado) || 0;
+      const days = r.dias_afastado ?? 0;
       impactMap[s] = (impactMap[s] || 0) + days;
     });
     const byImpact = Object.keys(impactMap)
@@ -579,7 +580,7 @@ export default function AfastamentosAnalyticsPage() {
                 </p>
                 <h3 className="text-2xl font-bold text-red-600 mt-1">
                   {filteredRecords.reduce(
-                    (acc, r) => acc + (parseInt(r.dias_afastado) || 0),
+                    (acc, r) => acc + (r.dias_afastado ?? 0),
                     0,
                   )}
                 </h3>
@@ -698,7 +699,7 @@ export default function AfastamentosAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"
@@ -757,9 +758,7 @@ export default function AfastamentosAnalyticsPage() {
                         }}
                       />
                     </Pie>
-                    <Tooltip
-                      formatter={(value: any) => [`${value}`, "Casos"]}
-                    />
+                    <Tooltip formatter={(value) => [String(value), "Casos"]} />
                     <Legend
                       verticalAlign="bottom"
                       align="center"

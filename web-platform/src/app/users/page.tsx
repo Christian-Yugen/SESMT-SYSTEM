@@ -184,7 +184,7 @@ export default function UsersPage() {
         router.refresh();
         loadProfiles();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Erro no processamento:", err);
       alert("Erro inesperado ao criar operador.");
     } finally {

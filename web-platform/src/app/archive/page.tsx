@@ -51,6 +51,18 @@ interface FolderLog {
   operador_sistema: string;
 }
 
+/** Campos atualizáveis de uma pasta médica ao devolver ao arquivo. */
+interface MedicalFolderUpdate {
+  status: "ARQUIVADO";
+  posse_nome: null;
+  motivo_saida: null;
+  data_saida: null;
+  ultima_movimentacao: string;
+  armario?: number;
+  gaveta?: number;
+  pasta?: number;
+}
+
 export default function ArchivePage() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -267,7 +279,7 @@ export default function ArchivePage() {
       const { session } = await safeGetSession();
       if (!session) return;
 
-      const updateData: any = {
+      const updateData: MedicalFolderUpdate = {
         status: "ARQUIVADO",
         posse_nome: null,
         motivo_saida: null,
