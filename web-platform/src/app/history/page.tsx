@@ -157,6 +157,16 @@ export default function HistoryPage() {
     selectedAsoSubtypes,
   } = filters;
 
+  useEffect(() => {
+    if (filterType === "ASO") {
+      setIsAsoSubtypeFilterOpen(true);
+      return;
+    }
+
+    setSelectedAsoSubtypes([]);
+    setIsAsoSubtypeFilterOpen(false);
+  }, [filterType]);
+
   const baseActiveFilterCount = countActiveFilters({
     searchTerm,
     startDate,
