@@ -440,17 +440,25 @@ export default function AfastamentosAnalyticsPage() {
         {/* HEADER */}
         <section className="bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
           <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
-            <div className="flex items-center gap-2 shrink-0">
-              <TrendingUp className="w-5 h-5 text-[#1A3351]" />
-              <div>
-                <h1 className="text-base font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
-                  Afastamentos{" "}
-                  <span className="text-emerald-600">Analytics</span>
-                </h1>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                  Saúde e Absenteísmo
-                </p>
+            <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#1A3351]" />
+                <div>
+                  <h1 className="text-lg sm:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                    Afastamentos{" "}
+                    <span className="text-emerald-600">Analytics</span>
+                  </h1>
+                  <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                    Saúde e Absenteísmo
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden h-9 w-9 bg-[#1A3351] text-white flex items-center justify-center"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
             </div>
             <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
@@ -525,12 +533,6 @@ export default function AfastamentosAnalyticsPage() {
               variant="primary"
               onClick={handlePrintReport}
             />
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden h-11 w-11 md:h-9 md:w-9 bg-[#1A3351] text-white flex items-center justify-center"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
           </div>
 
           <div className="mt-3 flex flex-col gap-3">

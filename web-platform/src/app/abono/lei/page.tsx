@@ -196,9 +196,9 @@ export default function AbonoLeiPage() {
             </button>
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2.5 text-slate-600 hover:bg-slate-100 rounded-none transition-all"
+              className="lg:hidden h-9 w-9 text-slate-600 hover:bg-slate-100 rounded-none transition-all flex items-center justify-center"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="h-4 w-4" />
             </button>
           </div>
         </header>

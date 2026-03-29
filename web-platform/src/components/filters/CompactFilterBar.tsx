@@ -101,7 +101,7 @@ function FilterIconButton({
         title={title}
         aria-label={title}
         onClick={() => onToggle(open ? null : id)}
-        className={`h-11 w-11 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
+        className={`h-10 w-10 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
       >
         {icon}
       </button>
@@ -194,11 +194,11 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         />
       </div>
 
-      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+      <div className="flex items-center gap-2 shrink-0 flex-nowrap overflow-x-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1 md:pb-0">
         <div className="relative">
           <button
             title="Filtros"
-            className="h-11 w-11 md:h-9 md:w-9 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-none"
+            className="h-10 w-10 md:h-9 md:w-9 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-none"
           >
             <SlidersHorizontal className="w-4 h-4 text-slate-600" />
             {activeCount > 0 && (

@@ -759,16 +759,24 @@ export default function AnalyticsPage() {
                 className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
                 <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
-                  <div className="flex items-center gap-3 shrink-0">
-                    <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
-                    <div>
-                      <h1 className="text-base lg:text-lg font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
-                        SESMT <span className="text-blue-700">Analytics</span>
-                      </h1>
-                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                        Business Intelligence
-                      </p>
+                  <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
+                      <div>
+                        <h1 className="text-lg sm:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                          SESMT <span className="text-blue-700">Analytics</span>
+                        </h1>
+                        <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                          Business Intelligence
+                        </p>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
+                    >
+                      <Menu className="h-4 w-4" />
+                    </button>
                   </div>
 
                   <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
@@ -935,12 +943,6 @@ export default function AnalyticsPage() {
                       active={showHourAnalysis}
                       onClick={() => setShowHourAnalysis(!showHourAnalysis)}
                     />
-                    <button
-                      onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden h-11 w-11 md:h-9 md:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
-                    >
-                      <Menu className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
 

@@ -110,7 +110,7 @@ export default function ActionIconButton({
         title={label}
         aria-label={label}
         onClick={handleButtonClick}
-        className={`relative h-11 w-11 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
+        className={`relative h-10 w-10 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
       >
         <span className="flex items-center justify-center">{icon}</span>
         {showMenuIndicator && (
