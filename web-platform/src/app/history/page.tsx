@@ -27,6 +27,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import {
   type FilterState,
   countActiveFilters,
@@ -1350,55 +1352,36 @@ export default function HistoryPage() {
           className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-6 lg:space-y-8"
         >
           {/* STATS CARDS */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-blue-600 shadow-lg transform hover:scale-[1.02] transition-all">
-              <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">
-                Total Registros
-              </p>
-              <div className="flex items-end justify-between">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">
-                  {stats.total}
-                </h3>
-                <HistoryIcon className="w-6 h-6 text-blue-50" />
-              </div>
-            </div>
-
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg transform hover:scale-[1.02] transition-all">
-              <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">
-                ASOs Emitidos
-              </p>
-              <div className="flex items-end justify-between">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">
-                  {stats.asos}
-                </h3>
-                <Activity className="w-6 h-6 text-emerald-50" />
-              </div>
-            </div>
-
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg transform hover:scale-[1.02] transition-all">
-              <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">
-                ENC Emitidos
-              </p>
-              <div className="flex items-end justify-between">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">
-                  {stats.encs}
-                </h3>
-                <Building2 className="w-6 h-6 text-red-50" />
-              </div>
-            </div>
-
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-amber-500 shadow-lg transform hover:scale-[1.02] transition-all">
-              <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest leading-none mb-2">
-                Operadores
-              </p>
-              <div className="flex items-end justify-between">
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351] leading-none">
-                  {stats.uniqueUsers}
-                </h3>
-                <User className="w-6 h-6 text-amber-50" />
-              </div>
-            </div>
-          </div>
+          <StatisticCardRow columns={4} className="shrink-0">
+            <StatisticCard
+              variant="informative"
+              accent="primary"
+              title="Total Registros"
+              value={stats.total}
+              icon={<HistoryIcon className="w-5 h-5 text-slate-300" />}
+            />
+            <StatisticCard
+              variant="informative"
+              accent="success"
+              title="ASOs Emitidos"
+              value={stats.asos}
+              icon={<Activity className="w-5 h-5 text-emerald-200" />}
+            />
+            <StatisticCard
+              variant="informative"
+              accent="info"
+              title="ENC Emitidos"
+              value={stats.encs}
+              icon={<Building2 className="w-5 h-5 text-blue-200" />}
+            />
+            <StatisticCard
+              variant="informative"
+              accent="neutral"
+              title="Operadores"
+              value={stats.uniqueUsers}
+              icon={<User className="w-5 h-5 text-slate-300" />}
+            />
+          </StatisticCardRow>
           {/* LISTA DE REGISTROS */}
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
             <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
