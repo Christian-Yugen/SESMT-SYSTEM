@@ -1050,42 +1050,42 @@ export default function AfastamentosPage() {
                 value: stats.totalServidores,
                 filter: "all" as const,
                 accent: "primary" as const,
-                activeClass: "bg-[#1A3351]/10 border-[#1A3351]",
+                activeClass: "bg-[#1A3351]/10",
               },
               {
                 label: "Registros",
                 value: stats.totalRegistros,
                 filter: "all" as const,
                 accent: "neutral" as const,
-                activeClass: "bg-slate-600/10 border-slate-600",
+                activeClass: "bg-slate-100",
               },
               {
                 label: "Ativos",
                 value: stats.active,
                 filter: "active" as const,
                 accent: "success" as const,
-                activeClass: "bg-emerald-600/10 border-emerald-600",
+                activeClass: "bg-emerald-50",
               },
               {
                 label: "Vencendo",
                 value: stats.alert,
                 filter: "alert" as const,
                 accent: "warning" as const,
-                activeClass: "bg-amber-500/10 border-amber-500",
+                activeClass: "bg-amber-50",
               },
               {
                 label: "Vencidos",
                 value: stats.expired,
                 filter: "expired" as const,
                 accent: "danger" as const,
-                activeClass: "bg-[#E31E24]/10 border-[#E31E24]",
+                activeClass: "bg-red-50",
               },
               {
                 label: "Finalizados",
                 value: stats.finished,
                 filter: "finished" as const,
                 accent: "info" as const,
-                activeClass: "bg-blue-600/10 border-blue-600",
+                activeClass: "bg-blue-50",
               },
             ].map((card) => {
               const selected = statusFilter === card.filter;
@@ -1099,7 +1099,7 @@ export default function AfastamentosPage() {
                   value={card.value}
                   active={selected}
                   onClick={() => setStatusFilter(card.filter)}
-                  className={`min-h-[64px] ${selected ? card.activeClass : "bg-white"}`}
+                  className={selected ? card.activeClass : "bg-white"}
                 />
               );
             })}

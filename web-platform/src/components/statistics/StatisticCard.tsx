@@ -1,21 +1,33 @@
 "use client";
 
-import type { StatisticCardBaseProps, StatisticCardInteractiveProps } from "./types";
+import type {
+  StatisticCardBaseProps,
+  StatisticCardInteractiveProps,
+} from "./types";
 
-type StatisticCardProps = StatisticCardBaseProps | StatisticCardInteractiveProps;
+type StatisticCardProps =
+  | StatisticCardBaseProps
+  | StatisticCardInteractiveProps;
 
-const ACCENT_CLASSES: Record<NonNullable<StatisticCardBaseProps["accent"]>, string> = {
-  neutral: "border-slate-300 text-slate-700",
-  primary: "border-[#1A3351] text-[#1A3351]",
-  success: "border-emerald-500 text-emerald-700",
-  warning: "border-amber-500 text-amber-700",
-  danger: "border-[#E31E24] text-[#E31E24]",
-  info: "border-blue-600 text-blue-700",
+const ACCENT_CLASSES: Record<
+  NonNullable<StatisticCardBaseProps["accent"]>,
+  string
+> = {
+  neutral: "border-l-slate-400 text-slate-600",
+  primary: "border-l-[#1A3351] text-[#1A3351]",
+  success: "border-l-emerald-500 text-emerald-700",
+  warning: "border-l-amber-500 text-amber-700",
+  danger: "border-l-[#E31E24] text-[#E31E24]",
+  info: "border-l-blue-600 text-blue-700",
 };
 
-const VARIANT_CLASSES: Record<NonNullable<StatisticCardBaseProps["variant"]>, string> = {
+const VARIANT_CLASSES: Record<
+  NonNullable<StatisticCardBaseProps["variant"]>,
+  string
+> = {
   informative: "bg-white",
-  interactive: "bg-white hover:-translate-y-px hover:shadow-md active:translate-y-0",
+  interactive:
+    "bg-white hover:shadow-md hover:border-slate-300 active:shadow-sm",
   analytic: "bg-[#FCFCFC]",
 };
 
@@ -42,13 +54,13 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const variantClass = VARIANT_CLASSES[variant];
 
   const baseClass = [
-    "w-full min-h-[72px] border-l-4 border border-r border-t border-b border-slate-200",
-    "px-3 py-2.5 sm:px-3.5 sm:py-3",
+    "w-full border border-slate-200 border-l-4",
+    "px-3 py-2 sm:px-3.5 sm:py-2.5",
     "rounded-none transition-all duration-150",
-    "flex items-center justify-between gap-3",
+    "flex items-center justify-between gap-2",
     accentClass,
     variantClass,
-    active ? "ring-1 ring-[#1A3351]/30" : "",
+    active ? "ring-2 ring-inset ring-slate-400/40" : "",
     className,
   ]
     .filter(Boolean)
@@ -57,13 +69,17 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const content = (
     <>
       <div className="min-w-0">
-        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500 leading-none">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 leading-none">
           {title}
         </p>
-        <div className="mt-1 flex items-baseline gap-2">
-          <h3 className="text-lg sm:text-xl font-bold leading-none">{value}</h3>
+        <div className="mt-0.5 flex items-baseline gap-1.5">
+          <h3 className="text-xl font-bold leading-none tabular-nums">
+            {value}
+          </h3>
           {subtitle ? (
-            <span className="text-[10px] font-medium text-slate-500">{subtitle}</span>
+            <span className="text-[10px] font-medium text-slate-500">
+              {subtitle}
+            </span>
           ) : null}
         </div>
         {helperText ? (
