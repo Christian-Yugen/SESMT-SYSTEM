@@ -360,25 +360,33 @@ export default function ArchivePage() {
             className={`sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"}`}
           >
             {/* HEADER UNIFICADO */}
-            <section className="bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
-              <div className="flex items-center gap-3">
+            <section className="bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
                 {/* Título */}
-                <div className="flex items-center gap-2 shrink-0 text-[#1A3351]">
-                  <FolderOpen className="w-5 h-5" />
-                  <div>
-                    <h2 className="text-base font-bold leading-none uppercase tracking-tight">
-                      Arquivo Médico
-                    </h2>
-                    <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                      SESMT • Prontuários
-                    </p>
+                <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0 text-[#1A3351]">
+                  <div className="flex items-center gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    <div>
+                      <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight">
+                        Arquivo Médico
+                      </h2>
+                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                        SESMT • Prontuários
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] text-white flex items-center justify-center active:scale-95 transition-all shadow-md rounded-none"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </button>
                 </div>
 
-                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
                 {/* Campo de busca principal */}
-                <div className="flex-1 min-w-0">
+                <div className="w-full md:flex-1 md:w-auto min-w-0">
                   <CompactFilterBar
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -412,66 +420,61 @@ export default function ArchivePage() {
                     onSearchKeyDown={(e) => {
                       if (e.key === "Enter") handleSearch();
                     }}
+                    extraActions={
+                      <>
+                        {/* Filtro contextual: modo de busca (nome / cpf) */}
+                        <ActionIconButton
+                          icon={<UserIcon className="w-4 h-4" />}
+                          label={`Modo de busca: ${searchType === "nome" ? "Nome" : "CPF"}`}
+                          variant="contextual"
+                          active={searchType === "cpf"}
+                          open={isSearchTypeFilterOpen}
+                          onToggle={setIsSearchTypeFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-52 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                            <div className="p-3 space-y-2">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                                Modo de Busca
+                              </p>
+                              {(["nome", "cpf"] as const).map((mode) => (
+                                <button
+                                  key={mode}
+                                  type="button"
+                                  onClick={() => {
+                                    setSearchType(mode);
+                                    setIsSearchTypeFilterOpen(false);
+                                  }}
+                                  className={`w-full h-9 text-[10px] font-bold uppercase transition-all rounded-none ${
+                                    searchType === mode
+                                      ? "bg-[#1A3351] text-white"
+                                      : "bg-[#FFF7E6] border border-[#F59E0B] text-[#7C2D12] hover:brightness-95"
+                                  }`}
+                                >
+                                  {mode === "nome" ? "Por Nome" : "Por CPF"}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </ActionIconButton>
+
+                        {/* Ação: executar busca */}
+                        <ActionIconButton
+                          icon={
+                            loading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Search className="w-4 h-4" />
+                            )
+                          }
+                          label="Buscar prontuários"
+                          variant="primary"
+                          onClick={handleSearch}
+                        />
+                      </>
+                    }
                   />
                 </div>
-
-                {/* Filtro contextual: modo de busca (nome / cpf) */}
-                <ActionIconButton
-                  icon={<UserIcon className="w-4 h-4" />}
-                  label={`Modo de busca: ${searchType === "nome" ? "Nome" : "CPF"}`}
-                  variant="contextual"
-                  active={searchType === "cpf"}
-                  open={isSearchTypeFilterOpen}
-                  onToggle={setIsSearchTypeFilterOpen}
-                  showMenuIndicator
-                >
-                  <div className="w-52 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                    <div className="p-3 space-y-2">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                        Modo de Busca
-                      </p>
-                      {(["nome", "cpf"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => {
-                            setSearchType(mode);
-                            setIsSearchTypeFilterOpen(false);
-                          }}
-                          className={`w-full h-9 text-[10px] font-bold uppercase transition-all rounded-none ${
-                            searchType === mode
-                              ? "bg-[#1A3351] text-white"
-                              : "bg-[#FFF7E6] border border-[#F59E0B] text-[#7C2D12] hover:brightness-95"
-                          }`}
-                        >
-                          {mode === "nome" ? "Por Nome" : "Por CPF"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </ActionIconButton>
-
-                {/* Ação: executar busca */}
-                <ActionIconButton
-                  icon={
-                    loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Search className="w-4 h-4" />
-                    )
-                  }
-                  label="Buscar prontuários"
-                  variant="primary"
-                  onClick={handleSearch}
-                />
-
-                {/* Mobile menu */}
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden h-9 w-9 bg-[#1A3351] text-white flex items-center justify-center active:scale-95 transition-all shadow-md rounded-none"
-                >
-                  <Menu className="w-4 h-4" />
-                </button>
               </div>
 
               {/* FilterChips */}

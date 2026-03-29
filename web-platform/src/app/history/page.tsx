@@ -1092,23 +1092,31 @@ export default function HistoryPage() {
         >
           <div className="overflow-visible">
             <section
-              className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+              className={`bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
             >
-              <div className="flex items-center gap-3 relative z-20">
-                <div className="flex items-center gap-2 shrink-0 text-[#1A3351]">
-                  <HistoryIcon className="w-5 h-5" />
-                  <div>
-                    <h2 className="text-base font-bold leading-none uppercase tracking-tight">
-                      Histórico
-                    </h2>
-                    <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                      SESMT • Evidências
-                    </p>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3 relative z-20">
+                <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0 text-[#1A3351]">
+                  <div className="flex items-center gap-2">
+                    <HistoryIcon className="w-5 h-5" />
+                    <div>
+                      <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight">
+                        Histórico
+                      </h2>
+                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                        SESMT • Evidências
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
-                <div className="flex-1 min-w-0">
+                <div className="w-full md:flex-1 md:w-auto min-w-0">
                   <CompactFilterBar
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -1135,177 +1143,183 @@ export default function HistoryPage() {
                     asoTypeLabelDefault="TIPO DOCUMENTO"
                     asoTypeOptions={historyTypeOptions}
                     activeFilterCount={headerActiveFilterCount}
+                    extraActions={
+                      <>
+                        <ActionIconButton
+                          icon={<Clock3 className="w-4 h-4" />}
+                          label="Filtro contextual de turno"
+                          variant="contextual"
+                          active={filterShift !== "all"}
+                          open={isShiftFilterOpen}
+                          onToggle={setIsShiftFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                            <div className="p-3 space-y-2">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                                Turno de Geração
+                              </p>
+                              <select
+                                value={filterShift}
+                                onChange={(e) => {
+                                  setFilterShift(e.target.value);
+                                  setIsShiftFilterOpen(false);
+                                }}
+                                className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                              >
+                                <option value="all">TODOS OS TURNOS</option>
+                                <option value="morning">
+                                  MANHÃ (07h - 13h)
+                                </option>
+                                <option value="afternoon">
+                                  TARDE (13h - 18h)
+                                </option>
+                              </select>
+                            </div>
+                          </div>
+                        </ActionIconButton>
+
+                        {filterType === "ASO" && (
+                          <ActionIconButton
+                            icon={<ClipboardList className="w-4 h-4" />}
+                            label="Filtro contextual de subtipos ASO"
+                            variant="contextual"
+                            active={selectedAsoSubtypes.length > 0}
+                            open={isAsoSubtypeFilterOpen}
+                            onToggle={setIsAsoSubtypeFilterOpen}
+                            showMenuIndicator
+                          >
+                            <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                              <div className="p-3 space-y-2">
+                                <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                                  <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
+                                    Subtipos ASO
+                                  </span>
+                                  {selectedAsoSubtypes.length > 0 && (
+                                    <button
+                                      onClick={() => setSelectedAsoSubtypes([])}
+                                      className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
+                                    >
+                                      Limpar
+                                    </button>
+                                  )}
+                                </div>
+
+                                {[
+                                  { id: "ADMISS", label: "ADMISSIONAL" },
+                                  { id: "DEMISS", label: "DEMISSIONAL" },
+                                  {
+                                    id: "RETORNO",
+                                    label: "RETORNO AO TRABALHO",
+                                  },
+                                  { id: "MUDANÇA", label: "MUDANÇA DE FUNÇÃO" },
+                                  { id: "PERIÓDIC", label: "PERIÓDICO" },
+                                ].map((type) => (
+                                  <label
+                                    key={type.id}
+                                    className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded-none transition-colors group"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                      checked={selectedAsoSubtypes.includes(
+                                        type.id,
+                                      )}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedAsoSubtypes([
+                                            ...selectedAsoSubtypes,
+                                            type.id,
+                                          ]);
+                                        } else {
+                                          setSelectedAsoSubtypes(
+                                            selectedAsoSubtypes.filter(
+                                              (s) => s !== type.id,
+                                            ),
+                                          );
+                                        }
+                                      }}
+                                    />
+                                    <span
+                                      className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
+                                    >
+                                      {type.label}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          </ActionIconButton>
+                        )}
+
+                        <ActionIconButton
+                          icon={<BarChart3 className="w-4 h-4" />}
+                          label="Abrir indicadores BI"
+                          variant="primary"
+                          onClick={() => router.push("/analytics")}
+                        />
+                        {(userRole === "admin" || userRole === "nurse") && (
+                          <ActionIconButton
+                            icon={<Printer className="w-4 h-4" />}
+                            label="Gerar relatório"
+                            variant="primary"
+                            open={isPrintPopoverOpen}
+                            onToggle={setIsPrintPopoverOpen}
+                            showMenuIndicator
+                          >
+                            <div className="w-64 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2 rounded-none overflow-hidden">
+                              <div className="p-4 flex flex-col gap-3">
+                                <h3 className="text-[11px] font-bold text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
+                                  <Printer className="w-4 h-4 text-[#E31E24]" />
+                                  Opções de Relatório
+                                </h3>
+
+                                <button
+                                  onClick={() => handlePrintRequest("portrait")}
+                                  className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
+                                >
+                                  <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                    <FileSearch className="w-5 h-5" />
+                                  </div>
+                                  <div className="text-left">
+                                    <p className="text-[10px] font-bold uppercase leading-none mb-1">
+                                      Vertical
+                                    </p>
+                                    <p className="text-[9px] text-slate-400 font-bold uppercase">
+                                      Formato Retrato (A4)
+                                    </p>
+                                  </div>
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    handlePrintRequest("landscape")
+                                  }
+                                  className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
+                                >
+                                  <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
+                                    <Printer className="w-5 h-5" />
+                                  </div>
+                                  <div className="text-left">
+                                    <p className="text-[10px] font-bold uppercase leading-none mb-1">
+                                      Horizontal
+                                    </p>
+                                    <p className="text-[9px] text-slate-400 font-bold uppercase">
+                                      Formato Paisagem (A4)
+                                    </p>
+                                  </div>
+                                </button>
+                              </div>
+                              <div className="bg-[#1A3351]/5 px-4 py-2 border-t border-slate-100 italic text-[8px] text-slate-500 text-center font-bold">
+                                SELECIONE A ORIENTAÇÃO PARA IMPRIMIR
+                              </div>
+                            </div>
+                          </ActionIconButton>
+                        )}
+                      </>
+                    }
                   />
                 </div>
-
-                <ActionIconButton
-                  icon={<Clock3 className="w-4 h-4" />}
-                  label="Filtro contextual de turno"
-                  variant="contextual"
-                  active={filterShift !== "all"}
-                  open={isShiftFilterOpen}
-                  onToggle={setIsShiftFilterOpen}
-                  showMenuIndicator
-                >
-                  <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                    <div className="p-3 space-y-2">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                        Turno de Geração
-                      </p>
-                      <select
-                        value={filterShift}
-                        onChange={(e) => {
-                          setFilterShift(e.target.value);
-                          setIsShiftFilterOpen(false);
-                        }}
-                        className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
-                      >
-                        <option value="all">TODOS OS TURNOS</option>
-                        <option value="morning">MANHÃ (07h - 13h)</option>
-                        <option value="afternoon">TARDE (13h - 18h)</option>
-                      </select>
-                    </div>
-                  </div>
-                </ActionIconButton>
-
-                {filterType === "ASO" && (
-                  <ActionIconButton
-                    icon={<ClipboardList className="w-4 h-4" />}
-                    label="Filtro contextual de subtipos ASO"
-                    variant="contextual"
-                    active={selectedAsoSubtypes.length > 0}
-                    open={isAsoSubtypeFilterOpen}
-                    onToggle={setIsAsoSubtypeFilterOpen}
-                    showMenuIndicator
-                  >
-                    <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                      <div className="p-3 space-y-2">
-                        <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
-                          <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
-                            Subtipos ASO
-                          </span>
-                          {selectedAsoSubtypes.length > 0 && (
-                            <button
-                              onClick={() => setSelectedAsoSubtypes([])}
-                              className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
-                            >
-                              Limpar
-                            </button>
-                          )}
-                        </div>
-
-                        {[
-                          { id: "ADMISS", label: "ADMISSIONAL" },
-                          { id: "DEMISS", label: "DEMISSIONAL" },
-                          { id: "RETORNO", label: "RETORNO AO TRABALHO" },
-                          { id: "MUDANÇA", label: "MUDANÇA DE FUNÇÃO" },
-                          { id: "PERIÓDIC", label: "PERIÓDICO" },
-                        ].map((type) => (
-                          <label
-                            key={type.id}
-                            className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded-none transition-colors group"
-                          >
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 accent-[#1A3351] cursor-pointer"
-                              checked={selectedAsoSubtypes.includes(type.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedAsoSubtypes([
-                                    ...selectedAsoSubtypes,
-                                    type.id,
-                                  ]);
-                                } else {
-                                  setSelectedAsoSubtypes(
-                                    selectedAsoSubtypes.filter(
-                                      (s) => s !== type.id,
-                                    ),
-                                  );
-                                }
-                              }}
-                            />
-                            <span
-                              className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
-                            >
-                              {type.label}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </ActionIconButton>
-                )}
-
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<BarChart3 className="w-4 h-4" />}
-                  label="Abrir indicadores BI"
-                  variant="primary"
-                  onClick={() => router.push("/analytics")}
-                />
-                {(userRole === "admin" || userRole === "nurse") && (
-                  <ActionIconButton
-                    className="hidden md:block"
-                    icon={<Printer className="w-4 h-4" />}
-                    label="Gerar relatório"
-                    variant="primary"
-                    open={isPrintPopoverOpen}
-                    onToggle={setIsPrintPopoverOpen}
-                    showMenuIndicator
-                  >
-                    <div className="w-64 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2 rounded-none overflow-hidden">
-                      <div className="p-4 flex flex-col gap-3">
-                        <h3 className="text-[11px] font-bold text-[#1A3351] uppercase border-b border-slate-100 pb-2 flex items-center gap-2">
-                          <Printer className="w-4 h-4 text-[#E31E24]" />
-                          Opções de Relatório
-                        </h3>
-
-                        <button
-                          onClick={() => handlePrintRequest("portrait")}
-                          className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
-                        >
-                          <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
-                            <FileSearch className="w-5 h-5" />
-                          </div>
-                          <div className="text-left">
-                            <p className="text-[10px] font-bold uppercase leading-none mb-1">
-                              Vertical
-                            </p>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase">
-                              Formato Retrato (A4)
-                            </p>
-                          </div>
-                        </button>
-
-                        <button
-                          onClick={() => handlePrintRequest("landscape")}
-                          className="flex items-center gap-3 p-3 hover:bg-slate-50 text-slate-700 transition-all group border border-transparent hover:border-slate-200"
-                        >
-                          <div className="p-2 bg-slate-100 group-hover:bg-[#1A3351] group-hover:text-white transition-colors">
-                            <Printer className="w-5 h-5" />
-                          </div>
-                          <div className="text-left">
-                            <p className="text-[10px] font-bold uppercase leading-none mb-1">
-                              Horizontal
-                            </p>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase">
-                              Formato Paisagem (A4)
-                            </p>
-                          </div>
-                        </button>
-                      </div>
-                      <div className="bg-[#1A3351]/5 px-4 py-2 border-t border-slate-100 italic text-[8px] text-slate-500 text-center font-bold">
-                        SELECIONE A ORIENTAÇÃO PARA IMPRIMIR
-                      </div>
-                    </div>
-                  </ActionIconButton>
-                )}
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden h-9 w-9 bg-[#1A3351] text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
-                >
-                  <Menu className="w-4 h-4" />
-                </button>
               </div>
 
               <div className="flex flex-col gap-3 relative z-10 mt-3">

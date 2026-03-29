@@ -756,24 +756,32 @@ export default function AnalyticsPage() {
           >
             <div className="overflow-visible">
               <section
-                className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+                className={`bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-3 shrink-0">
-                    <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
-                    <div>
-                      <h1 className="text-base lg:text-lg font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
-                        SESMT <span className="text-blue-700">Analytics</span>
-                      </h1>
-                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                        Business Intelligence
-                      </p>
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
+                  <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 lg:w-6 h-5 lg:h-6 text-[#1A3351]" />
+                      <div>
+                        <h1 className="text-[15px] sm:text-lg md:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                          SESMT <span className="text-blue-700">Analytics</span>
+                        </h1>
+                        <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                          Business Intelligence
+                        </p>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
+                    >
+                      <Menu className="h-4 w-4" />
+                    </button>
                   </div>
 
-                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
-                  <div className="flex-1 min-w-0">
+                  <div className="w-full md:flex-1 md:w-auto min-w-0">
                     <CompactFilterBar
                       searchTerm={searchTerm}
                       setSearchTerm={setSearchTerm}
@@ -805,142 +813,148 @@ export default function AnalyticsPage() {
                         "Outros",
                       ]}
                       activeFilterCount={headerActiveFilterCount}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <ActionIconButton
-                      icon={<Clock3 className="w-4 h-4" />}
-                      label="Filtro contextual de turno"
-                      variant="contextual"
-                      active={filterShift !== "all"}
-                      open={isShiftFilterOpen}
-                      onToggle={setIsShiftFilterOpen}
-                      showMenuIndicator
-                    >
-                      <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                        <div className="p-3 space-y-2">
-                          <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                            Turno de Geração
-                          </p>
-                          <select
-                            value={filterShift}
-                            onChange={(e) => {
-                              setFilterShift(e.target.value);
-                              setIsShiftFilterOpen(false);
-                            }}
-                            className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                      extraActions={
+                        <>
+                          <ActionIconButton
+                            icon={<Clock3 className="w-4 h-4" />}
+                            label="Filtro contextual de turno"
+                            variant="contextual"
+                            active={filterShift !== "all"}
+                            open={isShiftFilterOpen}
+                            onToggle={setIsShiftFilterOpen}
+                            showMenuIndicator
                           >
-                            <option value="all">TODOS OS TURNOS</option>
-                            <option value="morning">MANHÃ (07h - 13h)</option>
-                            <option value="afternoon">TARDE (13h - 18h)</option>
-                          </select>
-                        </div>
-                      </div>
-                    </ActionIconButton>
-
-                    {filterAsoType === "ASO" && (
-                      <ActionIconButton
-                        icon={<ClipboardList className="w-4 h-4" />}
-                        label="Filtro contextual de subtipos ASO"
-                        variant="contextual"
-                        active={selectedAsoSubtypes.length > 0}
-                        open={isAsoSubtypeFilterOpen}
-                        onToggle={setIsAsoSubtypeFilterOpen}
-                        showMenuIndicator
-                      >
-                        <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden text-black">
-                          <div className="p-3 space-y-2">
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
-                              <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
-                                Subtipos ASO
-                              </span>
-                              {selectedAsoSubtypes.length > 0 && (
-                                <button
-                                  onClick={() => setSelectedAsoSubtypes([])}
-                                  className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
-                                >
-                                  Limpar
-                                </button>
-                              )}
-                            </div>
-
-                            {[
-                              { id: "ADMISS", label: "ADMISSIONAL" },
-                              { id: "DEMISS", label: "DEMISSIONAL" },
-                              { id: "RETORNO", label: "RETORNO AO TRABALHO" },
-                              { id: "MUDANÇA", label: "MUDANÇA DE FUNÇÃO" },
-                              { id: "PERIÓDIC", label: "PERIÓDICO" },
-                            ].map((type) => (
-                              <label
-                                key={type.id}
-                                className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer transition-colors group"
-                              >
-                                <input
-                                  type="checkbox"
-                                  className="w-4 h-4 accent-[#1A3351] cursor-pointer"
-                                  checked={selectedAsoSubtypes.includes(
-                                    type.id,
-                                  )}
+                            <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                              <div className="p-3 space-y-2">
+                                <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                                  Turno de Geração
+                                </p>
+                                <select
+                                  value={filterShift}
                                   onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedAsoSubtypes([
-                                        ...selectedAsoSubtypes,
-                                        type.id,
-                                      ]);
-                                    } else {
-                                      setSelectedAsoSubtypes(
-                                        selectedAsoSubtypes.filter(
-                                          (s) => s !== type.id,
-                                        ),
-                                      );
-                                    }
+                                    setFilterShift(e.target.value);
+                                    setIsShiftFilterOpen(false);
                                   }}
-                                />
-                                <span
-                                  className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
+                                  className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
                                 >
-                                  {type.label}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </ActionIconButton>
-                    )}
+                                  <option value="all">TODOS OS TURNOS</option>
+                                  <option value="morning">
+                                    MANHÃ (07h - 13h)
+                                  </option>
+                                  <option value="afternoon">
+                                    TARDE (13h - 18h)
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </ActionIconButton>
 
-                    <ActionIconButton
-                      className="hidden md:block"
-                      icon={<HistoryIcon className="w-4 h-4" />}
-                      label="Abrir histórico"
-                      variant="primary"
-                      onClick={() => router.push("/history")}
-                    />
-                    <ActionIconButton
-                      className="hidden md:block"
-                      icon={<Printer className="w-4 h-4" />}
-                      label="Gerar relatório"
-                      variant="primary"
-                      onClick={handlePrintReport}
-                    />
-                    <ActionIconButton
-                      className="hidden md:block"
-                      icon={<TrendingUp className="w-4 h-4" />}
-                      label={
-                        showHourAnalysis
-                          ? "Ocultar análise de pico"
-                          : "Exibir análise de pico"
+                          {filterAsoType === "ASO" && (
+                            <ActionIconButton
+                              icon={<ClipboardList className="w-4 h-4" />}
+                              label="Filtro contextual de subtipos ASO"
+                              variant="contextual"
+                              active={selectedAsoSubtypes.length > 0}
+                              open={isAsoSubtypeFilterOpen}
+                              onToggle={setIsAsoSubtypeFilterOpen}
+                              showMenuIndicator
+                            >
+                              <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden text-black">
+                                <div className="p-3 space-y-2">
+                                  <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-1">
+                                    <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
+                                      Subtipos ASO
+                                    </span>
+                                    {selectedAsoSubtypes.length > 0 && (
+                                      <button
+                                        onClick={() =>
+                                          setSelectedAsoSubtypes([])
+                                        }
+                                        className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
+                                      >
+                                        Limpar
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  {[
+                                    { id: "ADMISS", label: "ADMISSIONAL" },
+                                    { id: "DEMISS", label: "DEMISSIONAL" },
+                                    {
+                                      id: "RETORNO",
+                                      label: "RETORNO AO TRABALHO",
+                                    },
+                                    {
+                                      id: "MUDANÇA",
+                                      label: "MUDANÇA DE FUNÇÃO",
+                                    },
+                                    { id: "PERIÓDIC", label: "PERIÓDICO" },
+                                  ].map((type) => (
+                                    <label
+                                      key={type.id}
+                                      className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer transition-colors group"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                        checked={selectedAsoSubtypes.includes(
+                                          type.id,
+                                        )}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setSelectedAsoSubtypes([
+                                              ...selectedAsoSubtypes,
+                                              type.id,
+                                            ]);
+                                          } else {
+                                            setSelectedAsoSubtypes(
+                                              selectedAsoSubtypes.filter(
+                                                (s) => s !== type.id,
+                                              ),
+                                            );
+                                          }
+                                        }}
+                                      />
+                                      <span
+                                        className={`text-[10px] font-bold uppercase transition-colors ${selectedAsoSubtypes.includes(type.id) ? "text-[#1A3351]" : "text-slate-500 group-hover:text-slate-700"}`}
+                                      >
+                                        {type.label}
+                                      </span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            </ActionIconButton>
+                          )}
+
+                          <ActionIconButton
+                            icon={<HistoryIcon className="w-4 h-4" />}
+                            label="Abrir histórico"
+                            variant="primary"
+                            onClick={() => router.push("/history")}
+                          />
+                          <ActionIconButton
+                            icon={<Printer className="w-4 h-4" />}
+                            label="Gerar relatório"
+                            variant="primary"
+                            onClick={handlePrintReport}
+                          />
+                          <ActionIconButton
+                            icon={<TrendingUp className="w-4 h-4" />}
+                            label={
+                              showHourAnalysis
+                                ? "Ocultar análise de pico"
+                                : "Exibir análise de pico"
+                            }
+                            variant="primary"
+                            active={showHourAnalysis}
+                            onClick={() =>
+                              setShowHourAnalysis(!showHourAnalysis)
+                            }
+                          />
+                        </>
                       }
-                      variant="primary"
-                      active={showHourAnalysis}
-                      onClick={() => setShowHourAnalysis(!showHourAnalysis)}
                     />
-                    <button
-                      onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
-                    >
-                      <Menu className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
 

@@ -120,10 +120,12 @@ export default function ActionIconButton({
         )}
       </button>
 
-      <span className={tooltipClass}>{label}</span>
+      <span className={`${tooltipClass} hidden md:block`}>{label}</span>
 
       {open && children && (
-        <div className="absolute right-0 top-11 z-[110]">{children}</div>
+        <div className="absolute right-0 top-[2.5rem] md:top-11 z-[110] w-[min(auto,calc(100vw-2rem))]">
+          {children}
+        </div>
       )}
     </div>
   );

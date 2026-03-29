@@ -253,24 +253,32 @@ export default function UsersPage() {
         >
           {/* HEADER */}
           <section
-            className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"}`}
+            className={`bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg sticky top-0 z-[110] transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"}`}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 shrink-0 text-[#1A3351]">
-                <Shield className="w-5 h-5" />
-                <div>
-                  <h2 className="text-base font-bold leading-none uppercase tracking-tight">
-                    Operadores
-                  </h2>
-                  <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Administração de Acessos
-                  </p>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
+              <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0 text-[#1A3351]">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  <div>
+                    <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight">
+                      Operadores
+                    </h2>
+                    <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                      Administração de Acessos
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
               </div>
 
-              <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+              <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
-              <div className="flex-1 min-w-0">
+              <div className="w-full md:flex-1 md:w-auto min-w-0">
                 <CompactFilterBar
                   searchTerm={searchTerm}
                   setSearchTerm={setSearchTerm}
@@ -297,23 +305,15 @@ export default function UsersPage() {
                   showSecretariaFilter={false}
                   showAsoTypeFilter={false}
                   activeFilterCount={headerActiveFilterCount}
+                  extraActions={
+                    <ActionIconButton
+                      icon={<UserPlus className="w-4 h-4" />}
+                      label="Novo operador"
+                      variant="danger"
+                      onClick={() => setIsInviteModalOpen(true)}
+                    />
+                  }
                 />
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<UserPlus className="w-4 h-4" />}
-                  label="Novo operador"
-                  variant="danger"
-                  onClick={() => setIsInviteModalOpen(true)}
-                />
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
-                >
-                  <Menu className="w-4 h-4" />
-                </button>
               </div>
             </div>
 

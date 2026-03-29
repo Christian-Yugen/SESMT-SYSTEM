@@ -7,7 +7,9 @@ import {
   Building2,
   FileText,
   SlidersHorizontal,
+  Search,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { countActiveFilters } from "./filtersUtils";
 import SearchField from "./SearchField";
@@ -50,6 +52,7 @@ interface Props {
   showAsoTypeFilter?: boolean;
   onSearchKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   activeFilterCount?: number;
+  extraActions?: React.ReactNode;
 }
 
 type PopoverId = "date" | "user" | "secretaria" | "asoType" | null;
@@ -105,9 +108,9 @@ function FilterIconButton({
       >
         {icon}
       </button>
-      <span className={tooltipClass}>{title}</span>
+      <span className={`${tooltipClass} hidden md:block`}>{title}</span>
       {open && (
-        <div className="absolute right-0 top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 md:right-0 top-[2.5rem] md:top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-[min(220px,calc(100vw-2rem))] md:min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
           {children}
         </div>
       )}
@@ -146,9 +149,11 @@ export default function CompactFilterBar(props: Readonly<Props>) {
     showAsoTypeFilter = true,
     onSearchKeyDown,
     activeFilterCount,
+    extraActions,
   } = props;
 
   const [openPopover, setOpenPopover] = useState<PopoverId>(null);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     setIsDateFilterOpen(openPopover === "date");
@@ -179,13 +184,21 @@ export default function CompactFilterBar(props: Readonly<Props>) {
   const secretariaOptions = ["all", ...uniqueSecretarias];
   const typeOptions = asoTypeOptions ?? ["all", "ADMISS", "DEMISS", "RETORNO"];
 
+  const hasFilterIcons =
+    showDateFilter ||
+    showUserFilter ||
+    showSecretariaFilter ||
+    showAsoTypeFilter;
+  const hasCollapsibleContent = hasFilterIcons || Boolean(extraActions);
+
   const togglePopover = (id: PopoverId) => {
     setOpenPopover((current) => (current === id ? null : id));
   };
 
   return (
-    <div className="w-full flex items-center justify-between gap-3">
-      <div className="flex-1 min-w-0">
+    <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-1.5 sm:gap-2 md:gap-3">
+      <div className="flex-1 min-w-0 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
         <SearchField
           value={searchTerm}
           onChange={setSearchTerm}
@@ -194,8 +207,40 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         />
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <div className="relative">
+      {/* Mobile: toggle button for filter/action area */}
+      {hasCollapsibleContent && (
+        <button
+          type="button"
+          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+          className="flex md:hidden items-center gap-1.5 sm:gap-2 w-full h-9 px-2 sm:px-3 bg-white/80 border border-slate-200 shadow-sm rounded-none transition-all active:scale-[0.98]"
+          aria-label={
+            isMobileFiltersOpen
+              ? "Recolher filtros e ações"
+              : "Expandir filtros e ações"
+          }
+          aria-expanded={isMobileFiltersOpen}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600">
+            Filtros
+          </span>
+          {activeCount > 0 && (
+            <span className="bg-[#E31E24] text-white text-[9px] font-bold px-1.5 min-w-[1.25rem] text-center rounded-full leading-tight">
+              {activeCount}
+            </span>
+          )}
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-slate-400 ml-auto transition-transform duration-200 ${isMobileFiltersOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
+
+      {/* Filter icons + extra actions: hidden on mobile until expanded, always visible on desktop */}
+      <div
+        className={`${isMobileFiltersOpen ? "flex" : "hidden"} md:flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap md:flex-nowrap overflow-x-auto md:overflow-x-visible scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1 md:pb-0`}
+      >
+        {/* Desktop-only badge indicator */}
+        <div className="relative hidden md:block">
           <button
             title="Filtros"
             className="h-9 w-9 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-none"
@@ -218,7 +263,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
             active={Boolean(startDate || endDate)}
             icon={<Calendar className="w-4 h-4" />}
           >
-            <div className="w-72 p-4 space-y-3">
+            <div className="w-72 max-w-[calc(100vw-3rem)] p-4 space-y-3">
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-slate-400 uppercase">
                   Data inicial
@@ -343,6 +388,8 @@ export default function CompactFilterBar(props: Readonly<Props>) {
             }}
           />
         )}
+
+        {extraActions}
       </div>
     </div>
   );

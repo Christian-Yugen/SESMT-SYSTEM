@@ -879,24 +879,32 @@ export default function AfastamentosPage() {
         >
           <div className="overflow-visible">
             <section
-              className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+              className={`bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
                 {/* Título */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <ClipboardList className="w-5 h-5 text-[#1A3351]" />
-                  <div>
-                    <h2 className="text-base font-bold leading-none uppercase tracking-tight text-[#1A3351]">
-                      Afastamentos
-                    </h2>
-                    <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                      SESMT • Saúde Ocupacional
-                    </p>
+                <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-[#1A3351]" />
+                    <div>
+                      <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">
+                        Afastamentos
+                      </h2>
+                      <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                        SESMT • Saúde Ocupacional
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
                 {/* Toolbar compacta de filtros */}
-                <div className="flex-1 min-w-0">
+                <div className="w-full md:flex-1 md:w-auto min-w-0">
                   <CompactFilterBar
                     searchTerm={filters.searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -922,82 +930,76 @@ export default function AfastamentosPage() {
                     asoTypeLabelDefault="NATUREZA CARGO"
                     asoTypeOptions={["all", ...uniqueNaturezas]}
                     showUserFilter={false}
+                    extraActions={
+                      <>
+                        <ActionIconButton
+                          icon={<Printer className="w-4 h-4" />}
+                          label="Gerar relatório PDF"
+                          variant="primary"
+                          open={isPrintPopoverOpen}
+                          onToggle={setIsPrintPopoverOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
+                            <div className="p-3 border-b border-slate-100 bg-slate-50">
+                              <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                                Escolha a Orientação
+                              </p>
+                            </div>
+                            <div className="p-2 space-y-1">
+                              <button
+                                onClick={() => {
+                                  setPrintLayout("portrait");
+                                  setTimeout(() => {
+                                    window.print();
+                                    setIsPrintPopoverOpen(false);
+                                  }, 100);
+                                }}
+                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                              >
+                                <span className="text-[10px] font-bold uppercase">
+                                  ↗ Vertical (Retrato)
+                                </span>
+                                {printLayout === "portrait" && (
+                                  <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setPrintLayout("landscape");
+                                  setTimeout(() => {
+                                    window.print();
+                                    setIsPrintPopoverOpen(false);
+                                  }, 100);
+                                }}
+                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                              >
+                                <span className="text-[10px] font-bold uppercase">
+                                  ➡ Horizontal (Paisagem)
+                                </span>
+                                {printLayout === "landscape" && (
+                                  <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </ActionIconButton>
+                        <ActionIconButton
+                          icon={<BarChart3 className="w-4 h-4" />}
+                          label="Abrir indicadores BI"
+                          variant="primary"
+                          onClick={() => router.push("/afastamentos/analytics")}
+                        />
+                        <ActionIconButton
+                          icon={<PlusCircle className="w-4 h-4" />}
+                          label="Novo afastamento"
+                          variant="success"
+                          onClick={() => router.push("/afastamentos/new")}
+                        />
+                      </>
+                    }
                   />
                 </div>
-                {/* Botões de ação */}
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<Printer className="w-4 h-4" />}
-                  label="Gerar relatório PDF"
-                  variant="primary"
-                  open={isPrintPopoverOpen}
-                  onToggle={setIsPrintPopoverOpen}
-                  showMenuIndicator
-                >
-                  <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-slate-100 bg-slate-50">
-                      <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
-                        Escolha a Orientação
-                      </p>
-                    </div>
-                    <div className="p-2 space-y-1">
-                      <button
-                        onClick={() => {
-                          setPrintLayout("portrait");
-                          setTimeout(() => {
-                            window.print();
-                            setIsPrintPopoverOpen(false);
-                          }, 100);
-                        }}
-                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                      >
-                        <span className="text-[10px] font-bold uppercase">
-                          ↗ Vertical (Retrato)
-                        </span>
-                        {printLayout === "portrait" && (
-                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setPrintLayout("landscape");
-                          setTimeout(() => {
-                            window.print();
-                            setIsPrintPopoverOpen(false);
-                          }, 100);
-                        }}
-                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                      >
-                        <span className="text-[10px] font-bold uppercase">
-                          ➡ Horizontal (Paisagem)
-                        </span>
-                        {printLayout === "landscape" && (
-                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </ActionIconButton>
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<BarChart3 className="w-4 h-4" />}
-                  label="Abrir indicadores BI"
-                  variant="primary"
-                  onClick={() => router.push("/afastamentos/analytics")}
-                />
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<PlusCircle className="w-4 h-4" />}
-                  label="Novo afastamento"
-                  variant="success"
-                  onClick={() => router.push("/afastamentos/new")}
-                />
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
-                >
-                  <Menu className="w-4 h-4" />
-                </button>
               </div>
               {/* Chips de filtros ativos */}
               <FilterChips

@@ -438,23 +438,31 @@ export default function AfastamentosAnalyticsPage() {
       {/* MAIN */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
         {/* HEADER */}
-        <section className="bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 shrink-0">
-              <TrendingUp className="w-5 h-5 text-[#1A3351]" />
-              <div>
-                <h1 className="text-base font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
-                  Afastamentos{" "}
-                  <span className="text-emerald-600">Analytics</span>
-                </h1>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                  Saúde e Absenteísmo
-                </p>
+        <section className="bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
+            <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#1A3351]" />
+                <div>
+                  <h1 className="text-[15px] sm:text-lg md:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                    Afastamentos{" "}
+                    <span className="text-emerald-600">Analytics</span>
+                  </h1>
+                  <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
+                    Saúde e Absenteísmo
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] text-white flex items-center justify-center"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
             </div>
-            <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+            <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
-            <div className="flex-1 min-w-0">
+            <div className="w-full md:flex-1 md:w-auto min-w-0">
               <CompactFilterBar
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -481,56 +489,51 @@ export default function AfastamentosAnalyticsPage() {
                 asoTypeOptions={["all", ...uniqueTipos]}
                 showUserFilter={false}
                 activeFilterCount={headerActiveFilterCount}
+                extraActions={
+                  <>
+                    <ActionIconButton
+                      icon={<Filter className="w-4 h-4" />}
+                      label="Filtro contextual de natureza do cargo"
+                      variant="contextual"
+                      active={filterNatureza !== "all"}
+                      open={isNaturezaFilterOpen}
+                      onToggle={setIsNaturezaFilterOpen}
+                      showMenuIndicator
+                    >
+                      <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                        <div className="p-3 space-y-2">
+                          <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                            Natureza do Cargo
+                          </p>
+                          <select
+                            value={filterNatureza}
+                            onChange={(e) => {
+                              setFilterNatureza(e.target.value);
+                              setIsNaturezaFilterOpen(false);
+                            }}
+                            className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                          >
+                            <option value="all">TODAS NATUREZAS</option>
+                            {uniqueNaturezas.map((n) => (
+                              <option key={n} value={n}>
+                                {String(n).toUpperCase()}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </ActionIconButton>
+
+                    <ActionIconButton
+                      icon={<Printer className="w-4 h-4" />}
+                      label="Imprimir vista analítica"
+                      variant="primary"
+                      onClick={handlePrintReport}
+                    />
+                  </>
+                }
               />
             </div>
-
-            <ActionIconButton
-              className="hidden md:block"
-              icon={<Filter className="w-4 h-4" />}
-              label="Filtro contextual de natureza do cargo"
-              variant="contextual"
-              active={filterNatureza !== "all"}
-              open={isNaturezaFilterOpen}
-              onToggle={setIsNaturezaFilterOpen}
-              showMenuIndicator
-            >
-              <div className="w-72 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                <div className="p-3 space-y-2">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                    Natureza do Cargo
-                  </p>
-                  <select
-                    value={filterNatureza}
-                    onChange={(e) => {
-                      setFilterNatureza(e.target.value);
-                      setIsNaturezaFilterOpen(false);
-                    }}
-                    className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
-                  >
-                    <option value="all">TODAS NATUREZAS</option>
-                    {uniqueNaturezas.map((n) => (
-                      <option key={n} value={n}>
-                        {String(n).toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </ActionIconButton>
-
-            <ActionIconButton
-              className="hidden md:block"
-              icon={<Printer className="w-4 h-4" />}
-              label="Imprimir vista analítica"
-              variant="primary"
-              onClick={handlePrintReport}
-            />
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden h-9 w-9 bg-[#1A3351] text-white flex items-center justify-center"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
           </div>
 
           <div className="mt-3 flex flex-col gap-3">
