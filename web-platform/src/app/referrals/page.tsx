@@ -382,7 +382,7 @@ export default function ReferralsPage() {
             className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 space-y-8"
           >
             {/* STATS CARDS */}
-            <StatisticCardRow columns={3}>
+            <StatisticCardRow columns={3} className="shrink-0">
               <StatisticCard
                 variant="analytic"
                 accent="primary"

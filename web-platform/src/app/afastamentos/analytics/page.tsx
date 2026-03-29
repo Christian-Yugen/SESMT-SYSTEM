@@ -554,7 +554,7 @@ export default function AfastamentosAnalyticsPage() {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 pt-6">
           {/* STAT CARDS */}
-          <StatisticCardRow columns={4}>
+          <StatisticCardRow columns={4} className="shrink-0">
             <StatisticCard
               variant="analytic"
               accent="primary"
