@@ -104,13 +104,13 @@ function FilterIconButton({
         title={title}
         aria-label={title}
         onClick={() => onToggle(open ? null : id)}
-        className={`h-10 w-10 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
+        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
       >
         {icon}
       </button>
       <span className={`${tooltipClass} hidden md:block`}>{title}</span>
       {open && (
-        <div className="absolute right-0 md:right-0 top-[3rem] md:top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-[min(220px,calc(100vw-2rem))] md:min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 md:right-0 top-[2.5rem] md:top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-[min(220px,calc(100vw-2rem))] md:min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
           {children}
         </div>
       )}
@@ -237,7 +237,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
 
       {/* Filter icons + extra actions: hidden on mobile until expanded, always visible on desktop */}
       <div
-        className={`${isMobileFiltersOpen ? "flex" : "hidden"} md:flex items-center gap-2 shrink-0 flex-nowrap overflow-x-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1 md:pb-0`}
+        className={`${isMobileFiltersOpen ? "flex" : "hidden"} md:flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap md:flex-nowrap overflow-x-auto md:overflow-x-visible scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1 md:pb-0`}
       >
         {/* Desktop-only badge indicator */}
         <div className="relative hidden md:block">
