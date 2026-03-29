@@ -32,6 +32,8 @@ import {
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
 import type { AbonoStatusFilter, SortOrder } from "@/components/filters/types";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 
 /** Dados de um registro de abono para comparação em logs de auditoria. */
 interface AbonoLogData {
@@ -722,73 +724,60 @@ export default function AbonoPage() {
             className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8"
           >
             {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 shrink-0">
-              <div
-                onClick={() => setStatusFilter("all")}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === "all" ? "bg-[#1A3351] border-white text-white" : "bg-white border-[#1A3351] text-[#1A3351]"}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === "all" ? "text-white/60" : "text-slate-400"}`}
-                >
-                  Total Servidores
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">
-                  {stats.totalServidores}
-                </h3>
-              </div>
-              <div
-                onClick={() => setStatusFilter("all")}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === "all" ? "bg-slate-500 border-white text-white" : "bg-white border-slate-300 text-slate-500"}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === "all" ? "text-white/60" : "text-slate-400"}`}
-                >
-                  Benefícios
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">
-                  {stats.totalBenefits}
-                </h3>
-              </div>
-              <div
-                onClick={() => setStatusFilter("active")}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === "active" ? "bg-emerald-600 border-white text-white" : "bg-white border-emerald-500 text-emerald-600"}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === "active" ? "text-white/60" : "text-slate-400"}`}
-                >
-                  Abonos Ativos
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">
-                  {stats.ativos}
-                </h3>
-              </div>
-              <div
-                onClick={() => setStatusFilter("expired")}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === "expired" ? "bg-[#E31E24] border-white text-white" : "bg-white border-[#E31E24] text-[#E31E24]"}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === "expired" ? "text-white/60" : "text-slate-400"}`}
-                >
-                  Vencidos
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">
-                  {stats.vencidos}
-                </h3>
-              </div>
-              <div
-                onClick={() => setStatusFilter("finished")}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg rounded-none-none lg:rounded-none-none transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === "finished" ? "bg-blue-600 border-white text-white" : "bg-white border-blue-600 text-blue-600"}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-widest leading-tight mb-1 ${statusFilter === "finished" ? "text-white/60" : "text-slate-400"}`}
-                >
-                  Finalizados
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">
-                  {stats.finalizados}
-                </h3>
-              </div>
-            </div>
+            <StatisticCardRow columns={5} className="shrink-0">
+              {[
+                {
+                  label: "Total Servidores",
+                  value: stats.totalServidores,
+                  filter: "all" as const,
+                  accent: "primary" as const,
+                  activeClass: "bg-[#1A3351]/10",
+                },
+                {
+                  label: "Benefícios",
+                  value: stats.totalBenefits,
+                  filter: "all" as const,
+                  accent: "info" as const,
+                  activeClass: "bg-blue-50",
+                },
+                {
+                  label: "Abonos Ativos",
+                  value: stats.ativos,
+                  filter: "active" as const,
+                  accent: "success" as const,
+                  activeClass: "bg-emerald-50",
+                },
+                {
+                  label: "Vencidos",
+                  value: stats.vencidos,
+                  filter: "expired" as const,
+                  accent: "danger" as const,
+                  activeClass: "bg-red-50",
+                },
+                {
+                  label: "Finalizados",
+                  value: stats.finalizados,
+                  filter: "finished" as const,
+                  accent: "primary" as const,
+                  activeClass: "bg-[#1A3351]/10",
+                },
+              ].map((card) => {
+                const selected = statusFilter === card.filter;
+
+                return (
+                  <StatisticCard
+                    key={card.label}
+                    variant="interactive"
+                    accent={card.accent}
+                    title={card.label}
+                    value={card.value}
+                    active={selected}
+                    onClick={() => setStatusFilter(card.filter)}
+                    className={selected ? card.activeClass : "bg-white"}
+                  />
+                );
+              })}
+            </StatisticCardRow>
 
             {/* LISTA DE REGISTROS */}
             <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
