@@ -574,48 +574,49 @@ export default function AbonoAnalyticsPage() {
                 asoTypeLabelDefault="NATUREZA CARGO"
                 asoTypeOptions={["all", ...uniqueNaturezas]}
                 showUserFilter={false}
+                extraActions={
+                  <>
+                    <ActionIconButton
+                      icon={<Filter className="w-4 h-4" />}
+                      label="Filtro contextual de status"
+                      variant="contextual"
+                      active={filterStatus !== "all"}
+                      open={isStatusFilterOpen}
+                      onToggle={setIsStatusFilterOpen}
+                      showMenuIndicator
+                    >
+                      <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                        <div className="p-3 space-y-2">
+                          <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                            Status do Abono
+                          </p>
+                          <select
+                            value={filterStatus}
+                            onChange={(e) => {
+                              setFilterStatus(e.target.value);
+                              setIsStatusFilterOpen(false);
+                            }}
+                            className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
+                          >
+                            <option value="all">TODOS STATUS</option>
+                            <option value="active">ATIVOS</option>
+                            <option value="expired">VENCIDOS</option>
+                            <option value="finished">FINALIZADOS</option>
+                          </select>
+                        </div>
+                      </div>
+                    </ActionIconButton>
+
+                    <ActionIconButton
+                      icon={<Printer className="w-4 h-4" />}
+                      label="Gerar relatório analítico"
+                      variant="primary"
+                      onClick={handlePrintReport}
+                    />
+                  </>
+                }
               />
             </div>
-
-            <ActionIconButton
-              className="hidden md:block"
-              icon={<Filter className="w-4 h-4" />}
-              label="Filtro contextual de status"
-              variant="contextual"
-              active={filterStatus !== "all"}
-              open={isStatusFilterOpen}
-              onToggle={setIsStatusFilterOpen}
-              showMenuIndicator
-            >
-              <div className="w-64 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                <div className="p-3 space-y-2">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                    Status do Abono
-                  </p>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => {
-                      setFilterStatus(e.target.value);
-                      setIsStatusFilterOpen(false);
-                    }}
-                    className="w-full px-3 py-2 bg-[#FFF7E6] border border-[#F59E0B] text-[10px] font-bold uppercase outline-none focus:border-[#7C2D12]"
-                  >
-                    <option value="all">TODOS STATUS</option>
-                    <option value="active">ATIVOS</option>
-                    <option value="expired">VENCIDOS</option>
-                    <option value="finished">FINALIZADOS</option>
-                  </select>
-                </div>
-              </div>
-            </ActionIconButton>
-
-            <ActionIconButton
-              className="hidden md:block"
-              icon={<Printer className="w-4 h-4" />}
-              label="Gerar relatório analítico"
-              variant="primary"
-              onClick={handlePrintReport}
-            />
           </div>
 
           <div className="mt-3 flex flex-col gap-3">

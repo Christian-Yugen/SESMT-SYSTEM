@@ -305,16 +305,14 @@ export default function UsersPage() {
                   showSecretariaFilter={false}
                   showAsoTypeFilter={false}
                   activeFilterCount={headerActiveFilterCount}
-                />
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<UserPlus className="w-4 h-4" />}
-                  label="Novo operador"
-                  variant="danger"
-                  onClick={() => setIsInviteModalOpen(true)}
+                  extraActions={
+                    <ActionIconButton
+                      icon={<UserPlus className="w-4 h-4" />}
+                      label="Novo operador"
+                      variant="danger"
+                      onClick={() => setIsInviteModalOpen(true)}
+                    />
+                  }
                 />
               </div>
             </div>

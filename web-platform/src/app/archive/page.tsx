@@ -420,58 +420,61 @@ export default function ArchivePage() {
                     onSearchKeyDown={(e) => {
                       if (e.key === "Enter") handleSearch();
                     }}
+                    extraActions={
+                      <>
+                        {/* Filtro contextual: modo de busca (nome / cpf) */}
+                        <ActionIconButton
+                          icon={<UserIcon className="w-4 h-4" />}
+                          label={`Modo de busca: ${searchType === "nome" ? "Nome" : "CPF"}`}
+                          variant="contextual"
+                          active={searchType === "cpf"}
+                          open={isSearchTypeFilterOpen}
+                          onToggle={setIsSearchTypeFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-52 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                            <div className="p-3 space-y-2">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
+                                Modo de Busca
+                              </p>
+                              {(["nome", "cpf"] as const).map((mode) => (
+                                <button
+                                  key={mode}
+                                  type="button"
+                                  onClick={() => {
+                                    setSearchType(mode);
+                                    setIsSearchTypeFilterOpen(false);
+                                  }}
+                                  className={`w-full h-9 text-[10px] font-bold uppercase transition-all rounded-none ${
+                                    searchType === mode
+                                      ? "bg-[#1A3351] text-white"
+                                      : "bg-[#FFF7E6] border border-[#F59E0B] text-[#7C2D12] hover:brightness-95"
+                                  }`}
+                                >
+                                  {mode === "nome" ? "Por Nome" : "Por CPF"}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </ActionIconButton>
+
+                        {/* Ação: executar busca */}
+                        <ActionIconButton
+                          icon={
+                            loading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Search className="w-4 h-4" />
+                            )
+                          }
+                          label="Buscar prontuários"
+                          variant="primary"
+                          onClick={handleSearch}
+                        />
+                      </>
+                    }
                   />
                 </div>
-
-                {/* Filtro contextual: modo de busca (nome / cpf) */}
-                <ActionIconButton
-                  icon={<UserIcon className="w-4 h-4" />}
-                  label={`Modo de busca: ${searchType === "nome" ? "Nome" : "CPF"}`}
-                  variant="contextual"
-                  active={searchType === "cpf"}
-                  open={isSearchTypeFilterOpen}
-                  onToggle={setIsSearchTypeFilterOpen}
-                  showMenuIndicator
-                >
-                  <div className="w-52 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
-                    <div className="p-3 space-y-2">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-[#7C2D12]">
-                        Modo de Busca
-                      </p>
-                      {(["nome", "cpf"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => {
-                            setSearchType(mode);
-                            setIsSearchTypeFilterOpen(false);
-                          }}
-                          className={`w-full h-9 text-[10px] font-bold uppercase transition-all rounded-none ${
-                            searchType === mode
-                              ? "bg-[#1A3351] text-white"
-                              : "bg-[#FFF7E6] border border-[#F59E0B] text-[#7C2D12] hover:brightness-95"
-                          }`}
-                        >
-                          {mode === "nome" ? "Por Nome" : "Por CPF"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </ActionIconButton>
-
-                {/* Ação: executar busca */}
-                <ActionIconButton
-                  icon={
-                    loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Search className="w-4 h-4" />
-                    )
-                  }
-                  label="Buscar prontuários"
-                  variant="primary"
-                  onClick={handleSearch}
-                />
               </div>
 
               {/* FilterChips */}

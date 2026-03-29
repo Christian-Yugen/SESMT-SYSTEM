@@ -430,19 +430,17 @@ export default function PortariasPage() {
                 showSecretariaFilter={false}
                 showAsoTypeFilter={false}
                 activeFilterCount={headerActiveFilterCount}
+                extraActions={
+                  userRole !== "analytic_manager" ? (
+                    <ActionIconButton
+                      icon={<PlusCircle className="w-4 h-4" />}
+                      label="Nova portaria"
+                      variant="success"
+                      onClick={() => router.push("/abono/portarias/new")}
+                    />
+                  ) : undefined
+                }
               />
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {userRole !== "analytic_manager" && (
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<PlusCircle className="w-4 h-4" />}
-                  label="Nova portaria"
-                  variant="success"
-                  onClick={() => router.push("/abono/portarias/new")}
-                />
-              )}
             </div>
           </div>
 

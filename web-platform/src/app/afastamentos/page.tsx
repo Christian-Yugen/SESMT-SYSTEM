@@ -930,76 +930,76 @@ export default function AfastamentosPage() {
                     asoTypeLabelDefault="NATUREZA CARGO"
                     asoTypeOptions={["all", ...uniqueNaturezas]}
                     showUserFilter={false}
+                    extraActions={
+                      <>
+                        <ActionIconButton
+                          icon={<Printer className="w-4 h-4" />}
+                          label="Gerar relatório PDF"
+                          variant="primary"
+                          open={isPrintPopoverOpen}
+                          onToggle={setIsPrintPopoverOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
+                            <div className="p-3 border-b border-slate-100 bg-slate-50">
+                              <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                                Escolha a Orientação
+                              </p>
+                            </div>
+                            <div className="p-2 space-y-1">
+                              <button
+                                onClick={() => {
+                                  setPrintLayout("portrait");
+                                  setTimeout(() => {
+                                    window.print();
+                                    setIsPrintPopoverOpen(false);
+                                  }, 100);
+                                }}
+                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                              >
+                                <span className="text-[10px] font-bold uppercase">
+                                  ↗ Vertical (Retrato)
+                                </span>
+                                {printLayout === "portrait" && (
+                                  <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setPrintLayout("landscape");
+                                  setTimeout(() => {
+                                    window.print();
+                                    setIsPrintPopoverOpen(false);
+                                  }, 100);
+                                }}
+                                className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                              >
+                                <span className="text-[10px] font-bold uppercase">
+                                  ➡ Horizontal (Paisagem)
+                                </span>
+                                {printLayout === "landscape" && (
+                                  <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </ActionIconButton>
+                        <ActionIconButton
+                          icon={<BarChart3 className="w-4 h-4" />}
+                          label="Abrir indicadores BI"
+                          variant="primary"
+                          onClick={() => router.push("/afastamentos/analytics")}
+                        />
+                        <ActionIconButton
+                          icon={<PlusCircle className="w-4 h-4" />}
+                          label="Novo afastamento"
+                          variant="success"
+                          onClick={() => router.push("/afastamentos/new")}
+                        />
+                      </>
+                    }
                   />
                 </div>
-                {/* Botões de ação */}
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<Printer className="w-4 h-4" />}
-                  label="Gerar relatório PDF"
-                  variant="primary"
-                  open={isPrintPopoverOpen}
-                  onToggle={setIsPrintPopoverOpen}
-                  showMenuIndicator
-                >
-                  <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-slate-100 bg-slate-50">
-                      <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
-                        Escolha a Orientação
-                      </p>
-                    </div>
-                    <div className="p-2 space-y-1">
-                      <button
-                        onClick={() => {
-                          setPrintLayout("portrait");
-                          setTimeout(() => {
-                            window.print();
-                            setIsPrintPopoverOpen(false);
-                          }, 100);
-                        }}
-                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                      >
-                        <span className="text-[10px] font-bold uppercase">
-                          ↗ Vertical (Retrato)
-                        </span>
-                        {printLayout === "portrait" && (
-                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setPrintLayout("landscape");
-                          setTimeout(() => {
-                            window.print();
-                            setIsPrintPopoverOpen(false);
-                          }, 100);
-                        }}
-                        className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
-                      >
-                        <span className="text-[10px] font-bold uppercase">
-                          ➡ Horizontal (Paisagem)
-                        </span>
-                        {printLayout === "landscape" && (
-                          <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </ActionIconButton>
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<BarChart3 className="w-4 h-4" />}
-                  label="Abrir indicadores BI"
-                  variant="primary"
-                  onClick={() => router.push("/afastamentos/analytics")}
-                />
-                <ActionIconButton
-                  className="hidden md:block"
-                  icon={<PlusCircle className="w-4 h-4" />}
-                  label="Novo afastamento"
-                  variant="success"
-                  onClick={() => router.push("/afastamentos/new")}
-                />
               </div>
               {/* Chips de filtros ativos */}
               <FilterChips
