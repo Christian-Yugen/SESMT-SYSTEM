@@ -20,6 +20,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { ExamJsonItem } from "@/types";
@@ -380,38 +382,31 @@ export default function ReferralsPage() {
             className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 space-y-8"
           >
             {/* STATS CARDS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              <div className="bg-white p-4 lg:p-6 border-b-4 border-[#1A3351] shadow-md flex flex-col gap-1 rounded-none transform hover:translate-y-[-2px] transition-all">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Registros
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351]">
-                  {stats.total}{" "}
-                  <span className="text-[10px] lg:text-xs font-medium">
-                    itens
-                  </span>
-                </h3>
-              </div>
-              <div className="bg-white p-4 lg:p-6 border-b-4 border-[#E31E24] shadow-md flex flex-col gap-1 rounded-none transform hover:translate-y-[-2px] transition-all">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Sustentabilidade
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#E31E24]">
-                  {stats.total}{" "}
-                  <span className="text-[10px] lg:text-xs font-medium">
-                    folhas
-                  </span>
-                </h3>
-              </div>
-              <div className="bg-white p-4 lg:p-6 border-b-4 border-slate-300 shadow-md flex flex-col gap-1 rounded-none transform hover:translate-y-[-2px] transition-all">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Auditores
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#1A3351]">
-                  {stats.uniqueUsers}
-                </h3>
-              </div>
-            </div>
+            <StatisticCardRow columns={3} className="shrink-0">
+              <StatisticCard
+                variant="analytic"
+                accent="primary"
+                title="Registros"
+                value={stats.total}
+                subtitle="itens"
+                icon={<ClipboardList className="h-5 w-5 text-slate-300" />}
+              />
+              <StatisticCard
+                variant="analytic"
+                accent="success"
+                title="Sustentabilidade"
+                value={stats.total}
+                subtitle="folhas"
+                icon={<CreditCard className="h-5 w-5 text-emerald-200" />}
+              />
+              <StatisticCard
+                variant="analytic"
+                accent="neutral"
+                title="Auditores"
+                value={stats.uniqueUsers}
+                icon={<Activity className="h-5 w-5 text-slate-300" />}
+              />
+            </StatisticCardRow>
 
             {/* LISTA DE REGISTROS (DIGITAL LEDGER) */}
             <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-visible rounded-none">

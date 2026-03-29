@@ -44,6 +44,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import type { AbonoRecord } from "@/types";
 import type { RechartsTickProps } from "@/components/filters/types";
 
@@ -645,57 +647,42 @@ export default function AbonoAnalyticsPage() {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* STAT CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between">
-              <div>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                  Total de Benefícios
-                </p>
-                <h3 className="text-2xl font-bold text-[#1A3351] mt-1">
-                  {filteredRecords.length}
-                </h3>
-              </div>
-              <ClipboardList className="w-6 h-6 text-blue-100" />
-            </div>
-            <div className="bg-white p-4 border-l-4 border-emerald-500 shadow-md flex items-center justify-between">
-              <div>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                  Abonos Ativos
-                </p>
-                <h3 className="text-2xl font-bold text-emerald-600 mt-1">
-                  {chartData.byStatus.find((s) => s.name === "Ativos")?.value ||
-                    0}
-                </h3>
-              </div>
-              <Activity className="w-6 h-6 text-emerald-100" />
-            </div>
-            <div className="bg-white p-4 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between">
-              <div>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                  Servidores Diferentes
-                </p>
-                <h3 className="text-2xl font-bold text-[#1A3351] mt-1">
-                  {new Set(filteredRecords.map((r) => r.cpf)).size}
-                </h3>
-              </div>
-              <UsersIcon className="w-6 h-6 text-slate-100" />
-            </div>
-            <div className="bg-white p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between">
-              <div>
-                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                  Secretarias
-                </p>
-                <h3 className="text-2xl font-bold text-[#E31E24] mt-1">
-                  {
-                    new Set(
-                      filteredRecords.map((r) => r.secretaria).filter(Boolean),
-                    ).size
-                  }
-                </h3>
-              </div>
-              <Building2 className="w-6 h-6 text-red-500/10" />
-            </div>
-          </div>
+          <StatisticCardRow columns={4} className="shrink-0">
+            <StatisticCard
+              variant="analytic"
+              accent="primary"
+              title="Total de Benefícios"
+              value={filteredRecords.length}
+              icon={<ClipboardList className="w-5 h-5 text-slate-300" />}
+            />
+            <StatisticCard
+              variant="analytic"
+              accent="success"
+              title="Abonos Ativos"
+              value={
+                chartData.byStatus.find((s) => s.name === "Ativos")?.value || 0
+              }
+              icon={<Activity className="w-5 h-5 text-emerald-200" />}
+            />
+            <StatisticCard
+              variant="analytic"
+              accent="neutral"
+              title="Servidores Diferentes"
+              value={new Set(filteredRecords.map((r) => r.cpf)).size}
+              icon={<UsersIcon className="w-5 h-5 text-slate-300" />}
+            />
+            <StatisticCard
+              variant="analytic"
+              accent="info"
+              title="Secretarias"
+              value={
+                new Set(
+                  filteredRecords.map((r) => r.secretaria).filter(Boolean),
+                ).size
+              }
+              icon={<Building2 className="w-5 h-5 text-blue-200" />}
+            />
+          </StatisticCardRow>
 
           {/* CHARTS */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8">

@@ -21,6 +21,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import {
   countActiveFilters,
   normalizeSearchTerm,
@@ -459,33 +461,31 @@ export default function PortariasPage() {
         {/* CONTEÚDO */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8">
           {/* STATS CARDS */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 shrink-0">
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-[#1A3351] shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all">
-              <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">
-                Total de Portarias
-              </p>
-              <h3 className="text-xl lg:text-3xl font-bold text-[#1A3351]">
-                {stats.total}
-              </h3>
-            </div>
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all">
-              <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">
-                Emitidas no Mês
-              </p>
-              <h3 className="text-xl lg:text-3xl font-bold text-emerald-600">
-                {stats.thisMonth}
-              </h3>
-            </div>
-            <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-none lg:rounded-none transform hover:scale-[1.02] transition-all col-span-2 lg:col-span-1">
-              <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-1">
-                Sustentabilidade
-              </p>
-              <h3 className="text-xl lg:text-3xl font-bold text-[#E31E24]">
-                {stats.total}{" "}
-                <span className="text-xs font-normal">folhas digitais</span>
-              </h3>
-            </div>
-          </div>
+          <StatisticCardRow
+            columns={3}
+            className="grid-cols-2 lg:grid-cols-3 shrink-0"
+          >
+            <StatisticCard
+              variant="informative"
+              accent="primary"
+              title="Total de Portarias"
+              value={stats.total}
+            />
+            <StatisticCard
+              variant="informative"
+              accent="info"
+              title="Emitidas no Mês"
+              value={stats.thisMonth}
+            />
+            <StatisticCard
+              variant="informative"
+              accent="success"
+              title="Sustentabilidade"
+              value={stats.total}
+              subtitle="folhas digitais"
+              className="col-span-2 lg:col-span-1"
+            />
+          </StatisticCardRow>
 
           {/* Mobile Button */}
           {userRole !== "analytic_manager" && (

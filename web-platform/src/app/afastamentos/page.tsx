@@ -34,6 +34,8 @@ import {
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import {
   type FilterState,
   matchesUnifiedNameCpfSearch,
@@ -1041,65 +1043,67 @@ export default function AfastamentosPage() {
           className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 print:hidden"
         >
           {/* STATS CARDS */}
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 lg:gap-4 shrink-0">
+          <StatisticCardRow columns={6} className="shrink-0">
             {[
               {
                 label: "Total Serv.",
                 value: stats.totalServidores,
                 filter: "all" as const,
-                activeColor: "bg-[#1A3351] border-white text-white",
-                baseColor: "bg-white border-[#1A3351] text-[#1A3351]",
+                accent: "primary" as const,
+                activeClass: "bg-[#1A3351]/10",
               },
               {
                 label: "Registros",
                 value: stats.totalRegistros,
                 filter: "all" as const,
-                activeColor: "bg-slate-500 border-white text-white",
-                baseColor: "bg-white border-slate-300 text-slate-500",
+                accent: "neutral" as const,
+                activeClass: "bg-slate-100",
               },
               {
                 label: "Ativos",
                 value: stats.active,
                 filter: "active" as const,
-                activeColor: "bg-emerald-600 border-white text-white",
-                baseColor: "bg-white border-emerald-500 text-emerald-600",
+                accent: "success" as const,
+                activeClass: "bg-emerald-50",
               },
               {
                 label: "Vencendo",
                 value: stats.alert,
                 filter: "alert" as const,
-                activeColor: "bg-amber-500 border-white text-white",
-                baseColor: "bg-white border-amber-500 text-amber-500",
+                accent: "warning" as const,
+                activeClass: "bg-amber-50",
               },
               {
                 label: "Vencidos",
                 value: stats.expired,
                 filter: "expired" as const,
-                activeColor: "bg-[#E31E24] border-white text-white",
-                baseColor: "bg-white border-[#E31E24] text-[#E31E24]",
+                accent: "danger" as const,
+                activeClass: "bg-red-50",
               },
               {
                 label: "Finalizados",
                 value: stats.finished,
                 filter: "finished" as const,
-                activeColor: "bg-blue-600 border-white text-white",
-                baseColor: "bg-white border-blue-600 text-blue-600",
+                accent: "info" as const,
+                activeClass: "bg-blue-50",
               },
-            ].map((card) => (
-              <div
-                key={card.label}
-                onClick={() => setStatusFilter(card.filter)}
-                className={`p-4 lg:p-6 border-l-4 shadow-lg transform hover:scale-[1.02] transition-all cursor-pointer ${statusFilter === card.filter ? card.activeColor : card.baseColor}`}
-              >
-                <p
-                  className={`text-[9px] lg:text-[10px] font-medium uppercase tracking-widest leading-tight mb-1 ${statusFilter === card.filter ? "text-white/60" : "text-slate-400"}`}
-                >
-                  {card.label}
-                </p>
-                <h3 className="text-xl lg:text-3xl font-bold">{card.value}</h3>
-              </div>
-            ))}
-          </div>
+            ].map((card) => {
+              const selected = statusFilter === card.filter;
+
+              return (
+                <StatisticCard
+                  key={card.label}
+                  variant="interactive"
+                  accent={card.accent}
+                  title={card.label}
+                  value={card.value}
+                  active={selected}
+                  onClick={() => setStatusFilter(card.filter)}
+                  className={selected ? card.activeClass : "bg-white"}
+                />
+              );
+            })}
+          </StatisticCardRow>
 
           {/* LISTA */}
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">

@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import { countActiveFilters } from "@/components/filters/filtersUtils";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 
@@ -506,32 +508,30 @@ export default function DeletionRequestsPage() {
           {/* CONTEÚDO */}
           <div className="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
             {/* STATS CARDS */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 shrink-0">
-              <div className="bg-white p-4 lg:p-6 border-l-4 border-[#E31E24] shadow-lg rounded-none transform hover:scale-[1.02] transition-all">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
-                  Pendentes
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-[#E31E24] leading-none">
-                  {pendingCount}
-                </h3>
-              </div>
-              <div className="bg-white p-4 lg:p-6 border-l-4 border-emerald-500 shadow-lg rounded-none transform hover:scale-[1.02] transition-all">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
-                  Aprovadas
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-emerald-600 leading-none">
-                  {approvedCount}
-                </h3>
-              </div>
-              <div className="bg-white p-4 lg:p-6 border-l-4 border-slate-400 shadow-lg rounded-none transform hover:scale-[1.02] transition-all hidden sm:block">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
-                  Rejeitadas
-                </p>
-                <h3 className="text-2xl lg:text-3xl font-bold text-slate-600 leading-none">
-                  {rejectedCount}
-                </h3>
-              </div>
-            </div>
+            <StatisticCardRow
+              columns={3}
+              className="grid-cols-2 lg:grid-cols-3 shrink-0"
+            >
+              <StatisticCard
+                variant="informative"
+                accent="warning"
+                title="Pendentes"
+                value={pendingCount}
+              />
+              <StatisticCard
+                variant="informative"
+                accent="success"
+                title="Aprovadas"
+                value={approvedCount}
+              />
+              <StatisticCard
+                variant="informative"
+                accent="danger"
+                title="Rejeitadas"
+                value={rejectedCount}
+                className="hidden sm:block"
+              />
+            </StatisticCardRow>
 
             {/* LISTA DE SOLICITAÇÕES */}
             <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible rounded-none">
