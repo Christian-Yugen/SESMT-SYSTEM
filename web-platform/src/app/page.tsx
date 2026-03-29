@@ -1,32 +1,17 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
   X,
   Menu,
   Search,
-  History as HistoryIcon,
-  Users as UsersIcon,
-  BarChart3,
   ClipboardList,
-  TrendingUp,
-  FolderOpen,
-  ChevronDown,
-  Trash2,
-  Scale,
   FileText,
-  CloudDownload,
-  RefreshCw,
-  CheckCircle2,
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { Servidor, Funcao, ExameData } from "@/types";
@@ -58,7 +43,7 @@ export default function Home() {
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
@@ -138,10 +123,6 @@ export default function Home() {
     }
   }, [userRole, router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
   const [manualData, setManualData] = useState({
     cpf: "",
     nome: "",
@@ -371,9 +352,6 @@ export default function Home() {
       // Salva Histórico no Supabase (Processo Online)
       try {
         // Prepara lista de exames para o histórico (Evidência Digital) - Filtra Exame Clínico para Encaminhamentos
-        const examsList = currentExams.exames
-          .filter((ex) => ex.toUpperCase() !== "EXAME CLÍNICO")
-          .join(", ");
         const functionName =
           selectedFuncao?.Nome ||
           selectedFuncao?.FUNÇÃO ||
@@ -418,12 +396,14 @@ export default function Home() {
         resetForm();
         setShowDateModal(false);
         alert("Documento gerado e salvo no histórico com sucesso!");
-      } catch (histError: any) {
+      } catch (histError: unknown) {
         console.error(
           "Erro detalhado ao gravar histórico:",
           JSON.stringify(histError, null, 2),
         );
         console.error("Erro ao gravar histórico (obj):", histError);
+        const histErrorMessage =
+          histError instanceof Error ? histError.message : "Falha de conexão";
 
         // BACKUP AUTOMÁTICO EM CASO DE FALHA
         try {
@@ -467,7 +447,7 @@ export default function Home() {
         }
 
         alert(
-          `AVISO CRÍTICO: O PDF foi gerado, mas NÃO foi possível salvar o registro no banco de dados agora.\n\nMOTIVO: ${histError.message || "Falha de conexão"}\n\nAÇÃO AUTOMÁTICA: O sistema salvou uma cópia de segurança no seu navegador e tentará enviar ao banco de dados automaticamente quando a conexão voltar.\n\nO formulário permanecerá aberto se você desejar tentar novamente agora.`,
+          `AVISO CRÍTICO: O PDF foi gerado, mas NÃO foi possível salvar o registro no banco de dados agora.\n\nMOTIVO: ${histErrorMessage}\n\nAÇÃO AUTOMÁTICA: O sistema salvou uma cópia de segurança no seu navegador e tentará enviar ao banco de dados automaticamente quando a conexão voltar.\n\nO formulário permanecerá aberto se você desejar tentar novamente agora.`,
         );
       }
     } catch (error) {

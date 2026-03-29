@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
-  X,
   Menu,
   ChevronDown,
   ChevronUp,
@@ -36,12 +31,26 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { AbonoStatusFilter, SortOrder } from "@/components/filters/types";
 
-// Tipos adicionais para o relatório
-interface PrintData {
-  operator: string;
-  timestamp: string;
-  filters: string;
+/** Dados de um registro de abono para comparação em logs de auditoria. */
+interface AbonoLogData {
+  portaria?: string | null;
+  assomasul_numero?: string | null;
+  assomasul_data?: string | null;
+  inicio?: string | null;
+  observacoes?: string | null;
+}
+
+/** Entrada de log de auditoria do abono salarial. */
+interface AbonoLog {
+  id: number;
+  abono_id: number;
+  usuario_email?: string;
+  motivo?: string;
+  dados_anteriores?: AbonoLogData;
+  dados_novos?: AbonoLogData;
+  data_alteracao: string;
 }
 
 // Normaliza CPF removendo caracteres não numéricos para agrupamento consistente
@@ -73,7 +82,7 @@ export default function AbonoPage() {
   const [expandedCpf, setExpandedCpf] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
-  const [logs, setLogs] = useState<Record<number, any[]>>({});
+  const [logs, setLogs] = useState<Record<number, AbonoLog[]>>({});
   const [expandedLogId, setExpandedLogId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "expired" | "finished"
@@ -145,6 +154,41 @@ export default function AbonoPage() {
     return () => clearTimeout(timer);
   }, [filters.searchTerm]);
 
+  const loadRecords = async () => {
+    setLoading(true);
+
+    // Cache breaker para evitar dados viciados
+    const cacheBreaker = Date.now();
+
+    const { data, error } = await supabase
+      .from("abono_salarial")
+      .select("*")
+      .neq("id", -cacheBreaker)
+      .order("inicio", { ascending: false });
+
+    if (!error && data) {
+      setRecords(data);
+
+      // Buscar Logs de Auditoria
+      const { data: logsData } = await supabase
+        .from("abono_salarial_logs")
+        .select("*")
+        .order("data_alteracao", { ascending: false });
+
+      if (logsData) {
+        const logsMap: Record<number, AbonoLog[]> = {};
+        logsData.forEach((log: AbonoLog) => {
+          if (!logsMap[log.abono_id]) logsMap[log.abono_id] = [];
+          logsMap[log.abono_id].push(log);
+        });
+        setLogs(logsMap);
+      }
+    } else if (error) {
+      console.error("Erro ao carregar abonos:", error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -195,46 +239,6 @@ export default function AbonoPage() {
 
     return () => subscription.unsubscribe();
   }, [router]);
-
-  async function loadRecords() {
-    setLoading(true);
-
-    // Cache breaker para evitar dados viciados
-    const cacheBreaker = Date.now();
-
-    const { data, error } = await supabase
-      .from("abono_salarial")
-      .select("*")
-      .neq("id", -cacheBreaker)
-      .order("inicio", { ascending: false });
-
-    if (!error && data) {
-      setRecords(data);
-
-      // Buscar Logs de Auditoria
-      const { data: logsData } = await supabase
-        .from("abono_salarial_logs")
-        .select("*")
-        .order("data_alteracao", { ascending: false });
-
-      if (logsData) {
-        const logsMap: Record<number, any[]> = {};
-        logsData.forEach((log: any) => {
-          if (!logsMap[log.abono_id]) logsMap[log.abono_id] = [];
-          logsMap[log.abono_id].push(log);
-        });
-        setLogs(logsMap);
-      }
-    } else if (error) {
-      console.error("Erro ao carregar abonos:", error);
-    }
-    setLoading(false);
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   const secretarias = useMemo(() => {
     const unique = new Set(
@@ -306,12 +310,15 @@ export default function AbonoPage() {
       const day = parseInt(parts[2]);
       const date = new Date(year, month, day);
       return date.toLocaleDateString("pt-BR");
-    } catch (e) {
+    } catch {
       return "---";
     }
   };
 
-  const getDiff = (prev: any, next: any) => {
+  const getDiff = (
+    prev: AbonoLogData | null | undefined,
+    next: AbonoLogData | null | undefined,
+  ) => {
     if (!prev || !next) return null;
     const changes: string[] = [];
 
@@ -324,8 +331,8 @@ export default function AbonoPage() {
     };
 
     Object.keys(labels).forEach((key) => {
-      let pVal = prev[key] || "---";
-      let nVal = next[key] || "---";
+      let pVal = prev[key as keyof AbonoLogData] ?? "---";
+      let nVal = next[key as keyof AbonoLogData] ?? "---";
 
       // Formatar datas para exibição no log
       if (key.includes("data") || key === "inicio") {
@@ -379,7 +386,7 @@ export default function AbonoPage() {
 
       // Novo lançamento ou renovação antiga -> ATIVO
       return "active";
-    } catch (e) {
+    } catch {
       return "inactive";
     }
   };
@@ -421,7 +428,7 @@ export default function AbonoPage() {
       );
     });
 
-    let result = Object.values(groups);
+    const result = Object.values(groups);
 
     // Apply Sorting do grupo (baseado no benefício mais recente do grupo filtrado)
     if (sortBy === "alphabetical") {
@@ -807,7 +814,9 @@ export default function AbonoPage() {
                     ].map((btn) => (
                       <button
                         key={btn.key}
-                        onClick={() => setStatusFilter(btn.key as any)}
+                        onClick={() =>
+                          setStatusFilter(btn.key as AbonoStatusFilter)
+                        }
                         className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center rounded-none ${statusFilter === btn.key ? btn.color + " text-white shadow-md" : "text-slate-600 hover:bg-black/5"}`}
                       >
                         {btn.label}
@@ -822,7 +831,7 @@ export default function AbonoPage() {
                       </span>
                       <select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
+                        onChange={(e) => setSortBy(e.target.value as SortOrder)}
                         className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]"
                       >
                         <option value="alphabetical">Ordem Alfabética</option>
@@ -1152,7 +1161,7 @@ export default function AbonoPage() {
                                         </p>
                                         <div className="bg-slate-50 p-3 rounded-none border border-slate-200">
                                           <p className="text-sm text-slate-700 font-bold uppercase leading-relaxed italic">
-                                            "{record.observacoes}"
+                                            &ldquo;{record.observacoes}&rdquo;
                                           </p>
                                         </div>
                                       </div>
@@ -1291,10 +1300,13 @@ export default function AbonoPage() {
           {/* CABEÇALHO OFICIAL - ULTRA COMPACTO */}
           <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/images/logo.png"
                 alt="Logo"
+                width={160}
+                height={48}
                 className="h-12 w-auto object-contain"
+                priority
               />
               <div className="h-10 w-[1px] bg-slate-200 mx-1" />
               <div className="flex flex-col">

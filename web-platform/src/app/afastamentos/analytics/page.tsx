@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
   BarChart,
@@ -20,14 +21,10 @@ import {
 } from "recharts";
 import {
   LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
   LogOut,
   Activity,
   X,
   Menu,
-  ChevronDown,
   Building2,
   History as HistoryIcon,
   Users as UsersIcon,
@@ -37,13 +34,9 @@ import {
   ClipboardList,
   TrendingUp,
   Printer,
-  FolderOpen,
-  Scale,
-  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
-import { capitalizeName } from "@/lib/portaria-utils";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
@@ -52,6 +45,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { AfastamentoRecord } from "@/types";
+import type { RechartsTickProps } from "@/components/filters/types";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) e limpa prefixos */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -79,9 +74,8 @@ function wrapLabel(text: string, maxCharsPerLine: number) {
 }
 
 /** Tick customizado para YAxis do ranking */
-function SecretariaTick(props: any) {
-  const { x, y, payload } = props;
-  const lines = wrapLabel(payload?.value, 20);
+function SecretariaTick({ x = 0, y = 0, payload }: RechartsTickProps) {
+  const lines = wrapLabel(payload?.value ?? "", 20);
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -105,11 +99,11 @@ function SecretariaTick(props: any) {
 }
 
 export default function AfastamentosAnalyticsPage() {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AfastamentoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
   // Filtros
@@ -253,7 +247,7 @@ export default function AfastamentosAnalyticsPage() {
     endDate,
   ]);
 
-  const getStatus = (record: any) => {
+  const getStatus = (record: AfastamentoRecord) => {
     if (record.situacao === "FINALIZADO" || record.situacao === "PRORROGADO")
       return "finished";
     const today = new Date();
@@ -331,7 +325,7 @@ export default function AfastamentosAnalyticsPage() {
     const impactMap: Record<string, number> = {};
     filteredRecords.forEach((r) => {
       const s = r.servidor_secretaria || "NÃO INFORMADA";
-      const days = parseInt(r.dias_afastado) || 0;
+      const days = r.dias_afastado ?? 0;
       impactMap[s] = (impactMap[s] || 0) + days;
     });
     const byImpact = Object.keys(impactMap)
@@ -370,9 +364,11 @@ export default function AfastamentosAnalyticsPage() {
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <img
+          <Image
             src="/images/logo_white.png"
             alt="SESMT"
+            width={160}
+            height={56}
             className="h-14 w-auto object-contain mt-2 mb-2"
           />
           <div className="text-center w-full px-1 mt-2">
@@ -587,7 +583,7 @@ export default function AfastamentosAnalyticsPage() {
                 </p>
                 <h3 className="text-2xl font-bold text-red-600 mt-1">
                   {filteredRecords.reduce(
-                    (acc, r) => acc + (parseInt(r.dias_afastado) || 0),
+                    (acc, r) => acc + (r.dias_afastado ?? 0),
                     0,
                   )}
                 </h3>
@@ -706,7 +702,7 @@ export default function AfastamentosAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"
@@ -765,9 +761,7 @@ export default function AfastamentosAnalyticsPage() {
                         }}
                       />
                     </Pie>
-                    <Tooltip
-                      formatter={(value: any) => [`${value}`, "Casos"]}
-                    />
+                    <Tooltip formatter={(value) => [String(value), "Casos"]} />
                     <Legend
                       verticalAlign="bottom"
                       align="center"

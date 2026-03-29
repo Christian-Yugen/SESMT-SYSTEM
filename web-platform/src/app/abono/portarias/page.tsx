@@ -1,29 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
-  X,
   Menu,
   ChevronDown,
   ChevronUp,
   History as HistoryIcon,
-  BarChart3,
-  User,
-  Calendar,
-  ClipboardList,
   Printer,
-  Users as UsersIcon,
-  TrendingUp,
-  FolderOpen,
-  Trash2,
   Loader2,
-  Scale,
   FileText,
   PlusCircle,
   Download,
@@ -31,7 +16,7 @@ import {
   Building2,
   PencilLine,
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -41,6 +26,7 @@ import {
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import { AuditLogRecord } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
 
 interface PortariaRecord {
@@ -66,19 +52,52 @@ export default function PortariasPage() {
   const [records, setRecords] = useState<PortariaRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
   const [sortOrder, setSortOrder] = useState("date-desc");
-  const [logs, setLogs] = useState<Record<number, any[]>>({});
+  const [logs, setLogs] = useState<Record<number, AuditLogRecord[]>>({});
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const loadLogs = useCallback(async () => {
+    const { data: logsData } = await supabase
+      .from("portarias_abono_logs")
+      .select("*")
+      .order("data_alteracao", { ascending: false });
+
+    if (logsData) {
+      const logsMap: Record<number, AuditLogRecord[]> = {};
+      logsData.forEach((log: AuditLogRecord) => {
+        const pid = log.portaria_id;
+        if (pid == null) return;
+        if (!logsMap[pid]) logsMap[pid] = [];
+        logsMap[pid].push(log);
+      });
+      setLogs(logsMap);
+    }
+  }, []);
+
+  const loadRecords = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("portarias_abono")
+      .select("*")
+      .order("numero", { ascending: false });
+
+    if (!error && data) {
+      setRecords(data);
+      await loadLogs();
+    } else if (error) {
+      console.error("Erro ao carregar portarias:", error);
+    }
+    setLoading(false);
+  }, [loadLogs]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -126,44 +145,7 @@ export default function PortariasPage() {
       if (event === "SIGNED_OUT") router.push("/login");
     });
     return () => subscription.unsubscribe();
-  }, [router]);
-
-  async function loadLogs() {
-    const { data: logsData } = await supabase
-      .from("portarias_abono_logs")
-      .select("*")
-      .order("data_alteracao", { ascending: false });
-
-    if (logsData) {
-      const logsMap: Record<number, any[]> = {};
-      logsData.forEach((log: any) => {
-        if (!logsMap[log.portaria_id]) logsMap[log.portaria_id] = [];
-        logsMap[log.portaria_id].push(log);
-      });
-      setLogs(logsMap);
-    }
-  }
-
-  async function loadRecords() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("portarias_abono")
-      .select("*")
-      .order("numero", { ascending: false });
-
-    if (!error && data) {
-      setRecords(data);
-      await loadLogs();
-    } else if (error) {
-      console.error("Erro ao carregar portarias:", error);
-    }
-    setLoading(false);
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+  }, [router, loadRecords]);
 
   const clearAllFilters = () => {
     setSearchTerm("");
@@ -228,7 +210,10 @@ export default function PortariasPage() {
     }
   };
 
-  const getDiff = (prev: any, next: any) => {
+  const getDiff = (
+    prev: Record<string, string> | undefined,
+    next: Record<string, string> | undefined,
+  ) => {
     if (!prev || !next) return null;
     const changes: string[] = [];
 
@@ -236,7 +221,7 @@ export default function PortariasPage() {
     // Incluímos variações para suportar logs antigos (lotacao/servidor_lotacao)
     const fieldMapping: Record<
       string,
-      { label: string; formatter?: (val: any) => string }
+      { label: string; formatter?: (val: string) => string }
     > = {
       numero: { label: "NÚMERO" },
       servidor_genero: {
@@ -289,8 +274,8 @@ export default function PortariasPage() {
         if (nValInput === undefined) nValInput = next["genero"];
       }
 
-      let pVal = pValInput ?? "---";
-      let nVal = nValInput ?? "---";
+      const pVal = pValInput ?? "---";
+      const nVal = nValInput ?? "---";
 
       // Se for igual (ou ambos nulos/indefinidos), não registra mudança
       if (pVal === nVal) return;
@@ -765,7 +750,7 @@ export default function PortariasPage() {
                               </h5>
                             </div>
                             <div className="space-y-3">
-                              {logs[entry.id].map((log, idx) => {
+                              {logs[entry.id].map((log) => {
                                 const changes = getDiff(
                                   log.dados_anteriores,
                                   log.dados_novos,

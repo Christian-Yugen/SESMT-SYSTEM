@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
   FileSearch,
-  HeartPulse,
-  LogOut,
   Activity,
   X,
   Menu,
@@ -17,11 +13,7 @@ import {
   BarChart3,
   User,
   ClipboardList,
-  Filter,
   Printer,
-  Users as UsersIcon,
-  TrendingUp,
-  FolderOpen,
   Trash2,
   AlertCircle,
   Building2,
@@ -41,6 +33,43 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type { ExamEntry } from "@/types";
+
+/** Entrada de histórico de edições de auditoria do ASO. */
+interface EditHistoryEntry {
+  user: string;
+  timestamp: string;
+  motivo?: string;
+  changes?: {
+    old: Record<string, unknown>;
+    new: Record<string, unknown>;
+  };
+}
+
+/** Registro de função occupacional retornado da tabela `funcoes`. */
+interface FuncaoRecord {
+  id: number;
+  nome: string;
+  ghe: string;
+  cod?: string;
+  aso_type?: string;
+}
+
+/** Dados do formulário de edição / reemissão de ASO 2.0. */
+interface EditFormData {
+  servidor_nome: string;
+  servidor_cpf: string;
+  servidor_nascimento: string;
+  cargo?: string;
+  secretaria?: string;
+  aso_type: string;
+  function_name: string;
+  function_ghe: string;
+  risks: string;
+  exams: ExamEntry[];
+  contrato: string;
+  motivo_alteracao: string;
+}
 
 interface HistoryEntry {
   id: number;
@@ -60,7 +89,7 @@ interface HistoryEntry {
   exams_json?: { name: string; date: string }[];
   risks?: string;
   function_name?: string;
-  edit_history?: any[];
+  edit_history?: EditHistoryEntry[];
   // Campo virtual para permissões
   creator_role?: string;
 }
@@ -89,9 +118,7 @@ export default function HistoryPage() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
-    "landscape",
-  );
+  const [, setPrintLayout] = useState<"portrait" | "landscape">("landscape");
   const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
   const [userName, setUserName] = useState<string>("Usuário");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -188,7 +215,7 @@ export default function HistoryPage() {
   // Estados para Edição ASO 2.0
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<HistoryEntry | null>(null);
-  const [editFormData, setEditFormData] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState<EditFormData | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Estados para o Smart Header (Scroll)
@@ -210,8 +237,11 @@ export default function HistoryPage() {
   const [isSearchingSecretaria, setIsSearchingSecretaria] = useState(false);
 
   const [funcoesSearch, setFuncoesSearch] = useState("");
-  const [filteredFuncoes, setFilteredFuncoes] = useState<any[]>([]);
+  const [filteredFuncoes, setFilteredFuncoes] = useState<FuncaoRecord[]>([]);
   const [isSearchingFuncao, setIsSearchingFuncao] = useState(false);
+  const [profilesData, setProfilesData] = useState<
+    Record<string, { email: string; role: string }>
+  >({});
 
   // Busca de Cargo no Servidor com Debounce
   useEffect(() => {
@@ -360,15 +390,59 @@ export default function HistoryPage() {
           date: new Date().toLocaleDateString("pt-BR"),
         }));
 
-        setEditFormData((prev: any) => ({
-          ...prev,
-          risks: data.riscos + (data.detalhes ? `\n${data.detalhes}` : ""),
-          exams: newExams,
-        }));
+        setEditFormData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            risks: data.riscos + (data.detalhes ? `\n${data.detalhes}` : ""),
+            exams: newExams,
+          };
+        });
       }
     }
     syncExamsAndRisks();
   }, [editFormData?.aso_type, editFormData?.function_ghe, isEditModalOpen]);
+
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+
+    // Força o Next.js a atualizar o cache do roteador
+    router.refresh();
+
+    // Carrega o histórico com um "cache breaker" manual
+    const cacheBreaker = Date.now();
+
+    // Buscamos o histórico e os perfis em paralelo
+    const [histRes, profRes] = await Promise.all([
+      supabase
+        .from("aso_history")
+        .select("*")
+        .neq("id", -cacheBreaker)
+        .order("generated_at", { ascending: false }),
+      supabase.from("profiles").select("id, email, role"),
+    ]);
+
+    const profMap: Record<string, { email: string; role: string }> = {};
+    if (profRes.data) {
+      profRes.data.forEach((p) => {
+        profMap[p.id] = { email: p.email, role: p.role };
+      });
+      setProfilesData(profMap);
+    }
+
+    if (!histRes.error && histRes.data) {
+      // Injetamos o creator_role para facilitar a lógica de UI
+      const enrichedHistory = histRes.data.map((h) => ({
+        ...h,
+        creator_role: profMap[h.generated_by]?.role || "unknown",
+      }));
+      setHistory(enrichedHistory);
+    } else if (histRes.error) {
+      console.error("Erro ao carregar histórico:", histRes.error);
+    }
+
+    setLoading(false);
+  }, [router]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -411,7 +485,7 @@ export default function HistoryPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router, userRole]);
+  }, [router, loadHistory]);
 
   // Redirecionamento para perfis sem acesso ao histórico
   useEffect(() => {
@@ -421,56 +495,6 @@ export default function HistoryPage() {
       router.push("/");
     }
   }, [userRole, router]);
-
-  const [profilesData, setProfilesData] = useState<
-    Record<string, { email: string; role: string }>
-  >({});
-
-  async function loadHistory() {
-    setLoading(true);
-
-    // Força o Next.js a atualizar o cache do roteador
-    router.refresh();
-
-    // Carrega o histórico com um "cache breaker" manual
-    const cacheBreaker = Date.now();
-
-    // Buscamos o histórico e os perfis em paralelo
-    const [histRes, profRes] = await Promise.all([
-      supabase
-        .from("aso_history")
-        .select("*")
-        .neq("id", -cacheBreaker)
-        .order("generated_at", { ascending: false }),
-      supabase.from("profiles").select("id, email, role"),
-    ]);
-
-    const profMap: Record<string, { email: string; role: string }> = {};
-    if (profRes.data) {
-      profRes.data.forEach((p) => {
-        profMap[p.id] = { email: p.email, role: p.role };
-      });
-      setProfilesData(profMap);
-    }
-
-    if (!histRes.error && histRes.data) {
-      // Injetamos o creator_role para facilitar a lógica de UI
-      const enrichedHistory = histRes.data.map((h) => ({
-        ...h,
-        creator_role: profMap[h.generated_by]?.role || "unknown",
-      }));
-      setHistory(enrichedHistory);
-    } else if (histRes.error) {
-      console.error("Erro ao carregar histórico:", histRes.error);
-    }
-
-    setLoading(false);
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
 
   const uniqueUsersList = useMemo(
     () => Array.from(new Set(history.map((h) => h.generated_by))),
@@ -529,7 +553,7 @@ export default function HistoryPage() {
       if (entry.generated_at) {
         entryDate = new Date(entry.generated_at).toISOString().split("T")[0];
       }
-    } catch (e) {
+    } catch {
       console.error("Data inválida:", entry.generated_at);
     }
     const matchesStartDate =
@@ -848,6 +872,8 @@ export default function HistoryPage() {
       printWindow.print();
     }, 500);
   };
+
+  void handlePrintReport;
 
   const handlePrintRequest = (layout: "portrait" | "landscape") => {
     setPrintLayout(layout);
@@ -1668,7 +1694,7 @@ export default function HistoryPage() {
                               </div>
                               <div className="space-y-3">
                                 {entry.edit_history.map(
-                                  (log: any, idx: number) => (
+                                  (log: EditHistoryEntry, idx: number) => (
                                     <div
                                       key={idx}
                                       className="bg-white/40 border border-slate-200 rounded-none p-3 text-[10px] lg:text-[11px] animate-in fade-in slide-in-from-left-2 transition-all"
@@ -1697,35 +1723,40 @@ export default function HistoryPage() {
                                           {log.motivo || "Não informado"}
                                         </span>
                                       </p>
-                                      {log.changes && (
-                                        <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
-                                          {Object.keys(log.changes.new).map(
-                                            (key) => {
-                                              const oldVal =
-                                                log.changes.old[key];
-                                              const newVal =
-                                                log.changes.new[key];
-                                              if (oldVal !== newVal) {
-                                                return (
-                                                  <span
-                                                    key={key}
-                                                    className="text-[9px] font-bold text-slate-500"
-                                                  >
-                                                    <span className="uppercase text-slate-400">
-                                                      {key}:
-                                                    </span>{" "}
-                                                    {String(oldVal || "---")} →{" "}
-                                                    <span className="text-[#1A3351] font-bold">
-                                                      {String(newVal || "---")}
+                                      {(() => {
+                                        const changes = log.changes;
+                                        if (!changes) return null;
+                                        return (
+                                          <div className="mt-2 pl-2 border-l-2 border-slate-200 flex flex-wrap gap-x-4 gap-y-1">
+                                            {Object.keys(changes.new).map(
+                                              (key) => {
+                                                const oldVal = changes.old[key];
+                                                const newVal = changes.new[key];
+                                                if (oldVal !== newVal) {
+                                                  return (
+                                                    <span
+                                                      key={key}
+                                                      className="text-[9px] font-bold text-slate-500"
+                                                    >
+                                                      <span className="uppercase text-slate-400">
+                                                        {key}:
+                                                      </span>{" "}
+                                                      {String(oldVal || "---")}{" "}
+                                                      →{" "}
+                                                      <span className="text-[#1A3351] font-bold">
+                                                        {String(
+                                                          newVal || "---",
+                                                        )}
+                                                      </span>
                                                     </span>
-                                                  </span>
-                                                );
-                                              }
-                                              return null;
-                                            },
-                                          )}
-                                        </div>
-                                      )}
+                                                  );
+                                                }
+                                                return null;
+                                              },
+                                            )}
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                   ),
                                 )}
@@ -2106,7 +2137,7 @@ export default function HistoryPage() {
                                 function_name: "",
                                 function_ghe: "",
                                 risks: "",
-                                exams_json: [],
+                                exams: [],
                               });
                             }}
                             className="px-3 bg-white border-2 border-slate-200 rounded-none text-[9px] font-bold uppercase hover:bg-slate-50 transition-colors"
@@ -2171,7 +2202,7 @@ export default function HistoryPage() {
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {editFormData.exams.map((exam: any, idx: number) => (
+                    {editFormData.exams.map((exam: ExamEntry, idx: number) => (
                       <div
                         key={idx}
                         className="flex gap-2 p-3 bg-white border-2 border-slate-100 rounded-none shadow-sm"
@@ -2343,13 +2374,15 @@ export default function HistoryPage() {
                       };
 
                       const currentExamsMock = {
-                        exames: editFormData.exams.map((e: any) => e.name),
+                        exames: editFormData.exams.map(
+                          (e: ExamEntry) => e.name,
+                        ),
                         riscos: "",
                         detalhes: editFormData.risks,
                       };
 
                       const datesMock = editFormData.exams.map(
-                        (e: any) => e.date,
+                        (e: ExamEntry) => e.date,
                       );
                       const operatorName = userName.toUpperCase();
 

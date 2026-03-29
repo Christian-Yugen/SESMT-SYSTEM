@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import Image from "next/image";
 import {
   getCIDChapter,
-  getCIDDetails,
   searchCIDs,
   getCIDDetailsFromDB,
   normalizeCID,
@@ -30,8 +30,6 @@ import {
   FileEdit,
   Save,
   FileText,
-  History as HistoryIcon,
-  Users as UsersIcon,
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -41,54 +39,37 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
+import type {
+  AfastamentoStatusFilter,
+  SortOrder,
+} from "@/components/filters/types";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
 import { generateServidorReportPDF } from "@/lib/afastamento-report-pdf";
-import { generateAfastamentosListPDF } from "@/lib/afastamentos-list-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import { BarChart3 } from "lucide-react";
+import type { AfastamentoRecord } from "@/types";
+import type { CIDDetails } from "@/lib/cid-utils";
 
-interface AfastamentoRecord {
+/** Entrada de log de auditoria de afastamento. */
+interface AfastamentoLog {
   id: number;
-  servidor_cpf: string;
-  servidor_nome: string;
-  servidor_matricula: string;
-  servidor_contrato: string;
-  servidor_secretaria: string;
-  servidor_cargo: string;
-  natureza_cargo: string;
-  tipo_afastamento: string;
-  data_inicio: string;
-  data_fim: string;
-  data_pericia: string;
-  dias_afastado: number | null;
-  perito_nome: string;
-  perito_crm: string;
-  situacao: "EM_ANDAMENTO" | "FINALIZADO" | "PRORROGADO";
-  status: string;
-  observacoes: string;
-  renovado_por_id: number | null;
-  criado_em: string;
-  criado_por: string;
+  afastamento_id: number;
+  usuario_id?: string;
+  usuario_email?: string;
+  alterado_por: string;
+  dados_anteriores?: Record<string, unknown>;
+  dados_novos?: Record<string, unknown>;
+  motivo_alteracao?: string;
   hash_auditoria?: string;
-  afastamento_cids?: {
-    cid_codigo: string;
-    cid_descricao: string;
-    cid_capitulo: string;
-  }[];
-  is_acidente_trabalho: boolean;
-  portarias_afastamento?: {
-    numero: number;
-    ano: number;
-    data_emissao: string;
-  }[];
+  data_alteracao: string;
 }
 
 interface CIDRecord {
-  id: number;
-  afastamento_id: number;
+  id?: number;
+  afastamento_id?: number;
   cid_codigo: string;
   cid_descricao: string;
   cid_capitulo: string;
@@ -101,37 +82,8 @@ const formatCpf = (cpf: string) => {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
 };
 
-function CIDBadge({ code }: { code: string }) {
-  const [details, setDetails] = useState<any>(null);
-  const normalized = normalizeCID(code);
-  useEffect(() => {
-    getCIDDetailsFromDB(normalized).then(setDetails);
-  }, [normalized]);
-  if (!details)
-    return (
-      <span className="text-[13px] font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-none animate-pulse">
-        {normalized || code}
-      </span>
-    );
-  return (
-    <div className="group relative">
-      <span className="text-[13px] font-bold bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-none border border-emerald-200/50 cursor-help hover:bg-emerald-200 transition-colors">
-        {details.code}
-      </span>
-      <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-white border-2 border-[#1A3351] shadow-2xl rounded-none z-50 text-left">
-        <p className="text-[10px] font-bold text-white bg-[#1A3351] px-2 py-0.5 rounded-none uppercase inline-block mb-1">
-          Cap. {details.chapter}
-        </p>
-        <p className="text-xs font-semibold text-slate-800 uppercase leading-snug">
-          {details.desc}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function CIDDetailItem({ cid }: { cid: CIDRecord }) {
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<CIDDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -199,7 +151,7 @@ function CIDDetailItem({ cid }: { cid: CIDRecord }) {
 
 export default function AfastamentosPage() {
   const [records, setRecords] = useState<AfastamentoRecord[]>([]);
-  const [logs, setLogs] = useState<Record<number, any[]>>({});
+  const [logs, setLogs] = useState<Record<number, AfastamentoLog[]>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -231,7 +183,6 @@ export default function AfastamentosPage() {
     setCargoFilter("all");
   };
   const {
-    searchTerm,
     startDate,
     endDate,
     filterSecretaria: secretariaFilter,
@@ -287,13 +238,13 @@ export default function AfastamentosPage() {
     data_inicio: "",
     dias_afastado: "",
     is_acidente_trabalho: false,
-    cids: [] as any[],
+    cids: [] as CIDDetails[],
   });
   const [noteFormData, setNoteFormData] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [cidEditInput, setCidEditInput] = useState("");
-  const [foundCids, setFoundCids] = useState<any[]>([]);
+  const [foundCids, setFoundCids] = useState<CIDDetails[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -313,100 +264,7 @@ export default function AfastamentosPage() {
     return () => clearTimeout(timer);
   }, [cidEditInput]);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { session, error } = await safeGetSession();
-        if (error) {
-          await handleAuthError(error);
-          return;
-        }
-        if (session) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
-          if (data) {
-            setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse") {
-              router.push("/");
-              return;
-            }
-          }
-          const name =
-            session.user.user_metadata?.full_name ||
-            session.user.email?.split("@")[0] ||
-            "Usuário";
-          setUserName(name);
-        } else {
-          router.push("/login");
-          return;
-        }
-        loadRecords();
-      } catch (err) {
-        await handleAuthError(err);
-      }
-    };
-    checkAuth();
-  }, [router]);
-
-  async function loadRecords() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("afastamentos")
-      .select(
-        "*, afastamento_cids (*), portarias_afastamento (numero, ano, data_emissao)",
-      )
-      .eq("status", "ATIVO")
-      .order("data_inicio", { ascending: false });
-
-    if (!error && data) {
-      // Auto-repair logic: Fix records that should be PRORROGADO or FINALIZADO
-      await runAutoRepair(data);
-
-      const withDays = data.map((r) => {
-        if (r.data_inicio && r.data_fim) {
-          const diff = Math.abs(
-            new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime(),
-          );
-          return { ...r, dias_afastado: Math.ceil(diff / 86400000) + 1 };
-        }
-        return { ...r, dias_afastado: null };
-      });
-      setRecords(withDays);
-
-      // Carregar Logs de Auditoria
-      const { data: logsData } = await supabase
-        .from("afastamentos_logs")
-        .select("*")
-        .order("data_alteracao", { ascending: false });
-
-      if (logsData) {
-        const logsMap: Record<number, any[]> = {};
-        logsData.forEach((log: any) => {
-          if (!logsMap[log.afastamento_id]) logsMap[log.afastamento_id] = [];
-          logsMap[log.afastamento_id].push(log);
-        });
-        setLogs(logsMap);
-      }
-
-      // Carregar Mapeamento de Perfis (para resolver UUIDs)
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("id, full_name, email");
-      if (profilesData) {
-        const pMap: Record<string, string> = {};
-        profilesData.forEach((p) => {
-          pMap[p.id] = p.full_name || p.email || p.id;
-        });
-        setProfilesMap(pMap);
-      }
-    }
-    setLoading(false);
-  }
-
-  async function runAutoRepair(data: AfastamentoRecord[]) {
+  const runAutoRepair = useCallback(async (data: AfastamentoRecord[]) => {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -453,7 +311,100 @@ export default function AfastamentosPage() {
     } catch (err) {
       console.error("Error in auto-repair:", err);
     }
-  }
+  }, []);
+
+  const loadRecords = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("afastamentos")
+      .select(
+        "*, afastamento_cids (*), portarias_afastamento (numero, ano, data_emissao)",
+      )
+      .eq("status", "ATIVO")
+      .order("data_inicio", { ascending: false });
+
+    if (!error && data) {
+      // Auto-repair logic: Fix records that should be PRORROGADO or FINALIZADO
+      await runAutoRepair(data);
+
+      const withDays = data.map((r) => {
+        if (r.data_inicio && r.data_fim) {
+          const diff = Math.abs(
+            new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime(),
+          );
+          return { ...r, dias_afastado: Math.ceil(diff / 86400000) + 1 };
+        }
+        return { ...r, dias_afastado: null };
+      });
+      setRecords(withDays);
+
+      // Carregar Logs de Auditoria
+      const { data: logsData } = await supabase
+        .from("afastamentos_logs")
+        .select("*")
+        .order("data_alteracao", { ascending: false });
+
+      if (logsData) {
+        const logsMap: Record<number, AfastamentoLog[]> = {};
+        logsData.forEach((log: AfastamentoLog) => {
+          if (!logsMap[log.afastamento_id]) logsMap[log.afastamento_id] = [];
+          logsMap[log.afastamento_id].push(log);
+        });
+        setLogs(logsMap);
+      }
+
+      // Carregar Mapeamento de Perfis (para resolver UUIDs)
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, full_name, email");
+      if (profilesData) {
+        const pMap: Record<string, string> = {};
+        profilesData.forEach((p) => {
+          pMap[p.id] = p.full_name || p.email || p.id;
+        });
+        setProfilesMap(pMap);
+      }
+    }
+    setLoading(false);
+  }, [runAutoRepair]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { session, error } = await safeGetSession();
+        if (error) {
+          await handleAuthError(error);
+          return;
+        }
+        if (session) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
+          if (data) {
+            setUserRole(data.role);
+            if (data.role !== "admin" && data.role !== "nurse") {
+              router.push("/");
+              return;
+            }
+          }
+          const name =
+            session.user.user_metadata?.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Usuário";
+          setUserName(name);
+        } else {
+          router.push("/login");
+          return;
+        }
+        loadRecords();
+      } catch (err) {
+        await handleAuthError(err);
+      }
+    };
+    checkAuth();
+  }, [router, loadRecords]);
 
   async function handleAltaMedica(record: AfastamentoRecord) {
     if (
@@ -570,8 +521,10 @@ export default function AfastamentosPage() {
       loadRecords();
       setIsEditModalOpen(false);
       alert("Alterações salvas com sucesso!");
-    } catch (err: any) {
-      alert("Erro ao salvar: " + err.message);
+    } catch (err: unknown) {
+      alert(
+        "Erro ao salvar: " + (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
       setIsSavingEdit(false);
     }
@@ -611,14 +564,17 @@ export default function AfastamentosPage() {
       loadRecords();
       setIsNotesModalOpen(false);
       alert("Anotação salva com sucesso!");
-    } catch (err: any) {
-      alert("Erro ao salvar anotação: " + err.message);
+    } catch (err: unknown) {
+      alert(
+        "Erro ao salvar anotação: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
     } finally {
       setIsSavingNote(false);
     }
   }
 
-  const handleViewPortaria = (record: any) => {
+  const handleViewPortaria = (record: AfastamentoRecord) => {
     const portaria = record.portarias_afastamento?.[0];
     if (!portaria) {
       alert("Portaria não encontrada para este registro.");
@@ -829,7 +785,7 @@ export default function AfastamentosPage() {
     Object.values(groups).forEach((g) =>
       g.items.sort((a, b) => b.data_inicio.localeCompare(a.data_inicio)),
     );
-    let result = Object.values(groups);
+    const result = Object.values(groups);
     if (sortBy === "alphabetical")
       result.sort((a, b) => a.nome.localeCompare(b.nome));
     else if (sortBy === "newest")
@@ -1170,7 +1126,9 @@ export default function AfastamentosPage() {
                   ].map((btn) => (
                     <button
                       key={btn.key}
-                      onClick={() => setStatusFilter(btn.key as any)}
+                      onClick={() =>
+                        setStatusFilter(btn.key as AfastamentoStatusFilter)
+                      }
                       className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + " text-white shadow-md" : "text-slate-600 hover:bg-black/5"}`}
                     >
                       {btn.label}
@@ -1233,7 +1191,7 @@ export default function AfastamentosPage() {
                     </span>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
+                      onChange={(e) => setSortBy(e.target.value as SortOrder)}
                       className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer"
                     >
                       <option value="alphabetical">Ordem Alfabética</option>
@@ -1636,7 +1594,7 @@ export default function AfastamentosPage() {
                                                 Diagnósticos CID-10
                                               </p>
                                               {record.afastamento_cids.map(
-                                                (cid: any) => (
+                                                (cid) => (
                                                   <CIDDetailItem
                                                     key={cid.id}
                                                     cid={cid}
@@ -2002,10 +1960,13 @@ export default function AfastamentosPage() {
           {/* CABEÇALHO OFICIAL - ULTRA COMPACTO (SYNC COM ABONO) */}
           <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/images/logo.png"
                 alt="Logo"
+                width={160}
+                height={48}
                 className="h-12 w-auto object-contain"
+                priority
               />
               <div className="h-10 w-[1px] bg-slate-200 mx-1" />
               <div className="flex flex-col">

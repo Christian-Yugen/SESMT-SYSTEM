@@ -3,26 +3,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
-  LogOut,
   X,
   Menu,
   ChevronDown,
   ChevronUp,
   History as HistoryIcon,
-  BarChart3,
-  Users as UsersIcon,
-  TrendingUp,
-  FolderOpen,
   Trash2,
   CheckCircle,
   XCircle,
   AlertTriangle,
   ClipboardList,
-  Eye,
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -150,11 +140,6 @@ export default function DeletionRequestsPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   const handleApproveRequest = async (request: DeletionRequest) => {
     setSelectedRequest(request);
     setShowApprovalModal(true);
@@ -269,7 +254,7 @@ export default function DeletionRequestsPage() {
         } else {
           successCount++;
         }
-      } catch (err) {
+      } catch {
         failCount++;
       }
     }

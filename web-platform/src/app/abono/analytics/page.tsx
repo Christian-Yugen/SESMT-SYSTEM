@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
   BarChart,
@@ -20,19 +21,14 @@ import {
 } from "recharts";
 import {
   LayoutDashboard,
-  Database,
-  FileSearch,
-  HeartPulse,
   LogOut,
   Activity,
   X,
   Menu,
-  ChevronDown,
   Building2,
   History as HistoryIcon,
   Users as UsersIcon,
   BarChart3,
-  Calendar,
   Filter,
   ClipboardList,
   TrendingUp,
@@ -48,17 +44,8 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
-
-/** Utilitário: Verifica se o benefício está ativo (1 ano de vigência) */
-const isBenefitActive = (inicio: string) => {
-  if (!inicio) return false;
-  const startDate = new Date(inicio + "T00:00:00");
-  const endDate = new Date(startDate);
-  endDate.setFullYear(startDate.getFullYear() + 1);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today <= endDate;
-};
+import type { AbonoRecord } from "@/types";
+import type { RechartsTickProps } from "@/components/filters/types";
 
 /** Quebra label em até 2 linhas para tick SVG (Recharts) */
 function wrapLabel(text: string, maxCharsPerLine: number) {
@@ -89,9 +76,8 @@ function wrapLabel(text: string, maxCharsPerLine: number) {
 }
 
 /** Tick customizado para YAxis do ranking */
-function SecretariaTick(props: any) {
-  const { x, y, payload } = props;
-  const lines = wrapLabel(payload?.value, 22);
+function SecretariaTick({ x = 0, y = 0, payload }: RechartsTickProps) {
+  const lines = wrapLabel(payload?.value ?? "", 22);
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -115,7 +101,7 @@ function SecretariaTick(props: any) {
 }
 
 export default function AbonoAnalyticsPage() {
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AbonoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
@@ -223,7 +209,7 @@ export default function AbonoAnalyticsPage() {
         filterSecretaria === "all" || r.secretaria === filterSecretaria;
       const matchesNatureza =
         filterNatureza === "all" || r.natureza_cargo === filterNatureza;
-      const entryDate = r.inicio;
+      const entryDate = r.inicio ?? "";
       const matchesStartDate = !startDate || entryDate >= startDate;
       const matchesEndDate = !endDate || entryDate <= endDate;
 
@@ -349,7 +335,7 @@ export default function AbonoAnalyticsPage() {
     }));
 
     return { byMonth, byStatus, bySecretaria, byNatureza };
-  }, [filteredRecords]);
+  }, [filteredRecords, renewalTargetIds]);
 
   const handlePrintReport = () => {
     const printWindow = window.open("", "_blank");
@@ -454,9 +440,11 @@ export default function AbonoAnalyticsPage() {
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <img
+          <Image
             src="/images/logo_white.png"
             alt="SESMT"
+            width={160}
+            height={56}
             className="h-14 w-auto object-contain mt-2 mb-2"
           />
           <div className="text-center w-full px-1 mt-2">
@@ -809,7 +797,7 @@ export default function AbonoAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"
@@ -877,7 +865,7 @@ export default function AbonoAnalyticsPage() {
                       />
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [`${value}`, "Registros"]}
+                      formatter={(value) => [String(value), "Registros"]}
                     />
                     <Legend
                       verticalAlign="bottom"
