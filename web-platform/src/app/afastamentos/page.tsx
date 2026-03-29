@@ -1725,7 +1725,7 @@ export default function AfastamentosPage() {
                     Matrícula: {editingRecord.servidor_matricula}
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-4">
                   <div>
                     <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
                       Data de Início
