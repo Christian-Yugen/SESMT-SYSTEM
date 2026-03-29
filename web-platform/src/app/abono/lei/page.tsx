@@ -165,8 +165,8 @@ export default function AbonoLeiPage() {
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible print:bg-white">
         {/* TOP BAR / GLASS HEADER */}
-        <header className="bg-white/90 backdrop-blur-md border-b-4 border-blue-600 px-6 py-4 flex items-center justify-between shadow-lg shrink-0 z-30 print:hidden">
-          <div className="flex items-center gap-4">
+        <header className="bg-white/90 backdrop-blur-md border-b-4 border-blue-600 px-4 md:px-6 py-3 md:py-4 flex flex-wrap items-center justify-between gap-3 shadow-lg shrink-0 z-30 print:hidden">
+          <div className="flex items-center gap-3 md:gap-4 shrink-0">
             <div className="p-2.5 bg-[#1A3351] rounded-none shadow-lg shadow-blue-900/10">
               <BookOpen className="w-5 h-5 text-white" />
             </div>

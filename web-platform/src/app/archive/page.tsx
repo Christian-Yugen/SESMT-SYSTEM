@@ -375,10 +375,10 @@ export default function ArchivePage() {
                   </div>
                 </div>
 
-                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
                 {/* Campo de busca principal */}
-                <div className="flex-1 min-w-0">
+                <div className="w-full md:flex-1 md:w-auto min-w-0">
                   <CompactFilterBar
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -468,7 +468,7 @@ export default function ArchivePage() {
                 {/* Mobile menu */}
                 <button
                   onClick={() => setIsSidebarOpen(true)}
-                  className="lg:hidden h-9 w-9 bg-[#1A3351] text-white flex items-center justify-center active:scale-95 transition-all shadow-md rounded-none"
+                  className="lg:hidden h-11 w-11 md:h-9 md:w-9 bg-[#1A3351] text-white flex items-center justify-center active:scale-95 transition-all shadow-md rounded-none"
                 >
                   <Menu className="w-4 h-4" />
                 </button>

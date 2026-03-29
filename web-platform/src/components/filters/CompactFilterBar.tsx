@@ -101,13 +101,13 @@ function FilterIconButton({
         title={title}
         aria-label={title}
         onClick={() => onToggle(open ? null : id)}
-        className={`h-9 w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
+        className={`h-11 w-11 md:h-9 md:w-9 flex items-center justify-center border shadow-sm rounded-none transition-all duration-150 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1A3351] ${buttonStateClass}`}
       >
         {icon}
       </button>
-      <span className={tooltipClass}>{title}</span>
+      <span className={`${tooltipClass} hidden md:block`}>{title}</span>
       {open && (
-        <div className="absolute right-0 top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 md:right-0 top-[3rem] md:top-11 z-200 bg-white border border-slate-200 shadow-2xl rounded-none min-w-[min(220px,calc(100vw-2rem))] md:min-w-55 animate-in fade-in slide-in-from-top-2 duration-150">
           {children}
         </div>
       )}
@@ -184,7 +184,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
   };
 
   return (
-    <div className="w-full flex items-center justify-between gap-3">
+    <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
       <div className="flex-1 min-w-0">
         <SearchField
           value={searchTerm}
@@ -194,11 +194,11 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         />
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 flex-wrap">
         <div className="relative">
           <button
             title="Filtros"
-            className="h-9 w-9 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-none"
+            className="h-11 w-11 md:h-9 md:w-9 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-none"
           >
             <SlidersHorizontal className="w-4 h-4 text-slate-600" />
             {activeCount > 0 && (

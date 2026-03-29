@@ -380,7 +380,7 @@ export default function PortariasPage() {
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible print:hidden">
         {/* HEADER */}
         <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
             <div className="flex items-center gap-3 shrink-0 text-[#1A3351]">
               <FileText className="w-5 lg:w-6 h-5 lg:h-6" />
               <div>
@@ -393,9 +393,9 @@ export default function PortariasPage() {
               </div>
             </div>
 
-            <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+            <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
-            <div className="flex-1 min-w-0">
+            <div className="w-full md:flex-1 md:w-auto min-w-0">
               <CompactFilterBar
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -437,7 +437,7 @@ export default function PortariasPage() {
               )}
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
+                className="lg:hidden h-11 w-11 md:h-9 md:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
               >
                 <Menu className="w-4 h-4" />
               </button>

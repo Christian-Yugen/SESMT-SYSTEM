@@ -311,7 +311,7 @@ export default function ReferralsPage() {
               <section
                 className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
                   {/* Título + subtítulo */}
                   <div className="flex items-center gap-2 shrink-0">
                     <ClipboardList className="w-5 h-5 text-[#1A3351]" />
@@ -325,10 +325,10 @@ export default function ReferralsPage() {
                     </div>
                   </div>
 
-                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden sm:block" />
+                  <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
                   {/* Toolbar compacta de filtros (busca + ícones) */}
-                  <div className="flex-1 min-w-0">
+                  <div className="w-full md:flex-1 md:w-auto min-w-0">
                     <CompactFilterBar
                       searchTerm={filters.searchTerm}
                       setSearchTerm={setSearchTerm}
@@ -355,7 +355,7 @@ export default function ReferralsPage() {
                   {/* Menu mobile */}
                   <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                    className="lg:hidden h-11 w-11 md:h-9 md:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
                   >
                     <Menu className="w-4 h-4" />
                   </button>

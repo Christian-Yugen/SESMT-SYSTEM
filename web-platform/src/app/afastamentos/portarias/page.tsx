@@ -176,7 +176,7 @@ export default function AfastamentoPortariasPage() {
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible">
         {/* HEADER */}
         <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-emerald-500 shrink-0 shadow-lg font-sans">
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
             <div className="flex items-center gap-3 text-[#1A3351]">
               <FileText className="w-6 h-6" />
               <h2 className="text-xl font-bold uppercase tracking-tight">
@@ -185,7 +185,7 @@ export default function AfastamentoPortariasPage() {
             </div>
             <button
               onClick={() => router.push("/afastamentos/new")}
-              className="bg-emerald-600 text-white px-6 py-2 rounded-none font-bold text-[10px] uppercase shadow-md"
+              className="bg-emerald-600 text-white px-6 py-2 rounded-none font-bold text-[10px] uppercase shadow-md w-full sm:w-auto"
             >
               Nova Portaria
             </button>
