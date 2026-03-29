@@ -379,13 +379,13 @@ export default function PortariasPage() {
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible print:hidden">
         {/* HEADER */}
-        <section className="bg-[#B0B0B0] p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
-          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
+        <section className="bg-[#B0B0B0] p-2.5 sm:p-4 lg:p-6 py-3 border-b-[6px] border-[#E31E24] shrink-0 shadow-lg font-sans">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
             <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0 text-[#1A3351]">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 lg:w-6 h-5 lg:h-6" />
                 <div>
-                  <h2 className="text-lg sm:text-xl font-bold leading-none uppercase tracking-tight">
+                  <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight">
                     Portarias
                   </h2>
                   <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
@@ -395,7 +395,7 @@ export default function PortariasPage() {
               </div>
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
+                className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center"
               >
                 <Menu className="h-4 w-4" />
               </button>

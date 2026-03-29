@@ -7,6 +7,7 @@ import {
   Building2,
   FileText,
   SlidersHorizontal,
+  Search,
   X,
   ChevronDown,
 } from "lucide-react";
@@ -195,8 +196,9 @@ export default function CompactFilterBar(props: Readonly<Props>) {
   };
 
   return (
-    <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
-      <div className="flex-1 min-w-0">
+    <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-1.5 sm:gap-2 md:gap-3">
+      <div className="flex-1 min-w-0 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
         <SearchField
           value={searchTerm}
           onChange={setSearchTerm}
@@ -210,7 +212,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
         <button
           type="button"
           onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-          className="flex md:hidden items-center gap-2 w-full h-9 px-3 bg-white/80 border border-slate-200 shadow-sm rounded-none transition-all active:scale-[0.98]"
+          className="flex md:hidden items-center gap-1.5 sm:gap-2 w-full h-9 px-2 sm:px-3 bg-white/80 border border-slate-200 shadow-sm rounded-none transition-all active:scale-[0.98]"
           aria-label={
             isMobileFiltersOpen
               ? "Recolher filtros e ações"
@@ -261,7 +263,7 @@ export default function CompactFilterBar(props: Readonly<Props>) {
             active={Boolean(startDate || endDate)}
             icon={<Calendar className="w-4 h-4" />}
           >
-            <div className="w-72 p-4 space-y-3">
+            <div className="w-72 max-w-[calc(100vw-3rem)] p-4 space-y-3">
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-slate-400 uppercase">
                   Data inicial

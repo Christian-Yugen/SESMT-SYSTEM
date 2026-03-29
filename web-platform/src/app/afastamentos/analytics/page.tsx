@@ -438,13 +438,13 @@ export default function AfastamentosAnalyticsPage() {
       {/* MAIN */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
         {/* HEADER */}
-        <section className="bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
-          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
+        <section className="bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
             <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#1A3351]" />
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
+                  <h1 className="text-[15px] sm:text-lg md:text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
                     Afastamentos{" "}
                     <span className="text-emerald-600">Analytics</span>
                   </h1>
@@ -455,7 +455,7 @@ export default function AfastamentosAnalyticsPage() {
               </div>
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden h-9 w-9 bg-[#1A3351] text-white flex items-center justify-center"
+                className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] text-white flex items-center justify-center"
               >
                 <Menu className="h-4 w-4" />
               </button>

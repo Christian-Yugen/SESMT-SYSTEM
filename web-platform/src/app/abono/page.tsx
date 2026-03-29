@@ -566,14 +566,14 @@ export default function AbonoPage() {
           >
             <div className="overflow-visible">
               <section
-                className={`bg-[#B0B0B0] px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
+                className={`bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden transition-all duration-500 ease-in-out transform ${showHeader ? "translate-y-0" : "-translate-y-1/2"}`}
               >
-                <div className="flex flex-wrap items-center gap-2 md:flex-nowrap md:gap-3">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
                   <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0 text-[#1A3351]">
                     <div className="flex items-center gap-2">
                       <ClipboardList className="w-5 h-5" />
                       <div>
-                        <h2 className="text-lg sm:text-xl font-bold leading-none uppercase tracking-tight">
+                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight">
                           Abono Salarial
                         </h2>
                         <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
@@ -583,7 +583,7 @@ export default function AbonoPage() {
                     </div>
                     <button
                       onClick={() => setIsSidebarOpen(true)}
-                      className="lg:hidden h-9 w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
+                      className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 bg-[#1A3351] rounded-none text-white active:scale-95 transition-all shadow-md flex items-center justify-center shrink-0"
                     >
                       <Menu className="h-4 w-4" />
                     </button>
