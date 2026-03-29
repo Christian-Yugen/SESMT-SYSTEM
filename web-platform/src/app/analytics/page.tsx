@@ -36,6 +36,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import {
   countActiveFilters,
   type FilterState,
@@ -985,87 +987,63 @@ export default function AnalyticsPage() {
             className="flex-1 overflow-y-auto p-4 space-y-4"
           >
             {/* BIG NUMBERS */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-blue-600 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    Documentos
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-[#1A3351] leading-none mt-1">
-                    {filteredHistory.length}
-                  </h3>
-                </div>
-                <ClipboardList className="w-4 h-4 text-blue-100 hidden sm:block" />
-              </div>
+            <StatisticCardRow columns={6} className="shrink-0">
+              <StatisticCard
+                variant="analytic"
+                accent="primary"
+                title="Documentos"
+                value={filteredHistory.length}
+                icon={<ClipboardList className="w-5 h-5 text-slate-300" />}
+              />
 
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-[#1A3351] shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    ASOs
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-[#1A3351] leading-none mt-1">
-                    {
-                      filteredHistory.filter((h) =>
-                        h.aso_type?.toLowerCase?.().includes("aso"),
-                      ).length
-                    }
-                  </h3>
-                </div>
-                <HistoryIcon className="w-4 h-4 text-slate-200 hidden sm:block" />
-              </div>
+              <StatisticCard
+                variant="analytic"
+                accent="success"
+                title="ASOs"
+                value={
+                  filteredHistory.filter((h) =>
+                    h.aso_type?.toLowerCase?.().includes("aso"),
+                  ).length
+                }
+                icon={<HistoryIcon className="w-5 h-5 text-emerald-200" />}
+              />
 
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-[#E31E24] shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    Encaminhamentos
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-[#E31E24] leading-none mt-1">
-                    {
-                      filteredHistory.filter((h) =>
-                        h.aso_type?.toLowerCase?.().includes("encaminhamento"),
-                      ).length
-                    }
-                  </h3>
-                </div>
-                <FileSearch className="w-4 h-4 text-red-100 hidden sm:block" />
-              </div>
+              <StatisticCard
+                variant="analytic"
+                accent="info"
+                title="Encaminhamentos"
+                value={
+                  filteredHistory.filter((h) =>
+                    h.aso_type?.toLowerCase?.().includes("encaminhamento"),
+                  ).length
+                }
+                icon={<FileSearch className="w-5 h-5 text-blue-200" />}
+              />
 
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-emerald-500 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    Secretarias
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-emerald-600 leading-none mt-1">
-                    {new Set(filteredHistory.map((h) => h.secretaria)).size}
-                  </h3>
-                </div>
-                <Building2 className="w-4 h-4 text-emerald-100 hidden sm:block" />
-              </div>
+              <StatisticCard
+                variant="analytic"
+                accent="neutral"
+                title="Secretarias"
+                value={new Set(filteredHistory.map((h) => h.secretaria)).size}
+                icon={<Building2 className="w-5 h-5 text-slate-300" />}
+              />
 
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-orange-500 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    Período Manhã
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-orange-600 leading-none mt-1">
-                    {chartData.morningTotal}
-                  </h3>
-                </div>
-                <Activity className="w-4 h-4 text-orange-100 hidden sm:block" />
-              </div>
+              <StatisticCard
+                variant="analytic"
+                accent="warning"
+                title="Período Manhã"
+                value={chartData.morningTotal}
+                icon={<Activity className="w-5 h-5 text-amber-200" />}
+              />
 
-              <div className="bg-white p-3 lg:p-4 border-l-4 border-purple-500 shadow-md flex items-center justify-between rounded-none-none lg:rounded-none-none">
-                <div>
-                  <p className="text-[8px] lg:text-[10px] font-bold text-black/40 uppercase tracking-widest leading-tight">
-                    Período Tarde
-                  </p>
-                  <h3 className="text-xl lg:text-2xl font-bold text-purple-600 leading-none mt-1">
-                    {chartData.afternoonTotal}
-                  </h3>
-                </div>
-                <Activity className="w-4 h-4 text-purple-100 hidden sm:block" />
-              </div>
-            </div>
+              <StatisticCard
+                variant="analytic"
+                accent="danger"
+                title="Período Tarde"
+                value={chartData.afternoonTotal}
+                icon={<Activity className="w-5 h-5 text-red-200" />}
+              />
+            </StatisticCardRow>
 
             {/* EXPANDABLE INSIGHTS: FLUXO HORÁRIO */}
             {showHourAnalysis && (
