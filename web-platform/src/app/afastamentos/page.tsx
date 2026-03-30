@@ -1304,7 +1304,10 @@ export default function AfastamentosPage() {
                     />
 
                     {expandedCpf === group.cpf && (
-                      <div className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5">
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5"
+                      >
                         <div className="space-y-6">
                           <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">
                             Histórico de Benefícios
@@ -1511,7 +1514,8 @@ export default function AfastamentosPage() {
                                     )}
                                     {/* Botão CID isolado à direita */}
                                     <button
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         const s = new Set(revealedCids);
                                         if (s.has(record.id))
                                           s.delete(record.id);
