@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
-  Activity,
   Menu,
   ChevronDown,
   ChevronUp,
@@ -16,7 +15,6 @@ import {
   TrendingUp,
   PlusCircle,
   ArrowRight,
-  Building2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
@@ -34,6 +32,9 @@ import {
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
+import RecordItem from "@/components/records/RecordItem";
+import RecordDatePeriod from "@/components/records/RecordDatePeriod";
+import { maskCpf } from "@/lib/record-utils";
 
 /** Dados de um registro de abono para comparação em logs de auditoria. */
 interface AbonoLogData {
@@ -57,13 +58,6 @@ interface AbonoLog {
 
 // Normaliza CPF removendo caracteres não numéricos para agrupamento consistente
 const normalizeCpf = (cpf: string) => cpf.replace(/\D/g, "");
-
-// Formata CPF para exibição: xxx.xxx.xxx-xx
-const formatCpf = (cpf: string) => {
-  const digits = cpf.replace(/\D/g, "");
-  if (digits.length !== 11) return cpf;
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
-};
 
 export default function AbonoPage() {
   const INITIAL_FILTERS: FilterState = {
@@ -804,127 +798,105 @@ export default function AbonoPage() {
                       key={group.cpf}
                       className={`transition-all duration-500 relative ${expandedCpf === group.cpf ? "z-[50] scale-[1.02] shadow-2xl ring-1 ring-black/5 bg-white" : "z-10 transition-opacity opacity-100"}`}
                     >
-                      <div
+                      <RecordItem
+                        expanded={expandedCpf === group.cpf}
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedCpf(
                             expandedCpf === group.cpf ? null : group.cpf,
                           );
                         }}
-                        className={`px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-slate-50 cursor-pointer transition-all border-l-8 ${expandedCpf === group.cpf ? "bg-white border-[#1A3351]" : "border-transparent"}`}
-                      >
-                        <div className="flex items-center gap-5 flex-1">
-                          <div
-                            className={`p-4 transition-colors shadow-sm ${expandedCpf === group.cpf ? "bg-[#1A3351] text-white" : "bg-slate-100 text-slate-400"}`}
+                        name={group.nome}
+                        cpf={maskCpf(group.cpf)}
+                        cargo={
+                          typeof group.benefits[0].natureza_cargo === "string"
+                            ? group.benefits[0].natureza_cargo
+                            : undefined
+                        }
+                        matricula={
+                          typeof group.benefits[0].servidor_matricula ===
+                          "string"
+                            ? group.benefits[0].servidor_matricula
+                            : undefined
+                        }
+                        natureza={
+                          typeof group.benefits[0].natureza_cargo === "string"
+                            ? group.benefits[0].natureza_cargo
+                            : undefined
+                        }
+                        secretaria={
+                          typeof group.benefits[0].secretaria === "string"
+                            ? group.benefits[0].secretaria
+                            : undefined
+                        }
+                        contrato={
+                          typeof group.benefits[0].servidor_contrato ===
+                          "string"
+                            ? group.benefits[0].servidor_contrato
+                            : undefined
+                        }
+                        badges={
+                          <span className="text-[11px] font-normal px-1.5 py-0.5 bg-slate-200 text-slate-600 uppercase whitespace-nowrap">
+                            {group.benefits.length}{" "}
+                            {group.benefits.length === 1
+                              ? "Benefício"
+                              : "Benefícios"}
+                          </span>
+                        }
+                        actions={
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.print();
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-[#1A3351] hover:bg-slate-100 transition-colors shrink-0"
+                            title="Imprimir"
                           >
-                            <User className="w-8 h-8" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-3">
-                              <h4
-                                className={`font-bold uppercase text-[#1A3351] leading-tight transition-all ${expandedCpf === group.cpf ? "text-2xl" : "text-lg"}`}
-                              >
-                                {group.nome}
-                              </h4>
-                              {expandedCpf === group.cpf && (
-                                <span className="text-[10px] font-bold bg-[#1A3351] text-white px-2 py-0.5 rounded-none animate-pulse flex items-center gap-1 shrink-0">
-                                  <div className="w-1.5 h-1.5 bg-white rounded-full" />{" "}
-                                  REGISTRO EM FOCO
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap gap-4 mt-1">
-                              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                                M: {group.benefits[0].servidor_matricula} | C:{" "}
-                                {group.benefits[0].servidor_contrato}
-                              </p>
-                              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                CPF: {formatCpf(group.cpf)}
-                              </p>
-                              {group.benefits[0].secretaria && (
-                                <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                                  <Building2 className="w-3 h-3 text-slate-400" />{" "}
-                                  {group.benefits[0].secretaria}
-                                </p>
-                              )}
-                              {group.benefits[0].natureza_cargo && (
-                                <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                                  <Activity className="w-3 h-3 text-slate-400" />{" "}
-                                  {group.benefits[0].natureza_cargo}
-                                </p>
-                              )}
-                              <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded-none-none uppercase">
-                                {group.benefits.length}{" "}
-                                {group.benefits.length === 1
-                                  ? "Benefício"
-                                  : "Benefícios"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {expandedCpf !== group.cpf && (
-                            <div className="hidden md:flex items-center gap-6 mr-4 bg-slate-100/50 px-4 py-2 rounded-none-none border border-slate-200">
-                              <div className="flex flex-col items-start leading-none">
-                                <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">
-                                  Último Início
-                                </p>
-                                <p className="text-xs font-bold text-[#1A3351]">
-                                  {formatDate(group.benefits[0].inicio)}
-                                </p>
-                              </div>
-                              <div className="w-px h-6 bg-slate-300" />
-                              <div className="flex flex-col items-start leading-none">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">
-                                  Próximo Término
-                                </p>
-                                <p
-                                  className={`text-sm font-bold ${(() => {
-                                    if (!group.benefits[0].inicio)
-                                      return "text-slate-400";
-                                    const parts =
-                                      group.benefits[0].inicio.split("-");
-                                    const endDate = new Date(
-                                      parseInt(parts[0]),
-                                      parseInt(parts[1]) - 1,
-                                      parseInt(parts[2]),
-                                    );
-                                    endDate.setFullYear(
-                                      endDate.getFullYear() + 1,
-                                    );
-                                    const today = new Date();
-                                    today.setHours(0, 0, 0, 0);
-                                    return endDate < today
-                                      ? "text-[#E31E24]"
-                                      : "text-green-600";
-                                  })()}`}
-                                >
-                                  {group.benefits[0].inicio
-                                    ? (() => {
-                                        const parts =
-                                          group.benefits[0].inicio.split("-");
-                                        const date = new Date(
-                                          parseInt(parts[0]),
-                                          parseInt(parts[1]) - 1,
-                                          parseInt(parts[2]),
-                                        );
-                                        date.setFullYear(
-                                          date.getFullYear() + 1,
-                                        );
-                                        return date.toLocaleDateString("pt-BR");
-                                      })()
-                                    : "---"}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                          {expandedCpf !== group.cpf ? (
-                            <ChevronDown className="w-5 h-5 text-slate-400" />
-                          ) : (
-                            <ChevronUp className="w-5 h-5 text-[#1A3351]" />
-                          )}
-                        </div>
-                      </div>
+                            <Printer className="w-4 h-4" />
+                          </button>
+                        }
+                        rightMeta={
+                          expandedCpf !== group.cpf ? (
+                            <RecordDatePeriod
+                              startDate={formatDate(group.benefits[0].inicio)}
+                              endDate={
+                                group.benefits[0].inicio
+                                  ? (() => {
+                                      const parts =
+                                        group.benefits[0].inicio.split("-");
+                                      const d = new Date(
+                                        parseInt(parts[0]),
+                                        parseInt(parts[1]) - 1,
+                                        parseInt(parts[2]),
+                                      );
+                                      d.setFullYear(d.getFullYear() + 1);
+                                      return d.toLocaleDateString("pt-BR");
+                                    })()
+                                  : "---"
+                              }
+                              endColor={
+                                group.benefits[0].inicio
+                                  ? (() => {
+                                      const parts =
+                                        group.benefits[0].inicio.split("-");
+                                      const d = new Date(
+                                        parseInt(parts[0]),
+                                        parseInt(parts[1]) - 1,
+                                        parseInt(parts[2]),
+                                      );
+                                      d.setFullYear(d.getFullYear() + 1);
+                                      const today = new Date();
+                                      today.setHours(0, 0, 0, 0);
+                                      return d < today
+                                        ? "text-[#E31E24]"
+                                        : "text-green-600";
+                                    })()
+                                  : "text-slate-400"
+                              }
+                            />
+                          ) : undefined
+                        }
+                      />
 
                       {expandedCpf === group.cpf && (
                         <div className="px-6 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-2 duration-300 relative z-[50] -mx-2 shadow-2xl">

@@ -7,8 +7,6 @@ import {
   Activity,
   X,
   Menu,
-  ChevronDown,
-  ChevronUp,
   History as HistoryIcon,
   BarChart3,
   User,
@@ -37,6 +35,9 @@ import {
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
 import type { ExamEntry } from "@/types";
+import RecordItem from "@/components/records/RecordItem";
+import RecordDateSingle from "@/components/records/RecordDateSingle";
+import { maskCpf } from "@/lib/record-utils";
 
 /** Entrada de histórico de edições de auditoria do ASO. */
 interface EditHistoryEntry {
@@ -78,8 +79,10 @@ interface HistoryEntry {
   id: number;
   servidor_cpf: string;
   servidor_nome: string;
+  servidor_matricula?: string;
   aso_type: string;
   cargo?: string;
+  natureza_cargo?: string;
   secretaria?: string;
   contrato?: string;
   ghe_conj?: string;
@@ -1415,113 +1418,58 @@ export default function HistoryPage() {
               {sortedHistory.length > 0 ? (
                 sortedHistory.map((entry) => (
                   <div key={entry.id} className="group">
-                    <div
+                    <RecordItem
+                      expanded={expandedId === entry.id}
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedId(
                           expandedId === entry.id ? null : entry.id,
                         );
                       }}
-                      className={`px-4 lg:px-6 py-3 lg:py-2.5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 lg:gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-[6px] relative ${
-                        entry.deletion_pending
-                          ? "bg-amber-50/50 border-amber-500 opacity-60"
-                          : expandedId === entry.id
-                            ? "bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.03] -mx-2 mb-2 rounded-sm ring-1 ring-black/5"
-                            : "bg-white border-transparent z-10 hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 lg:gap-4 flex-1 w-full">
-                        <div
-                          className={`p-2 lg:p-1.5 rounded-none transition-colors shrink-0 ${expandedId === entry.id ? "bg-[#1A3351] text-white" : "bg-slate-100 text-slate-400"}`}
-                        >
-                          <ClipboardList
-                            className={`${expandedId === entry.id ? "w-5 h-5" : "w-4 h-4"}`}
-                          />
-                        </div>
-                        <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3 flex-1 min-w-0">
-                          <h4
-                            className={`font-bold uppercase text-[#1A3351] leading-tight truncate transition-all duration-300 ${expandedId === entry.id ? "text-lg lg:text-xl" : "text-sm"}`}
-                          >
-                            <span className="flex items-center gap-2">
-                              {entry.servidor_nome}
-                              {entry.contrato && (
-                                <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 font-bold tracking-tighter">
-                                  C. {entry.contrato}
-                                </span>
-                              )}
-                            </span>
-                          </h4>
-                          <div className="flex flex-wrap gap-2 items-center">
-                            {entry.deletion_pending && (
-                              <span className="bg-amber-500 text-white px-2 py-0.5 rounded-none text-[8px] lg:text-[9px] font-bold tracking-widest shrink-0 animate-pulse">
-                                ⚠️ EXCLUSÃO PENDENTE
-                              </span>
-                            )}
-                            {expandedId === entry.id &&
-                              !entry.deletion_pending && (
-                                <span className="bg-[#1A3351] text-white px-1.5 lg:py-0.5 rounded-none text-[9px] lg:text-[10px] font-bold tracking-widest shrink-0">
-                                  REF: #{entry.id}
-                                </span>
-                              )}
-                            <div
-                              className={`flex gap-3 font-bold uppercase transition-all duration-300 ${expandedId === entry.id ? "text-[10px] lg:text-xs" : "text-[9px]"}`}
-                            >
-                              <span className="text-[#E31E24] truncate max-w-[150px] lg:max-w-none">
-                                {(() => {
-                                  const raw = entry.aso_type || "";
-                                  if (
-                                    raw.includes("{") ||
-                                    raw.includes("<") ||
-                                    raw.includes("[")
-                                  ) {
-                                    return raw
-                                      .split(" {")[0]
-                                      .split(" <")[0]
-                                      .split(" [")[0];
-                                  }
-                                  return raw;
-                                })()}
-                              </span>
-                              {expandedId !== entry.id && (
-                                <span className="text-slate-500 font-bold">
-                                  #{entry.id}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className={`flex items-center justify-between lg:justify-end gap-6 w-full lg:w-auto lg:shrink-0 lg:text-right transition-all border-t lg:border-t-0 border-slate-100 pt-2 lg:pt-0 ${expandedId === entry.id ? "opacity-100" : "opacity-80"}`}
-                      >
-                        <div className="flex flex-col">
-                          <span
-                            className={`font-medium text-slate-400 uppercase transition-all ${expandedId === entry.id ? "text-[10px]" : "text-[8px]"}`}
-                          >
-                            Registro
-                          </span>
-                          <span
-                            className={`font-semibold text-slate-700 transition-all ${expandedId === entry.id ? "text-xs lg:text-sm" : "text-[10px]"}`}
-                          >
-                            {new Date(entry.generated_at).toLocaleString(
-                              "pt-BR",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )}
-                          </span>
-                        </div>
-                        {expandedId === entry.id ? (
-                          <ChevronUp className="w-5 h-5 text-[#1A3351]" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
-                        )}
-                      </div>
-                    </div>
+                      name={entry.servidor_nome}
+                      cpf={maskCpf(entry.servidor_cpf)}
+                      cargo={entry.cargo}
+                      matricula={entry.servidor_matricula}
+                      natureza={entry.natureza_cargo}
+                      secretaria={entry.secretaria}
+                      contrato={entry.contrato}
+                      badges={
+                        <span className="text-[11px] font-normal text-[#E31E24] uppercase bg-red-50 px-1.5 py-0.5 border border-red-100 whitespace-nowrap">
+                          {(() => {
+                            const raw = entry.aso_type || "";
+                            if (
+                              raw.includes("{") ||
+                              raw.includes("<") ||
+                              raw.includes("[")
+                            ) {
+                              return raw
+                                .split(" {")[0]
+                                .split(" <")[0]
+                                .split(" [")[0];
+                            }
+                            return raw;
+                          })()}
+                        </span>
+                      }
+                      alert={entry.deletion_pending}
+                      alertClass="bg-amber-50/50 border-amber-500 opacity-60"
+                      rightMeta={
+                        <RecordDateSingle
+                          label="Registro"
+                          date={new Date(entry.generated_at).toLocaleString(
+                            "pt-BR",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                          expanded={expandedId === entry.id}
+                        />
+                      }
+                    />
 
                     {/* Detalhes Expandidos */}
                     {expandedId === entry.id && (
