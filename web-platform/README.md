@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Visual Governance
+
+Any UI, UX, layout, responsiveness, or visual structure work in SESMT-SYSTEM must follow the canonical governance document:
+
+- `DESIGN_SYSTEM_SESMT_GOVERNANCA_VISUAL_UNIFICADA.md`
+
+Agents and contributors must also follow the repository-level instructions in:
+
+- `../AGENTS.md`
+
 ## Getting Started
 
 First, run the development server:
