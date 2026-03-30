@@ -30,21 +30,21 @@ import {
   FileEdit,
   Save,
   FileText,
+  Briefcase,
+  ListFilter,
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
+import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
 import {
   type FilterState,
+  countActiveFilters,
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
-import type {
-  AfastamentoStatusFilter,
-  SortOrder,
-} from "@/components/filters/types";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
@@ -218,11 +218,13 @@ export default function AfastamentosPage() {
     "all" | "active" | "expired" | "alert" | "finished"
   >("all");
   const [sortBy, setSortBy] = useState<"alphabetical" | "newest" | "oldest">(
-    "alphabetical",
+    "newest",
   );
   const [tipoAfastamentoFilter, setTipoAfastamentoFilter] =
     useState<string>("all");
   const [cargoFilter, setCargoFilter] = useState<string>("all");
+  const [isTipoFilterOpen, setIsTipoFilterOpen] = useState(false);
+  const [isCargoFilterOpen, setIsCargoFilterOpen] = useState(false);
   const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
   const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
     "landscape",
@@ -823,6 +825,24 @@ export default function AfastamentosPage() {
     return Array.from(unique).sort();
   }, [records]);
 
+  const uniqueTipos = useMemo(() => {
+    const unique = new Set(
+      records
+        .map((r) => r.tipo_afastamento)
+        .filter((v): v is string => Boolean(v)),
+    );
+    return Array.from(unique).sort();
+  }, [records]);
+
+  const uniqueCargos = useMemo(() => {
+    const unique = new Set(
+      records
+        .map((r) => r.servidor_cargo)
+        .filter((v): v is string => Boolean(v)),
+    );
+    return Array.from(unique).sort();
+  }, [records]);
+
   const stats = useMemo(() => {
     return {
       totalServidores: new Set(filteredRecords.map((r) => r.servidor_cpf)).size,
@@ -930,8 +950,73 @@ export default function AfastamentosPage() {
                     asoTypeLabelDefault="NATUREZA CARGO"
                     asoTypeOptions={["all", ...uniqueNaturezas]}
                     showUserFilter={false}
+                    activeFilterCount={
+                      countActiveFilters(filters) +
+                      (tipoAfastamentoFilter !== "all" ? 1 : 0) +
+                      (cargoFilter !== "all" ? 1 : 0)
+                    }
                     extraActions={
                       <>
+                        <ActionIconButton
+                          icon={<ListFilter className="w-4 h-4" />}
+                          label="Filtrar por tipo de afastamento"
+                          variant="filter"
+                          active={tipoAfastamentoFilter !== "all"}
+                          open={isTipoFilterOpen}
+                          onToggle={setIsTipoFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-56 bg-white border border-slate-200 shadow-2xl p-3 space-y-2">
+                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                              Tipo de afastamento
+                            </p>
+                            <select
+                              value={tipoAfastamentoFilter}
+                              onChange={(e) => {
+                                setTipoAfastamentoFilter(e.target.value);
+                                setIsTipoFilterOpen(false);
+                              }}
+                              className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
+                            >
+                              <option value="all">TODOS OS TIPOS</option>
+                              {uniqueTipos.map((t) => (
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </ActionIconButton>
+                        <ActionIconButton
+                          icon={<Briefcase className="w-4 h-4" />}
+                          label="Filtrar por cargo"
+                          variant="filter"
+                          active={cargoFilter !== "all"}
+                          open={isCargoFilterOpen}
+                          onToggle={setIsCargoFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-56 bg-white border border-slate-200 shadow-2xl p-3 space-y-2">
+                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                              Cargo
+                            </p>
+                            <select
+                              value={cargoFilter}
+                              onChange={(e) => {
+                                setCargoFilter(e.target.value);
+                                setIsCargoFilterOpen(false);
+                              }}
+                              className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
+                            >
+                              <option value="all">TODOS OS CARGOS</option>
+                              {uniqueCargos.map((c) => (
+                                <option key={c} value={c}>
+                                  {c}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </ActionIconButton>
                         <ActionIconButton
                           icon={<Printer className="w-4 h-4" />}
                           label="Gerar relatório PDF"
@@ -1109,104 +1194,19 @@ export default function AfastamentosPage() {
 
           {/* LISTA */}
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
-            <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
                 Registros de Afastamento
               </h3>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center bg-white/50 shadow-inner border border-black/5 h-10 p-1">
-                  {[
-                    { key: "all", label: "Todos", color: "bg-[#1A3351]" },
-                    { key: "active", label: "Ativos", color: "bg-green-600" },
-                    { key: "alert", label: "Vencendo", color: "bg-amber-500" },
-                    {
-                      key: "expired",
-                      label: "Vencidos",
-                      color: "bg-[#E31E24]",
-                    },
-                    {
-                      key: "finished",
-                      label: "Finalizados",
-                      color: "bg-blue-600",
-                    },
-                  ].map((btn) => (
-                    <button
-                      key={btn.key}
-                      onClick={() =>
-                        setStatusFilter(btn.key as AfastamentoStatusFilter)
-                      }
-                      className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center ${statusFilter === btn.key ? btn.color + " text-white shadow-md" : "text-slate-600 hover:bg-black/5"}`}
-                    >
-                      {btn.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-slate-500 uppercase">
-                      Tipo:
-                    </span>
-                    <select
-                      value={tipoAfastamentoFilter}
-                      onChange={(e) => setTipoAfastamentoFilter(e.target.value)}
-                      className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]"
-                    >
-                      <option value="all">TODOS OS TIPOS</option>
-                      {Array.from(
-                        new Set(
-                          records
-                            .map((r) => r.tipo_afastamento)
-                            .filter(Boolean),
-                        ),
-                      )
-                        .sort()
-                        .map((t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-slate-500 uppercase">
-                      Cargo:
-                    </span>
-                    <select
-                      value={cargoFilter}
-                      onChange={(e) => setCargoFilter(e.target.value)}
-                      className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]"
-                    >
-                      <option value="all">TODOS OS CARGOS</option>
-                      {Array.from(
-                        new Set(
-                          records.map((r) => r.servidor_cargo).filter(Boolean),
-                        ),
-                      )
-                        .sort()
-                        .map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-slate-500 uppercase">
-                      Ordenar:
-                    </span>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as SortOrder)}
-                      className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer"
-                    >
-                      <option value="alphabetical">Ordem Alfabética</option>
-                      <option value="newest">Mais Novos</option>
-                      <option value="oldest">Mais Antigos</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+              <SortAlphaToggle
+                active={sortBy === "alphabetical"}
+                onToggle={() =>
+                  setSortBy(
+                    sortBy === "alphabetical" ? "newest" : "alphabetical",
+                  )
+                }
+                count={groupedRecords.length}
+              />
             </div>
 
             <div className="divide-y divide-slate-200">

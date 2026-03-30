@@ -23,6 +23,7 @@ import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
+import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
 import {
   countActiveFilters,
   normalizeSearchTerm,
@@ -500,34 +501,17 @@ export default function PortariasPage() {
 
           {/* LISTA */}
           <div className="bg-white border-2 border-slate-300 shadow-2xl overflow-hidden rounded-none">
-            <div className="bg-[#B0B0B0] px-6 py-4 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-[#1A3351]">
-                  Registro Digital de Portarias
-                </h3>
-                <p className="text-[9px] font-bold text-slate-600 uppercase">
-                  Portarias oficiais geradas via SESMT SYSTEM
-                </p>
-              </div>
-              <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-slate-600 uppercase">
-                    Ordem:
-                  </span>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value)}
-                    className="bg-[#D3D3D3] border border-slate-400 text-[10px] font-bold uppercase px-3 py-1.5 outline-none focus:border-[#1A3351]"
-                  >
-                    <option value="date-desc">Recentes Primeiro</option>
-                    <option value="numero">Nº Portaria</option>
-                    <option value="alpha">Ordem Alfabética</option>
-                  </select>
-                </div>
-                <div className="text-[10px] font-bold text-slate-700 uppercase bg-slate-200 px-3 py-1.5 border border-slate-300">
-                  {sortedRecords.length} ITENS
-                </div>
-              </div>
+            <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
+                Registro Digital de Portarias
+              </h3>
+              <SortAlphaToggle
+                active={sortOrder === "alpha"}
+                onToggle={() =>
+                  setSortOrder(sortOrder === "alpha" ? "date-desc" : "alpha")
+                }
+                count={sortedRecords.length}
+              />
             </div>
 
             <div className="divide-y divide-slate-100">
