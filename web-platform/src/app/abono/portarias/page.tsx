@@ -4,8 +4,6 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Menu,
-  ChevronDown,
-  ChevronUp,
   History as HistoryIcon,
   Printer,
   Loader2,
@@ -13,7 +11,6 @@ import {
   PlusCircle,
   Download,
   Eye,
-  Building2,
   PencilLine,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -31,6 +28,9 @@ import {
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { AuditLogRecord } from "@/types";
 import { generatePortariaPDF, PortariaData } from "@/lib/portaria-pdf";
+import RecordItem from "@/components/records/RecordItem";
+import RecordDateSingle from "@/components/records/RecordDateSingle";
+import { maskCpf } from "@/lib/record-utils";
 
 interface PortariaRecord {
   id: number;
@@ -46,6 +46,7 @@ interface PortariaRecord {
   periodo_fim: string;
   data_portaria: string;
   servidor_contrato?: string;
+  natureza_cargo?: string;
   criado_por: string;
   criado_por_nome: string;
   created_at: string;
@@ -94,7 +95,27 @@ export default function PortariasPage() {
       .order("numero", { ascending: false });
 
     if (!error && data) {
-      setRecords(data);
+      // Enriquecer com natureza_cargo do cadastro de servidores
+      const cpfs = Array.from(new Set(data.map((r) => r.servidor_cpf?.replace(/\D/g, "")).filter(Boolean)));
+      const { data: servData } = await supabase
+        .from("servidores")
+        .select("cpf, natureza_cargo")
+        .in("cpf", cpfs);
+
+      if (servData) {
+        const servMap: Record<string, string> = {};
+        servData.forEach((s) => {
+          const key = s.cpf?.replace(/\D/g, "");
+          if (key && s.natureza_cargo && !servMap[key]) servMap[key] = s.natureza_cargo;
+        });
+        const enriched = data.map((r) => {
+          const key = r.servidor_cpf?.replace(/\D/g, "") || "";
+          return { ...r, natureza_cargo: servMap[key] || undefined };
+        });
+        setRecords(enriched);
+      } else {
+        setRecords(data);
+      }
       await loadLogs();
     } else if (error) {
       console.error("Erro ao carregar portarias:", error);
@@ -518,62 +539,36 @@ export default function PortariasPage() {
               {sortedRecords.length > 0 ? (
                 sortedRecords.map((entry) => (
                   <div key={entry.id} className="group">
-                    <div
+                    <RecordItem
+                      expanded={expandedId === entry.id}
                       onClick={() =>
                         setExpandedId(expandedId === entry.id ? null : entry.id)
                       }
-                      className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-slate-50 cursor-pointer transition-all border-l-[6px] ${expandedId === entry.id ? "bg-[#1A3351]/5 border-[#1A3351]" : "border-transparent"}`}
-                    >
-                      <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
-                        <div
-                          className={`p-2 lg:p-2.5 rounded-none shadow-sm transition-all duration-300 shrink-0 ${expandedId === entry.id ? "bg-[#1A3351] text-white" : "bg-slate-100 text-slate-400"}`}
-                        >
-                          <FileText
-                            className={`${expandedId === entry.id ? "w-5 lg:w-6 h-5 lg:h-6" : "w-4 lg:w-5 h-4 lg:h-5"}`}
-                          />
-                        </div>
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <div className="flex items-baseline gap-2 lg:gap-4 overflow-hidden">
-                            <h4
-                              className={`font-bold uppercase text-[#1A3351] leading-none transition-all duration-300 truncate ${expandedId === entry.id ? "text-lg lg:text-xl" : "text-sm lg:text-base"}`}
-                            >
-                              {entry.servidor_nome}
-                            </h4>
-                            <span className="text-[8px] lg:text-[10px] font-bold text-amber-700 uppercase tracking-widest bg-amber-50 px-1.5 lg:px-2 py-0.5 border border-amber-200 shrink-0">
-                              Nº {entry.numero}
-                            </span>
-                          </div>
-                          <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2">
-                            <span className="text-[8px] lg:text-[10px] font-bold text-[#1A3351] uppercase bg-blue-50 px-1.5 lg:px-2 py-0.5 border border-blue-100 truncate">
-                              PORTARIA {entry.numero}/SEGP/DGP/{entry.ano}
-                            </span>
-                            <span className="text-[8px] lg:text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                              <Building2 className="w-3 h-3 shrink-0" />{" "}
-                              {entry.servidor_lotacao || "---"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className={`flex items-center justify-between lg:justify-end gap-4 lg:gap-8 w-full lg:w-auto shrink-0 transition-all ${expandedId === entry.id ? "opacity-100" : "opacity-70"}`}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-bold text-[8px] lg:text-[9px] text-slate-400 uppercase mb-0.5 block tracking-widest">
-                            Data
+                      name={entry.servidor_nome}
+                      cpf={maskCpf(entry.servidor_cpf)}
+                      cargo={entry.servidor_cargo}
+                      matricula={entry.servidor_matricula}
+                      natureza={entry.natureza_cargo}
+                      secretaria={entry.servidor_lotacao}
+                      contrato={entry.servidor_contrato}
+                      badges={
+                        <>
+                          <span className="text-[11px] font-normal text-amber-700 uppercase tracking-wide bg-amber-50 px-1.5 py-0.5 border border-amber-200 whitespace-nowrap">
+                            Nº {entry.numero}
                           </span>
-                          <span
-                            className={`font-bold text-slate-800 transition-all ${expandedId === entry.id ? "text-sm lg:text-base" : "text-[10px] lg:text-xs"}`}
-                          >
-                            {formatDate(entry.data_portaria)}
+                          <span className="text-[11px] font-normal text-[#1A3351] uppercase bg-blue-50 px-1.5 py-0.5 border border-blue-100 whitespace-nowrap hidden sm:inline">
+                            PORTARIA {entry.numero}/SEGP/DGP/{entry.ano}
                           </span>
-                        </div>
-                        {expandedId === entry.id ? (
-                          <ChevronUp className="w-6 h-6 text-[#1A3351]" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-slate-300" />
-                        )}
-                      </div>
-                    </div>
+                        </>
+                      }
+                      rightMeta={
+                        <RecordDateSingle
+                          label="Data"
+                          date={formatDate(entry.data_portaria)}
+                          expanded={expandedId === entry.id}
+                        />
+                      }
+                    />
 
                     {/* DETALHES */}
                     {expandedId === entry.id && (

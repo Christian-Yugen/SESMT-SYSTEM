@@ -13,14 +13,10 @@ import {
   Activity,
   X,
   Menu,
-  ChevronDown,
-  ChevronUp,
-  User,
   ClipboardList,
   Search,
   Printer,
   PlusCircle,
-  Building2,
   CheckCircle2,
   Clock,
   RotateCcw,
@@ -54,6 +50,9 @@ import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import { BarChart3 } from "lucide-react";
 import type { AfastamentoRecord } from "@/types";
 import type { CIDDetails } from "@/lib/cid-utils";
+import RecordItem from "@/components/records/RecordItem";
+import RecordDatePeriod from "@/components/records/RecordDatePeriod";
+import { maskCpf } from "@/lib/record-utils";
 
 /** Entrada de log de auditoria de afastamento. */
 interface AfastamentoLog {
@@ -78,11 +77,6 @@ interface CIDRecord {
 }
 
 const normalizeCpf = (cpf: string) => cpf.replace(/\D/g, "");
-const formatCpf = (cpf: string) => {
-  const digits = cpf.replace(/\D/g, "");
-  if (digits.length !== 11) return cpf;
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
-};
 
 function CIDDetailItem({ cid }: { cid: CIDRecord }) {
   const [details, setDetails] = useState<CIDDetails | null>(null);
@@ -1213,64 +1207,39 @@ export default function AfastamentosPage() {
               {groupedRecords.length > 0 ? (
                 groupedRecords.map((group) => (
                   <div key={group.cpf}>
-                    <div
+                    <RecordItem
+                      expanded={expandedCpf === group.cpf}
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedCpf(
                           expandedCpf === group.cpf ? null : group.cpf,
                         );
                       }}
-                      className={`px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-white cursor-pointer transition-all duration-500 border-l-8 relative ${expandedCpf === group.cpf ? "bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2" : "bg-white border-transparent z-10 hover:border-slate-300"}`}
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div
-                          className={`p-3 transition-all duration-500 rounded-none ${expandedCpf === group.cpf ? "bg-[#1A3351] text-white rotate-3 scale-110 shadow-lg" : "bg-slate-100 text-slate-400"}`}
-                        >
-                          <User className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h4
-                            className={`font-bold uppercase text-[#1A3351] leading-tight ${expandedCpf === group.cpf ? "text-xl" : "text-base"}`}
-                          >
-                            {group.nome}
-                          </h4>
-                          <div className="flex flex-wrap gap-4 mt-1 items-center">
-                            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                              M: {group.items[0].servidor_matricula} | C:{" "}
-                              {group.items[0].servidor_contrato}
-                            </p>
-                            <p className="text-[10px] font-medium text-slate-500 uppercase">
-                              CPF: {formatCpf(group.cpf)}
-                            </p>
-                            {group.items[0].servidor_secretaria && (
-                              <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1">
-                                <Building2 className="w-3 h-3 text-slate-400" />{" "}
-                                {group.items[0].servidor_secretaria}
-                              </p>
-                            )}
-                            {group.items[0].natureza_cargo && (
-                              <p className="text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1">
-                                <Activity className="w-3 h-3 text-slate-400" />{" "}
-                                {group.items[0].natureza_cargo}
-                              </p>
-                            )}
-                            <span className="text-[10px] font-bold px-2 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center">
-                              {
-                                group.items.filter(
-                                  (i) =>
-                                    getStatus(i) === "active" ||
-                                    getStatus(i) === "alert",
-                                ).length
-                              }{" "}
-                              VIGENTE(S)
-                            </span>
-                            <span className="text-[10px] font-bold px-2 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center">
-                              {group.items.length} TOTAL
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
+                      name={group.nome}
+                      cpf={maskCpf(group.cpf)}
+                      cargo={group.items[0].servidor_cargo}
+                      matricula={group.items[0].servidor_matricula}
+                      natureza={group.items[0].natureza_cargo}
+                      secretaria={group.items[0].servidor_secretaria}
+                      contrato={group.items[0].servidor_contrato}
+                      badges={
+                        <>
+                          <span className="text-[11px] font-normal px-1.5 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center whitespace-nowrap">
+                            {
+                              group.items.filter(
+                                (i) =>
+                                  getStatus(i) === "active" ||
+                                  getStatus(i) === "alert",
+                              ).length
+                            }{" "}
+                            VIGENTE(S)
+                          </span>
+                          <span className="text-[11px] font-normal px-1.5 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center whitespace-nowrap">
+                            {group.items.length} TOTAL
+                          </span>
+                        </>
+                      }
+                      actions={
                         <button
                           onClick={async (e) => {
                             e.stopPropagation();
@@ -1305,32 +1274,20 @@ export default function AfastamentosPage() {
                               );
                             }
                           }}
-                          className="flex items-center gap-2 px-4 h-11 bg-white text-[#1A3351] hover:bg-slate-50 font-bold border border-slate-200 text-[10px] uppercase transition-all shadow-sm active:scale-95 group/btn shrink-0"
+                          className="flex items-center gap-1.5 px-3 h-8 bg-white text-[#1A3351] hover:bg-slate-50 font-bold border border-slate-200 text-[9px] uppercase transition-all shadow-sm active:scale-95 shrink-0"
                         >
-                          <FileText className="w-4 h-4 text-slate-400 group-hover/btn:text-[#1A3351]" />{" "}
+                          <FileText className="w-3.5 h-3.5 text-slate-400" />{" "}
                           Relatório
                         </button>
-
-                        {expandedCpf !== group.cpf && (
-                          <div className="flex flex-col items-end gap-1">
-                            <div className="hidden md:flex items-stretch bg-slate-100/80 px-4 h-11 border border-slate-200">
-                              <div className="flex flex-col justify-center leading-none min-w-[80px]">
-                                <p className="text-[7px] font-medium text-slate-500 uppercase mb-1">
-                                  Último Início
-                                </p>
-                                <p className="text-[11px] font-bold text-[#1A3351]">
-                                  {formatDate(group.items[0].data_inicio)}
-                                </p>
-                              </div>
-                              <div className="w-px bg-slate-200 mx-3 my-2" />
-                              <div className="flex flex-col justify-center leading-none min-w-[80px]">
-                                <p className="text-[7px] font-medium text-slate-500 uppercase mb-1">
-                                  Próximo Término
-                                </p>
-                                <p
-                                  className={`text-[11px] font-bold ${(() => {
-                                    if (!group.items[0].data_fim)
-                                      return "text-slate-400";
+                      }
+                      rightMeta={
+                        expandedCpf !== group.cpf ? (
+                          <RecordDatePeriod
+                            startDate={formatDate(group.items[0].data_inicio)}
+                            endDate={formatDate(group.items[0].data_fim)}
+                            endColor={
+                              group.items[0].data_fim
+                                ? (() => {
                                     const e = new Date(group.items[0].data_fim);
                                     e.setHours(0, 0, 0, 0);
                                     const t = new Date();
@@ -1338,23 +1295,13 @@ export default function AfastamentosPage() {
                                     return e < t
                                       ? "text-[#E31E24]"
                                       : "text-green-600";
-                                  })()}`}
-                                >
-                                  {formatDate(group.items[0].data_fim)}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-center w-8 h-11">
-                          {expandedCpf !== group.cpf ? (
-                            <ChevronDown className="w-5 h-5 text-slate-400" />
-                          ) : (
-                            <ChevronUp className="w-5 h-5 text-[#1A3351]" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                                  })()
+                                : "text-slate-400"
+                            }
+                          />
+                        ) : undefined
+                      }
+                    />
 
                     {expandedCpf === group.cpf && (
                       <div className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5">

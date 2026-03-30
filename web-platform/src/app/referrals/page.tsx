@@ -4,13 +4,11 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Menu,
-  ChevronUp,
-  ChevronDown,
   ClipboardList,
   Printer,
   Loader2,
-  CreditCard,
   Activity,
+  CreditCard,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
@@ -26,13 +24,18 @@ import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { ExamJsonItem } from "@/types";
+import RecordItem from "@/components/records/RecordItem";
+import RecordDateSingle from "@/components/records/RecordDateSingle";
+import { maskCpf } from "@/lib/record-utils";
 
 interface ReferralEntry {
   id: number;
   servidor_cpf: string;
   servidor_nome: string;
+  servidor_matricula?: string;
   aso_type: string;
   cargo?: string;
+  natureza_cargo?: string;
   secretaria?: string;
   ghe_conj?: string;
   function_name?: string;
@@ -186,7 +189,68 @@ export default function ReferralsPage() {
       .order("generated_at", { ascending: false });
 
     if (!histError && histData) {
-      setReferrals(histData);
+      // Enriquecer com dados do cadastro de servidores
+      const cpfs = Array.from(
+        new Set(
+          histData
+            .map((h) => h.servidor_cpf?.replace(/\D/g, ""))
+            .filter(Boolean),
+        ),
+      );
+      type ServRow = {
+        cpf: string;
+        matricula: string;
+        natureza_cargo: string;
+        cargo: string;
+        secretaria: string;
+        contrato: string;
+      };
+      const servMap: Record<string, ServRow> = {};
+
+      if (cpfs.length > 0) {
+        // Buscar em lotes para evitar limite do Supabase
+        const batchSize = 300;
+        for (let i = 0; i < cpfs.length; i += batchSize) {
+          const batch = cpfs.slice(i, i + batchSize);
+          const { data: servData, error: servError } = await supabase
+            .from("servidores")
+            .select(
+              "cpf, matricula, natureza_cargo, cargo, secretaria, contrato",
+            )
+            .in("cpf", batch);
+
+          if (servError) {
+            console.error("Erro ao buscar servidores (referrals):", servError);
+          }
+
+          if (servData) {
+            servData.forEach((s: ServRow) => {
+              const key = s.cpf?.replace(/\D/g, "");
+              if (key && !servMap[key]) servMap[key] = s;
+            });
+          }
+        }
+      }
+
+      console.log(
+        `[referrals] Enriquecimento: ${cpfs.length} CPFs, ${Object.keys(servMap).length} servidores encontrados`,
+      );
+
+      const enriched = histData.map((h) => {
+        const key = h.servidor_cpf?.replace(/\D/g, "") || "";
+        const srv = servMap[key];
+        return {
+          ...h,
+          // Campos que NÃO existem na aso_history: vêm exclusivamente do servidores
+          servidor_matricula: srv?.matricula || undefined,
+          natureza_cargo: srv?.natureza_cargo || undefined,
+          // Campos que existem na aso_history: prioridade para o dado local, fallback no servidores
+          cargo: h.cargo || srv?.cargo || undefined,
+          secretaria: h.secretaria || srv?.secretaria || undefined,
+          contrato: h.contrato || srv?.contrato || undefined,
+        };
+      });
+      setReferrals(enriched);
     }
 
     // Carrega mapeamento de perfis
@@ -431,78 +495,46 @@ export default function ReferralsPage() {
                       key={entry.id}
                       className={`group transition-all duration-500 relative ${expandedId === entry.id ? "z-[50] bg-white" : "z-10"}`}
                     >
-                      <div
+                      <RecordItem
+                        expanded={expandedId === entry.id}
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedId(
                             expandedId === entry.id ? null : entry.id,
                           );
                         }}
-                        className={`px-4 lg:px-8 py-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 hover:bg-white cursor-pointer transition-all duration-500 border-l-[8px] relative ${expandedId === entry.id ? "bg-white border-[#1A3351] z-[50] shadow-2xl scale-[1.02] -mx-2 rounded-sm ring-1 ring-black/5" : "bg-white border-transparent z-10 hover:border-slate-300"}`}
-                      >
-                        <div className="flex items-center gap-3 lg:gap-6 flex-1 w-full">
-                          <div
-                            className={`p-2 lg:p-2.5 shadow-sm transition-all duration-300 shrink-0 border-2 ${expandedId === entry.id ? "bg-[#1A3351] text-white border-[#1A3351]" : "bg-slate-100 text-slate-400 border-slate-200"}`}
-                          >
-                            <ClipboardList
-                              className={`${expandedId === entry.id ? "w-5 lg:w-6 h-5 lg:h-6" : "w-4 lg:w-5 h-4 lg:h-5"}`}
-                            />
-                          </div>
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <div className="flex items-baseline gap-2 lg:gap-4 overflow-hidden">
-                              <h4
-                                className={`font-bold uppercase text-[#1A3351] leading-none transition-all duration-300 truncate ${expandedId === entry.id ? "text-lg lg:text-xl" : "text-sm lg:text-base"}`}
-                              >
-                                {entry.servidor_nome}
-                              </h4>
-                              <span className="text-[8px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-1.5 lg:px-2 py-0.5 border border-slate-200 shrink-0">
-                                #{entry.id}
-                              </span>
-                            </div>
-                            <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2">
-                              <span className="text-[8px] lg:text-[10px] font-bold text-[#E31E24] uppercase bg-red-50 px-1.5 lg:px-2 py-0.5 border border-red-100 truncate">
-                                {entry.aso_type
-                                  .split("{")[0]
-                                  .split("<")[0]
-                                  .split("[")[0]
-                                  .trim()}
-                              </span>
-                              <span className="text-[8px] lg:text-[10px] font-medium text-slate-500 uppercase flex items-center gap-1">
-                                <CreditCard className="w-3 h-3 shrink-0" />{" "}
-                                {entry.servidor_cpf || "---"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div
-                          className={`flex items-center justify-between lg:justify-end gap-4 lg:gap-8 w-full lg:w-auto shrink-0 transition-all ${expandedId === entry.id ? "opacity-100" : "opacity-70"}`}
-                        >
-                          <div className="flex flex-col">
-                            <span className="font-bold text-[8px] lg:text-[9px] text-slate-400 uppercase mb-0.5 block">
-                              Data
-                            </span>
-                            <span
-                              className={`font-bold text-slate-800 transition-all ${expandedId === entry.id ? "text-sm lg:text-base" : "text-[10px] lg:text-xs"}`}
-                            >
-                              {new Date(entry.generated_at).toLocaleString(
-                                "pt-BR",
-                                {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
-                            </span>
-                          </div>
-                          {expandedId === entry.id ? (
-                            <ChevronUp className="w-6 h-6 text-[#1A3351]" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-slate-300" />
-                          )}
-                        </div>
-                      </div>
+                        name={entry.servidor_nome}
+                        cpf={maskCpf(entry.servidor_cpf)}
+                        cargo={entry.cargo}
+                        matricula={entry.servidor_matricula}
+                        natureza={entry.natureza_cargo}
+                        secretaria={entry.secretaria}
+                        contrato={entry.contrato}
+                        badges={
+                          <span className="text-[11px] font-normal text-[#E31E24] uppercase bg-red-50 px-1.5 py-0.5 border border-red-100 whitespace-nowrap">
+                            {entry.aso_type
+                              .split("{")[0]
+                              .split("<")[0]
+                              .split("[")[0]
+                              .trim()}
+                          </span>
+                        }
+                        rightMeta={
+                          <RecordDateSingle
+                            label="Data"
+                            date={new Date(entry.generated_at).toLocaleString(
+                              "pt-BR",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                            expanded={expandedId === entry.id}
+                          />
+                        }
+                      />
 
                       {/* DETALHES DA EVIDÊNCIA */}
                       {expandedId === entry.id && (
