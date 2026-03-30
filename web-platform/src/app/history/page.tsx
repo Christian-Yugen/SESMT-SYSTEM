@@ -29,6 +29,7 @@ import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
+import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
 import {
   type FilterState,
   countActiveFilters,
@@ -1398,30 +1399,17 @@ export default function HistoryPage() {
           </StatisticCardRow>
           {/* LISTA DE REGISTROS */}
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
-            <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
                 Log de Processamento Geral
               </h3>
-              <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-slate-600 uppercase">
-                    Ordem:
-                  </span>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value)}
-                    className="bg-[#D3D3D3] border border-slate-400 text-[9px] font-bold uppercase px-2 py-1 outline-none focus:border-[#1A3351]"
-                  >
-                    <option value="date-desc">Data e Hora (Recentes)</option>
-                    <option value="alpha">Alfabeto (A-Z)</option>
-                  </select>
-                </div>
-                <div className="text-[9px] font-medium text-slate-600 uppercase">
-                  Mostrando{" "}
-                  <span className="font-bold">{sortedHistory.length}</span>{" "}
-                  resultados
-                </div>
-              </div>
+              <SortAlphaToggle
+                active={sortOrder === "alpha"}
+                onToggle={() =>
+                  setSortOrder(sortOrder === "alpha" ? "date-desc" : "alpha")
+                }
+                count={sortedHistory.length}
+              />
             </div>
             <div className="divide-y divide-slate-200">
               {sortedHistory.length > 0 ? (

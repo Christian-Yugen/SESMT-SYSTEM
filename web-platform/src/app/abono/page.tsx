@@ -31,9 +31,9 @@ import {
   matchesUnifiedNameCpfSearch,
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
-import type { AbonoStatusFilter, SortOrder } from "@/components/filters/types";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
+import SortAlphaToggle from "@/components/filters/SortAlphaToggle";
 
 /** Dados de um registro de abono para comparação em logs de auditoria. */
 interface AbonoLogData {
@@ -90,7 +90,7 @@ export default function AbonoPage() {
     "all" | "active" | "expired" | "finished"
   >("all");
   const [sortBy, setSortBy] = useState<"alphabetical" | "newest" | "oldest">(
-    "alphabetical",
+    "newest",
   );
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
   const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
@@ -783,55 +783,19 @@ export default function AbonoPage() {
 
             {/* LISTA DE REGISTROS */}
             <div className="bg-white border-2 border-slate-300 shadow-xl overflow-visible">
-              <div className="bg-[#B0B0B0] px-6 py-3 border-b-2 border-slate-400 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
                   Registros de Abono
                 </h3>
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center bg-white/50 shadow-inner border border-black/5 h-10 p-1">
-                    {[
-                      { key: "all", label: "Todos", color: "bg-[#1A3351]" },
-                      { key: "active", label: "Ativos", color: "bg-green-600" },
-                      {
-                        key: "expired",
-                        label: "Vencidos",
-                        color: "bg-[#E31E24]",
-                      },
-                      {
-                        key: "finished",
-                        label: "Finalizados",
-                        color: "bg-blue-600",
-                      },
-                    ].map((btn) => (
-                      <button
-                        key={btn.key}
-                        onClick={() =>
-                          setStatusFilter(btn.key as AbonoStatusFilter)
-                        }
-                        className={`h-full px-4 text-[10px] font-bold uppercase transition-all flex items-center justify-center rounded-none ${statusFilter === btn.key ? btn.color + " text-white shadow-md" : "text-slate-600 hover:bg-black/5"}`}
-                      >
-                        {btn.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="hidden lg:block w-px h-6 bg-slate-400/50" />
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-500 uppercase">
-                        Ordenar:
-                      </span>
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as SortOrder)}
-                        className="bg-white/70 border border-slate-400 text-[10px] font-bold uppercase px-2 h-10 outline-none shadow-sm cursor-pointer min-w-[140px]"
-                      >
-                        <option value="alphabetical">Ordem Alfabética</option>
-                        <option value="newest">Mais Novos</option>
-                        <option value="oldest">Mais Antigos</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                <SortAlphaToggle
+                  active={sortBy === "alphabetical"}
+                  onToggle={() =>
+                    setSortBy(
+                      sortBy === "alphabetical" ? "newest" : "alphabetical",
+                    )
+                  }
+                  count={groupedRecords.length}
+                />
               </div>
               <div className="divide-y divide-slate-200 transition-colors duration-500">
                 {groupedRecords.length > 0 ? (
