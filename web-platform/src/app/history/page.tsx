@@ -437,11 +437,68 @@ export default function HistoryPage() {
     }
 
     if (!histRes.error && histRes.data) {
-      // Injetamos o creator_role para facilitar a lógica de UI
-      const enrichedHistory = histRes.data.map((h) => ({
-        ...h,
-        creator_role: profMap[h.generated_by]?.role || "unknown",
-      }));
+      // Enriquecer com dados do cadastro de servidores
+      const cpfs = Array.from(
+        new Set(
+          histRes.data
+            .map((h) => h.servidor_cpf?.replace(/\D/g, ""))
+            .filter(Boolean),
+        ),
+      );
+      type ServRow = {
+        cpf: string;
+        matricula: string;
+        natureza_cargo: string;
+        cargo: string;
+        secretaria: string;
+        contrato: string;
+      };
+      const servMap: Record<string, ServRow> = {};
+
+      if (cpfs.length > 0) {
+        // Buscar em lotes para evitar limite do Supabase
+        const batchSize = 300;
+        for (let i = 0; i < cpfs.length; i += batchSize) {
+          const batch = cpfs.slice(i, i + batchSize);
+          const { data: servData, error: servError } = await supabase
+            .from("servidores")
+            .select(
+              "cpf, matricula, natureza_cargo, cargo, secretaria, contrato",
+            )
+            .in("cpf", batch);
+
+          if (servError)
+            console.error("Erro ao buscar servidores (history):", servError);
+
+          if (servData) {
+            servData.forEach((s: ServRow) => {
+              const key = s.cpf?.replace(/\D/g, "");
+              if (key && !servMap[key]) servMap[key] = s;
+            });
+          }
+        }
+      }
+
+      console.log(
+        `[history] Enriquecimento: ${cpfs.length} CPFs, ${Object.keys(servMap).length} servidores encontrados`,
+      );
+
+      // Injetamos o creator_role e dados do servidor
+      const enrichedHistory = histRes.data.map((h) => {
+        const key = h.servidor_cpf?.replace(/\D/g, "") || "";
+        const srv = servMap[key];
+        return {
+          ...h,
+          creator_role: profMap[h.generated_by]?.role || "unknown",
+          // Campos que NÃO existem na aso_history: vêm exclusivamente do servidores
+          servidor_matricula: srv?.matricula || undefined,
+          natureza_cargo: srv?.natureza_cargo || undefined,
+          // Campos que existem na aso_history: prioridade para o dado local, fallback no servidores
+          cargo: h.cargo || srv?.cargo || undefined,
+          secretaria: h.secretaria || srv?.secretaria || undefined,
+          contrato: h.contrato || srv?.contrato || undefined,
+        };
+      });
       setHistory(enrichedHistory);
     } else if (histRes.error) {
       console.error("Erro ao carregar histórico:", histRes.error);

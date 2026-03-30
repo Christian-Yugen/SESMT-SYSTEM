@@ -163,7 +163,39 @@ export default function AbonoPage() {
       .order("inicio", { ascending: false });
 
     if (!error && data) {
-      setRecords(data);
+      // Enriquecer com dados do servidor (matricula, contrato, secretaria)
+      const cpfs = Array.from(
+        new Set(data.map((r) => r.cpf?.replace(/\D/g, "")).filter(Boolean)),
+      );
+      const { data: servData } = await supabase
+        .from("servidores")
+        .select("cpf, matricula, contrato, secretaria, natureza_cargo")
+        .in("cpf", cpfs);
+
+      if (servData) {
+        const servMap: Record<string, (typeof servData)[0]> = {};
+        servData.forEach((s) => {
+          const key = s.cpf?.replace(/\D/g, "");
+          if (key && !servMap[key]) servMap[key] = s;
+        });
+        const enriched = data.map((r) => {
+          const key = r.cpf?.replace(/\D/g, "") || "";
+          const srv = servMap[key];
+          return {
+            ...r,
+            servidor_matricula:
+              srv?.matricula || r.servidor_matricula || undefined,
+            servidor_contrato:
+              srv?.contrato || r.servidor_contrato || undefined,
+            secretaria: r.secretaria || srv?.secretaria || undefined,
+            natureza_cargo:
+              r.natureza_cargo || srv?.natureza_cargo || undefined,
+          };
+        });
+        setRecords(enriched);
+      } else {
+        setRecords(data);
+      }
 
       // Buscar Logs de Auditoria
       const { data: logsData } = await supabase

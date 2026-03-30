@@ -46,6 +46,7 @@ interface PortariaRecord {
   periodo_fim: string;
   data_portaria: string;
   servidor_contrato?: string;
+  natureza_cargo?: string;
   criado_por: string;
   criado_por_nome: string;
   created_at: string;
@@ -94,7 +95,27 @@ export default function PortariasPage() {
       .order("numero", { ascending: false });
 
     if (!error && data) {
-      setRecords(data);
+      // Enriquecer com natureza_cargo do cadastro de servidores
+      const cpfs = Array.from(new Set(data.map((r) => r.servidor_cpf?.replace(/\D/g, "")).filter(Boolean)));
+      const { data: servData } = await supabase
+        .from("servidores")
+        .select("cpf, natureza_cargo")
+        .in("cpf", cpfs);
+
+      if (servData) {
+        const servMap: Record<string, string> = {};
+        servData.forEach((s) => {
+          const key = s.cpf?.replace(/\D/g, "");
+          if (key && s.natureza_cargo && !servMap[key]) servMap[key] = s.natureza_cargo;
+        });
+        const enriched = data.map((r) => {
+          const key = r.servidor_cpf?.replace(/\D/g, "") || "";
+          return { ...r, natureza_cargo: servMap[key] || undefined };
+        });
+        setRecords(enriched);
+      } else {
+        setRecords(data);
+      }
       await loadLogs();
     } else if (error) {
       console.error("Erro ao carregar portarias:", error);
@@ -527,7 +548,7 @@ export default function PortariasPage() {
                       cpf={maskCpf(entry.servidor_cpf)}
                       cargo={entry.servidor_cargo}
                       matricula={entry.servidor_matricula}
-                      natureza={undefined}
+                      natureza={entry.natureza_cargo}
                       secretaria={entry.servidor_lotacao}
                       contrato={entry.servidor_contrato}
                       badges={
