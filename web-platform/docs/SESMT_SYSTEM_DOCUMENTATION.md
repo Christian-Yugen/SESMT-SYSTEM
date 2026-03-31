@@ -37,6 +37,11 @@ O sistema atua como o cérebro operacional do SESMT, eliminando preenchimentos m
 
 ## 6. Auditoria de Módulos Críticos
 
+### 6.0. Módulo CID Analytics (Governança e Arquitetura)
+*   **Rota:** `/afastamentos/cid-analytics`.
+*   **Documento canônico:** `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`.
+*   **Escopo:** arquitetura funcional em abas, pipeline analítico dual-layer, camada gerencial, governança visual aplicada e checklist de manutenção.
+
 ### 6.1. Abono Salarial
 *   **Tabela:** `abono_salarial`.
 *   **Regra de Vigência:** 12 meses (Início + 1 ano).

@@ -52,3 +52,9 @@ A arquitetura proposta utiliza uma stack moderna e serverless para garantir esca
 5. Renderiza PDF em memória com QR Code apontando para `domain.com/verify/{hash}`.
 6. Salva PDF no Supabase Storage (Bucket privado) e metadados na tabela `certificates`.
 7. Retorna URL assinada para download e visualização.
+
+## 7. Módulo CID Analytics
+
+Documentação canônica do módulo Gestão Analítica de Afastamentos por CID:
+
+- `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`
