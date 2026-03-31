@@ -10,14 +10,9 @@ Agents and contributors must also follow the repository-level instructions in:
 
 - `../AGENTS.md`
 
-## Unified Absenteeism Program Governance
+Canonical module documentation for CID Analytics:
 
-Program-level governance for occupational absenteeism intelligence is documented in:
-
-- `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`
-- `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`
-- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md`
-- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`
+- `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`
 
 ## Getting Started
 

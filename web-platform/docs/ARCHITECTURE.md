@@ -53,20 +53,22 @@ A arquitetura proposta utiliza uma stack moderna e serverless para garantir esca
 6. Salva PDF no Supabase Storage (Bucket privado) e metadados na tabela `certificates`.
 7. Retorna URL assinada para download e visualização.
 
-## 7. Programa Unificado de Inteligencia em Absenteismo Ocupacional
+## 7. Módulo CID Analytics
 
-O programa unificado de absenteismo foi formalizado em FASE 0 (governanca documental) e define a arquitetura de evolucao para as camadas:
-- cadastral/funcional
-- epidemiologica classica
-- clinica-ocupacional
-- risco do trabalho
-- executiva de prevencao
+Documentação canônica do módulo Gestão Analítica de Afastamentos por CID:
 
-Referencias canonicas:
-- `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`
-- `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`
-- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md`
-- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`
+- `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`
 
-Regra de preservacao:
-- o modulo `/afastamentos/cid-analytics` permanece preservado e e expandido pelas proximas fases, sem substituicao.
+## 8. Programa Unificado de Inteligência em Absenteísmo Ocupacional
+
+Arquitetura e governança do programa macro de vigilância epidemiológica integrada:
+
+- **Documento principal:** `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`
+- **Backlog de execução:** `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`
+- **Templates operacionais:** `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md` e `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`
+
+**Escopo:** O programa unifica análise epidemiológica clássica (TAD, IFL, DML, IG), avaliação clínica-ocupacional, risco psicossocial (NR-1) e ergonomia (NR-17) em 12 fases progressivas. CID Analytics (módulo 6.0) é núcleo preservado e fundação para todas as próximas camadas.
+
+**Fase atual:** FASE 0 (Governança) — EM EXECUÇÃO
+
+**Próximas fases:** 1 (Requisitos) → 2 (Schema) → 3-4 (ETL + Validação Denominador) → 5-6 (Motor Epidemiológico) → 7-12 (Integração de risco + Relatórios + Prevention Board)

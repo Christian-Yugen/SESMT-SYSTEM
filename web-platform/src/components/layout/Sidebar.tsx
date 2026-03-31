@@ -235,13 +235,25 @@ export default function Sidebar({
                   {userRole !== "social_assistant" && (
                     <>
                       {(userRole === "admin" || userRole === "nurse") && (
-                        <button
-                          onClick={() => router.push("/afastamentos")}
-                          className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos") ? "bg-white/5 text-white font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
-                        >
-                          <Database className="w-3.5 h-3.5 shrink-0" />
-                          <span>Afastamentos</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={() => router.push("/afastamentos")}
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname === "/afastamentos" ? "bg-white/5 text-white font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Database className="w-3.5 h-3.5 shrink-0" />
+                            <span>Afastamentos</span>
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              router.push("/afastamentos/cid-analytics")
+                            }
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/cid-analytics") ? "bg-white/5 text-emerald-300 font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                            <span>CID Analytics</span>
+                          </button>
+                        </>
                       )}
 
                       <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white transition-all font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">

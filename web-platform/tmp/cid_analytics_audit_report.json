@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-03-30T07:34:30.186Z",
+  "totals": {
+    "totalAfastamentos": 215,
+    "totalAfastamentosExcluidosRegraMaternidade": 44,
+    "totalAfastamentosRestantesAnalise": 171
+  },
+  "detections": {
+    "afastamentosComTipoMaternidade": 15,
+    "afastamentosComMaternidadeEmCamposCid": 38,
+    "ocorrenciasCidRestantesPosFiltro": 273,
+    "ocorrenciasCidComMaternidadePosFiltro": 0,
+    "ocorrenciasCidComLegadoAntesSanitizacao": 248,
+    "ocorrenciasCidComLegadoAposSanitizacao": 0
+  },
+  "samples": {
+    "maternidadePosFiltro": [],
+    "legadoAposSanitizacao": []
+  }
+}
