@@ -28,6 +28,28 @@ import RecordItem from "@/components/records/RecordItem";
 import RecordDateSingle from "@/components/records/RecordDateSingle";
 import { maskCpf } from "@/lib/record-utils";
 
+const DEMISSIONAL_CLINICAL_ONLY_MESSAGE =
+  "Para essa função o Exame Demissional deve ser feito apenas a Avaliação clínica ocupacional pelo médico do SESMT.";
+
+const normalizeExamName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+const CLINICAL_EXAM_ALIASES = new Set([
+  "EXAME CLINICO",
+  "EXAME CLINICO OCUPACIONAL",
+  "AVALIACAO CLINICA OCUPACIONAL",
+]);
+
+const isClinicalOccupationalExam = (value: string) => {
+  const normalized = normalizeExamName(value);
+  return CLINICAL_EXAM_ALIASES.has(normalized);
+};
+
 interface ReferralEntry {
   id: number;
   servidor_cpf: string;
@@ -595,21 +617,39 @@ export default function ReferralsPage() {
                               </span>
                               <div className="space-y-2">
                                 {(() => {
+                                  const isDemissional =
+                                    entry.aso_type
+                                      ?.toUpperCase()
+                                      .includes("DEMISSIONAL") || false;
+
                                   // Prioridade para o novo formato JSONB
                                   if (
                                     entry.exams_json &&
                                     Array.isArray(entry.exams_json) &&
                                     entry.exams_json.length > 0
                                   ) {
-                                    return entry.exams_json
-                                      .filter(
+                                    const filteredExams =
+                                      entry.exams_json.filter(
                                         (ex: ExamJsonItem) =>
-                                          (typeof ex === "string"
-                                            ? ex
-                                            : ex.name
-                                          ).toUpperCase() !== "EXAME CLÍNICO",
-                                      )
-                                      .map((exam: ExamJsonItem, i: number) => (
+                                          !isClinicalOccupationalExam(
+                                            typeof ex === "string"
+                                              ? ex
+                                              : ex.name,
+                                          ),
+                                      );
+
+                                    if (filteredExams.length === 0) {
+                                      return (
+                                        <div className="py-2 text-center text-slate-500 text-[10px] uppercase italic font-medium leading-relaxed">
+                                          {isDemissional
+                                            ? DEMISSIONAL_CLINICAL_ONLY_MESSAGE
+                                            : "Apenas clínicos registrados."}
+                                        </div>
+                                      );
+                                    }
+
+                                    return filteredExams.map(
+                                      (exam: ExamJsonItem, i: number) => (
                                         <div
                                           key={i}
                                           className="flex items-center gap-2 text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight"
@@ -619,7 +659,8 @@ export default function ReferralsPage() {
                                             ? exam
                                             : exam.name}
                                         </div>
-                                      ));
+                                      ),
+                                    );
                                   }
 
                                   // Fallback para o formato legado em aso_type string
@@ -630,14 +671,15 @@ export default function ReferralsPage() {
                                       .split(",")
                                       .map((e) => e.trim())
                                       .filter(
-                                        (e) =>
-                                          e.toUpperCase() !== "EXAME CLÍNICO",
+                                        (e) => !isClinicalOccupationalExam(e),
                                       );
 
                                     if (exams.length === 0) {
                                       return (
-                                        <div className="py-2 text-center text-slate-400 text-[10px] uppercase italic">
-                                          Apenas clínicos registrados.
+                                        <div className="py-2 text-center text-slate-500 text-[10px] uppercase italic font-medium leading-relaxed">
+                                          {isDemissional
+                                            ? DEMISSIONAL_CLINICAL_ONLY_MESSAGE
+                                            : "Apenas clínicos registrados."}
                                         </div>
                                       );
                                     }

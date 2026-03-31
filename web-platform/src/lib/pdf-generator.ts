@@ -4,6 +4,28 @@ import { Servidor, ExameData } from "@/types";
 
 import { formatBirthInfo, formatDate } from "./utils";
 
+const DEMISSIONAL_CLINICAL_ONLY_MESSAGE =
+  "Para essa função o Exame Demissional deve ser feito apenas a Avaliação clínica ocupacional pelo médico do SESMT.";
+
+const normalizeExamName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+const CLINICAL_EXAM_ALIASES = new Set([
+  "EXAME CLINICO",
+  "EXAME CLINICO OCUPACIONAL",
+  "AVALIACAO CLINICA OCUPACIONAL",
+]);
+
+const isClinicalOccupationalExam = (value: string) => {
+  const normalized = normalizeExamName(value);
+  return CLINICAL_EXAM_ALIASES.has(normalized);
+};
+
 export const generateASOPDF = (
   servidor: Servidor,
   examesConfig: ExameData,
@@ -171,7 +193,10 @@ export const generateASOPDF = (
       const rowOffset = isSecondColumn ? i - 6 : i;
       const currentY = baseYExames + rowOffset * 6;
 
+      const isClinical = isClinicalOccupationalExam(exames[i]);
+      if (isClinical) doc.setFontSize(9);
       doc.text(exames[i].toUpperCase(), colX, currentY);
+      doc.setFontSize(10);
       const date = examDates[i] || todayStr;
       doc.text(date, colX + 62, currentY); // Data ajustada relativamente à coluna
 
@@ -357,19 +382,45 @@ export const generateReferralPDF = (
   doc.text(solicitacaoText, 14, y);
   y += 8;
 
-  // Tabela de Exames (Removendo "Exame Clínico")
+  // Tabela de Exames (removendo exame clinico/clinico ocupacional)
   const examesFiltrados = (examesConfig.exames || [])
-    .filter((ex) => ex.toUpperCase().trim() !== "EXAME CLÍNICO")
+    .filter((ex) => !isClinicalOccupationalExam(ex))
     .map((ex) => [ex.toUpperCase().trim()]);
 
-  autoTable(doc, {
-    startY: y,
-    head: [["EXAME SOLICITADO"]],
-    body: examesFiltrados,
-    theme: "grid",
-    styles: { font: "helvetica", fontSize: 9, cellPadding: 2, textColor: 0 },
-    headStyles: { fillColor: colors.primary, textColor: 255 },
-  });
+  if (examesFiltrados.length > 0) {
+    autoTable(doc, {
+      startY: y,
+      head: [["EXAME SOLICITADO"]],
+      body: examesFiltrados,
+      theme: "grid",
+      styles: {
+        font: "helvetica",
+        fontSize: 9,
+        cellPadding: 2,
+        textColor: 0,
+      },
+      headStyles: { fillColor: colors.primary, textColor: 255 },
+    });
+  } else {
+    const isDemissional = asoType.toUpperCase().includes("DEMISSIONAL");
+    const fallbackText = isDemissional
+      ? DEMISSIONAL_CLINICAL_ONLY_MESSAGE
+      : "Nao ha exames complementares para este encaminhamento.";
+
+    autoTable(doc, {
+      startY: y,
+      head: [["ORIENTACAO MEDICA"]],
+      body: [[fallbackText]],
+      theme: "grid",
+      styles: {
+        font: "helvetica",
+        fontSize: 9,
+        cellPadding: 2,
+        textColor: 0,
+      },
+      headStyles: { fillColor: colors.primary, textColor: 255 },
+    });
+  }
 
   const autoTableState = doc as unknown as {
     lastAutoTable?: { finalY?: number };
