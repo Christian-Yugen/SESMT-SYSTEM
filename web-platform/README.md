@@ -10,6 +10,10 @@ Agents and contributors must also follow the repository-level instructions in:
 
 - `../AGENTS.md`
 
+Canonical module documentation for CID Analytics:
+
+- `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`
+
 ## Getting Started
 
 First, run the development server:
