@@ -101,6 +101,13 @@ Documentos tecnicos da FASE 1 (auditoria base/schema):
 *   `docs/ABSENTEISMO_INTELIGENTE_FASE_1_AUDITORIA_BASE_E_SCHEMA.md`
 *   `docs/ABSENTEISMO_INTELIGENTE_FASE_1_MATRIZ_DE_CAMPOS.md`
 
+Documentos tecnicos da FASE 2 (modelo relacional + migrations):
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_2_MODELO_RELACIONAL_E_MIGRATIONS.md`
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_2_DICIONARIO_DE_DADOS.md`
+*   `database/migrations/004_create_absenteeism_intelligence_dimensions.sql`
+*   `database/migrations/005_create_absenteeism_intelligence_facts.sql`
+*   `database/migrations/006_create_absenteeism_risk_structures.sql`
+
 ---
 *Atualizado em: 22 de Março de 2026*
 *Auditado por: Antigravity AI*
