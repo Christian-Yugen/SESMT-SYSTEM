@@ -42,6 +42,17 @@ O sistema atua como o cérebro operacional do SESMT, eliminando preenchimentos m
 *   **Documento canônico:** `docs/CID_ANALYTICS_MODULO_GOVERNANCA_E_ARQUITETURA.md`.
 *   **Escopo:** arquitetura funcional em abas, pipeline analítico dual-layer, camada gerencial, governança visual aplicada e checklist de manutenção.
 
+### 6.0.1. Programa Unificado de Inteligência em Absenteísmo Ocupacional
+*   **Status:** FASE 0 (Governança) — EM EXECUÇÃO
+*   **Objetivo:** Integrar análise epidemiológica clássica, avaliação clínica-ocupacional, risco psicossocial e ergonomia numa arquitetura unificada de dados e visualização.
+*   **Fundação:** CID Analytics (FASE 10) é núcleo preservado e ampliado. Novo programa NÃO substitui, apenas estende.
+*   **Documentação canônica:** `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`.
+*   **Documentação de execução:** `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`, `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md`, `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`.
+*   **Trilha planejada:** FASE 0 (Governança) → FASE 1-2 (Requisitos + Schema) → FASE 3-4 (ETL + Validação) → FASE 5-6 (Epidemiologia) → FASE 7-10 (Ergonomia + Psicossocial) → FASE 11-12 (Relatórios + Prevention Board).
+*   **Metodologia:** Protocolo de Belém para indicadores epidemiológicos (TAD, IFL, DML, IG). NR-1, NR-5, NR-7, NR-17 para integração normativa.
+*   **Preservação expressa:** CID Analytics é read-only para novas camadas. Qualquer alteração em CID Analytics requer aprovação documentada.
+*   **Regra de investigação:** CID F e CID M tratados como sinais sentinela, não causalidade automática. Investigação técnica obrigatória para concentrações ≥20%.
+
 ### 6.1. Abono Salarial
 *   **Tabela:** `abono_salarial`.
 *   **Regra de Vigência:** 12 meses (Início + 1 ano).
