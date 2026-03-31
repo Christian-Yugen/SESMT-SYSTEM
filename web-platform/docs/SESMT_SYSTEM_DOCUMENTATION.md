@@ -65,6 +65,22 @@ O sistema está **Operacional (95%)**.
 *   **Pontos Fortes:** Resiliência offline, rastreabilidade de abono, geração de documentos fiel.
 *   **Fragilidades:** Proteção de rotas client-side (redirecionamento via useEffect), carência de testes automatizados E2E.
 
+## 9. Programa Unificado de Inteligencia em Absenteismo Ocupacional
+
+A governanca canonica do programa unificado foi formalizada na FASE 0 com escopo exclusivamente documental.
+
+Documentos oficiais:
+*   `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`
+*   `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`
+*   `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md`
+*   `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`
+
+Diretrizes centrais registradas:
+*   Preservacao explicita do modulo `/afastamentos/cid-analytics` como nucleo clinico-ocupacional.
+*   CID F e CID M como sinal sentinela e hipotese de vinculo ocupacional, sem causalidade automatica.
+*   Regra de sequenciamento: dado e denominador antes de tela.
+*   Trilha formal de evolucao FASE 0 a FASE 12 com dependencias e criterios de entrada/saida.
+
 ---
 *Atualizado em: 22 de Março de 2026*
 *Auditado por: Antigravity AI*

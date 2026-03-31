@@ -52,3 +52,21 @@ A arquitetura proposta utiliza uma stack moderna e serverless para garantir esca
 5. Renderiza PDF em memória com QR Code apontando para `domain.com/verify/{hash}`.
 6. Salva PDF no Supabase Storage (Bucket privado) e metadados na tabela `certificates`.
 7. Retorna URL assinada para download e visualização.
+
+## 7. Programa Unificado de Inteligencia em Absenteismo Ocupacional
+
+O programa unificado de absenteismo foi formalizado em FASE 0 (governanca documental) e define a arquitetura de evolucao para as camadas:
+- cadastral/funcional
+- epidemiologica classica
+- clinica-ocupacional
+- risco do trabalho
+- executiva de prevencao
+
+Referencias canonicas:
+- `docs/ABSENTEISMO_INTELIGENTE_GOVERNANCA_E_PLANO_DIRETOR.md`
+- `docs/ABSENTEISMO_INTELIGENTE_BACKLOG_MACRO.md`
+- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_EXECUCAO_DE_FASE.md`
+- `docs/ABSENTEISMO_INTELIGENTE_TEMPLATE_RETORNO_AGENTE.md`
+
+Regra de preservacao:
+- o modulo `/afastamentos/cid-analytics` permanece preservado e e expandido pelas proximas fases, sem substituicao.
