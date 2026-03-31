@@ -97,6 +97,10 @@ Diretrizes centrais registradas:
 *   Regra de sequenciamento: dado e denominador antes de tela.
 *   Trilha formal de evolucao FASE 0 a FASE 12 com dependencias e criterios de entrada/saida.
 
+Documentos tecnicos da FASE 1 (auditoria base/schema):
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_1_AUDITORIA_BASE_E_SCHEMA.md`
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_1_MATRIZ_DE_CAMPOS.md`
+
 ---
 *Atualizado em: 22 de Março de 2026*
 *Auditado por: Antigravity AI*
