@@ -27,6 +27,25 @@ import {
   normalizeSearchTerm,
 } from "@/components/filters/filtersUtils";
 
+const normalizeExamName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+const CLINICAL_EXAM_ALIASES = new Set([
+  "EXAME CLINICO",
+  "EXAME CLINICO OCUPACIONAL",
+  "AVALIACAO CLINICA OCUPACIONAL",
+]);
+
+const isClinicalOccupationalExam = (value: string) => {
+  const normalized = normalizeExamName(value);
+  return CLINICAL_EXAM_ALIASES.has(normalized);
+};
+
 export default function Home() {
   const [cpf, setCpf] = useState("");
   const [selectedServidor, setSelectedServidor] = useState<Servidor | null>(
@@ -358,12 +377,18 @@ export default function Home() {
           "Função não identificada";
         const risksText = selectedFuncao ? currentExams.detalhes : "";
 
-        // Novo: Formata exames e datas para o JSONB
-        const examsJson = currentExams.exames.map((exam, idx) => ({
-          name: exam,
-          date:
-            (dates || examDates)[idx] || new Date().toLocaleDateString("pt-BR"),
-        }));
+        // Encaminhamento nunca deve persistir exame clinico/clinico ocupacional
+        const isReferral = endpoint.includes("referral");
+        const examsJson = currentExams.exames
+          .map((exam, idx) => ({
+            name: exam,
+            date:
+              (dates || examDates)[idx] ||
+              new Date().toLocaleDateString("pt-BR"),
+          }))
+          .filter(
+            (exam) => !isReferral || !isClinicalOccupationalExam(exam.name),
+          );
 
         const payload = {
           servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
@@ -417,6 +442,7 @@ export default function Home() {
           const risksText = selectedFuncao ? currentExams.detalhes : "";
           const today = new Date().toLocaleDateString("pt-BR");
 
+          const isReferral = endpoint.includes("referral");
           const backupPayload = {
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
             servidor_nome: selectedServidor.Nome,
@@ -433,10 +459,14 @@ export default function Home() {
             generated_by: session?.user?.id,
             function_name: functionName,
             risks: risksText,
-            exams_json: currentExams.exames.map((exam, idx) => ({
-              name: exam,
-              date: (dates || examDates)[idx] || today,
-            })),
+            exams_json: currentExams.exames
+              .map((exam, idx) => ({
+                name: exam,
+                date: (dates || examDates)[idx] || today,
+              }))
+              .filter(
+                (exam) => !isReferral || !isClinicalOccupationalExam(exam.name),
+              ),
             generated_at: new Date().toISOString(),
           };
 
