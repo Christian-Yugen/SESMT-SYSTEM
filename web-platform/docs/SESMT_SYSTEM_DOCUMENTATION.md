@@ -108,6 +108,13 @@ Documentos tecnicos da FASE 2 (modelo relacional + migrations):
 *   `database/migrations/005_create_absenteeism_intelligence_facts.sql`
 *   `database/migrations/006_create_absenteeism_risk_structures.sql`
 
+Documentos tecnicos da FASE 3 (ETL e populacao controlada):
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_3_ETL_E_POPULACAO_CONTROLADA.md` — status de bloqueio da fase e referencia de quarentena
+*   `docs/ABSENTEISMO_INTELIGENTE_FASE_2_5_BLINDAGEM_PRE_FASE_3.md` — blindagem oficial pre-FASE 3 e criterios de liberacao
+*   `scripts/phase3-etl-absenteeism.mjs` — stub deprecated (fora do fluxo operacional)
+*   `scripts/_quarantine/phase3-etl-absenteeism.experimental.mjs` — artefato experimental offline-only (sem escrita em banco)
+*   Status: BLOQUEADA — FASE 3 NAO AUTORIZADA na microfase 2.5
+
 ---
-*Atualizado em: 22 de Março de 2026*
+*Atualizado em: 31 de Marco de 2026*
 *Auditado por: Antigravity AI*

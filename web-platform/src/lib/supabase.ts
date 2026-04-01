@@ -5,12 +5,56 @@ const supabaseUrl =
 const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
 
+function createSafeAuthStorage(storageKey: string) {
+  const noopStorage = {
+    getItem: (_key: string) => null,
+    setItem: (_key: string, _value: string) => {},
+    removeItem: (_key: string) => {},
+  };
+
+  if (globalThis.window === undefined) return noopStorage;
+
+  return {
+    getItem: (key: string) => {
+      try {
+        const raw = globalThis.localStorage.getItem(key);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw) as {
+          currentSession?: { refresh_token?: string | null };
+        };
+        const refreshToken = parsed?.currentSession?.refresh_token;
+
+        // Evita loop de auto-refresh com sessão local corrompida.
+        if (!refreshToken) {
+          globalThis.localStorage.removeItem(storageKey);
+          return null;
+        }
+
+        return raw;
+      } catch {
+        globalThis.localStorage.removeItem(storageKey);
+        return null;
+      }
+    },
+    setItem: (key: string, value: string) => {
+      globalThis.localStorage.setItem(key, value);
+    },
+    removeItem: (key: string) => {
+      globalThis.localStorage.removeItem(key);
+    },
+  };
+}
+
+const authStorageKey = "sesmt-auth-session";
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: "sesmt-auth-session",
+    storageKey: authStorageKey,
+    storage: createSafeAuthStorage(authStorageKey),
   },
   global: {
     fetch: (url, options) => fetch(url, { ...options, cache: "no-store" }),
@@ -18,7 +62,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Listener global para monitorar mudanças de estado e erros
-if (typeof window !== "undefined") {
+if (globalThis.window !== undefined) {
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === "SIGNED_OUT") {
       localStorage.removeItem("sesmt-auth-session");
@@ -33,8 +77,8 @@ if (typeof window !== "undefined") {
         await supabase.auth.signOut();
       } catch {}
 
-      if (!window.location.pathname.includes("/login")) {
-        window.location.href = "/login";
+      if (!globalThis.location.pathname.includes("/login")) {
+        globalThis.location.href = "/login";
       }
     }
   });
@@ -60,9 +104,9 @@ if (typeof window !== "undefined") {
             );
             localStorage.removeItem(storageKey);
 
-            if (!window.location.pathname.includes("/login")) {
+            if (!globalThis.location.pathname.includes("/login")) {
               supabase.auth.signOut().finally(() => {
-                window.location.href = "/login";
+                globalThis.location.href = "/login";
               });
             }
           }
