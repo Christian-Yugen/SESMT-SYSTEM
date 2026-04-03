@@ -1203,7 +1203,8 @@ function CidAnalyticsPage() {
                 accent="warning"
                 title="Capítulo líder"
                 value={chapterRankingSorted[0]?.chapter || "N/A"}
-                subtitle={`${formatNumber(chapterRankingSorted[0]?.occurrences || 0)} ocorrências`}
+                subtitle={`${formatNumber(chapterRankingSorted[0]?.afastamentos || 0)} licenças`}
+                helperText="Licenças = eventos distintos com ao menos 1 CID do capítulo"
                 icon={<BarChart3 className="w-5 h-5 text-amber-300" />}
               />
               <StatisticCard
@@ -1317,7 +1318,7 @@ function CidAnalyticsPage() {
               <StatisticCard
                 variant="analytic"
                 accent="primary"
-                title="Afastamentos no recorte"
+                title="Licenças no recorte"
                 value={formatNumber(
                   filteredMetrics.magnitude.totalAfastamentos,
                 )}
@@ -1387,8 +1388,9 @@ function CidAnalyticsPage() {
           <StatisticCard
             variant="analytic"
             accent="primary"
-            title="Total de afastamentos"
+            title="Licenças com CID"
             value={formatNumber(filteredMetrics.magnitude.totalAfastamentos)}
+            helperText="Eventos de licença médica com ao menos um código CID registrado · licenças sem CID não aparecem nesta tela"
             icon={<ClipboardList className="w-5 h-5 text-slate-400" />}
           />
           <StatisticCard
@@ -1441,7 +1443,7 @@ function CidAnalyticsPage() {
             title="Secretarias mais criticas"
             subtitle="Prioridade composta por volume, dias perdidos, recorrencia e tendencia"
             items={managerialIntelligence.secretariaRanking}
-            volumeLabel="Afastamentos"
+            volumeLabel="Licenças"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1449,7 +1451,7 @@ function CidAnalyticsPage() {
             title="Cargos mais criticos"
             subtitle="Leitura gerencial para priorizacao ocupacional e preventiva"
             items={managerialIntelligence.cargoRanking}
-            volumeLabel="Afastamentos"
+            volumeLabel="Licenças"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1457,7 +1459,7 @@ function CidAnalyticsPage() {
             title="Capitulos mais criticos"
             subtitle="Combinacao de frequencia, impacto, recorrencia e variacao recente"
             items={managerialIntelligence.chapterRanking}
-            volumeLabel="Ocorrencias"
+            volumeLabel="Entradas CID"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1465,7 +1467,7 @@ function CidAnalyticsPage() {
             title="CIDs mais criticos"
             subtitle="Priorizacao auditavel dos agravos mais sensiveis no recorte atual"
             items={managerialIntelligence.cidRanking}
-            volumeLabel="Ocorrencias"
+            volumeLabel="Entradas CID"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
         </div>

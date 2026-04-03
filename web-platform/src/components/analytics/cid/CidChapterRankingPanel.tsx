@@ -36,7 +36,7 @@ export default function CidChapterRankingPanel({
             <Layers3 className="w-4 h-4" /> Ranking por Capítulo CID
           </h4>
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mt-1">
-            Frequência, participação e carga por capítulo
+            Entradas CID = total de registros CID no capítulo · Licenças = eventos distintos com ao menos 1 CID do capítulo
           </p>
         </div>
 
@@ -68,10 +68,10 @@ export default function CidChapterRankingPanel({
                 Capítulo
               </th>
               <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
-                Ocorrências
+                Entradas CID
               </th>
               <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
-                Afastamentos
+                Licenças
               </th>
               <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
                 Participação
