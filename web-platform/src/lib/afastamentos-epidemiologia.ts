@@ -5,6 +5,7 @@ export interface EpidemiologyEventRow {
   data_inicio: string;
   data_fim: string | null;
   dias_afastado: number | null;
+  tipo_licenca: string | null;
 }
 
 export interface EpidemiologyCidRow {

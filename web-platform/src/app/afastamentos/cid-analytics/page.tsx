@@ -33,6 +33,10 @@ import CidRecurrenceSummaryPanel from "@/components/analytics/cid/CidRecurrenceS
 import CidRecurrenceInvestigativeTable from "@/components/analytics/cid/CidRecurrenceInvestigativeTable";
 import CidManagerialAlertsPanel from "@/components/analytics/cid/CidManagerialAlertsPanel";
 import CidPriorityRankingPanel from "@/components/analytics/cid/CidPriorityRankingPanel";
+import {
+  buildMaternityExclusionAuditMessage,
+  isMaternityAfastamentoRecord,
+} from "@/lib/afastamentos-elegibilidade";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { supabase } from "@/lib/supabase";
 import type { AfastamentoRecord } from "@/types";
@@ -296,22 +300,6 @@ function getDurationBandLabel(daysAway: number): string {
   return band?.label || "91+ dias";
 }
 
-function isMaternityLeaveType(value: string | null | undefined): boolean {
-  const normalized = toUpperNoAccents((value || "").trim());
-  return normalized.includes("MATERNIDADE");
-}
-
-function isMaternityRecord(record: AfastamentoRecord): boolean {
-  if (isMaternityLeaveType(record.tipo_afastamento)) return true;
-
-  return (record.afastamento_cids || []).some(
-    (cid) =>
-      isMaternityLeaveType(cid.cid_codigo) ||
-      isMaternityLeaveType(cid.cid_descricao) ||
-      isMaternityLeaveType(cid.cid_capitulo),
-  );
-}
-
 export default function CidAnalyticsPage() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -386,7 +374,7 @@ export default function CidAnalyticsPage() {
 
     const loadedRecords = (data || []) as AfastamentoRecord[];
     const filteredRecords = loadedRecords.filter(
-      (record) => !isMaternityRecord(record),
+      (record) => !isMaternityAfastamentoRecord(record),
     );
     setExcludedMaternityCount(loadedRecords.length - filteredRecords.length);
     setRecords(filteredRecords);
@@ -1781,9 +1769,7 @@ export default function CidAnalyticsPage() {
         <div className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-5 lg:p-6 space-y-4">
           <div className="bg-amber-50 border-2 border-amber-300 p-3 sm:p-4">
             <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide leading-relaxed break-words text-amber-900">
-              Licença maternidade não compõe esta análise epidemiológica de
-              doença (tipo de afastamento e CIDs legados).
-              {` Registros removidos: ${formatNumber(excludedMaternityCount)}.`}
+              {buildMaternityExclusionAuditMessage(excludedMaternityCount)}
             </p>
           </div>
 

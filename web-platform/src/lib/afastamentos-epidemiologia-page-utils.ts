@@ -33,6 +33,7 @@ export interface EpidemiologySummaryModel {
   observacoes: string[];
   isValid: boolean;
   flags: string[];
+  excludedMaternityCount: number;
 }
 
 export interface EpidemiologyCutRow {
@@ -173,6 +174,7 @@ function buildSummaryModel(
     observacoes: overall.audit.observacoes,
     isValid: overall.audit.validade.isValid,
     flags: overall.audit.validade.flags,
+    excludedMaternityCount: contract.eligibility.excludedMaternityCount,
   };
 }
 
@@ -346,6 +348,7 @@ export function buildLoadingPageModel(): EpidemiologyPageModel {
       observacoes: [],
       isValid: false,
       flags: [],
+      excludedMaternityCount: 0,
     },
     cuts: emptyCuts,
     trend: {

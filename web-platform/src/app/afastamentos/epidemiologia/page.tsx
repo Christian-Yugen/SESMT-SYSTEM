@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
+import { buildMaternityExclusionAuditMessage } from "@/lib/afastamentos-elegibilidade";
 import Sidebar from "@/components/layout/Sidebar";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
@@ -742,6 +743,16 @@ export default function EpidemiologiaPage() {
                           ))}
                         </div>
                       )}
+                      {summary.excludedMaternityCount > 0 && (
+                        <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
+                          <Info className="w-3 h-3 shrink-0 mt-0.5 text-amber-500" />
+                          <p className="text-[11px] text-amber-700">
+                            {buildMaternityExclusionAuditMessage(
+                              summary.excludedMaternityCount,
+                            )}
+                          </p>
+                        </div>
+                      )}
                       {!summary.isValid && (
                         <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
                           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
@@ -906,6 +917,16 @@ export default function EpidemiologiaPage() {
                               <span>{obs}</span>
                             </div>
                           ))}
+                        </div>
+                      )}
+                      {summary.excludedMaternityCount > 0 && (
+                        <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
+                          <Info className="w-3 h-3 shrink-0 mt-0.5 text-amber-500" />
+                          <p className="text-[11px] text-amber-700">
+                            {buildMaternityExclusionAuditMessage(
+                              summary.excludedMaternityCount,
+                            )}
+                          </p>
                         </div>
                       )}
                       {!summary.isValid && (

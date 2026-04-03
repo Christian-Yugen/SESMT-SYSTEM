@@ -6,6 +6,7 @@ import {
   type EpidemiologyPeriod,
   validateEpidemiologyOutput,
 } from "@/lib/afastamentos-epidemiologia";
+import { isMaternitySignal } from "@/lib/afastamentos-elegibilidade";
 
 export type EpidemiologyCutDimension =
   | "sexo"
@@ -104,6 +105,9 @@ export interface EpidemiologyConsumptionContract {
   generatedAt: string;
   period: EpidemiologyContractPeriod;
   policy: EpidemiologyConsumptionPolicy;
+  eligibility: {
+    excludedMaternityCount: number;
+  };
   overall: EpidemiologyContractBlock;
   cuts: {
     sexo: EpidemiologyContractBlock[];
@@ -584,8 +588,23 @@ export function buildEpidemiologyConsumptionContract(
     rounding: DEFAULT_POLICY.rounding,
   };
 
+  // Filtro de elegibilidade: excluir licença-maternidade
+  const eligibleEvents = dataset.events.filter(
+    (e) => !isMaternitySignal(e.tipo_licenca),
+  );
+  const eligibleIds = new Set(eligibleEvents.map((e) => e.afastamento_id));
+  const eligibleCids = dataset.cids.filter((c) =>
+    eligibleIds.has(c.afastamento_id),
+  );
+  const excludedMaternityCount = dataset.events.length - eligibleEvents.length;
+  const eligibleDataset: EpidemiologyDataset = {
+    ...dataset,
+    events: eligibleEvents,
+    cids: eligibleCids,
+  };
+
   const output: EpidemiologyEngineOutput = buildEpidemiologyEngine(
-    dataset,
+    eligibleDataset,
     period,
   );
   const reconciliacao = validateEpidemiologyOutput(output).reconciliacao;
@@ -599,13 +618,19 @@ export function buildEpidemiologyConsumptionContract(
     competenciaPeriodo,
   );
 
-  const trend = buildTrend(dataset, period.startDate, period.endDate, policy);
+  const trend = buildTrend(
+    eligibleDataset,
+    period.startDate,
+    period.endDate,
+    policy,
+  );
 
   const contract: EpidemiologyConsumptionContract = {
     contractVersion: "4.3.0",
     generatedAt: options.generatedAt || new Date().toISOString(),
     period: competenciaPeriodo,
     policy,
+    eligibility: { excludedMaternityCount },
     overall,
     cuts: {
       sexo: buildCutBlocks("sexo", output.bySexo, policy, competenciaPeriodo),

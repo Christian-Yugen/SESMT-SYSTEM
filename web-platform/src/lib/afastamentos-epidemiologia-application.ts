@@ -81,7 +81,7 @@ export function createSupabaseEpidemiologyRepository(
                 .schema("abs_intel")
                 .from("abs_fact_afastamento_evento")
                 .select(
-                  "afastamento_id, servidor_id, vinculo_id, data_inicio, data_fim, dias_afastado",
+                  "afastamento_id, servidor_id, vinculo_id, data_inicio, data_fim, dias_afastado, tipo_licenca",
                 )
                 .range(from, to),
             "eventos epidemiologicos",
