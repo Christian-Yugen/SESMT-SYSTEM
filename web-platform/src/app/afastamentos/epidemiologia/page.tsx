@@ -16,7 +16,6 @@ import {
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
-import { buildMaternityExclusionAuditMessage } from "@/lib/afastamentos-elegibilidade";
 import Sidebar from "@/components/layout/Sidebar";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
@@ -604,7 +603,7 @@ export default function EpidemiologiaPage() {
                     Epidemiologia <span className="text-[#E31E24]">Geral</span>
                   </h1>
                   <span
-                    title="Leitura principal · indicadores padronizados por população · maternidade excluída por política A1 · para aprofundamento clínico por CID, use CID Analytics"
+                    title="Leitura principal · indicadores padronizados por população · para aprofundamento clínico por CID, use CID Analytics"
                     className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
                   >
                     <Info className="w-3 h-3" />
@@ -867,16 +866,6 @@ export default function EpidemiologiaPage() {
                           ))}
                         </div>
                       )}
-                      {summary.excludedMaternityCount > 0 && (
-                        <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
-                          <Info className="w-3 h-3 shrink-0 mt-0.5 text-amber-500" />
-                          <p className="text-[11px] text-amber-700">
-                            {buildMaternityExclusionAuditMessage(
-                              summary.excludedMaternityCount,
-                            )}
-                          </p>
-                        </div>
-                      )}
                       {!summary.isValid && (
                         <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
                           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
@@ -1053,16 +1042,6 @@ export default function EpidemiologiaPage() {
                               <span>{obs}</span>
                             </div>
                           ))}
-                        </div>
-                      )}
-                      {summary.excludedMaternityCount > 0 && (
-                        <div className="flex items-start gap-2 pt-1 border-t border-slate-100">
-                          <Info className="w-3 h-3 shrink-0 mt-0.5 text-amber-500" />
-                          <p className="text-[11px] text-amber-700">
-                            {buildMaternityExclusionAuditMessage(
-                              summary.excludedMaternityCount,
-                            )}
-                          </p>
                         </div>
                       )}
                       {!summary.isValid && (

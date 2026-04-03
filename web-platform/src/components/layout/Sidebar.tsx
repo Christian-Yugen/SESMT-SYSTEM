@@ -8,6 +8,7 @@ import {
   Database,
   FileSearch,
   HeartPulse,
+  Baby,
   LogOut,
   X,
   History as HistoryIcon,
@@ -242,6 +243,16 @@ export default function Sidebar({
                           >
                             <Database className="w-3.5 h-3.5 shrink-0" />
                             <span>Afastamentos</span>
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              router.push("/afastamentos/maternidade")
+                            }
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/maternidade") ? "bg-white/5 text-pink-300 font-bold border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Baby className="w-3.5 h-3.5 shrink-0" />
+                            <span>Lic. Maternidade</span>
                           </button>
 
                           <button

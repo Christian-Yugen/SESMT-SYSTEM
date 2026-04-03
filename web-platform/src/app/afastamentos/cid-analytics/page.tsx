@@ -36,10 +36,7 @@ import CidRecurrenceSummaryPanel from "@/components/analytics/cid/CidRecurrenceS
 import CidRecurrenceInvestigativeTable from "@/components/analytics/cid/CidRecurrenceInvestigativeTable";
 import CidManagerialAlertsPanel from "@/components/analytics/cid/CidManagerialAlertsPanel";
 import CidPriorityRankingPanel from "@/components/analytics/cid/CidPriorityRankingPanel";
-import {
-  buildMaternityExclusionAuditMessage,
-  isMaternityAfastamentoRecord,
-} from "@/lib/afastamentos-elegibilidade";
+
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { supabase } from "@/lib/supabase";
 import type { AfastamentoRecord } from "@/types";
@@ -311,7 +308,6 @@ function CidAnalyticsPage() {
   const [userName, setUserName] = useState<string>("Usuário");
 
   const [records, setRecords] = useState<AfastamentoRecord[]>([]);
-  const [excludedMaternityCount, setExcludedMaternityCount] = useState(0);
   const [cidCatalogByCode, setCidCatalogByCode] = useState<
     Record<string, CidCatalogEntry>
   >({});
@@ -370,6 +366,7 @@ function CidAnalyticsPage() {
     const { data, error } = await supabase
       .from("afastamentos")
       .select("*, afastamento_cids (*)")
+      .not("tipo_afastamento", "ilike", "%MATERNIDADE%")
       .order("data_inicio", { ascending: false });
 
     if (error) {
@@ -377,21 +374,16 @@ function CidAnalyticsPage() {
         "Não foi possível carregar os dados analíticos de afastamentos.",
       );
       setRecords([]);
-      setExcludedMaternityCount(0);
       setLoading(false);
       return;
     }
 
     const loadedRecords = (data || []) as AfastamentoRecord[];
-    const filteredRecords = loadedRecords.filter(
-      (record) => !isMaternityAfastamentoRecord(record),
-    );
-    setExcludedMaternityCount(loadedRecords.length - filteredRecords.length);
-    setRecords(filteredRecords);
+    setRecords(loadedRecords);
 
     const cidCodes = Array.from(
       new Set(
-        filteredRecords
+        loadedRecords
           .flatMap((record) => record.afastamento_cids || [])
           .map((cid) => normalizeCID(cid.cid_codigo || ""))
           .filter((code) => code.length > 0),
@@ -1161,9 +1153,7 @@ function CidAnalyticsPage() {
       return (
         <div className="border border-slate-200 bg-slate-50 p-6 text-center">
           <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
-            {excludedMaternityCount > 0
-              ? "Sem afastamentos elegíveis: registros de licença maternidade foram removidos desta análise."
-              : "Nenhum afastamento encontrado para análise."}
+            Nenhum afastamento encontrado para análise.
           </p>
         </div>
       );
@@ -1368,6 +1358,7 @@ function CidAnalyticsPage() {
             <CidRecurrenceInvestigativeTable
               events={filtered.events}
               nameMap={eventNameMap}
+              cidOccurrences={filtered.cidOccurrences}
             />
           </div>
         );
@@ -1384,15 +1375,7 @@ function CidAnalyticsPage() {
 
     return (
       <div className="space-y-5">
-        <StatisticCardRow columns={6}>
-          <StatisticCard
-            variant="analytic"
-            accent="primary"
-            title="Licenças com CID"
-            value={formatNumber(filteredMetrics.magnitude.totalAfastamentos)}
-            helperText="Eventos de licença médica com ao menos um código CID registrado · licenças sem CID não aparecem nesta tela"
-            icon={<ClipboardList className="w-5 h-5 text-slate-400" />}
-          />
+        <StatisticCardRow columns={5}>
           <StatisticCard
             variant="analytic"
             accent="neutral"
@@ -1527,7 +1510,7 @@ function CidAnalyticsPage() {
                     Gestão Analítica de Afastamentos por CID
                   </h2>
                   <span
-                    title="Leitura investigativa · volume bruto · sem padronização por população · maternidade excluída por política A1 · para indicadores padronizados, consulte Epidemiologia Geral"
+                    title="Leitura investigativa · volume bruto · sem padronização por população · apenas afastamentos com ao menos 1 código CID registrado · registros sem CID não aparecem nesta tela · para indicadores padronizados, consulte Epidemiologia Geral"
                     className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
                   >
                     <Info className="w-3 h-3" />
@@ -1789,40 +1772,6 @@ function CidAnalyticsPage() {
         </section>
 
         <div className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-5 lg:p-6 space-y-4">
-          <div className="bg-white border border-slate-200 border-l-4 border-l-[#1A3351] px-4 py-2.5">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
-                Módulo Clínico-Investigativo
-              </span>
-              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                Base Operacional
-              </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
-                public.afastamentos
-              </span>
-              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                Leitura Bruta
-              </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
-                sem denominador padronizado
-              </span>
-              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                Maternidade
-              </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
-                excluída por política A1
-              </span>
-              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
-                indicadores padronizados por população: Epidemiologia Geral
-                (leitura principal)
-              </span>
-            </div>
-          </div>
-
           {(searchParams.get("chapter") || searchParams.get("startDate")) && (
             <div className="border border-[#1A3351]/20 border-l-4 border-l-[#1A3351] bg-[#1A3351]/4 px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-0.5">
               <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">

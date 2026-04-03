@@ -59,6 +59,7 @@ export default function NewAfastamentoPage() {
   > | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
+  const [isMaternidadeContext, setIsMaternidadeContext] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -156,14 +157,16 @@ export default function NewAfastamentoPage() {
   // Auto calculate data_fim
   useEffect(() => {
     if (formData.data_inicio && diasAfastamento) {
-      const start = new Date(formData.data_inicio);
+      const [y, m, d] = formData.data_inicio.split("-").map(Number);
       const days = parseInt(diasAfastamento);
-      if (!isNaN(days) && days > 0) {
-        const end = new Date(start);
-        end.setDate(start.getDate() + days - 1);
+      if (!isNaN(days) && days > 0 && y && m && d) {
+        const end = new Date(y, m - 1, d + days - 1);
+        const endY = end.getFullYear();
+        const endM = String(end.getMonth() + 1).padStart(2, "0");
+        const endD = String(end.getDate()).padStart(2, "0");
         setFormData((prev) => ({
           ...prev,
-          data_fim: end.toISOString().split("T")[0],
+          data_fim: `${endY}-${endM}-${endD}`,
         }));
       }
     }
@@ -196,10 +199,19 @@ export default function NewAfastamentoPage() {
             "Usuário";
           setUserName(name);
 
-          // Check for extension (prorrogação)
+          // Check for extension (prorrogação) and tipo param
           const params = new URLSearchParams(window.location.search);
           const renewFrom = params.get("renew_from");
           const cpf = params.get("cpf");
+          const tipoParam = params.get("tipo");
+          if (tipoParam === "maternidade") {
+            setIsMaternidadeContext(true);
+            setFormData((prev) => ({
+              ...prev,
+              tipo_afastamento: "LICENÇA MATERNIDADE",
+              is_acidente_trabalho: false,
+            }));
+          }
           if (renewFrom && cpf) {
             setFormData((prev) => ({
               ...prev,
@@ -361,10 +373,8 @@ export default function NewAfastamentoPage() {
           servidor_matricula: bond.matricula,
           servidor_cargo: bond.cargo || bond.natureza_cargo,
           servidor_lotacao: bond.secretaria,
-          data_inicio: new Date(formData.data_inicio).toLocaleDateString(
-            "pt-BR",
-          ),
-          data_fim: new Date(formData.data_fim).toLocaleDateString("pt-BR"),
+          data_inicio: formData.data_inicio.split("-").reverse().join("/"),
+          data_fim: formData.data_fim.split("-").reverse().join("/"),
           tipo_afastamento: formData.tipo_afastamento,
           is_acidente_trabalho: formData.is_acidente_trabalho,
           perito_nome: formData.perito_nome,
@@ -423,15 +433,25 @@ export default function NewAfastamentoPage() {
         <section className="bg-[#B0B0B0] p-4 py-3 border-b-[6px] border-emerald-500 shrink-0 shadow-lg">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push("/afastamentos")}
+              onClick={() =>
+                router.push(
+                  isMaternidadeContext
+                    ? "/afastamentos/maternidade"
+                    : "/afastamentos",
+                )
+              }
               className="p-2 hover:bg-black/5 transition-colors"
             >
               <ChevronLeft className="w-6 h-6 text-[#1A3351]" />
             </button>
             <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3351]">
-              {formData.renew_from_id
-                ? "Prorrogar Afastamento"
-                : "Novo Afastamento"}
+              {isMaternidadeContext
+                ? formData.renew_from_id
+                  ? "Prorrogar Licença Maternidade"
+                  : "Nova Licença Maternidade"
+                : formData.renew_from_id
+                  ? "Prorrogar Afastamento"
+                  : "Novo Afastamento"}
             </h2>
           </div>
         </section>
@@ -573,64 +593,58 @@ export default function NewAfastamentoPage() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col md:flex-row gap-6 md:items-end">
-                    <div className="flex-1">
+                  {!isMaternidadeContext && (
+                    <div className="flex flex-col">
                       <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                        Tipo de Afastamento
+                        Acidente de Trabalho
                       </label>
-                      <select
-                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold bg-[#fcfcfc] text-[#1A3351]"
-                        value={formData.tipo_afastamento}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            tipo_afastamento: e.target.value,
-                          })
+                      <div
+                        className={`flex items-center gap-3 px-4 py-3 border-2 rounded-none cursor-pointer select-none transition-all group ${
+                          formData.is_acidente_trabalho
+                            ? "bg-red-50 border-red-500 shadow-md shadow-red-100"
+                            : "bg-white border-slate-400 hover:border-red-400 hover:bg-red-50"
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            is_acidente_trabalho: !prev.is_acidente_trabalho,
+                          }))
                         }
                       >
-                        <option value="AUX. DOENÇA">AUXÍLIO DOENÇA</option>
-                        {/* Bloquear maternidade para homens */}
-                        {!(
-                          selectedServidor?.sexo === "M" ||
-                          selectedServidor?.sexo === "MASCULINO"
-                        ) && (
-                          <option value="LICENÇA MATERNIDADE">
-                            LICENÇA MATERNIDADE
-                          </option>
-                        )}
-                      </select>
-                    </div>
-
-                    <div
-                      className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-none group hover:border-red-200 hover:bg-red-50 transition-all cursor-pointer select-none"
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          is_acidente_trabalho: !prev.is_acidente_trabalho,
-                        }))
-                      }
-                    >
-                      <div
-                        className={`w-6 h-6 rounded-none border-2 flex items-center justify-center transition-all ${formData.is_acidente_trabalho ? "bg-red-600 border-red-600 shadow-lg shadow-red-200" : "border-slate-300 bg-white group-hover:border-red-400"}`}
-                      >
-                        {formData.is_acidente_trabalho && (
-                          <Activity className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <div className="flex flex-col">
-                        <span
-                          className={`text-[10px] font-bold uppercase leading-none ${formData.is_acidente_trabalho ? "text-red-700" : "text-slate-500"}`}
+                        <div
+                          className={`w-5 h-5 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            formData.is_acidente_trabalho
+                              ? "bg-red-600 border-red-600"
+                              : "border-slate-400 bg-white group-hover:border-red-500"
+                          }`}
                         >
-                          Acidente de Trabalho
-                        </span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">
-                          Marcar se relacionado à ocupação
-                        </span>
+                          {formData.is_acidente_trabalho && (
+                            <Activity className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span
+                            className={`text-[12px] font-bold uppercase leading-tight ${
+                              formData.is_acidente_trabalho
+                                ? "text-red-700"
+                                : "text-slate-700"
+                            }`}
+                          >
+                            {formData.is_acidente_trabalho
+                              ? "Sim — acidente de trabalho"
+                              : "Não — marcar se for o caso"}
+                          </span>
+                          <span className="text-[10px] text-slate-500 uppercase font-medium">
+                            Relacionado à atividade ocupacional
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div
+                    className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isMaternidadeContext ? "md:col-span-2" : ""}`}
+                  >
                     <div>
                       <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
                         Início
@@ -665,9 +679,9 @@ export default function NewAfastamentoPage() {
                       </label>
                       <div className="w-full px-4 py-3 border border-slate-200 bg-slate-50 rounded-none font-bold text-emerald-700">
                         {formData.data_fim
-                          ? new Date(formData.data_fim).toLocaleDateString(
-                              "pt-BR",
-                            )
+                          ? new Date(
+                              formData.data_fim + "T12:00:00",
+                            ).toLocaleDateString("pt-BR")
                           : "---"}
                       </div>
                     </div>
@@ -786,39 +800,73 @@ export default function NewAfastamentoPage() {
                         }
                       />
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
                         Médico Perito
                       </label>
-                      <input
-                        type="text"
-                        placeholder="NOME DO PERITO..."
-                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase"
-                        value={formData.perito_nome}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            perito_nome: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                        CRM / MS
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="CRM/MS 0000..."
-                        className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase"
-                        value={formData.perito_crm}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            perito_crm: e.target.value,
-                          })
-                        }
-                      />
+                      {formData.perito_nome ? (
+                        <div className="flex items-center justify-between px-4 py-3 bg-[#1A3351] border-2 border-[#1A3351]">
+                          <div className="flex flex-col">
+                            <span className="text-[12px] font-bold uppercase text-white leading-tight">
+                              {formData.perito_nome.startsWith("JULIA")
+                                ? "Dra."
+                                : "Dr."}{" "}
+                              {formData.perito_nome}
+                            </span>
+                            <span className="text-[10px] font-medium text-blue-200 uppercase">
+                              {formData.perito_crm}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                perito_nome: "",
+                                perito_crm: "",
+                              }))
+                            }
+                            className="text-[10px] font-bold uppercase text-blue-300 hover:text-white underline underline-offset-2 transition-colors ml-6 flex-shrink-0"
+                          >
+                            Trocar
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-3">
+                          {[
+                            {
+                              nome: "ISSAM FARES JUNIOR",
+                              crm: "CRM/MS 3744",
+                              titulo: "Dr.",
+                            },
+                            {
+                              nome: "JULIA OLIVEIRA MENDES PEREIRA",
+                              crm: "CRM/MS 14653",
+                              titulo: "Dra.",
+                            },
+                          ].map((perito) => (
+                            <button
+                              key={perito.crm}
+                              type="button"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  perito_nome: perito.nome,
+                                  perito_crm: perito.crm,
+                                }))
+                              }
+                              className="flex-1 flex flex-col items-start px-4 py-3 border-2 border-slate-300 bg-white hover:border-[#1A3351] hover:bg-slate-50 transition-all text-left"
+                            >
+                              <span className="text-[11px] font-bold uppercase text-slate-700 leading-tight">
+                                {perito.titulo} {perito.nome}
+                              </span>
+                              <span className="text-[10px] font-medium text-slate-400 uppercase">
+                                {perito.crm}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
