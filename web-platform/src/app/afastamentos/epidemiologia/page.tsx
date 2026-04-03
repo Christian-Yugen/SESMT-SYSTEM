@@ -27,6 +27,7 @@ import {
   type EpidemiologyFetchError,
   type EpidemiologyCutRow,
   type EpidemiologyTrendModel,
+  type EpidemiologyCidChapterRow,
 } from "@/lib/afastamentos-epidemiologia-page-utils";
 import type { EpidemiologyConsumptionContract } from "@/lib/afastamentos-epidemiologia-contrato";
 
@@ -53,6 +54,103 @@ function getCardIcon(id: string) {
   if (id === "dml") return <Clock className="w-5 h-5" />;
   if (id === "ig") return <AlertTriangle className="w-5 h-5" />;
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// Sub-componente: bloco executivo de capítulos CID
+// ---------------------------------------------------------------------------
+
+function CidChapterExecutiveBlock({
+  rows,
+}: Readonly<{ rows: EpidemiologyCidChapterRow[] }>) {
+  if (rows.length === 0) return null;
+  return (
+    <section className="space-y-1">
+      <div className="flex items-center justify-between px-0.5">
+        <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#1A3351]">
+          Agravos Dominantes do Período
+        </h4>
+        <span className="text-[9px] text-slate-400 uppercase tracking-wide">
+          top {rows.length} · ordenado por dias perdidos · leitura bruta
+        </span>
+      </div>
+      <div className="overflow-x-auto border border-slate-200">
+        <table className="w-full text-[11px] border-collapse">
+          <thead>
+            <tr className="bg-[#1A3351] text-white">
+              <th className="px-3 py-1.5 text-left font-bold uppercase tracking-widest whitespace-nowrap">
+                Capítulo CID
+              </th>
+              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
+                Lic.
+              </th>
+              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
+                % Lic.
+              </th>
+              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
+                Dias
+              </th>
+              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
+                % Dias
+              </th>
+              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
+                DML
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => (
+              <tr
+                key={row.key}
+                className={[
+                  "border-b border-slate-100 hover:bg-slate-50 transition-colors",
+                  idx % 2 === 0 ? "bg-white" : "bg-slate-50/50",
+                ].join(" ")}
+              >
+                <td className="px-3 py-2 text-slate-700 max-w-[280px]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-[#1A3351] tabular-nums shrink-0 w-5 text-right">
+                      {idx + 1}.
+                    </span>
+                    <span className="truncate">{row.key}</span>
+                  </div>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-700">
+                  {row.totalLicencas.toLocaleString("pt-BR")}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-500 text-[10px]">
+                  {row.percentualLicencas.toFixed(1)}%
+                </td>
+                <td className="px-3 py-2 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <div className="w-10 bg-slate-100 h-1.5 hidden sm:block">
+                      <div
+                        className="h-1.5 bg-[#E31E24]/50"
+                        style={{ width: `${row.relDias}%` }}
+                      />
+                    </div>
+                    <span className="tabular-nums text-slate-700">
+                      {row.totalDiasPerdidos.toLocaleString("pt-BR")}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-500 text-[10px]">
+                  {row.percentualDias.toFixed(1)}%
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums font-semibold text-[#1A3351]">
+                  {row.dml}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[9px] text-slate-400 uppercase tracking-wide px-0.5">
+        Volume bruto · sem denominador populacional · análise clínica detalhada
+        disponível em CID Analytics
+      </p>
+    </section>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -770,6 +868,8 @@ export default function EpidemiologiaPage() {
                         </div>
                       )}
                     </div>
+
+                    <CidChapterExecutiveBlock rows={cuts.cidCapitulo} />
 
                     <section className="space-y-4">
                       <p className="text-[9px] font-medium uppercase tracking-wide text-slate-500">

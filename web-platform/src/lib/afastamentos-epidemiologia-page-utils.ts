@@ -46,6 +46,16 @@ export interface EpidemiologyCutRow {
   available: boolean;
 }
 
+export interface EpidemiologyCidChapterRow {
+  key: string;
+  totalLicencas: number;
+  totalDiasPerdidos: number;
+  dml: string;
+  percentualLicencas: number;
+  percentualDias: number;
+  relDias: number;
+}
+
 export interface EpidemiologyPageCuts {
   sexo: EpidemiologyCutRow[];
   faixaEtaria: EpidemiologyCutRow[];
@@ -53,6 +63,7 @@ export interface EpidemiologyPageCuts {
   secretaria: EpidemiologyCutRow[];
   cargo: EpidemiologyCutRow[];
   localTrabalho: EpidemiologyCutRow[];
+  cidCapitulo: EpidemiologyCidChapterRow[];
 }
 
 export interface EpidemiologyPageModel {
@@ -245,6 +256,15 @@ function sortByFixedOrder(
  * Ordena blocos por totalLicencas decrescente.
  * NAO_INFORMADO é sempre posicionado no final.
  */
+function sortByDiasPerdidosDesc(
+  a: EpidemiologyContractBlock,
+  b: EpidemiologyContractBlock,
+): number {
+  if (a.key === NAO_INFORMADO_KEY) return 1;
+  if (b.key === NAO_INFORMADO_KEY) return -1;
+  return b.metrics.totalDiasPerdidos - a.metrics.totalDiasPerdidos;
+}
+
 function sortByLicencasDesc(
   a: EpidemiologyContractBlock,
   b: EpidemiologyContractBlock,
@@ -252,6 +272,39 @@ function sortByLicencasDesc(
   if (a.key === NAO_INFORMADO_KEY) return 1;
   if (b.key === NAO_INFORMADO_KEY) return -1;
   return b.metrics.totalLicencas - a.metrics.totalLicencas;
+}
+
+function buildCidChapterRows(
+  blocks: EpidemiologyContractBlock[],
+  overallLicencas: number,
+  overallDias: number,
+  maxItems = 10,
+): EpidemiologyCidChapterRow[] {
+  const sorted = [...blocks]
+    .filter((b) => b.key !== NAO_INFORMADO_KEY && b.metrics.totalLicencas > 0)
+    .sort(sortByDiasPerdidosDesc)
+    .slice(0, maxItems);
+
+  const maxDias = sorted.length > 0 ? sorted[0].metrics.totalDiasPerdidos : 1;
+
+  return sorted.map((b) => ({
+    key: b.key,
+    totalLicencas: b.metrics.totalLicencas,
+    totalDiasPerdidos: b.metrics.totalDiasPerdidos,
+    dml: formatMetric(b.metrics.dml, 1),
+    percentualLicencas:
+      overallLicencas > 0
+        ? Math.round((b.metrics.totalLicencas / overallLicencas) * 1000) / 10
+        : 0,
+    percentualDias:
+      overallDias > 0
+        ? Math.round((b.metrics.totalDiasPerdidos / overallDias) * 1000) / 10
+        : 0,
+    relDias:
+      maxDias > 0
+        ? Math.round((b.metrics.totalDiasPerdidos / maxDias) * 100)
+        : 0,
+  }));
 }
 
 // ---------------------------------------------------------------------------
@@ -294,6 +347,11 @@ export function buildEpidemiologyPageModel(
       localTrabalho: [...contract.cuts.localTrabalho]
         .sort(sortByLicencasDesc)
         .map(buildCutRow),
+      cidCapitulo: buildCidChapterRows(
+        contract.cuts.cidCapitulo,
+        contract.overall.metrics.totalLicencas,
+        contract.overall.metrics.totalDiasPerdidos,
+      ),
     },
     trend: buildTrendModel(contract.trend),
   };
@@ -328,6 +386,7 @@ export function buildLoadingPageModel(): EpidemiologyPageModel {
     secretaria: [],
     cargo: [],
     localTrabalho: [],
+    cidCapitulo: [],
   };
 
   return {
