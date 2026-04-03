@@ -208,6 +208,27 @@ export async function GET(request: Request): Promise<Response> {
 
     return jsonResponse(contract, 200, requestId);
   } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+
+    // Caso comum em previews: variáveis de ambiente do Supabase não foram
+    // configuradas (ex: SUPABASE_SERVICE_ROLE_KEY). Retornamos um erro
+    // explícito para facilitar diagnóstico na UI do PR.
+    if (
+      errMsg.includes("Supabase data configuration unavailable") ||
+      (errMsg.includes("Supabase") && errMsg.includes("configuration"))
+    ) {
+      console.error("[epi-view] config_missing", {
+        requestId,
+        message: errMsg,
+      });
+      return errorResponse(
+        requestId,
+        "CONFIG_MISSING",
+        "Variáveis de ambiente do Supabase ausentes no deploy. Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY (ou NEXT_PUBLIC_SUPABASE_ANON_KEY) no ambiente de preview.",
+        500,
+      );
+    }
+
     if (error instanceof EpidemiologyApplicationError) {
       console.error("[epi-view] application_error", {
         requestId,
@@ -221,7 +242,10 @@ export async function GET(request: Request): Promise<Response> {
       );
     }
 
-    console.error("[epi-view] unexpected_error", { requestId });
+    console.error("[epi-view] unexpected_error", {
+      requestId,
+      message: errMsg,
+    });
     return errorResponse(
       requestId,
       "INTERNAL_ERROR",
