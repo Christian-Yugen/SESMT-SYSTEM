@@ -1820,94 +1820,31 @@ function CidAnalyticsPage() {
           </div>
 
           {(searchParams.get("chapter") || searchParams.get("startDate")) && (
-            <div className="border border-[#1A3351]/25 border-l-4 border-l-[#1A3351] bg-[#1A3351]/4 overflow-hidden">
-              {/* Linha de título */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-4 py-2 border-b border-[#1A3351]/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
-                  Contexto Epidemiológico do Recorte
-                </span>
-                <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-                <span className="text-[9px] text-slate-500 uppercase tracking-wider">
-                  Epidemiologia Geral
-                </span>
-                <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
-                <span className="text-[9px] text-slate-400 uppercase tracking-wider">
-                  leitura de suporte · valores brutos · não substitui
-                  indicadores padronizados
-                </span>
-              </div>
-              {/* Linha de KPIs */}
-              <div className="flex flex-wrap items-start gap-x-0 gap-y-0 divide-x divide-[#1A3351]/10">
-                {searchParams.get("startDate") &&
-                  searchParams.get("endDate") && (
-                    <div className="px-4 py-2 min-w-[120px]">
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                        Período
-                      </p>
-                      <p className="text-[10px] font-semibold text-[#1A3351]">
-                        {searchParams.get("startDate")}
-                      </p>
-                      <p className="text-[9px] text-slate-500">
-                        a {searchParams.get("endDate")}
-                      </p>
-                    </div>
-                  )}
-                {searchParams.get("chapter") && (
-                  <div className="px-4 py-2 flex-1 min-w-[180px] max-w-[320px]">
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                      Capítulo CID em foco
-                    </p>
-                    <p className="text-[10px] font-semibold text-[#1A3351] leading-snug">
-                      {searchParams.get("chapter")}
-                    </p>
-                  </div>
-                )}
-                {searchParams.get("epiLic") && (
-                  <div className="px-4 py-2 min-w-[80px]">
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                      Licenças
-                    </p>
-                    <p className="text-[13px] font-bold tabular-nums text-[#1A3351]">
-                      {Number(searchParams.get("epiLic")).toLocaleString(
-                        "pt-BR",
-                      )}
-                    </p>
-                    <p className="text-[8px] text-slate-400 uppercase">
-                      no recorte
-                    </p>
-                  </div>
-                )}
-                {searchParams.get("epiDias") && (
-                  <div className="px-4 py-2 min-w-[90px]">
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                      Dias perdidos
-                    </p>
-                    <p className="text-[13px] font-bold tabular-nums text-[#E31E24]">
-                      {Number(searchParams.get("epiDias")).toLocaleString(
-                        "pt-BR",
-                      )}
-                    </p>
-                    {searchParams.get("epiPct") && (
-                      <p className="text-[8px] text-slate-400 uppercase">
-                        {searchParams.get("epiPct")}% do total
-                      </p>
-                    )}
-                  </div>
-                )}
-                {searchParams.get("epiDml") && (
-                  <div className="px-4 py-2 min-w-[70px]">
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                      DML origem
-                    </p>
-                    <p className="text-[13px] font-bold tabular-nums text-slate-700">
-                      {searchParams.get("epiDml")}
-                    </p>
-                    <p className="text-[8px] text-slate-400 uppercase">
-                      dias médios
-                    </p>
-                  </div>
-                )}
-              </div>
+            <div className="border border-[#1A3351]/20 border-l-4 border-l-[#1A3351] bg-[#1A3351]/4 px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-0.5">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
+                Contexto de origem
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] text-slate-500 uppercase tracking-wider">
+                Epidemiologia Geral
+              </span>
+              {searchParams.get("chapter") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] font-semibold text-[#1A3351] uppercase tracking-wider">
+                    {searchParams.get("chapter")}
+                  </span>
+                </>
+              )}
+              {searchParams.get("startDate") && searchParams.get("endDate") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider">
+                    {searchParams.get("startDate")} –{" "}
+                    {searchParams.get("endDate")}
+                  </span>
+                </>
+              )}
             </div>
           )}
 

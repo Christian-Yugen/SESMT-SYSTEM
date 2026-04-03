@@ -77,10 +77,6 @@ function CidChapterExecutiveBlock({
     const params = new URLSearchParams({ chapter: row.key });
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
-    params.set("epiLic", String(row.totalLicencas));
-    params.set("epiDias", String(row.totalDiasPerdidos));
-    params.set("epiDml", row.dml);
-    params.set("epiPct", row.percentualDias.toFixed(1));
     router.push(`/afastamentos/cid-analytics?${params.toString()}`);
   }
   return (
