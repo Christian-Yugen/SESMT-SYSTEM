@@ -42,36 +42,6 @@ function jsonResponse(
   });
 }
 
-function errorResponse(
-  requestId: string,
-  code: string,
-  message: string,
-  status: number,
-): Response {
-  return jsonResponse({ error: { code, message } }, status, requestId);
-}
-
-function parseIsoDate(value: string | null): string | null {
-  if (!value || !DATE_PATTERN.test(value)) return null;
-  const dt = new Date(`${value}T00:00:00Z`);
-  if (Number.isNaN(dt.getTime())) return null;
-  const yyyy = String(dt.getUTCFullYear()).padStart(4, "0");
-  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(dt.getUTCDate()).padStart(2, "0");
-  if (`${yyyy}-${mm}-${dd}` !== value) return null;
-  return value;
-}
-
-function daysBetween(startDate: string, endDate: string): number {
-  const start = new Date(`${startDate}T00:00:00Z`).getTime();
-  const end = new Date(`${endDate}T00:00:00Z`).getTime();
-  return Math.floor((end - start) / (24 * 60 * 60 * 1000));
-}
-
-// ---------------------------------------------------------------------------
-// Clientes Supabase para esta rota
-// ---------------------------------------------------------------------------
-
 function createAuthClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -253,4 +223,30 @@ export async function GET(request: Request): Promise<Response> {
       503,
     );
   }
+}
+
+function errorResponse(
+  requestId: string,
+  code: string,
+  message: string,
+  status: number,
+): Response {
+  return jsonResponse({ error: { code, message } }, status, requestId);
+}
+
+function parseIsoDate(value: string | null): string | null {
+  if (!value || !DATE_PATTERN.test(value)) return null;
+  const dt = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(dt.getTime())) return null;
+  const yyyy = String(dt.getUTCFullYear()).padStart(4, "0");
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
+  if (`${yyyy}-${mm}-${dd}` !== value) return null;
+  return value;
+}
+
+function daysBetween(startDate: string, endDate: string): number {
+  const start = new Date(`${startDate}T00:00:00Z`).getTime();
+  const end = new Date(`${endDate}T00:00:00Z`).getTime();
+  return Math.floor((end - start) / (24 * 60 * 60 * 1000));
 }
