@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Clock3,
   Filter,
+  Info,
   Layers3,
   Loader2,
   Menu,
@@ -1517,15 +1518,16 @@ function CidAnalyticsPage() {
             <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#1A3351]" />
-                <div>
+                <div className="flex items-center gap-1.5">
                   <h2 className="text-[13px] min-[360px]:text-[14px] sm:text-lg md:text-xl font-bold leading-tight uppercase tracking-tight text-[#1A3351]">
                     Gestão Analítica de Afastamentos por CID
                   </h2>
-                  <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Leitura Investigativa · Volume Bruto · sem padronização por
-                    população • para indicadores populacionais: Epidemiologia
-                    Geral
-                  </p>
+                  <span
+                    title="Leitura investigativa · volume bruto · sem padronização por população · maternidade excluída por política A1 · para indicadores padronizados, consulte Epidemiologia Geral"
+                    className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
+                  >
+                    <Info className="w-3 h-3" />
+                  </span>
                 </div>
               </div>
               <button
