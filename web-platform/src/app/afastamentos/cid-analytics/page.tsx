@@ -1513,7 +1513,8 @@ export default function CidAnalyticsPage() {
                     Gestão Analítica de Afastamentos por CID
                   </h2>
                   <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Vigilância Epidemiológica Ocupacional • Camada Executiva
+                    Vigilância Epidemiológica Ocupacional • Camada Executiva •
+                    Base Operacional • Leitura Bruta
                   </p>
                 </div>
               </div>
@@ -1779,6 +1780,39 @@ export default function CidAnalyticsPage() {
               </p>
             </div>
           )}
+
+          <div className="bg-white border border-slate-200 border-l-4 border-l-[#1A3351] px-4 py-2.5">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
+                Módulo Clínico-Investigativo
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                Base Operacional
+              </span>
+              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
+                public.afastamentos
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                Leitura Bruta
+              </span>
+              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
+                sem denominador padronizado
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                Maternidade
+              </span>
+              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
+                excluída por política A1
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] text-slate-400 uppercase tracking-widest">
+                indicadores padronizados: ver Epidemiologia Geral
+              </span>
+            </div>
+          </div>
 
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden max-w-full">
             <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
