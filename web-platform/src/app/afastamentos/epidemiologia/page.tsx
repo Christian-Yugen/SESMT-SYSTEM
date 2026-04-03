@@ -73,10 +73,14 @@ function CidChapterExecutiveBlock({
   const router = useRouter();
   if (rows.length === 0) return null;
 
-  function handleRowClick(chapter: string) {
-    const params = new URLSearchParams({ chapter });
+  function handleRowClick(row: EpidemiologyCidChapterRow) {
+    const params = new URLSearchParams({ chapter: row.key });
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
+    params.set("epiLic", String(row.totalLicencas));
+    params.set("epiDias", String(row.totalDiasPerdidos));
+    params.set("epiDml", row.dml);
+    params.set("epiPct", row.percentualDias.toFixed(1));
     router.push(`/afastamentos/cid-analytics?${params.toString()}`);
   }
   return (
@@ -117,7 +121,7 @@ function CidChapterExecutiveBlock({
             {rows.map((row, idx) => (
               <tr
                 key={row.key}
-                onClick={() => handleRowClick(row.key)}
+                onClick={() => handleRowClick(row)}
                 className={[
                   "border-b border-slate-100 hover:bg-[#1A3351]/5 hover:cursor-pointer transition-colors",
                   idx % 2 === 0 ? "bg-white" : "bg-slate-50/50",
