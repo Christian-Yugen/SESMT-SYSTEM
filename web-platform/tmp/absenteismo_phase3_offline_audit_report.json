@@ -1,0 +1,58 @@
+{
+  "mode": "offline-dry-run-only",
+  "policy": {
+    "db_write_capability": false,
+    "accepts_apply": false,
+    "requires_service_role": false,
+    "schema_mutation": false,
+    "migrations_execution": false
+  },
+  "started_at": "2026-04-01T19:08:21.504Z",
+  "sources": {
+    "cadastro_rows_in": 5443,
+    "afastamentos_rows_in": 197
+  },
+  "processed": {
+    "servidores_unique": 5037,
+    "vinculos_unique": 5443,
+    "eventos_raw": 197,
+    "eventos_unique_after_hash": 196,
+    "eventos_collapsed_by_hash": 1,
+    "cid_occurrences": 294,
+    "eventos_multiplos_cids": 58,
+    "competencias_generated": 8,
+    "dim_tempo_rows_generated": 621,
+    "snapshots_generated": 30327
+  },
+  "resolution": {
+    "eventos_sem_contrato_origem": 193,
+    "eventos_sem_vinculo_resolvido": 0,
+    "coverage_cpf": {
+      "total": 197,
+      "validos": 197
+    },
+    "coverage_cpf_matricula": {
+      "total": 197,
+      "validos": 197
+    },
+    "coverage_cpf_matricula_contrato": {
+      "total": 197,
+      "validos": 4
+    }
+  },
+  "consistency": {
+    "events_checked": 196,
+    "tolerance_days": 0.02,
+    "tolerance_weight": 0.0001,
+    "events_with_weight_sum_1": 195,
+    "events_with_allocated_days_consistent": 195
+  },
+  "residuals": {
+    "pendencias_resolucao_vinculo": 0,
+    "cid_vazio_substituido_sem_cid": 1
+  },
+  "diagnostics": {
+    "event_diagnostics_path": "C:\\Users\\Usuário\\Desktop\\SESMT\\web-platform\\tmp\\absenteismo_phase3_offline_event_diagnostics.json",
+    "event_diagnostics_count": 196
+  }
+}

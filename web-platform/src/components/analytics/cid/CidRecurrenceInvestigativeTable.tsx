@@ -1,11 +1,15 @@
 "use client";
 
 import { AlertCircle, CheckCircle } from "lucide-react";
-import type { AfastamentoEventFact } from "@/types/afastamentos-cid-analytics";
+import type {
+  AfastamentoEventFact,
+  CidOccurrenceFact,
+} from "@/types/afastamentos-cid-analytics";
 
 interface CidRecurrenceInvestigativeTableProps {
   events: AfastamentoEventFact[];
   nameMap: Map<number, string>;
+  cidOccurrences?: CidOccurrenceFact[];
 }
 
 function safeText(value: string | null | undefined, fallback = ""): string {
@@ -55,8 +59,26 @@ function truncate(text: string | null | undefined, max: number): string {
 export default function CidRecurrenceInvestigativeTable({
   events,
   nameMap,
+  cidOccurrences,
 }: Readonly<CidRecurrenceInvestigativeTableProps>) {
   const safeEvents = Array.isArray(events) ? events : [];
+
+  // Mapa eventId → CID mais relevante (primeiro do capítulo filtrado se houver)
+  const relevantCidByEventId = new Map<
+    number,
+    { cidCode: string; cidDesc: string; cidChapter: string }
+  >();
+  if (cidOccurrences && cidOccurrences.length > 0) {
+    for (const occ of cidOccurrences) {
+      if (!relevantCidByEventId.has(occ.eventId)) {
+        relevantCidByEventId.set(occ.eventId, {
+          cidCode: occ.cidCode,
+          cidDesc: occ.cidDesc,
+          cidChapter: occ.cidChapter,
+        });
+      }
+    }
+  }
 
   const sorted = [...safeEvents].sort((a, b) => {
     const cpfCmp = safeText(a.event.servidorCpf).localeCompare(
@@ -142,6 +164,20 @@ export default function CidRecurrenceInvestigativeTable({
                 const maskedCpf = maskCpf(event.event.servidorCpf);
                 const isRecurrent = event.recurrence.isRecurrentPrimary;
 
+                // Usa CID relevante ao filtro de capítulo quando disponível
+                const relevantCid = relevantCidByEventId.get(
+                  event.event.afastamentoId,
+                );
+                const displayCidChapter = relevantCid
+                  ? relevantCid.cidChapter
+                  : event.clinical.cidChapter;
+                const displayCidCode = relevantCid
+                  ? relevantCid.cidCode
+                  : event.clinical.cidCode;
+                const displayCidDesc = relevantCid
+                  ? relevantCid.cidDesc
+                  : event.clinical.cidDesc;
+
                 return (
                   <tr
                     key={event.event.eventKey}
@@ -165,14 +201,14 @@ export default function CidRecurrenceInvestigativeTable({
                       {safeText(event.occupational.cargo, "NAO INFORMADO")}
                     </td>
                     <td className="px-3 py-2.5 text-[10px] font-bold uppercase text-[#1A3351] max-w-[140px] break-words">
-                      {safeText(event.clinical.cidChapter, "NAO INFORMADO")}
+                      {safeText(displayCidChapter, "NAO INFORMADO")}
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="text-[11px] font-bold uppercase text-slate-700">
-                        {safeText(event.clinical.cidCode, "NAO INFORMADO")}
+                        {safeText(displayCidCode, "NAO INFORMADO")}
                       </div>
                       <div className="text-[10px] font-normal text-slate-500 uppercase mt-0.5 max-w-[200px] break-words">
-                        {truncate(event.clinical.cidDesc, 50)}
+                        {truncate(displayCidDesc, 50)}
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-[11px] font-normal text-right text-slate-700 tabular-nums whitespace-nowrap">

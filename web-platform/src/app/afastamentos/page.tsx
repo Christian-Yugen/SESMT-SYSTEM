@@ -27,7 +27,6 @@ import {
   Save,
   FileText,
   Briefcase,
-  ListFilter,
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -175,7 +174,6 @@ export default function AfastamentosPage() {
   const clearAllFilters = () => {
     setFilters(INITIAL_FILTERS);
     setIsDateFilterOpen(false);
-    setTipoAfastamentoFilter("all");
     setCargoFilter("all");
   };
   const {
@@ -214,10 +212,7 @@ export default function AfastamentosPage() {
   const [sortBy, setSortBy] = useState<"alphabetical" | "newest" | "oldest">(
     "newest",
   );
-  const [tipoAfastamentoFilter, setTipoAfastamentoFilter] =
-    useState<string>("all");
   const [cargoFilter, setCargoFilter] = useState<string>("all");
-  const [isTipoFilterOpen, setIsTipoFilterOpen] = useState(false);
   const [isCargoFilterOpen, setIsCargoFilterOpen] = useState(false);
   const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
   const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
@@ -319,6 +314,7 @@ export default function AfastamentosPage() {
         "*, afastamento_cids (*), portarias_afastamento (numero, ano, data_emissao)",
       )
       .eq("status", "ATIVO")
+      .not("tipo_afastamento", "ilike", "%MATERNIDADE%")
       .order("data_inicio", { ascending: false });
 
     if (!error && data) {
@@ -682,9 +678,6 @@ export default function AfastamentosPage() {
       const matchesNatureza =
         naturezaCargoFilter === "all" ||
         record.natureza_cargo === naturezaCargoFilter;
-      const matchesTipo =
-        tipoAfastamentoFilter === "all" ||
-        record.tipo_afastamento === tipoAfastamentoFilter;
       const matchesCargo =
         cargoFilter === "all" || record.servidor_cargo === cargoFilter;
 
@@ -711,7 +704,6 @@ export default function AfastamentosPage() {
         matchesSearch &&
         matchesSecretaria &&
         matchesNatureza &&
-        matchesTipo &&
         matchesCargo &&
         matchesPeriod &&
         matchesStatus
@@ -723,7 +715,6 @@ export default function AfastamentosPage() {
     secretariaFilter,
     naturezaCargoFilter,
     cargoFilter,
-    tipoAfastamentoFilter,
     startDate,
     endDate,
     statusFilter,
@@ -734,7 +725,6 @@ export default function AfastamentosPage() {
     if (secretariaFilter !== "all") filters.push(secretariaFilter);
     if (naturezaCargoFilter !== "all") filters.push(naturezaCargoFilter);
     if (cargoFilter !== "all") filters.push(cargoFilter);
-    if (tipoAfastamentoFilter !== "all") filters.push(tipoAfastamentoFilter);
     if (startDate || endDate) {
       const start = startDate ? formatDate(startDate) : "INÍCIO";
       const end = endDate ? formatDate(endDate) : "HOJE";
@@ -759,7 +749,6 @@ export default function AfastamentosPage() {
     secretariaFilter,
     naturezaCargoFilter,
     cargoFilter,
-    tipoAfastamentoFilter,
     startDate,
     endDate,
     statusFilter,
@@ -814,15 +803,6 @@ export default function AfastamentosPage() {
     const unique = new Set(
       records
         .map((r) => r.natureza_cargo)
-        .filter((v): v is string => Boolean(v)),
-    );
-    return Array.from(unique).sort();
-  }, [records]);
-
-  const uniqueTipos = useMemo(() => {
-    const unique = new Set(
-      records
-        .map((r) => r.tipo_afastamento)
         .filter((v): v is string => Boolean(v)),
     );
     return Array.from(unique).sort();
@@ -946,41 +926,10 @@ export default function AfastamentosPage() {
                     showUserFilter={false}
                     activeFilterCount={
                       countActiveFilters(filters) +
-                      (tipoAfastamentoFilter !== "all" ? 1 : 0) +
                       (cargoFilter !== "all" ? 1 : 0)
                     }
                     extraActions={
                       <>
-                        <ActionIconButton
-                          icon={<ListFilter className="w-4 h-4" />}
-                          label="Filtrar por tipo de afastamento"
-                          variant="filter"
-                          active={tipoAfastamentoFilter !== "all"}
-                          open={isTipoFilterOpen}
-                          onToggle={setIsTipoFilterOpen}
-                          showMenuIndicator
-                        >
-                          <div className="w-56 bg-white border border-slate-200 shadow-2xl p-3 space-y-2">
-                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                              Tipo de afastamento
-                            </p>
-                            <select
-                              value={tipoAfastamentoFilter}
-                              onChange={(e) => {
-                                setTipoAfastamentoFilter(e.target.value);
-                                setIsTipoFilterOpen(false);
-                              }}
-                              className="w-full h-10 px-3 bg-[#E8E8E8] border border-[#888] text-[10px] font-bold uppercase outline-none focus:border-[#1A3351] rounded-none"
-                            >
-                              <option value="all">TODOS OS TIPOS</option>
-                              {uniqueTipos.map((t) => (
-                                <option key={t} value={t}>
-                                  {t}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </ActionIconButton>
                         <ActionIconButton
                           icon={<Briefcase className="w-4 h-4" />}
                           label="Filtrar por cargo"
@@ -1105,9 +1054,6 @@ export default function AfastamentosPage() {
                                   : "Status: Finalizados",
                         },
                       ]
-                    : []),
-                  ...(tipoAfastamentoFilter !== "all"
-                    ? [{ key: "tipo", label: `Tipo: ${tipoAfastamentoFilter}` }]
                     : []),
                   ...(cargoFilter !== "all"
                     ? [{ key: "cargo", label: `Cargo: ${cargoFilter}` }]

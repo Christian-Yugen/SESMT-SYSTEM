@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Activity,
   BarChart3,
@@ -9,6 +11,7 @@ import {
   ClipboardList,
   Clock3,
   Filter,
+  Info,
   Layers3,
   Loader2,
   Menu,
@@ -33,6 +36,7 @@ import CidRecurrenceSummaryPanel from "@/components/analytics/cid/CidRecurrenceS
 import CidRecurrenceInvestigativeTable from "@/components/analytics/cid/CidRecurrenceInvestigativeTable";
 import CidManagerialAlertsPanel from "@/components/analytics/cid/CidManagerialAlertsPanel";
 import CidPriorityRankingPanel from "@/components/analytics/cid/CidPriorityRankingPanel";
+
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { supabase } from "@/lib/supabase";
 import type { AfastamentoRecord } from "@/types";
@@ -296,30 +300,14 @@ function getDurationBandLabel(daysAway: number): string {
   return band?.label || "91+ dias";
 }
 
-function isMaternityLeaveType(value: string | null | undefined): boolean {
-  const normalized = toUpperNoAccents((value || "").trim());
-  return normalized.includes("MATERNIDADE");
-}
-
-function isMaternityRecord(record: AfastamentoRecord): boolean {
-  if (isMaternityLeaveType(record.tipo_afastamento)) return true;
-
-  return (record.afastamento_cids || []).some(
-    (cid) =>
-      isMaternityLeaveType(cid.cid_codigo) ||
-      isMaternityLeaveType(cid.cid_descricao) ||
-      isMaternityLeaveType(cid.cid_capitulo),
-  );
-}
-
-export default function CidAnalyticsPage() {
+function CidAnalyticsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
   const [records, setRecords] = useState<AfastamentoRecord[]>([]);
-  const [excludedMaternityCount, setExcludedMaternityCount] = useState(0);
   const [cidCatalogByCode, setCidCatalogByCode] = useState<
     Record<string, CidCatalogEntry>
   >({});
@@ -330,12 +318,18 @@ export default function CidAnalyticsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(
+    () => searchParams.get("startDate") ?? "",
+  );
+  const [endDate, setEndDate] = useState(
+    () => searchParams.get("endDate") ?? "",
+  );
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
   const [filterSecretaria, setFilterSecretaria] = useState("all");
-  const [filterCidChapter, setFilterCidChapter] = useState("all");
+  const [filterCidChapter, setFilterCidChapter] = useState(
+    () => searchParams.get("chapter") ?? "all",
+  );
   const [filterCargo, setFilterCargo] = useState("all");
   const [filterNatureza, setFilterNatureza] = useState("all");
   const [filterCidCode, setFilterCidCode] = useState("all");
@@ -372,6 +366,7 @@ export default function CidAnalyticsPage() {
     const { data, error } = await supabase
       .from("afastamentos")
       .select("*, afastamento_cids (*)")
+      .not("tipo_afastamento", "ilike", "%MATERNIDADE%")
       .order("data_inicio", { ascending: false });
 
     if (error) {
@@ -379,21 +374,16 @@ export default function CidAnalyticsPage() {
         "Não foi possível carregar os dados analíticos de afastamentos.",
       );
       setRecords([]);
-      setExcludedMaternityCount(0);
       setLoading(false);
       return;
     }
 
     const loadedRecords = (data || []) as AfastamentoRecord[];
-    const filteredRecords = loadedRecords.filter(
-      (record) => !isMaternityRecord(record),
-    );
-    setExcludedMaternityCount(loadedRecords.length - filteredRecords.length);
-    setRecords(filteredRecords);
+    setRecords(loadedRecords);
 
     const cidCodes = Array.from(
       new Set(
-        filteredRecords
+        loadedRecords
           .flatMap((record) => record.afastamento_cids || [])
           .map((cid) => normalizeCID(cid.cid_codigo || ""))
           .filter((code) => code.length > 0),
@@ -1163,9 +1153,7 @@ export default function CidAnalyticsPage() {
       return (
         <div className="border border-slate-200 bg-slate-50 p-6 text-center">
           <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
-            {excludedMaternityCount > 0
-              ? "Sem afastamentos elegíveis: registros de licença maternidade foram removidos desta análise."
-              : "Nenhum afastamento encontrado para análise."}
+            Nenhum afastamento encontrado para análise.
           </p>
         </div>
       );
@@ -1205,7 +1193,8 @@ export default function CidAnalyticsPage() {
                 accent="warning"
                 title="Capítulo líder"
                 value={chapterRankingSorted[0]?.chapter || "N/A"}
-                subtitle={`${formatNumber(chapterRankingSorted[0]?.occurrences || 0)} ocorrências`}
+                subtitle={`${formatNumber(chapterRankingSorted[0]?.afastamentos || 0)} licenças`}
+                helperText="Licenças = eventos distintos com ao menos 1 CID do capítulo"
                 icon={<BarChart3 className="w-5 h-5 text-amber-300" />}
               />
               <StatisticCard
@@ -1319,7 +1308,7 @@ export default function CidAnalyticsPage() {
               <StatisticCard
                 variant="analytic"
                 accent="primary"
-                title="Afastamentos no recorte"
+                title="Licenças no recorte"
                 value={formatNumber(
                   filteredMetrics.magnitude.totalAfastamentos,
                 )}
@@ -1369,6 +1358,7 @@ export default function CidAnalyticsPage() {
             <CidRecurrenceInvestigativeTable
               events={filtered.events}
               nameMap={eventNameMap}
+              cidOccurrences={filtered.cidOccurrences}
             />
           </div>
         );
@@ -1385,14 +1375,7 @@ export default function CidAnalyticsPage() {
 
     return (
       <div className="space-y-5">
-        <StatisticCardRow columns={6}>
-          <StatisticCard
-            variant="analytic"
-            accent="primary"
-            title="Total de afastamentos"
-            value={formatNumber(filteredMetrics.magnitude.totalAfastamentos)}
-            icon={<ClipboardList className="w-5 h-5 text-slate-400" />}
-          />
+        <StatisticCardRow columns={5}>
           <StatisticCard
             variant="analytic"
             accent="neutral"
@@ -1443,7 +1426,7 @@ export default function CidAnalyticsPage() {
             title="Secretarias mais criticas"
             subtitle="Prioridade composta por volume, dias perdidos, recorrencia e tendencia"
             items={managerialIntelligence.secretariaRanking}
-            volumeLabel="Afastamentos"
+            volumeLabel="Licenças"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1451,7 +1434,7 @@ export default function CidAnalyticsPage() {
             title="Cargos mais criticos"
             subtitle="Leitura gerencial para priorizacao ocupacional e preventiva"
             items={managerialIntelligence.cargoRanking}
-            volumeLabel="Afastamentos"
+            volumeLabel="Licenças"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1459,7 +1442,7 @@ export default function CidAnalyticsPage() {
             title="Capitulos mais criticos"
             subtitle="Combinacao de frequencia, impacto, recorrencia e variacao recente"
             items={managerialIntelligence.chapterRanking}
-            volumeLabel="Ocorrencias"
+            volumeLabel="Entradas CID"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
 
@@ -1467,7 +1450,7 @@ export default function CidAnalyticsPage() {
             title="CIDs mais criticos"
             subtitle="Priorizacao auditavel dos agravos mais sensiveis no recorte atual"
             items={managerialIntelligence.cidRanking}
-            volumeLabel="Ocorrencias"
+            volumeLabel="Entradas CID"
             scoreFormulaLabel={managerialIntelligence.scoreFormulaLabel}
           />
         </div>
@@ -1481,6 +1464,13 @@ export default function CidAnalyticsPage() {
             relativo, dias perdidos relativos, recorrencia relativa e tendencia
             positiva recente para apoiar priorizacao tecnica e preventiva com
             leitura auditavel.
+          </p>
+          <p className="mt-2 text-[10px] font-medium text-slate-500 leading-relaxed uppercase">
+            Leitura de volume bruto. Rankings ordenados por concentracao de
+            eventos no dataset filtrado. Nao equivalem a taxas padronizadas por
+            populacao. Grupos maiores tendem a pontuar mais alto. N/D: TAD, IFL
+            e IG nao sao calculaveis neste modulo (sem denominador padronizado)
+            — para esses indicadores, consulte Epidemiologia Geral.
           </p>
         </div>
       </div>
@@ -1515,13 +1505,16 @@ export default function CidAnalyticsPage() {
             <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[#1A3351]" />
-                <div>
+                <div className="flex items-center gap-1.5">
                   <h2 className="text-[13px] min-[360px]:text-[14px] sm:text-lg md:text-xl font-bold leading-tight uppercase tracking-tight text-[#1A3351]">
                     Gestão Analítica de Afastamentos por CID
                   </h2>
-                  <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Vigilância Epidemiológica Ocupacional • Camada Executiva
-                  </p>
+                  <span
+                    title="Leitura investigativa · volume bruto · sem padronização por população · apenas afastamentos com ao menos 1 código CID registrado · registros sem CID não aparecem nesta tela · exclui licenças de maternidade do recorte · para indicadores padronizados, consulte Epidemiologia Geral"
+                    className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
+                  >
+                    <Info className="w-3 h-3" />
+                  </span>
                 </div>
               </div>
               <button
@@ -1779,13 +1772,34 @@ export default function CidAnalyticsPage() {
         </section>
 
         <div className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-5 lg:p-6 space-y-4">
-          <div className="bg-amber-50 border-2 border-amber-300 p-3 sm:p-4">
-            <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide leading-relaxed break-words text-amber-900">
-              Licença maternidade não compõe esta análise epidemiológica de
-              doença (tipo de afastamento e CIDs legados).
-              {` Registros removidos: ${formatNumber(excludedMaternityCount)}.`}
-            </p>
-          </div>
+          {(searchParams.get("chapter") || searchParams.get("startDate")) && (
+            <div className="border border-[#1A3351]/20 border-l-4 border-l-[#1A3351] bg-[#1A3351]/4 px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-0.5">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
+                Contexto de origem
+              </span>
+              <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+              <span className="text-[9px] text-slate-500 uppercase tracking-wider">
+                Epidemiologia Geral
+              </span>
+              {searchParams.get("chapter") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] font-semibold text-[#1A3351] uppercase tracking-wider">
+                    {searchParams.get("chapter")}
+                  </span>
+                </>
+              )}
+              {searchParams.get("startDate") && searchParams.get("endDate") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider">
+                    {searchParams.get("startDate")} –{" "}
+                    {searchParams.get("endDate")}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
 
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden max-w-full">
             <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
@@ -1810,5 +1824,12 @@ export default function CidAnalyticsPage() {
         </div>
       </main>
     </div>
+  );
+}
+export default function CidAnalyticsPageWrapper() {
+  return (
+    <Suspense>
+      <CidAnalyticsPage />
+    </Suspense>
   );
 }
