@@ -11,6 +11,7 @@ import {
   Users,
   Calendar,
   Clock,
+  ExternalLink,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -62,8 +63,22 @@ function getCardIcon(id: string) {
 
 function CidChapterExecutiveBlock({
   rows,
-}: Readonly<{ rows: EpidemiologyCidChapterRow[] }>) {
+  startDate,
+  endDate,
+}: Readonly<{
+  rows: EpidemiologyCidChapterRow[];
+  startDate: string;
+  endDate: string;
+}>) {
+  const router = useRouter();
   if (rows.length === 0) return null;
+
+  function handleRowClick(chapter: string) {
+    const params = new URLSearchParams({ chapter });
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    router.push(`/afastamentos/cid-analytics?${params.toString()}`);
+  }
   return (
     <section className="space-y-1">
       <div className="flex items-center justify-between px-0.5">
@@ -102,8 +117,9 @@ function CidChapterExecutiveBlock({
             {rows.map((row, idx) => (
               <tr
                 key={row.key}
+                onClick={() => handleRowClick(row.key)}
                 className={[
-                  "border-b border-slate-100 hover:bg-slate-50 transition-colors",
+                  "border-b border-slate-100 hover:bg-[#1A3351]/5 hover:cursor-pointer transition-colors",
                   idx % 2 === 0 ? "bg-white" : "bg-slate-50/50",
                 ].join(" ")}
               >
@@ -113,6 +129,7 @@ function CidChapterExecutiveBlock({
                       {idx + 1}.
                     </span>
                     <span className="truncate">{row.key}</span>
+                    <ExternalLink className="w-3 h-3 text-slate-300 shrink-0 ml-auto" />
                   </div>
                 </td>
                 <td className="px-3 py-2 text-right tabular-nums text-slate-700">
@@ -146,8 +163,8 @@ function CidChapterExecutiveBlock({
         </table>
       </div>
       <p className="text-[9px] text-slate-400 uppercase tracking-wide px-0.5">
-        Volume bruto · sem denominador populacional · análise clínica detalhada
-        disponível em CID Analytics
+        Volume bruto · sem denominador populacional · clique no capítulo para
+        abrir CID Analytics filtrado
       </p>
     </section>
   );
@@ -869,7 +886,11 @@ export default function EpidemiologiaPage() {
                       )}
                     </div>
 
-                    <CidChapterExecutiveBlock rows={cuts.cidCapitulo} />
+                    <CidChapterExecutiveBlock
+                      rows={cuts.cidCapitulo}
+                      startDate={startDate}
+                      endDate={endDate}
+                    />
 
                     <section className="space-y-4">
                       <p className="text-[9px] font-medium uppercase tracking-wide text-slate-500">

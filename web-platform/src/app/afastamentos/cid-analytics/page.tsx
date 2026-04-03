@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Activity,
   BarChart3,
@@ -300,8 +300,9 @@ function getDurationBandLabel(daysAway: number): string {
   return band?.label || "91+ dias";
 }
 
-export default function CidAnalyticsPage() {
+function CidAnalyticsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
@@ -318,12 +319,18 @@ export default function CidAnalyticsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(
+    () => searchParams.get("startDate") ?? "",
+  );
+  const [endDate, setEndDate] = useState(
+    () => searchParams.get("endDate") ?? "",
+  );
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
   const [filterSecretaria, setFilterSecretaria] = useState("all");
-  const [filterCidChapter, setFilterCidChapter] = useState("all");
+  const [filterCidChapter, setFilterCidChapter] = useState(
+    () => searchParams.get("chapter") ?? "all",
+  );
   const [filterCargo, setFilterCargo] = useState("all");
   const [filterNatureza, setFilterNatureza] = useState("all");
   const [filterCidCode, setFilterCidCode] = useState("all");
@@ -1773,14 +1780,6 @@ export default function CidAnalyticsPage() {
         </section>
 
         <div className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-5 lg:p-6 space-y-4">
-          {excludedMaternityCount > 0 && (
-            <div className="bg-amber-50 border-2 border-amber-300 p-3 sm:p-4">
-              <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wide leading-relaxed break-words text-amber-900">
-                {buildMaternityExclusionAuditMessage(excludedMaternityCount)}
-              </p>
-            </div>
-          )}
-
           <div className="bg-white border border-slate-200 border-l-4 border-l-[#1A3351] px-4 py-2.5">
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
               <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
@@ -1814,6 +1813,37 @@ export default function CidAnalyticsPage() {
             </div>
           </div>
 
+          {(searchParams.get("chapter") || searchParams.get("startDate")) && (
+            <div className="bg-[#1A3351]/5 border border-[#1A3351]/20 border-l-4 border-l-[#1A3351] px-4 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#1A3351]">
+                Contexto de origem
+              </span>
+              <span className="text-[9px] text-slate-500 uppercase tracking-wider">
+                Epidemiologia Geral
+              </span>
+              {searchParams.get("chapter") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                    Capítulo
+                  </span>
+                  <span className="text-[9px] text-[#1A3351] uppercase tracking-wider font-medium">
+                    {searchParams.get("chapter")}
+                  </span>
+                </>
+              )}
+              {searchParams.get("startDate") && searchParams.get("endDate") && (
+                <>
+                  <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider">
+                    {searchParams.get("startDate")} a{" "}
+                    {searchParams.get("endDate")}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+
           <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden max-w-full">
             <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
@@ -1837,5 +1867,12 @@ export default function CidAnalyticsPage() {
         </div>
       </main>
     </div>
+  );
+}
+export default function CidAnalyticsPageWrapper() {
+  return (
+    <Suspense>
+      <CidAnalyticsPage />
+    </Suspense>
   );
 }
