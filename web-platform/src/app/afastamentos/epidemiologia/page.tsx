@@ -683,6 +683,9 @@ export default function EpidemiologiaPage() {
                           <div>
                             <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
                               Total de Licenças
+                              <span className="ml-1 font-normal normal-case tracking-normal text-slate-300">
+                                (volume bruto)
+                              </span>
                             </p>
                             <p className="text-[20px] font-black tabular-nums text-[#1A3351] leading-none mt-0.5">
                               {loading
@@ -696,6 +699,9 @@ export default function EpidemiologiaPage() {
                           <div>
                             <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
                               Dias Perdidos
+                              <span className="ml-1 font-normal normal-case tracking-normal text-slate-300">
+                                (volume bruto)
+                              </span>
                             </p>
                             <p className="text-[20px] font-black tabular-nums text-[#1A3351] leading-none mt-0.5">
                               {loading
@@ -859,6 +865,9 @@ export default function EpidemiologiaPage() {
                           <div>
                             <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
                               Total de Licenças
+                              <span className="ml-1 font-normal normal-case tracking-normal text-slate-300">
+                                (volume bruto)
+                              </span>
                             </p>
                             <p className="text-[20px] font-black tabular-nums text-[#1A3351] leading-none mt-0.5">
                               {loading
@@ -872,6 +881,9 @@ export default function EpidemiologiaPage() {
                           <div>
                             <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
                               Dias Perdidos
+                              <span className="ml-1 font-normal normal-case tracking-normal text-slate-300">
+                                (volume bruto)
+                              </span>
                             </p>
                             <p className="text-[20px] font-black tabular-nums text-[#1A3351] leading-none mt-0.5">
                               {loading

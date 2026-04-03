@@ -1470,6 +1470,11 @@ export default function CidAnalyticsPage() {
             positiva recente para apoiar priorizacao tecnica e preventiva com
             leitura auditavel.
           </p>
+          <p className="mt-2 text-[10px] font-medium text-slate-500 leading-relaxed uppercase">
+            Leitura de volume bruto. Rankings ordenados por concentracao de
+            eventos no dataset filtrado. Nao equivalem a taxas padronizadas por
+            populacao. Grupos maiores tendem a pontuar mais alto.
+          </p>
         </div>
       </div>
     );
