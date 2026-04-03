@@ -219,32 +219,38 @@ function buildCidOccurrences(
         ];
 
   const weight = 1 / cids.length;
-  return cids.map(
-    (cid): CidOccurrenceFact => ({
-      eventId: record.id,
-      servidorCpf: cleanText(record.servidor_cpf),
-      cidCode: cleanText(cid.cid_codigo, "SEM CID"),
-      cidDesc: cleanText(cid.cid_descricao, "DESCRICAO NAO INFORMADA"),
-      cidChapter: cleanText(cid.cid_capitulo, "CAPITULO NAO INFORMADO"),
-      occurrenceWeight: weight,
-      allocatedDays:
-        policy.daysAllocationMode === "shared-days"
-          ? daysAway * weight
-          : daysAway,
-      startDate: toDateOnly(record.data_inicio) || "",
-      endDate: toDateOnly(record.data_fim),
-      daysAway,
-      secretaria: cleanText(record.servidor_secretaria),
-      cargo: cleanText(record.servidor_cargo),
-      naturezaCargo: cleanText(record.natureza_cargo),
-      tipoAfastamento: cleanText(record.tipo_afastamento),
-      isAcidenteTrabalho: Boolean(record.is_acidente_trabalho),
-      competency: buildTemporalDimension(
-        toDateOnly(record.data_inicio) || "1970-01-01",
-      ).competency,
-    }))
+  return cids
+    .map(
+      (cid): CidOccurrenceFact => ({
+        eventId: record.id,
+        servidorCpf: cleanText(record.servidor_cpf),
+        cidCode: cleanText(cid.cid_codigo, "SEM CID"),
+        cidDesc: cleanText(cid.cid_descricao, "DESCRICAO NAO INFORMADA"),
+        cidChapter: cleanText(cid.cid_capitulo, "CAPITULO NAO INFORMADO"),
+        occurrenceWeight: weight,
+        allocatedDays:
+          policy.daysAllocationMode === "shared-days"
+            ? daysAway * weight
+            : daysAway,
+        startDate: toDateOnly(record.data_inicio) || "",
+        endDate: toDateOnly(record.data_fim),
+        daysAway,
+        secretaria: cleanText(record.servidor_secretaria),
+        cargo: cleanText(record.servidor_cargo),
+        naturezaCargo: cleanText(record.natureza_cargo),
+        tipoAfastamento: cleanText(record.tipo_afastamento),
+        isAcidenteTrabalho: Boolean(record.is_acidente_trabalho),
+        competency: buildTemporalDimension(
+          toDateOnly(record.data_inicio) || "1970-01-01",
+        ).competency,
+      }),
+    )
     .map((row) => {
-      const resolved = resolveCidFields(row.cidCode, row.cidDesc, row.cidChapter);
+      const resolved = resolveCidFields(
+        row.cidCode,
+        row.cidDesc,
+        row.cidChapter,
+      );
       return {
         ...row,
         cidCode: resolved.code,
@@ -381,7 +387,16 @@ export function buildCidAnalyticsMetrics(
     events.map((e) => e.event.servidorCpf),
   ).size;
   const allDays = events.map((e) => e.event.daysAway);
-  const totalDiasPerdidos = allDays.reduce((acc, days) => acc + days, 0);
+  // Usa allocatedDays das ocorrências CID para que, quando há filtro de capítulo,
+  // os dias sejam proporcionais (consistente com Epidemiologia). Sem filtro de
+  // capítulo, sum(allocatedDays) == sum(daysAway) pois as frações somam 1 por evento.
+  const totalDiasPerdidos =
+    cidOccurrences.length > 0
+      ? cidOccurrences.reduce(
+          (acc, occ) => acc + (occ.allocatedDays ?? occ.daysAway),
+          0,
+        )
+      : allDays.reduce((acc, days) => acc + days, 0);
   const duracaoMedia =
     totalAfastamentos > 0 ? totalDiasPerdidos / totalAfastamentos : 0;
   const duracaoMediana = median(allDays);
