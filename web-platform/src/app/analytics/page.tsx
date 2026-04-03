@@ -419,7 +419,18 @@ export default function AnalyticsPage() {
   // Processamento de dados para Gráficos
   const chartData = useMemo(() => {
     if (!filteredHistory.length)
-      return { byDate: [], byType: [], bySecretaria: [] };
+      return {
+        byDate: [],
+        byType: [],
+        bySecretaria: [],
+        byHour: [],
+        byDayOfWeek: [],
+        peakHour: "--",
+        peakDay: "--",
+        peakValue: 0,
+        morningTotal: 0,
+        afternoonTotal: 0,
+      };
 
     // Volume por data (últimos 15 pontos)
     const dateMap: Record<string, number> = {};
