@@ -1480,7 +1480,9 @@ function CidAnalyticsPage() {
           <p className="mt-2 text-[10px] font-medium text-slate-500 leading-relaxed uppercase">
             Leitura de volume bruto. Rankings ordenados por concentracao de
             eventos no dataset filtrado. Nao equivalem a taxas padronizadas por
-            populacao. Grupos maiores tendem a pontuar mais alto.
+            populacao. Grupos maiores tendem a pontuar mais alto. N/D: TAD, IFL
+            e IG nao sao calculaveis neste modulo (sem denominador padronizado)
+            — para esses indicadores, consulte Epidemiologia Geral.
           </p>
         </div>
       </div>
@@ -1520,8 +1522,9 @@ function CidAnalyticsPage() {
                     Gestão Analítica de Afastamentos por CID
                   </h2>
                   <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Vigilância Epidemiológica Ocupacional • Camada Executiva •
-                    Base Operacional • Leitura Bruta
+                    Leitura Investigativa · Volume Bruto · sem padronização por
+                    população • para indicadores populacionais: Epidemiologia
+                    Geral
                   </p>
                 </div>
               </div>
@@ -1808,7 +1811,8 @@ function CidAnalyticsPage() {
               </span>
               <div className="h-3 w-px bg-slate-300 shrink-0 hidden sm:block" />
               <span className="text-[9px] text-slate-400 uppercase tracking-widest">
-                indicadores padronizados: ver Epidemiologia Geral
+                indicadores padronizados por população: Epidemiologia Geral
+                (leitura principal)
               </span>
             </div>
           </div>

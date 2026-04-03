@@ -608,7 +608,8 @@ export default function EpidemiologiaPage() {
                     Epidemiologia <span className="text-[#E31E24]">Geral</span>
                   </h1>
                   <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
-                    Inteligência em Absenteísmo · SESMT
+                    Leitura Principal · Indicadores Padronizados por População ·
+                    SESMT
                   </p>
                 </div>
               </div>
@@ -1136,7 +1137,8 @@ export default function EpidemiologiaPage() {
           {/* Rodapé institucional */}
           <div className="pb-4 text-center">
             <p className="text-[9px] text-slate-400 uppercase tracking-widest">
-              Dados gerados pelo motor epidemiológico SESMT · Leitura somente
+              Leitura principal padronizada · motor epidemiológico SESMT ·
+              aprofundamento clínico por CID: ver CID Analytics
             </p>
           </div>
         </div>
