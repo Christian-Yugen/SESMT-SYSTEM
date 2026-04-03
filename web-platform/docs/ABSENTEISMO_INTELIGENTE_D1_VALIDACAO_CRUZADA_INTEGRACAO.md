@@ -128,3 +128,86 @@ RETOMAR_TRILHA_GERAL_ABSENTEISMO_INTELIGENTE
 - Sinalização UX mínima aplicada: tooltip do header do `CID Analytics` agora informa que o recorte exclui licenças de maternidade.
 - Testes unitários adicionados: `src/lib/tests/afastamentos-cid-analytics.test.ts` cobrindo `safeDate`, `calcInclusiveDays` e `buildCidAnalyticsMetrics`.
 
+---
+
+**MICROFASE D1.Z — Fechamento Formal da Trilha D1 (03/04/2026)**
+
+Este bloco registra o encerramento formal da trilha D1 — Validação Cruzada Epidemiologia ↔ CID Analytics.
+
+- Escopo consolidado:
+	- Validação funcional e metodológica da integração entre `/afastamentos/epidemiologia` e `/afastamentos/cid-analytics`.
+	- Implementação de sinalização UX mínima (tooltip de exclusão de maternidade) e adição de testes de blindagem na microfase D1.B.
+	- Decisão metodológica D1.C: manter critério temporal por `startDate` (inclusão se `event.startDate` estiver entre `startDate` e `endDate`).
+
+- Decisões canônicas preservadas:
+	- Regra temporal canônica vigente: inclusão por `startDate`.
+	- Política de exclusão de maternidade mantida no destino (CID Analytics).
+	- Identidade funcional e objetivo distinto das duas telas preservados: `Epidemiologia` (leitura padronizada por população) vs `CID Analytics` (leitura investigativa — volume bruto).
+
+- Garantias de não interferência:
+	- Nenhuma alteração de código funcional foi realizada nesta microfase (D1.Z).
+	- Não houve mudanças em rotas, endpoints ou em motor epidemiológico (`epidemiologia-view`, `buildEpidemiologyEngine`).
+	- A política de exclusão de maternidade não foi alterada.
+
+- Pontos explicitamente fora da trilha D1 (e que exigirão nova trilha, se necessário):
+	- Migração para critério de sobreposição de intervalo (event.startDate <= endDate && event.endDate >= startDate) — trata-se de evolução metodológica, requer coordenação e testes de reconciliação entre numeradores/denominadores.
+	- Mudanças estruturais no motor epidemiológico ou migração de fontes (ex.: mover CID Analytics para `abs_intel.*`).
+	- Ampliação de UX que introduza novos KPIs na navegação entre telas — alterações desse tipo exigem escopo próprio.
+
+- Observação sobre risco residual técnico:
+	- Foi identificado risco não bloqueante relacionado a parsing/UTC em funções que usam `T00:00:00` + getters UTC; isso não impede o fechamento da trilha D1 e está registrado como evolução técnica para trilha futura se necessário.
+
+- Decisão final de estabilidade da integração:
+	- A integração é considerada estável para o contrato atual; a regra temporal por `startDate` está formalizada e testada conforme D1.C.
+
+---
+
+RETOMAR_TRILHA_GERAL_ABSENTEISMO_INTELIGENTE
+
+**Decisão D1.C (03/04/2026)**
+
+- Regra temporal auditada: verificado que tanto a `Epidemiologia` (via `buildEpidemiologyEngine` em `src/lib/afastamentos-epidemiologia.ts`) quanto o `CID Analytics` (filtro no cliente em `src/app/afastamentos/cid-analytics/page.tsx`) aplicam atualmente inclusão por *data de início* do afastamento (`startDate`).
+
+- Alternativas comparadas:
+	- Inclusão por início do afastamento (`startDate`): já implementada; simples de explicar e consistente com a construção atual do contrato epidemiológico.
+	- Inclusão por sobreposição do intervalo (event.startDate <= endDate && event.endDate >= startDate): mais abrangente do ponto de vista epidemiológico (inclui episódios que atravessam o período), porém exige mudança metodológica e alinhamento entre as duas superfícies.
+
+- Decisão metodológica: manter a regra canônica atual — *inclusão por `startDate`*.
+
+- Justificativa da decisão:
+	- Consistência entre telas: a `Epidemiologia` já retorna um contrato padronizado baseado em `startDate`; manter o mesmo critério evita surpresas ao navegar entre as telas e preserva o princípio de menor surpresa para usuários investigativos.
+	- Escopo mínimo: alterar para sobreposição implicaria mudanças no motor epidemiológico e na forma como denominadores/numeradores são reconciliados (impacto maior que a correção mínima permitida nesta microfase).
+	- Risco interpretativo menor: mudança unilateral no destino (`CID Analytics`) causaria divergências imediatas com a tela de origem, aumentando risco de interpretações erradas sem coordenação metodológica.
+	- A opção de sobreposição é válida do ponto de vista epidemiológico e ficará documentada como alternativa para revisão posterior coordenada.
+
+- Testes criados:
+	- `src/lib/tests/afastamentos-cid-analytics-temporal.test.ts` — suite Vitest adicionada que valida explicitamente o comportamento de inclusão/exclusão quando a filtragem do cliente é aplicada por `startDate`.
+
+- Cenários cobertos pelos testes:
+	- Afastamento totalmente dentro do intervalo — incluído.
+	- Afastamento iniciado dentro e encerrado depois — incluído.
+	- Afastamento iniciado antes e encerrado dentro — **excluído** (pela regra startDate).
+	- Afastamento iniciado antes e encerrado depois de todo o intervalo — **excluído** (pela regra startDate).
+	- Afastamento totalmente fora do intervalo — excluído.
+	- Datas inválidas ou ausentes — tratadas como excluídas quando filtro aplicado (comportamento atual do cliente).
+
+- Correções aplicadas: nenhuma alteração funcional de produção; apenas adição de testes e atualização de documentação.
+
+- Garantias de não interferência:
+	- Política de exclusão de maternidade **não** foi alterada.
+	- Não foram alteradas rotas, telas ou contratos do endpoint `epidemiologia-view`.
+	- Mudanças limitadas a testes e documentação; nada em produção foi modificado.
+
+- Mudanças na documentação: atualização deste arquivo (`docs/ABSENTEISMO_INTELIGENTE_D1_VALIDACAO_CRUZADA_INTEGRACAO.md`) com decisão D1.C e referência ao novo arquivo de testes.
+
+- Problemas encontrados: potencial risco de fuso/serialização de datas em funções internas que usam `T00:00:00` — recomendação de adicionar mais testes e, se necessário, migrar parsing para construção explícita `Date.UTC(...)` ou equivalente.
+
+- Pendências:
+	- Revisão metodológica com stakeholders para avaliar se, em futuro coordenado, migrar para critério de sobreposição (impacto nas métricas e necessidade de reconciliar denominadores).
+	- Caso se opte por migração futura, executar patch coordenado em `buildEpidemiologyEngine` e nos pontos de construção de `cidOccurrences` para manter reconciliação.
+
+- Status da microfase: concluída — decisão registrada e testes adicionados para fixar contrato temporal atual.
+
+- Próximo passo seguro recomendado: comunicar decisão à equipe metodológica e, se houver acordo para mudança futura, planejar microfase dedicada para aplicar sobreposição com testes de reconciliação (escopo ampliado).
+
+
