@@ -120,3 +120,11 @@ Concluída (validação estática e relatório). Nenhuma correção de código a
 ---
 
 RETOMAR_TRILHA_GERAL_ABSENTEISMO_INTELIGENTE
+
+---
+
+**Atualização D1.B (03/04/2026)**
+
+- Sinalização UX mínima aplicada: tooltip do header do `CID Analytics` agora informa que o recorte exclui licenças de maternidade.
+- Testes unitários adicionados: `src/lib/tests/afastamentos-cid-analytics.test.ts` cobrindo `safeDate`, `calcInclusiveDays` e `buildCidAnalyticsMetrics`.
+

@@ -1510,7 +1510,7 @@ function CidAnalyticsPage() {
                     Gestão Analítica de Afastamentos por CID
                   </h2>
                   <span
-                    title="Leitura investigativa · volume bruto · sem padronização por população · apenas afastamentos com ao menos 1 código CID registrado · registros sem CID não aparecem nesta tela · para indicadores padronizados, consulte Epidemiologia Geral"
+                    title="Leitura investigativa · volume bruto · sem padronização por população · apenas afastamentos com ao menos 1 código CID registrado · registros sem CID não aparecem nesta tela · exclui licenças de maternidade do recorte · para indicadores padronizados, consulte Epidemiologia Geral"
                     className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
                   >
                     <Info className="w-3 h-3" />

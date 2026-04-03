@@ -1,5 +1,5 @@
 import type { AfastamentoRecord } from "@/types";
-import { getCIDDetails, normalizeCID } from "@/lib/cid-utils";
+import { getCIDDetails, normalizeCID } from "./cid-utils";
 import type {
   AfastamentoEventFact,
   CidAnalyticsDataset,
@@ -42,13 +42,13 @@ function toDateOnly(value: string | null | undefined): string | null {
   return value.slice(0, 10);
 }
 
-function safeDate(value: string | null | undefined): Date | null {
+export function safeDate(value: string | null | undefined): Date | null {
   if (!value) return null;
   const parsed = new Date(`${value}T00:00:00`);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function calcInclusiveDays(
+export function calcInclusiveDays(
   startDate: string | null,
   endDate: string | null,
 ): number {
