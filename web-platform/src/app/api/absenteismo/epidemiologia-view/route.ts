@@ -34,77 +34,13 @@ function jsonResponse(
 ): Response {
   return new Response(JSON.stringify(body), {
     status,
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : String(error);
-      const isPreview = process.env.VERCEL_ENV === "preview" || process.env.DEBUG_EPIDEMIOLOGIA === "1";
-
-      // Caso comum em previews: variáveis de ambiente do Supabase não foram
-      // configuradas (ex: SUPABASE_SERVICE_ROLE_KEY). Retornamos um erro
-      // explícito para facilitar diagnóstico na UI do PR.
-      if (
-        errMsg.includes("Supabase data configuration unavailable") ||
-        (errMsg.includes("Supabase") && errMsg.includes("configuration"))
-      ) {
-        console.error("[epi-view] config_missing", { requestId, message: errMsg });
-        return errorResponse(
-          requestId,
-          "CONFIG_MISSING",
-          "Variáveis de ambiente do Supabase ausentes no deploy. Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY (ou NEXT_PUBLIC_SUPABASE_ANON_KEY) no ambiente de preview.",
-          500,
-        );
-      }
-
-      if (error instanceof EpidemiologyApplicationError) {
-        console.error("[epi-view] application_error", {
-          requestId,
-          message: errMsg,
-        });
-
-        if (isPreview) {
-          // Em previews, retornamos detalhe do erro para facilitar diagnóstico
-          return jsonResponse(
-            {
-              error: {
-                code: "DATA_ERROR",
-                message: "Falha ao processar dados epidemiológicos.",
-                detail: errMsg,
-              },
-            },
-            500,
-            requestId,
-          );
-        }
-
-        return errorResponse(
-          requestId,
-          "INTERNAL_ERROR",
-          "Falha ao processar dados epidemiológicos.",
-          500,
-        );
-      }
-
-      console.error("[epi-view] unexpected_error", { requestId, message: errMsg });
-      if (isPreview) {
-        return jsonResponse(
-          {
-            error: {
-              code: "INTERNAL_ERROR",
-              message: "Erro interno ao consultar indicadores epidemiológicos.",
-              detail: errMsg,
-            },
-          },
-          503,
-          requestId,
-        );
-      }
-
-      return errorResponse(
-        requestId,
-        "INTERNAL_ERROR",
-        "Erro interno ao consultar indicadores epidemiológicos.",
-        503,
-      );
-    }
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      [REQUEST_ID_HEADER]: requestId,
+    },
+  });
+}
 
 function createAuthClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -287,4 +223,30 @@ export async function GET(request: Request): Promise<Response> {
       503,
     );
   }
+}
+
+function errorResponse(
+  requestId: string,
+  code: string,
+  message: string,
+  status: number,
+): Response {
+  return jsonResponse({ error: { code, message } }, status, requestId);
+}
+
+function parseIsoDate(value: string | null): string | null {
+  if (!value || !DATE_PATTERN.test(value)) return null;
+  const dt = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(dt.getTime())) return null;
+  const yyyy = String(dt.getUTCFullYear()).padStart(4, "0");
+  const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getUTCDate()).padStart(2, "0");
+  if (`${yyyy}-${mm}-${dd}` !== value) return null;
+  return value;
+}
+
+function daysBetween(startDate: string, endDate: string): number {
+  const start = new Date(`${startDate}T00:00:00Z`).getTime();
+  const end = new Date(`${endDate}T00:00:00Z`).getTime();
+  return Math.floor((end - start) / (24 * 60 * 60 * 1000));
 }
