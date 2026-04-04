@@ -487,8 +487,14 @@ export default function EpidemiologiaPage() {
           ? { ...baseHeaders, "x-debug-epidemiologia": "1" }
           : baseHeaders;
 
+        const baseUrl =
+          typeof window !== "undefined"
+            ? window.location.origin
+            : process.env.NEXT_PUBLIC_APP_URL ||
+              (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
         const res = await fetch(
-          `/api/absenteismo/epidemiologia-view?${params.toString()}`,
+          `${baseUrl}/api/absenteismo/epidemiologia-view?${params.toString()}`,
           {
             headers: headersInit,
             cache: "no-store",
