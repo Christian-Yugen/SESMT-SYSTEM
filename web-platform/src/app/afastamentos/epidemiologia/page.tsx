@@ -480,15 +480,14 @@ export default function EpidemiologiaPage() {
           typeof window !== "undefined" ? new URL(window.location.href) : null;
         const debugEpi = pageUrl?.searchParams.get("debugEpi") === "1";
 
-        const headers: Record<string, string> = {
-          Authorization: `Bearer ${token}`,
-        };
-        if (debugEpi) headers["x-debug-epidemiologia"] = "1";
+        const headers = new Headers();
+        headers.set("Authorization", `Bearer ${token}`);
+        if (debugEpi) headers.set("x-debug-epidemiologia", "1");
 
         const res = await fetch(
           `/api/absenteismo/epidemiologia-view?${params.toString()}`,
           {
-            headers,
+            headers: headers as HeadersInit,
             cache: "no-store",
           },
         );

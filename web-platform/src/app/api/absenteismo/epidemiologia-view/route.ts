@@ -143,24 +143,42 @@ async function validateBearerToken(
 
 export async function GET(request: Request): Promise<Response> {
   const requestId = resolveRequestId(request);
+  const url = new URL(request.url);
 
-  // 1. Validar sessão do usuário
-  const authResult = await validateBearerToken(request);
-  if (!authResult.valid) {
-    console.warn("[epi-view] auth_rejected", {
-      requestId,
-      reason: authResult.reason,
-    });
-    return errorResponse(
-      requestId,
-      "UNAUTHORIZED",
-      "Sessão inválida. Faça login novamente.",
-      401,
-    );
+  // Permitir bypass de autenticação em ambiente de preview/desenvolvimento
+  // quando o debug for explicitamente solicitado via header/query ou secret.
+  const debugHeader = request.headers.get("x-debug-epidemiologia") === "1";
+  const debugSecretHeader = request.headers.get("x-debug-epidemiologia-secret");
+  const debugSecretEnv = process.env.DEBUG_EPIDEMIOLOGIA_SECRET;
+  const debugQuery =
+    url.searchParams.get("debug") === "1" || url.searchParams.get("debugEpi") === "1";
+  const previewEnv =
+    process.env.VERCEL_ENV === "preview" || process.env.DEBUG_EPIDEMIOLOGIA === "1";
+
+  const debugBypassAuthorized =
+    previewEnv &&
+    (debugHeader || (debugSecretHeader && debugSecretEnv && debugSecretHeader === debugSecretEnv) || debugQuery);
+
+  if (!debugBypassAuthorized) {
+    // 1. Validar sessão do usuário
+    const authResult = await validateBearerToken(request);
+    if (!authResult.valid) {
+      console.warn("[epi-view] auth_rejected", {
+        requestId,
+        reason: authResult.reason,
+      });
+      return errorResponse(
+        requestId,
+        "UNAUTHORIZED",
+        "Sessão inválida. Faça login novamente.",
+        401,
+      );
+    }
+  } else {
+    console.info("[epi-view] debug_bypass", { requestId });
   }
 
   // 2. Validar parâmetros de data
-  const url = new URL(request.url);
   const startDate = parseIsoDate(url.searchParams.get("startDate"));
   const endDate = parseIsoDate(url.searchParams.get("endDate"));
 
