@@ -280,16 +280,15 @@ export default function PsychosocialAnalyticsPage() {
                             if (card.id.includes('servers')) accent = 'info';
 
                             return (
-                              <StatisticCard
-                                key={card.id}
-                                variant="analytic"
-                                accent={accent}
-                                title={card.label}
-                                value={card.value}
-                                subtitle={card.unit}
-                                description={card.description}
-                                trend={card.trend}
-                              />
+                               <StatisticCard
+                                 key={card.id}
+                                 variant="analytic"
+                                 accent={accent}
+                                 title={card.label}
+                                 value={card.value}
+                                 subtitle={card.unit}
+                                 helperText={card.description}
+                               />
                             );
                           })}
                         </StatisticCardRow>
