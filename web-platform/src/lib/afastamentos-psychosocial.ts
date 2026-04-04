@@ -106,6 +106,7 @@ export interface PsychosocialFactorCatalogEntry {
   description: string;
   normativeReference: string;
   status: "ATIVO" | "INATIVO";
+  impactCount?: number;
 }
 
 export interface PsychosocialAssessmentSummary {
@@ -919,7 +920,7 @@ export function integrateRiskProfile(
   const factorImpactMap = new Map<number, number>();
   finalSignals.forEach(sig => {
     sig.factorNames.forEach(fName => {
-      const factor = factorCatalog.find(f => f.factorName === fName);
+      const factor = factorCatalog.find(f => f.factor === fName);
       if (factor) {
         factorImpactMap.set(factor.factorId, (factorImpactMap.get(factor.factorId) || 0) + 1);
       }
