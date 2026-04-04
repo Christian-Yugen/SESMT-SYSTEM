@@ -136,8 +136,10 @@ async function validateBearerToken(request: Request) {
 
 export async function GET(request: Request) {
   const requestId = resolveRequestId(request);
-  const urlParams = new URL(request.url).searchParams;
-  const isDebug = urlParams.get("debug") === "1";
+  const url = new URL(request.url);
+  const rawStart = url.searchParams.get("startDate");
+  const rawEnd = url.searchParams.get("endDate");
+  const isDebug = url.searchParams.get("debug") === "1";
 
   try {
     // Modo de Diagnóstico Automático
@@ -195,10 +197,6 @@ export async function GET(request: Request) {
     }
 
     // 2. Parâmetros de data
-    const url = new URL(request.url);
-    const rawStart = url.searchParams.get("startDate");
-    const rawEnd = url.searchParams.get("endDate");
-
     const startDate = parseIsoDate(rawStart);
     const endDate = parseIsoDate(rawEnd);
 
