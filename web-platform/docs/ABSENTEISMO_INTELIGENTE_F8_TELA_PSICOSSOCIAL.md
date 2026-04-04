@@ -18,11 +18,10 @@ Apoiar o SESMT na **priorização de ações preventivas** e investigações té
 | Bloco | Descrição | Origem dos Dados |
 | :--- | :--- | :--- |
 | **A - Visão Executiva** | Cards com total de licenças mentais, dias perdidos e score médio de criticidade. | `integrateRiskProfile` |
-| **B - Rankings de Recorte** | Listagem das secretarias, cargos e unidades com maior score de criticidade psicossocial. | `cuts.secretaria / cuts.cargo` |
-| **C - Sinais Sentinela** | Feed de ocorrências recentes de CID F e seus respectivos cargos/locais. | `assessmentSummaries` |
-| **D - Prioridades NR-1** | Painel lateral com justificativas auditáveis para os grupos em alerta. | `signalsByAnalyticalGroup` |
-| **E - Mapa de Fatores** | Resumo dos fatores psicossociais ativos (NR-1) por domínio (ex: Organização, Conteúdo). | `activeFactors` |
-| **F - Metodologia** | Rodapé explicativo reforçando a diferença entre sinal sentinela e causalidade. | Governança SESMT |
+| **B - Tabela Hierárquica** | Agrupamento por Secretaria/Cargo/Unidade com ordenação por Score de Criticidade e Dias Perdidos. | `signalsByAnalyticalGroup` |
+| **C - Inteligência CID-F** | Detalhamento de CIDs vinculados por cargo e contagem de profissionais impactados. | `associatedCids / impactedServerCount` |
+| **D - Mapa de Fatores** | Resumo dos domínios psicossociais (Organização, Conteúdo) aguardando coleta de questionários. | `activeFactors` |
+| **E - Metodologia** | Notas de rodapé reforçando a natureza de 'Sinal Sentinela' e ausência de nexo automático. | Governança SESMT |
 
 ### D. Origem dos dados consumidos
 Os dados são servidos pelo endpoint interno:
@@ -35,13 +34,18 @@ Os dados são servidos pelo endpoint interno:
 Conforme exigido pelo programa:
 - **Prudência no Nexo**: A tela utiliza termos como "Sinal Sentinela" e "Hipótese Ocupacional Reforçada", evitando afirmar nexo causal automático.
 - **Transparência**: O score é composto por thresholds explicáveis (Concentração CID F, Recorrência, Tendência, Dias Perdidos e Exposição Média).
-- **Consistência**: CID F é lido do schema analítico `abs_intel`, garantindo que os dados já passaram pelo processo de higienização e de-duplicação.
+- **Consistência**: CID F é lido do schema analítico `abs_intel`.
 
-### F. Limitações conhecidas
-1.  **Sincronização**: O dashboard depende da carga do schema `abs_intel`. Dados inseridos no legado operacional hoje só aparecerão após o próximo ciclo de ETL/Geração.
-2.  **Ações Recomendadas**: As ações nos cards de prioridade são inferidas pela criticidade do risco quando não há plano de ação explícito no banco.
+### F. Relatório de Auditoria (Microfase F8.Z)
+- **Status**: **FASE 8 APROVADA E LIBERADA PARA INÍCIO DA FASE 9**
+- **Arquivos Auditados**: `src/app/afastamentos/psychosocial-analytics/page.tsx`, `src/lib/afastamentos-psychosocial.ts`.
+- **Achados**:
+  - [CORRIGIDO] Ruído de texto redundante na aba de fatores.
+  - [CONSOLIDADO] Hierarquia visual unificada em tabela hierárquica superior ao sistema de múltiplos rankings anterior.
+- **Decisão**: A fase está metodologicamente íntegra e pronta para herdar a camada ergonômica (Fase 9).
 
 ### G. Próximos passos seguros
+- [X] Auditoria de fechamento da Fase 8.
 - [ ] Ativação da **Fase 9: Camada Ergonômica (NR-17)**.
 - [ ] Implementação do **Prevention Board** para acompanhamento do status de execução das ações recomendadas nesta tela.
 

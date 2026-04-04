@@ -550,7 +550,7 @@ export default function PsychosocialAnalyticsPage() {
 
                                 <div className="pt-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 -m-4 mt-0 p-4">
                                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                                    Vigilância Vigilância Preventiva
+                                    Vigilância Preventiva
                                   </div>
                                   <div className="text-[11px] font-black text-slate-300 italic uppercase">
                                     0 Unidades em Alerta
