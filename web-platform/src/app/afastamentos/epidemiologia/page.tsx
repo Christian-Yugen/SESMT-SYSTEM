@@ -95,7 +95,10 @@ function CidChapterExecutiveBlock({
               <th className="px-3 py-1.5 text-left font-bold uppercase tracking-widest whitespace-nowrap">
                 Capítulo CID
               </th>
-              <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap" title="Contagem proporcional: evento com N códigos CID contribui 1/N por capítulo">
+              <th
+                className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap"
+                title="Contagem proporcional: evento com N códigos CID contribui 1/N por capítulo"
+              >
                 Lic. prop.
               </th>
               <th className="px-3 py-1.5 text-right font-bold uppercase tracking-widest whitespace-nowrap">
@@ -162,8 +165,9 @@ function CidChapterExecutiveBlock({
         </table>
       </div>
       <p className="text-[9px] text-slate-400 uppercase tracking-wide px-0.5">
-        Volume bruto · Lic. prop. = contagem proporcional por CID (evento com N códigos contribui 1/N por capítulo) · clique no capítulo para
-        abrir CID Analytics filtrado
+        Volume bruto · Lic. prop. = contagem proporcional por CID (evento com N
+        códigos contribui 1/N por capítulo) · clique no capítulo para abrir CID
+        Analytics filtrado
       </p>
     </section>
   );
@@ -470,10 +474,21 @@ export default function EpidemiologiaPage() {
           startDate: queryStart,
           endDate: queryEnd,
         });
+
+        // Permitir requisição de diagnóstico quando a página for aberta com ?debugEpi=1
+        const pageUrl =
+          typeof window !== "undefined" ? new URL(window.location.href) : null;
+        const debugEpi = pageUrl?.searchParams.get("debugEpi") === "1";
+
+        const headers: Record<string, string> = {
+          Authorization: `Bearer ${token}`,
+        };
+        if (debugEpi) headers["x-debug-epidemiologia"] = "1";
+
         const res = await fetch(
           `/api/absenteismo/epidemiologia-view?${params.toString()}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers,
             cache: "no-store",
           },
         );

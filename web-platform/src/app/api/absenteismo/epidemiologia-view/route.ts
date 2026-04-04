@@ -208,11 +208,34 @@ export async function GET(request: Request): Promise<Response> {
 
     return jsonResponse(contract, 200, requestId);
   } catch (error) {
+    const debugRequested =
+      url.searchParams.get("debug") === "1" ||
+      request.headers.get("x-debug-epidemiologia") === "1";
+
+    const detail = debugRequested
+      ? error instanceof Error
+        ? error.message
+        : String(error)
+      : undefined;
+
     if (error instanceof EpidemiologyApplicationError) {
       console.error("[epi-view] application_error", {
         requestId,
         message: (error as Error).message,
       });
+      if (detail) {
+        return jsonResponse(
+          {
+            error: {
+              code: "INTERNAL_ERROR",
+              message: "Falha ao processar dados epidemiológicos.",
+            },
+            detail,
+          },
+          500,
+          requestId,
+        );
+      }
       return errorResponse(
         requestId,
         "INTERNAL_ERROR",
@@ -222,6 +245,19 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     console.error("[epi-view] unexpected_error", { requestId });
+    if (detail) {
+      return jsonResponse(
+        {
+          error: {
+            code: "INTERNAL_ERROR",
+            message: "Erro interno ao consultar indicadores epidemiológicos.",
+          },
+          detail,
+        },
+        503,
+        requestId,
+      );
+    }
     return errorResponse(
       requestId,
       "INTERNAL_ERROR",
