@@ -398,11 +398,11 @@ export default function PsychosocialAnalyticsPage() {
                                       return acc;
                                     }, {} as Record<string, any>);
 
-                                    const sortedSecretarias = Object.values(groups).sort((a, b) => {
+                                    const sortedSecretarias = Object.values(groups).sort((a: any, b: any) => {
                                       const diff = b.maxScore - a.maxScore;
                                       if (diff !== 0) return diff;
-                                      const totalDaysA = Object.values(a.cargos).reduce((sum, c: any) => sum + c.totalDays, 0);
-                                      const totalDaysB = Object.values(b.cargos).reduce((sum, c: any) => sum + c.totalDays, 0);
+                                      const totalDaysA = Object.values(a.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
+                                      const totalDaysB = Object.values(b.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
                                       return totalDaysB - totalDaysA;
                                     });
 
