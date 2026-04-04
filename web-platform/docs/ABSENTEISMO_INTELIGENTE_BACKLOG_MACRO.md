@@ -486,14 +486,14 @@ Consolidar todas as análises numa visão única de prevenção com recomendaç�
 
 | Fase | Docs | Libs | Páginas | TablesSQL | Status |
 |------|------|------|---------|-----------|--------|
-| 0 | 4 | — | — | — | EM EXECUÇÃO |
-| 1 | 1 | — | — | — | NOT STARTED |
-| 2 | — | — | — | 7 | NOT STARTED |
-| 3 | — | 1 | — | — | NOT STARTED |
-| 4 | 1 | — | — | — | NOT STARTED |
-| 5-6 | 1 | 1 | 1 | — | NOT STARTED |
-| 7-8 | 1 | 1 | 1 | 1 | NOT STARTED |
-| 9-10 | 1 | 1 | 1 | 1 | NOT STARTED |
+| 0 | 4 | — | — | — | CONCLUÍDA |
+| 1 | 1 | — | — | — | CONCLUÍDA |
+| 2 | — | — | — | 7 | CONCLUÍDA |
+| 3 | — | 1 | — | — | CONCLUÍDA |
+| 4 | 1 | — | — | — | CONCLUÍDA |
+| 5-6 | 1 | 1 | 1 | — | CONCLUÍDA |
+| 7-8 | 1 | 1 | 1 | 1 | PARCIAL (Epi OK) |
+| 9-10 | 1 | 1 | 1 | 1 | PARCIAL (Psy OK) |
 | 11 | — | 1 | 1 | — | NOT STARTED |
 | 12 | 1 | 1 | 1 | 1 | NOT STARTED |
 

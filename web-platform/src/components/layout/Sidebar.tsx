@@ -23,6 +23,7 @@ import {
   FileText,
   CloudDownload,
   MessageSquarePlus,
+  Brain,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ensureISO } from "@/lib/utils";
@@ -273,6 +274,16 @@ export default function Sidebar({
                           >
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Epidemiologia</span>
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              router.push("/afastamentos/psychosocial-analytics")
+                            }
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/psychosocial-analytics") ? "bg-white/5 text-purple-300 font-bold border-l-2 border-purple-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Brain className="w-3.5 h-3.5 shrink-0" />
+                            <span>Psicossocial</span>
                           </button>
                         </>
                       )}

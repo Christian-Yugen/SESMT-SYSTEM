@@ -173,6 +173,8 @@ export interface PsychosocialAnalyticalSignal {
   justification: string;
   evidenceSummary: string[];
   scoreBreakdown: PsychosocialScoreBreakdown;
+  impactedServerCount: number; // Campo unificado para contagem populacional
+  associatedCids: string[]; // NOVIDADE: CIDs que compõem o risco
 }
 
 export interface PsychosocialCutItem {
@@ -242,29 +244,57 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function fetchRows<T>(
-  queryResult: {
-    data: T[] | null;
-    error: { message: string } | null;
-  },
+type PageQueryFn<T> = (
+  from: number,
+  to: number,
+) => PromiseLike<{
+  data: T[] | null;
+  error: { message: string; code?: string; details?: string } | null;
+}>;
+
+const PAGE_SIZE = 1000;
+
+async function fetchAllPages<T>(
+  queryFn: PageQueryFn<T>,
   sourceName: string,
-): T[] {
-  const { data, error } = queryResult;
-  if (error) {
-    throw new PsychosocialApplicationError(
-      `Falha ao carregar ${sourceName}: ${error.message}`,
-    );
+): Promise<T[]> {
+  const results: T[] = [];
+  let from = 0;
+
+  while (true) {
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await queryFn(from, to);
+    if (error) {
+      const codeTag = error.code ? ` [${error.code}]` : "";
+      throw new PsychosocialApplicationError(
+        `Falha ao carregar ${sourceName}${codeTag}: ${error.message}`,
+      );
+    }
+    const rows = data ?? [];
+    results.push(...rows);
+    if (rows.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
   }
-  return data || [];
+
+  return results;
 }
 
 function buildAnalyticalGroupKey(
   vinculo: PsychosocialVinculoRow | undefined,
+  fallbackId?: string | number | null
 ): string {
+  if (!vinculo) {
+    const idTag = fallbackId ? `ID:${fallbackId}` : "IDENTIDADE_OCULTA";
+    return [
+      "BASE_INTEGRADA",
+      idTag,
+      "DADOS_VILA_VINCULO"
+    ].join(" | ");
+  }
   return [
-    normalizeDimension(vinculo?.secretaria),
-    normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo),
-    normalizeDimension(vinculo?.local_trabalho),
+    normalizeDimension(vinculo.secretaria),
+    normalizeDimension(vinculo.cargo),
+    normalizeDimension(vinculo.local_trabalho),
   ].join(" | ");
 }
 
@@ -526,14 +556,14 @@ export function getActivePsychosocialFactors(
   dataset: PsychosocialDataset,
 ): PsychosocialFactorCatalogEntry[] {
   return dataset.factors
-    .filter((factor) => factor.is_active)
+    // Forcanco exibicao de todos para diagnostico
     .map((factor) => ({
-      factorId: factor.psychosocial_factor_id,
-      code: normalizeDimension(factor.codigo),
-      domain: normalizeDimension(factor.categoria),
-      factor: factor.nome.trim(),
-      description: (factor.descricao || "Descricao nao informada.").trim(),
-      normativeReference: normalizeDimension(factor.fonte_normativa),
+      factorId: (factor as any).psychosocial_factor_id || (factor as any).fator_id || 0,
+      code: normalizeDimension(factor.codigo || (factor as any).cod_fator),
+      domain: normalizeDimension(factor.categoria || (factor as any).dominio || (factor as any).grupo),
+      factor: (factor.nome || (factor as any).fator || (factor as any).nome_fator || "Fator Desconhecido").trim(),
+      description: (factor.descricao || (factor as any).desc_fator || "Descricao nao informada.").trim(),
+      normativeReference: normalizeDimension(factor.fonte_normativa || (factor as any).referencia),
       status: (factor.is_active ? "ATIVO" : "INATIVO") as "ATIVO" | "INATIVO",
     }))
     .sort((left, right) => left.factor.localeCompare(right.factor));
@@ -581,8 +611,9 @@ export function groupPsychosocialAssessments(
         unidadeOrcamentaria: normalizeDimension(vinculo?.unidade_orcamentaria),
         localTrabalho: normalizeDimension(vinculo?.local_trabalho),
         secretaria: normalizeDimension(vinculo?.secretaria),
-        cargo: normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo),
-        analyticalGroup: buildAnalyticalGroupKey(vinculo),
+        cargo: normalizeDimension(vinculo?.cargo),
+        naturezaCargo: normalizeDimension(vinculo?.natureza_cargo),
+        analyticalGroup: buildAnalyticalGroupKey(vinculo, assessment.vinculoId),
         servidorId: assessment.servidor_id,
         vinculoId: assessment.vinculo_id,
         exposureLevel: riskLevel,
@@ -688,6 +719,7 @@ export function integrateRiskProfile(
       cidChapterKeys: Set<string>;
       factorDomains: Set<string>;
       factorNames: Set<string>;
+      associatedCids: Set<string>;
       serverEventCounts: Map<number, number>;
       monthlyCompatibleEvents: Map<string, number>;
     }
@@ -708,6 +740,7 @@ export function integrateRiskProfile(
       cidChapterKeys: new Set<string>(),
       factorDomains: new Set<string>(),
       factorNames: new Set<string>(),
+      associatedCids: new Set<string>(),
       serverEventCounts: new Map<number, number>(),
       monthlyCompatibleEvents: new Map<string, number>(),
     };
@@ -717,6 +750,15 @@ export function integrateRiskProfile(
       current.factorDomains.add(assessment.domain);
     if (assessment.factorName !== "FATOR_NAO_MAPEADO")
       current.factorNames.add(assessment.factorName);
+    
+    // NOVIDADE: Adicionar servidor da avaliacao ao contador de impacto
+    if (assessment.servidorId) {
+      current.serverEventCounts.set(
+        assessment.servidorId,
+        (current.serverEventCounts.get(assessment.servidorId) || 0) + 1,
+      );
+    }
+    
     signalsByGroupAccumulator.set(assessment.analyticalGroup, current);
   });
 
@@ -728,10 +770,10 @@ export function integrateRiskProfile(
     if (!event.vinculo_id) return;
 
     const vinculo = vinculoById.get(event.vinculo_id);
-    const analyticalGroup = buildAnalyticalGroupKey(vinculo);
+    const analyticalGroup = buildAnalyticalGroupKey(vinculo, event.vinculo_id);
     const current = signalsByGroupAccumulator.get(analyticalGroup) || {
       secretaria: normalizeDimension(vinculo?.secretaria),
-      cargo: normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo),
+      cargo: normalizeDimension(vinculo?.cargo),
       localTrabalho: normalizeDimension(vinculo?.local_trabalho),
       unidadeOrcamentaria: normalizeDimension(vinculo?.unidade_orcamentaria),
       assessments: [],
@@ -741,6 +783,7 @@ export function integrateRiskProfile(
       cidChapterKeys: new Set<string>(),
       factorDomains: new Set<string>(),
       factorNames: new Set<string>(),
+      associatedCids: new Set<string>(),
       serverEventCounts: new Map<number, number>(),
       monthlyCompatibleEvents: new Map<string, number>(),
     };
@@ -755,6 +798,7 @@ export function integrateRiskProfile(
       current.compatibleCidWeight += weight;
       current.lostDays += cid.allocated_days || event.dias_afastado || 0;
       current.cidChapterKeys.add(normalizeDimension(cid.cid_capitulo));
+      if (cid.cid_codigo) current.associatedCids.add(normalizeDimension(cid.cid_codigo));
       const monthKey = buildMonthKey(eventDate);
       current.monthlyCompatibleEvents.set(
         monthKey,
@@ -851,6 +895,8 @@ export function integrateRiskProfile(
           criticality,
           cidZone,
         }),
+        impactedServerCount: accumulator.serverEventCounts.size, // Garantir contagem por grupo
+        associatedCids: Array.from(accumulator.associatedCids).sort(),
         evidenceSummary: accumulator.assessments
           .slice(0, 3)
           .map((item) => item.evidence),
@@ -860,7 +906,30 @@ export function integrateRiskProfile(
     .filter(
       (signal) => signal.totalAssessments > 0 || signal.cidCompatibleWeight > 0,
     )
-    .sort((left, right) => right.score - left.score);
+    .sort((left, right) => {
+      // 1. Prioriza o agrupamento por Secretaria (Alfabetico)
+      const secCompare = left.secretaria.localeCompare(right.secretaria);
+      if (secCompare !== 0) return secCompare;
+      
+      // 2. Dentro da secretaria, ordena pela criticidade (Maior Score para o Menor)
+      return right.score - left.score;
+    });
+
+  const finalSignals = signalsByAnalyticalGroup;
+  const factorImpactMap = new Map<number, number>();
+  finalSignals.forEach(sig => {
+    sig.factorNames.forEach(fName => {
+      const factor = factorCatalog.find(f => f.factorName === fName);
+      if (factor) {
+        factorImpactMap.set(factor.factorId, (factorImpactMap.get(factor.factorId) || 0) + 1);
+      }
+    });
+  });
+
+  const updatedFactorCatalog = factorCatalog.map(f => ({
+    ...f,
+    impactCount: factorImpactMap.get(f.factorId) || 0
+  }));
 
   const cuts = {
     secretaria: aggregateCutItems(
@@ -1016,83 +1085,40 @@ export function createSupabasePsychosocialRepository(
 ): PsychosocialRepository {
   return {
     async loadDataset(): Promise<PsychosocialDataset> {
-      const factors = fetchRows<PsychosocialFactorRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_psychosocial_factor")
-          .select(
-            "psychosocial_factor_id, codigo, nome, descricao, categoria, fonte_normativa, is_active",
-          ),
-        "catalogo de fatores psicossociais",
-      );
+      console.log("[psy-repo] Loading collective dataset via pagination...");
+      
+      const [factors, assessments, signals, events, cids, vinculos, tempos] = await Promise.all([
+        fetchAllPages<PsychosocialFactorRow>(
+          (from, to) => client.schema("abs_intel").from("abs_dim_psychosocial_factor").select("*").range(from, to),
+          "fatores"
+        ),
+        fetchAllPages<PsychosocialAssessmentRow>(
+          (from, to) => client.schema("abs_intel").from("abs_fact_psychosocial_assessment").select("*").range(from, to),
+          "avaliacoes"
+        ),
+        fetchAllPages<PsychosocialSignalRow>(
+          (from, to) => client.schema("abs_intel").from("abs_fact_psychosocial_signal").select("*").range(from, to),
+          "sinais"
+        ),
+        fetchAllPages<PsychosocialEventRow>(
+          (from, to) => client.schema("abs_intel").from("abs_fact_afastamento_evento").select("afastamento_id, servidor_id, vinculo_id, data_inicio, dias_afastado").range(from, to),
+          "eventos"
+        ),
+        fetchAllPages<PsychosocialCidRow>(
+          (from, to) => client.schema("abs_intel").from("abs_fact_afastamento_cid").select("afastamento_id, cid_codigo, cid_capitulo, occurrence_weight, allocated_days").range(from, to),
+          "cids"
+        ),
+        fetchAllPages<PsychosocialVinculoRow>(
+          (from, to) => client.schema("abs_intel").from("abs_dim_vinculo_servidor").select("vinculo_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo").range(from, to),
+          "vinculos"
+        ),
+        fetchAllPages<PsychosocialTempoRow>(
+          (from, to) => client.schema("abs_intel").from("abs_dim_tempo").select("tempo_id, data_calendario, competencia_yyyymm").range(from, to),
+          "tempos"
+        )
+      ]);
 
-      const assessments = fetchRows<PsychosocialAssessmentRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_psychosocial_assessment")
-          .select(
-            "psychosocial_assessment_id, servidor_id, vinculo_id, tempo_id, psychosocial_factor_id, instrumento, score, nivel_risco, avaliador, observacoes",
-          ),
-        "avaliacoes psicossociais",
-      );
-
-      const signals = fetchRows<PsychosocialSignalRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_psychosocial_signal")
-          .select(
-            "psychosocial_signal_id, afastamento_id, servidor_id, vinculo_id, cid_codigo, signal_strength, status_investigacao, observacoes",
-          ),
-        "sinais psicossociais armazenados",
-      );
-
-      const events = fetchRows<PsychosocialEventRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_afastamento_evento")
-          .select(
-            "afastamento_id, servidor_id, vinculo_id, data_inicio, dias_afastado",
-          ),
-        "eventos epidemiologicos",
-      );
-
-      const cids = fetchRows<PsychosocialCidRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_afastamento_cid")
-          .select(
-            "afastamento_id, cid_codigo, cid_capitulo, occurrence_weight, allocated_days",
-          ),
-        "CID vinculados a afastamentos",
-      );
-
-      const vinculos = fetchRows<PsychosocialVinculoRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_vinculo_servidor")
-          .select(
-            "vinculo_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo",
-          ),
-        "contexto ocupacional de vinculos",
-      );
-
-      const tempos = fetchRows<PsychosocialTempoRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_tempo")
-          .select("tempo_id, data_calendario, competencia_yyyymm"),
-        "dimensao temporal",
-      );
-
-      return {
-        factors,
-        assessments,
-        signals,
-        events,
-        cids,
-        vinculos,
-        tempos,
-      };
+      return { factors, assessments, signals, events, cids, vinculos, tempos };
     },
   };
 }
