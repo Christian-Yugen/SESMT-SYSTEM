@@ -613,7 +613,7 @@ export function groupPsychosocialAssessments(
         secretaria: normalizeDimension(vinculo?.secretaria),
         cargo: normalizeDimension(vinculo?.cargo),
         naturezaCargo: normalizeDimension(vinculo?.natureza_cargo),
-        analyticalGroup: buildAnalyticalGroupKey(vinculo, assessment.vinculoId),
+        analyticalGroup: buildAnalyticalGroupKey(vinculo, assessment.vinculo_id),
         servidorId: assessment.servidor_id,
         vinculoId: assessment.vinculo_id,
         exposureLevel: riskLevel,
