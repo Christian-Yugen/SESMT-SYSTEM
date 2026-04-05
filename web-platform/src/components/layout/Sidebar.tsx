@@ -283,21 +283,21 @@ export default function Sidebar({
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <div className="w-full h-12 mt-1 mb-1 flex items-center justify-center font-bold text-white text-xl tracking-tighter">
+          <div className="w-full flex items-center justify-center mb-1 overflow-hidden">
             <Image
               src="/images/logo_white.png"
               alt="SESMT"
-              width={140}
-              height={50}
-              className="h-10 w-auto object-contain"
+              width={256}
+              height={120}
+              className="h-36 w-auto object-contain"
             />
           </div>
-          <div className="text-center w-full px-1 mt-2">
-            <p className="text-[10px] font-medium text-white/40 uppercase tracking-[0.2em] mb-1">
+          <div className="text-center w-full px-1 -mt-1">
+            <p className="text-[14px] font-black text-white/70 uppercase tracking-[0.5em] leading-none mb-1">
               SESMT SYSTEM
             </p>
-            <p className="text-xs font-medium text-white/70 uppercase tracking-wider truncate whitespace-nowrap">
-              Olá, <span className="text-white font-bold">{userName}</span>
+            <p className="text-xs font-medium text-white/80 uppercase tracking-wider truncate whitespace-nowrap leading-tight">
+              Olá, <span className="text-white font-medium">{userName}</span>
             </p>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function Sidebar({
                   handleCollapseAll();
                   router.push("/");
                 }}
-                className={`w-full flex items-center gap-1.5 p-2.5 transition-all text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/") ? "bg-white/10 text-white font-bold shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
+                className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
               >
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                 <span>Criar documentos</span>
@@ -325,7 +325,7 @@ export default function Sidebar({
                     handleCollapseAll();
                     router.push("/referrals");
                   }}
-                  className={`w-full flex items-center gap-1.5 p-2.5 transition-all text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/referrals") ? "bg-white/10 text-white font-bold shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
+                  className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/referrals") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
                 >
                   <ClipboardList className="w-4 h-4 shrink-0" />
                   <span>Central de Evidências</span>
@@ -339,7 +339,7 @@ export default function Sidebar({
             <div className="space-y-1">
               <button
                 onClick={handleToggleBenefits}
-                className="w-full flex items-center justify-between p-2.5 text-white/70 hover:bg-white/5 hover:text-white transition-all font-medium text-[11px] uppercase tracking-wider"
+                className="w-full flex items-center justify-between p-2.5 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[11px] uppercase tracking-wider"
               >
                 <div className="flex items-center gap-1.5">
                   <HeartPulse className="w-4 h-4 shrink-0" />
@@ -358,7 +358,7 @@ export default function Sidebar({
                         <div className="space-y-1">
                           <button
                             onClick={handleToggleAfastamentos}
-                            className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group transition-all is-active-folder ${pathname.startsWith("/afastamentos") ? "text-white font-bold" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
+                            className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left is-active-folder ${pathname.startsWith("/afastamentos") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
                           >
                             <div className="flex items-center gap-2">
                               <Database className="w-3.5 h-3.5 shrink-0 group-hover:text-emerald-400" />
@@ -373,7 +373,7 @@ export default function Sidebar({
                             <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
                               <button
                                 onClick={() => router.push("/afastamentos")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/afastamentos" ? "text-white font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/afastamentos" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <LayoutDashboard className="w-3 h-3 shrink-0" />
                                 <span>Listagem Geral</span>
@@ -381,7 +381,7 @@ export default function Sidebar({
 
                               <button
                                 onClick={() => router.push("/afastamentos/cid-analytics")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/cid-analytics") ? "text-emerald-300 font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/cid-analytics") ? "bg-emerald-500/20 text-emerald-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <BarChart3 className="w-3 h-3 shrink-0" />
                                 <span>CID Analytics</span>
@@ -389,7 +389,7 @@ export default function Sidebar({
 
                               <button
                                 onClick={() => router.push("/afastamentos/epidemiologia")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/epidemiologia") ? "text-[#E31E24] font-bold border-l-2 border-[#E31E24]/50" : "text-white/40 font-medium hover:text-white"}`}
+                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/epidemiologia") ? "bg-red-500/20 text-[#E31E24] font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <TrendingUp className="w-3 h-3 shrink-0" />
                                 <span>Epidemiologia</span>
@@ -397,7 +397,7 @@ export default function Sidebar({
 
                               <button
                                 onClick={() => router.push("/afastamentos/psychosocial-analytics")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/psychosocial-analytics") ? "text-purple-300 font-bold border-l-2 border-purple-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/psychosocial-analytics") ? "bg-purple-500/20 text-purple-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <Brain className="w-3 h-3 shrink-0" />
                                 <span>Psicossocial</span>
@@ -405,7 +405,7 @@ export default function Sidebar({
 
                               <button
                                 onClick={() => router.push("/afastamentos/ergonomia-analytics")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/ergonomia-analytics") ? "text-amber-300 font-bold border-l-2 border-amber-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/ergonomia-analytics") ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <Activity className="w-3 h-3 shrink-0" />
                                 <span>Ergonomia</span>
@@ -418,7 +418,7 @@ export default function Sidebar({
                             <div className="space-y-1 mt-1">
                               <button
                                 onClick={handleToggleAbono}
-                                className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group transition-all is-active-folder ${pathname.startsWith("/abono") ? "text-white font-bold" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
+                                className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left is-active-folder ${pathname.startsWith("/abono") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
                               >
                                 <div className="flex items-center gap-2">
                                   <Wallet className="w-3.5 h-3.5 shrink-0 group-hover:text-emerald-400" />
@@ -433,21 +433,21 @@ export default function Sidebar({
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
                                   <button
                                     onClick={() => router.push("/abono")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono" ? "text-white font-bold border-l-2 border-emerald-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                                   >
                                     <LayoutDashboard className="w-3 h-3 shrink-0" />
                                     <span>Painel de Gestão</span>
                                   </button>
                                   <button
                                     onClick={() => router.push("/abono/portarias")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/portarias" ? "text-amber-300 font-bold border-l-2 border-amber-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/portarias" ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                                   >
                                     <FileText className="w-3 h-3 shrink-0" />
                                     <span>Portarias</span>
                                   </button>
                                   <button
                                     onClick={() => router.push("/abono/lei")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 transition-all text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/lei" ? "text-sky-300 font-bold border-l-2 border-sky-500/50" : "text-white/40 font-medium hover:text-white"}`}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/lei" ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                                   >
                                     <Scale className="w-3 h-3 shrink-0" />
                                     <span>Legislação e Regras</span>
@@ -461,21 +461,21 @@ export default function Sidebar({
                               Ou também é um tipo de Afastamento? 
                               O usuário disse que CID, Epidemio, Psicossocial e Ergonimia são "submenu do submenu Afastamentos". 
                               Vou seguir o pedido literal. Maternidade fica no nível do Afastamentos. */}
-                          <button
-                            onClick={() => {
-                              setIsAfastamentosOpen(false);
-                              setIsAbonoOpen(false);
-                              router.push("/afastamentos/maternidade");
-                            }}
-                            className={`w-full flex items-center gap-1.5 py-1.5 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-white/5 text-pink-300 font-bold border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
-                          >
-                            <Baby className="w-3 h-3 shrink-0" />
-                            <span>Lic. Maternidade</span>
-                          </button>
+                            <button
+                              onClick={() => {
+                                setIsAfastamentosOpen(false);
+                                setIsAbonoOpen(false);
+                                router.push("/afastamentos/maternidade");
+                              }}
+                              className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-pink-500/20 text-pink-300 font-medium shadow-md border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                            >
+                                <Baby className="w-3 h-3 shrink-0" />
+                                <span>Lic. Maternidade</span>
+                            </button>
                         </div>
                       )}
 
-                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white transition-all font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
+                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
                         <FileSearch className="w-3.5 h-3.5 shrink-0" />
                         <span>Readaptação</span>
                       </button>
@@ -484,7 +484,7 @@ export default function Sidebar({
 
 
                   {userRole !== "social_assistant" && (
-                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white transition-all font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
+                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
                       <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                       <span>Redução de Jornada</span>
                     </button>
@@ -499,7 +499,7 @@ export default function Sidebar({
             <div className="pt-2">
               <button
                 onClick={() => setShowSyncModal(true)}
-                className="w-full flex items-center justify-between p-3 transition-all font-bold text-xs uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                className="w-full flex items-center justify-between p-3 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20"
               >
                 <div className="flex items-center gap-1.5">
                   <CloudDownload
@@ -507,7 +507,7 @@ export default function Sidebar({
                   />
                   <span>Sincronização</span>
                 </div>
-                <span className="bg-amber-500 text-black text-[9px] px-1.5 py-0.5 font-bold rounded-none">
+                <span className="bg-amber-500 text-black text-[9px] px-1.5 py-0.5 font-medium rounded-none">
                   {pendingSyncs.length}
                 </span>
               </button>
@@ -518,7 +518,7 @@ export default function Sidebar({
             <div className="space-y-1">
                 <button
                   onClick={handleToggleHistory}
-                  className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white transition-all font-medium text-xs uppercase tracking-wider"
+                  className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
                 >
                   <div className="flex items-center gap-1.5">
                     <HistoryIcon className="w-4 h-4 shrink-0" />
@@ -533,14 +533,14 @@ export default function Sidebar({
                   <div className="flex flex-col space-y-1 bg-black/10 p-1">
                     <button
                       onClick={() => router.push("/history")}
-                      className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/history") ? "text-white bg-white/5 font-bold" : "text-white/60 font-medium hover:text-white"}`}
+                      className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/history") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
                     >
                       <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
                       <span>Log Principal</span>
                     </button>
                     <button
                       onClick={() => router.push("/analytics")}
-                      className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/analytics") ? "text-white bg-white/5 font-bold" : "text-white/60 font-medium hover:text-white"}`}
+                      className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/analytics") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
                     >
                       <BarChart3 className="w-3.5 h-3.5 shrink-0" />
                       <span>Indicadores BI</span>
@@ -553,7 +553,7 @@ export default function Sidebar({
           {userRole !== "social_assistant" && (
             <button
               onClick={() => router.push("/archive")}
-              className={`w-full flex items-center gap-1.5 p-3 transition-all text-xs uppercase tracking-wider whitespace-nowrap ${isActive("/archive") ? "bg-white/10 text-white font-bold shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
+              className={`w-full flex items-center gap-1.5 p-3 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-xs uppercase tracking-wider whitespace-nowrap ${isActive("/archive") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
             >
               <FolderOpen className="w-4 h-4 shrink-0" />
               <span>Arquivo Médico</span>
@@ -564,7 +564,7 @@ export default function Sidebar({
             <div className="space-y-1">
               <button
                 onClick={handleToggleAdmin}
-                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white transition-all font-medium text-xs uppercase tracking-wider"
+                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
               >
                 <div className="flex items-center gap-1.5">
                   <UsersIcon className="w-4 h-4 shrink-0" />
@@ -579,28 +579,28 @@ export default function Sidebar({
                 <div className="flex flex-col space-y-1 bg-black/10 p-1">
                   <button
                     onClick={() => router.push("/users")}
-                    className={`w-full flex items-center gap-2 p-2.5 pl-9 transition-all text-[10px] uppercase tracking-wider ${isActive("/users") ? "text-white bg-white/5 font-bold" : "text-white/50 font-medium hover:text-white"}`}
+                    className={`w-full flex items-center gap-2 p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${isActive("/users") ? "text-white bg-white/5 font-medium" : "text-white/50 font-medium hover:text-white"}`}
                   >
                     <UsersIcon className="w-3.5 h-3.5" />
                     <span>Gestão de Usuários</span>
                   </button>
                   <button
                     onClick={() => router.push("/deletion-requests")}
-                    className={`w-full flex items-center gap-2 p-2.5 pl-9 transition-all text-[10px] uppercase tracking-wider ${isActive("/deletion-requests") ? "text-white bg-white/5 font-bold" : "text-white/50 font-medium hover:text-white"}`}
+                    className={`w-full flex items-center gap-2 p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${isActive("/deletion-requests") ? "text-white bg-white/5 font-medium" : "text-white/50 font-medium hover:text-white"}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Exclusões Pendentes</span>
                   </button>
                   <button
                     onClick={() => setShowGreetingsManager(true)}
-                    className="w-full flex items-center gap-2 p-2.5 pl-9 text-white/50 hover:bg-white/5 hover:text-white transition-all font-medium text-[10px] uppercase tracking-wider"
+                    className="w-full flex items-center gap-2 p-2.5 pl-9 text-white/50 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider"
                   >
                     <MessageSquarePlus className="w-3.5 h-3.5" />
                     <span>Boas-Vindas</span>
                   </button>
                   <button
                     onClick={() => setShowSyncModal(true)}
-                    className={`w-full flex items-center justify-between p-2.5 pl-9 transition-all text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? "text-amber-500 font-bold" : "text-white/50 font-medium hover:text-white"}`}
+                    className={`w-full flex items-center justify-between p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${pendingSyncs.length > 0 ? "text-amber-500 font-medium" : "text-white/50 font-medium hover:text-white"}`}
                   >
                     <div className="flex items-center gap-2">
                       <CloudDownload
@@ -609,7 +609,7 @@ export default function Sidebar({
                       <span>Sincronizar Dados</span>
                     </div>
                     {pendingSyncs.length > 0 && (
-                      <span className="bg-amber-500 text-black text-[8px] px-1 font-bold rounded-none">
+                      <span className="bg-amber-500 text-black text-[8px] px-1 font-medium rounded-none">
                         {pendingSyncs.length}
                       </span>
                     )}
@@ -623,7 +623,7 @@ export default function Sidebar({
         <div className="mt-auto space-y-4 px-4 pt-4 border-t border-white/5">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
+            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium uppercase tracking-widest text-[10px]"
           >
             <LogOut className="w-4 h-4" /> Sair
           </button>
@@ -632,7 +632,7 @@ export default function Sidebar({
             <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">
               Powered by
             </p>
-            <p className="text-[18px] font-bold text-white leading-none tracking-[0.1em] text-left">
+            <p className="text-[18px] font-medium text-white leading-none tracking-[0.1em] text-left">
               UXBRAS
               <span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">
                 ®
