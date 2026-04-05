@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ import {
 } from "@/lib/afastamentos-ergonomia-page-utils";
 
 // ---------------------------------------------------------------------------
-// Helpers e ConfiguraÃƒÂ§ÃƒÂµes
+// Helpers e Configurações
 // ---------------------------------------------------------------------------
 
 function getDefaultDates() {
@@ -40,12 +40,12 @@ function getDefaultDates() {
 type TabId = "visao-geral" | "fatores";
 
 const TABS: { id: TabId; title: string }[] = [
-  { id: "visao-geral", title: "VisÃƒÂ£o Geral (IntervenÃƒÂ§ÃƒÂ£o)" },
+  { id: "visao-geral", title: "Visão Geral (Intervenção)" },
   { id: "fatores", title: "Mapa de Riscos (NR-17)" },
 ];
 
 /**
- * Dashboard de InteligÃƒÂªncia ErgonÃƒÂ´mica
+ * Dashboard de Inteligência Ergonômica
  * Autoridade Visual: Psicossocial Analytics (Imagem 2)
  */
 export default function ErgonomicsAnalyticsPage() {
@@ -98,7 +98,7 @@ export default function ErgonomicsAnalyticsPage() {
         const json = await response.json().catch(() => ({}));
         setModel(buildErgonomicPageModel(null, {
           code: json?.error?.code || "FETCH_ERROR",
-          message: json?.error?.message || `Erro ${response.status} ao carregar inteligÃƒÂªncia ergonÃƒÂ´mica.`
+          message: json?.error?.message || `Erro ${response.status} ao carregar inteligência ergonômica.`
         }));
         return;
       }
@@ -108,7 +108,7 @@ export default function ErgonomicsAnalyticsPage() {
     } catch (err: any) {
       setModel(buildErgonomicPageModel(null, { 
         code: "UNEXPECTED_ERROR", 
-        message: err.message || "Erro ao carregar indicadores ergonÃƒÂ´micos." 
+        message: err.message || "Erro ao carregar indicadores ergonômicos." 
       }));
     } finally {
       setIsRefreshing(false);
@@ -119,7 +119,7 @@ export default function ErgonomicsAnalyticsPage() {
   const handleRefresh = useCallback(async () => {
     const { session, error } = await safeGetSession();
     if (error || !session) {
-      await handleAuthError(error || new Error("SessÃƒÂ£o expirada"));
+      await handleAuthError(error || new Error("Sessão expirada"));
       return;
     }
     fetchData(session.access_token, startDate, endDate);
@@ -146,13 +146,13 @@ export default function ErgonomicsAnalyticsPage() {
             <div className="bg-[#1A3351] px-4 py-1.5 text-white relative flex justify-between items-center border-b-2 border-[#E31E24]">
               <div className="flex items-center gap-2">
                 <Info className="w-3.5 h-3.5 text-[#E31E24]" />
-                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Metodologia: Escore ErgonÃƒÂ´mico</h2>
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Metodologia: Escore Ergonômico</h2>
               </div>
               <button 
                 onClick={() => setShowMethodology(false)}
                 className="h-5 w-5 rounded-none bg-white/5 flex items-center justify-center hover:bg-[#E31E24] transition-all border border-white/10"
               >
-                <span className="text-base font-light leading-none">Ãƒâ€”</span>
+                <span className="text-base font-light leading-none">×</span>
               </button>
             </div>
 
@@ -163,15 +163,15 @@ export default function ErgonomicsAnalyticsPage() {
                     <tr className="border-b border-slate-200">
                       <th className="px-3 py-1.5 w-[80px] text-center border-r border-slate-200">Peso</th>
                       <th className="px-3 py-1.5 w-[180px] border-r border-slate-200">Indicador Estrutural</th>
-                      <th className="px-3 py-1.5">DescriÃƒÂ§ÃƒÂ£o TÃƒÂ©cnica</th>
+                      <th className="px-3 py-1.5">Descrição Técnica</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {[
-                      { weight: '20%', label: 'ExposiÃƒÂ§ÃƒÂ£o MÃƒÂ©dia', desc: 'NÃƒÂ­vel de intensidade e frequÃƒÂªncia de exposiÃƒÂ§ÃƒÂ£o a riscos ergonÃƒÂ´micos (NR-17/AET).' },
-                      { weight: '10%', label: 'AvaliaÃƒÂ§ÃƒÂ£o TÃƒÂ©cnica', desc: 'Nota tÃƒÂ©cnica resultante dos laudos e anÃƒÂ¡lises preliminares (AET).' },
-                      { weight: '10%', label: 'Backlog de AÃƒÂ§ÃƒÂµes', desc: 'RazÃƒÂ£o de planos de aÃƒÂ§ÃƒÂ£o preventivos em aberto ou em atraso.' },
-                      { weight: '10%', label: 'ConcentraÃƒÂ§ÃƒÂ£o CID M', desc: 'PrevalÃƒÂªncia de afastamentos musculoesquelÃƒÂ©ticos (Cap. XIII) em relaÃƒÂ§ÃƒÂ£o ao total.' },
+                      { weight: '20%', label: 'Exposição Média', desc: 'Nível de intensidade e frequência de exposição a riscos ergonômicos (NR-17/AET).' },
+                      { weight: '10%', label: 'Avaliação Técnica', desc: 'Nota técnica resultante dos laudos e análises preliminares (AET).' },
+                      { weight: '10%', label: 'Backlog de Ações', desc: 'Razão de planos de ação preventivos em aberto ou em atraso.' },
+                      { weight: '10%', label: 'Concentração CID M', desc: 'Prevalência de afastamentos musculoesqueléticos (Cap. XIII) em relação ao total.' },
                       { weight: '50%', label: 'Morbidade Relativa (DEA)', desc: 'Impacto absoluto do grupo versus o pior caso da mesma Secretaria: combina dias perdidos (70%) e volume de servidores afetados (30%).' }
                     ].map((row, idx) => (
                       <tr key={idx} className="hover:bg-slate-50 transition-colors">
@@ -192,12 +192,12 @@ export default function ErgonomicsAnalyticsPage() {
 
               <div className="mb-4">
                 <p className="text-[9px] text-slate-500 uppercase tracking-tight text-center mb-2">
-                  Matriz de Soma Ponderada NR-17 baseada em dados clÃƒÂ­nicos e indicadores epidemiolÃƒÂ³gicos.
+                  Matriz de Soma Ponderada NR-17 baseada em dados clínicos e indicadores epidemiológicos.
                 </p>
                 <div className="w-full bg-slate-50 p-3 border border-slate-200 text-center">
-                   <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">Algoritmo de PriorizaÃƒÂ§ÃƒÂ£o (Matriz Ponderada)</p>
+                   <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">Algoritmo de Priorização (Matriz Ponderada)</p>
                    <p className="text-[10px] text-slate-900 leading-none font-sans">
-                     Score = (ExposiÃƒÂ§ÃƒÂ£o Ãƒâ€” 0.2) + (Morbidade Relativa DEA Ãƒâ€” 0.5) + (AvaliaÃƒÂ§ÃƒÂ£o Ãƒâ€” 0.1) + (Planos AÃƒÂ§ÃƒÂ£o Ãƒâ€” 0.1) + (ConcentraÃƒÂ§ÃƒÂ£o CID Ãƒâ€” 0.1)
+                     Score = (Exposição × 0.2) + (Morbidade Relativa DEA × 0.5) + (Avaliação × 0.1) + (Planos Ação × 0.1) + (Concentração CID × 0.1)
                    </p>
                 </div>
               </div>
@@ -213,12 +213,12 @@ export default function ErgonomicsAnalyticsPage() {
             </div>
             
             <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex justify-between items-center">
-              <span className="text-[8px] font-bold text-[#1A3351]/40 uppercase tracking-widest leading-none">SESMT SYSTEM Ã‚Â· GOVERNANÃƒâ€¡A DIGITAL</span>
+              <span className="text-[8px] font-bold text-[#1A3351]/40 uppercase tracking-widest leading-none">SESMT SYSTEM · GOVERNANÇA DIGITAL</span>
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-[10px] text-slate-400 font-medium">Powered by</span>
                 <div className="flex items-start">
                   <span className="text-[12px] font-black text-slate-900 tracking-[0.10em] uppercase leading-none">UXBRAS</span>
-                  <span className="text-[10px] font-bold text-slate-900 ml-[1px]">Ã‚Â®</span>
+                  <span className="text-[10px] font-bold text-slate-900 ml-[1px]">®</span>
                 </div>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function ErgonomicsAnalyticsPage() {
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
 
         {/* ----------------------------------------------------------------- */}
-        {/* HEADER (PADRÃƒÆ’O IMAGEM 2)                                         */}
+        {/* HEADER (PADRÃO IMAGEM 2)                                         */}
         {/* ----------------------------------------------------------------- */}
         <section className="bg-[#B0B0B0] px-4 lg:px-6 py-1.5 border-b-[6px] border-[#1A3351] shrink-0 shadow-lg print:hidden">
           <div className="flex flex-wrap items-center gap-3">
@@ -253,7 +253,7 @@ export default function ErgonomicsAnalyticsPage() {
               <div className="flex items-center gap-2">
                 <Activity className="w-5 h-5 text-[#1A3351]" />
                 <h1 className="text-xl font-bold uppercase tracking-tighter leading-none text-[#1A3351]">
-                  VigilÃƒÂ¢ncia <span className="text-[#E31E24]">ErgonÃƒÂ´mica</span>
+                  Vigilância <span className="text-[#E31E24]">Ergonômica</span>
                 </h1>
                 <span className="text-black/30 hover:text-[#1A3351] cursor-help">
                   <Info className="w-3 h-3" />
@@ -284,7 +284,7 @@ export default function ErgonomicsAnalyticsPage() {
 
               <div className="flex items-center gap-1 bg-white border border-slate-300 px-2 py-1 shadow-sm">
                 <Calendar className="w-3 h-3 text-slate-400" />
-                <label className="text-[9px] font-bold uppercase text-slate-400">AtÃƒÂ©</label>
+                <label className="text-[9px] font-bold uppercase text-slate-400">Até</label>
                 <input
                   type="date"
                   value={endDate}
@@ -306,7 +306,7 @@ export default function ErgonomicsAnalyticsPage() {
         </section>
 
         {/* ----------------------------------------------------------------- */}
-        {/* CONTEÃƒÅ¡DO                                                         */}
+        {/* CONTEÚDO                                                         */}
         {/* ----------------------------------------------------------------- */}
         <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-2 space-y-3">
 
@@ -325,7 +325,7 @@ export default function ErgonomicsAnalyticsPage() {
             {/* Barra de Abas (Cinza) */}
             <div className="bg-[#B0B0B0] px-6 py-1 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
-                AnÃƒÂ¡lise ErgonÃƒÂ´mica NR-17 Ã¢â‚¬â€ VigilÃƒÂ¢ncia Ativa
+                Análise Ergonômica NR-17 — Vigilância Ativa
               </h3>
               <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
                 {TABS.map((tab) => (
@@ -348,7 +348,7 @@ export default function ErgonomicsAnalyticsPage() {
                 <div className="flex items-center justify-center py-20 gap-3">
                   <Activity className="w-8 h-8 text-[#1A3351] animate-pulse" />
                   <p className="text-[12px] font-bold uppercase tracking-widest text-[#1A3351]">
-                    Processando InteligÃƒÂªncia ErgonÃƒÂ´mica...
+                    Processando Inteligência Ergonômica...
                   </p>
                 </div>
               ) : (
@@ -357,8 +357,8 @@ export default function ErgonomicsAnalyticsPage() {
                     <div className="space-y-8">
                       {/* Indicadores Executivos */}
                       <StatisticCardsSection
-                        title="Indicadores de VigilÃƒÂ¢ncia"
-                        description="MÃƒÂ©tricas ergonÃƒÂ´micas calculadas a partir de sinais sentinela (CID M) e NR-17"
+                        title="Indicadores de Vigilância"
+                        description="Métricas ergonômicas calculadas a partir de sinais sentinela (CID M) e NR-17"
                       >
                         <StatisticCardRow columns={5}>
                           {model.view.cards.map((card) => {
@@ -416,7 +416,7 @@ export default function ErgonomicsAnalyticsPage() {
                           <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
                             <Users className="w-4 h-4 text-[#1A3351]/50 mt-0.5" />
                             <div className="flex flex-col">
-                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">PopulaÃƒÂ§ÃƒÂ£o Monitorada</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">População Monitorada</span>
                               <span className="text-lg font-black text-[#1A3351] leading-none">
                                 {model.data?.totalMonitoredPopulation?.toLocaleString() || "0"}
                               </span>
@@ -425,7 +425,7 @@ export default function ErgonomicsAnalyticsPage() {
                           <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
                             <TrendingUp className="w-4 h-4 text-[#E31E24] mt-0.5" />
                             <div className="flex flex-col">
-                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter text-[#E31E24]">Morbidade ErgonÃƒÂ´mica</span>
+                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter text-[#E31E24]">Morbidade Ergonômica</span>
                               <span className="text-lg font-black text-[#E31E24] leading-none">
                                 {((model.data?.totalImpactedServers || 0) / (model.data?.totalWorkforceBaseline || 1) * 100).toFixed(2)}%
                               </span>
@@ -438,8 +438,8 @@ export default function ErgonomicsAnalyticsPage() {
                         <div className="grid grid-cols-1 gap-6">
                           <div className="bg-white border-2 border-slate-200 shadow-lg overflow-hidden">
                             <div className="bg-[#1A3351] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                              <h4 className="text-[10px] font-black text-white uppercase tracking-widest">CapÃƒÂ­tulo CID Dominante (Grupo M)</h4>
-                              <span className="text-[9px] text-white/50 font-bold uppercase">VigilÃƒÂ¢ncia Ativa NR-17</span>
+                              <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Capítulo CID Dominante (Grupo M)</h4>
+                              <span className="text-[9px] text-white/50 font-bold uppercase">Vigilância Ativa NR-17</span>
                             </div>
                             <div className="overflow-x-auto">
                               <table className="w-full text-left border-collapse">
@@ -452,9 +452,9 @@ export default function ErgonomicsAnalyticsPage() {
                                     <th className="px-4 py-1 text-right w-[80px]">Dias</th>
                                     <th className="px-4 py-1 text-center w-[140px] relative group overflow-visible">
                                       <div className="flex items-center justify-center gap-1.5 py-1">
-                                        Risco ErgonÃƒÂ´mico
+                                        Risco Ergonômico
                                         <button 
-                                          title="Clique para ver o detalhamento do cÃƒÂ¡lculo"
+                                          title="Clique para ver o detalhamento do cálculo"
                                           onClick={() => setShowMethodology(true)}
                                           className="flex items-center justify-center transition-all"
                                         >
@@ -464,17 +464,17 @@ export default function ErgonomicsAnalyticsPage() {
                                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[240px] bg-[#1A3351] text-white p-4 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 normal-case font-normal text-left border border-white/10 backdrop-blur-sm">
                                         <div className="flex items-center gap-2 border-b border-white/20 pb-2 mb-3">
                                           <div className="w-2 h-2 rounded-full bg-[#E31E24] animate-pulse"></div>
-                                          <p className="font-black uppercase text-[10px] tracking-widest text-white">GovernanÃƒÂ§a de Risco (NR-17)</p>
+                                          <p className="font-black uppercase text-[10px] tracking-widest text-white">Governança de Risco (NR-17)</p>
                                         </div>
                                         <ul className="space-y-2 text-[11px]">
-                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>Ã¢â‚¬Â¢ ExposiÃƒÂ§ÃƒÂ£o MÃƒÂ©dia</span> <span className="font-black text-[#E31E24]">30%</span></li>
-                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>Ã¢â‚¬Â¢ AvaliaÃƒÂ§ÃƒÂ£o TÃƒÂ©cnica</span> <span className="font-black text-[#E31E24]">25%</span></li>
-                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>Ã¢â‚¬Â¢ Backlog de AÃƒÂ§ÃƒÂµes</span> <span className="font-black text-[#E31E24]">20%</span></li>
-                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>Ã¢â‚¬Â¢ ConcentraÃƒÂ§ÃƒÂ£o CID M</span> <span className="font-black text-[#E31E24]">15%</span></li>
-                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>Ã¢â‚¬Â¢ Gravidade Temporal</span> <span className="font-black text-[#E31E24]">10%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Exposição Média</span> <span className="font-black text-[#E31E24]">30%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Avaliação Técnica</span> <span className="font-black text-[#E31E24]">25%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Backlog de Ações</span> <span className="font-black text-[#E31E24]">20%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Concentração CID M</span> <span className="font-black text-[#E31E24]">15%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Gravidade Temporal</span> <span className="font-black text-[#E31E24]">10%</span></li>
                                         </ul>
                                         <div className="mt-4 pt-2 border-t border-white/10 italic text-white/40 text-[9px] leading-tight text-center">
-                                          Metodologia de InteligÃƒÂªncia EpidemiolÃƒÂ³gica SESMT
+                                          Metodologia de Inteligência Epidemiológica SESMT
                                         </div>
                                       </div>
                                     </th>
@@ -529,12 +529,13 @@ export default function ErgonomicsAnalyticsPage() {
                                     const sortedSecretarias = Object.values(groups)
                                       .filter((sec: any) => Object.values(sec.cargos).some((c: any) => c.impactedServerCount > 0))
                                       .sort((a: any, b: any) => {
-                                       // Primario: Secretaria com mais CASOS lidera
-                                       const totalA = Object.values(a.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
-                                       const totalB = Object.values(b.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
-                                       if (totalB !== totalA) return totalB - totalA;
-                                       return b.maxScore - a.maxScore;
-                                    });
+                                        // Primario: Secretaria com mais CASOS lidera o painel
+                                        const totalA = Object.values(a.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
+                                        const totalB = Object.values(b.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
+                                        if (totalB !== totalA) return totalB - totalA;
+                                        // Desempate: maior score
+                                        return b.maxScore - a.maxScore;
+                                      });
 
                                     return sortedSecretarias.map((sec, secIdx) => (
                                       <React.Fragment key={secIdx}>
@@ -547,7 +548,7 @@ export default function ErgonomicsAnalyticsPage() {
                                                 <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">{Object.values(sec.cargos).filter((c: any) => c.impactedServerCount > 0).length} CARGOS EM ALERTA</span>
                                               </div>
                                               <div className="flex items-center">
-                                                <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">SCORE MÃƒÂXIMO: {sec.maxScore.toFixed(0)}%</div>
+                                                <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">SCORE MÁXIMO: {sec.maxScore.toFixed(0)}%</div>
                                               </div>
                                             </div>
                                           </td>
@@ -585,9 +586,9 @@ export default function ErgonomicsAnalyticsPage() {
                                                         className="text-[10px] text-[#1A3351] font-bold mt-1.5 uppercase tracking-tighter hover:underline flex items-center gap-1"
                                                       >
                                                         {isExpanded ? (
-                                                          <>Ã¢â€“Â² RECOLHER LISTA</>
+                                                          <>▲ RECOLHER LISTA</>
                                                         ) : (
-                                                          <>Ã¢â€“Â¼ + {unidadesList.length - 3} UNIDADES ADICIONAIS (VER TODAS)</>
+                                                          <>▼ + {unidadesList.length - 3} UNIDADES ADICIONAIS (VER TODAS)</>
                                                         )}
                                                       </button>
                                                     )}
@@ -614,7 +615,7 @@ export default function ErgonomicsAnalyticsPage() {
                                                   <div className="flex flex-col gap-1 w-[140px]">
                                                     <div className="flex justify-between text-[11px] font-normal uppercase">
                                                       <span className={`text-[13px] ${cargo.maxScore >= 50 ? 'text-[#E31E24]' : 'text-slate-800'}`}>{cargo.maxScore.toFixed(0)}%</span>
-                                                      <span className="text-slate-800 font-normal">{cargo.maxScore >= 75 ? 'CrÃƒÂ­tico' : cargo.maxScore >= 50 ? 'Alto' : 'Moderado'}</span>
+                                                      <span className="text-slate-800 font-normal">{cargo.maxScore >= 75 ? 'Crítico' : cargo.maxScore >= 50 ? 'Alto' : 'Moderado'}</span>
                                                     </div>
                                                     <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                                                       <div
@@ -638,7 +639,7 @@ export default function ErgonomicsAnalyticsPage() {
                             </div>
                             <div className="bg-slate-50 p-3 border-t border-slate-200">
                               <p className="text-[9px] text-slate-400 font-medium text-center uppercase tracking-widest">
-                                <span className="font-bold text-slate-500">PAINEL DE VIGILÃƒâ€šNCIA ERGONÃƒâ€MICA:</span> IdentificaÃƒÂ§ÃƒÂ£o de riscos sentinela baseada na NR-17. Dados agregados por unidade analÃƒÂ­tica.
+                                <span className="font-bold text-slate-500">PAINEL DE VIGILÂNCIA ERGONÔMICA:</span> Identificação de riscos sentinela baseada na NR-17. Dados agregados por unidade analítica.
                               </p>
                             </div>
                           </div>
@@ -651,19 +652,19 @@ export default function ErgonomicsAnalyticsPage() {
                     <div className="space-y-6">
                       <div className="bg-[#1A3351] px-4 py-3 flex justify-between items-center shadow-lg border-b-4 border-[#E31E24]">
                         <div>
-                          <h3 className="text-sm font-black text-white uppercase tracking-widest">InventÃƒÂ¡rio de Fatores NR-17</h3>
-                          <p className="text-[10px] text-white/60 font-bold uppercase mt-0.5">CatÃƒÂ¡logo de Riscos ErgonÃƒÂ´micos Monitorados</p>
+                          <h3 className="text-sm font-black text-white uppercase tracking-widest">Inventário de Fatores NR-17</h3>
+                          <p className="text-[10px] text-white/60 font-bold uppercase mt-0.5">Catálogo de Riscos Ergonômicos Monitorados</p>
                         </div>
-                        <span className="px-3 py-1 bg-white/10 text-white text-[9px] font-black rounded border border-white/20 uppercase">Fase 9 Ã¢â‚¬â€ Ergonomia</span>
+                        <span className="px-3 py-1 bg-white/10 text-white text-[9px] font-black rounded border border-white/20 uppercase">Fase 9 — Ergonomia</span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {model.data?.activeFactors.length === 0 ? (
                           <div className="col-span-full py-24 text-center text-slate-400 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50">
                             <Activity className="w-16 h-16 mx-auto mb-4 opacity-10" />
-                            <p className="text-xs font-bold uppercase tracking-widest text-[#1A3351]/40">DomÃƒÂ­nios ErgonÃƒÂ´micos</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-[#1A3351]/40">Domínios Ergonômicos</p>
                             <p className="text-[10px] mt-2 max-w-[300px] mx-auto text-slate-500">
-                              Os fatores ativos serÃƒÂ£o listados automaticamente apÃƒÂ³s a fase de inventÃƒÂ¡rio e parametrizaÃƒÂ§ÃƒÂ£o.
+                              Os fatores ativos serão listados automaticamente após a fase de inventário e parametrização.
                             </p>
                           </div>
                         ) : (
@@ -679,10 +680,10 @@ export default function ErgonomicsAnalyticsPage() {
 
                                 <div className="pt-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 -m-4 mt-0 p-4">
                                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                                    GovernanÃƒÂ§a ErgonÃƒÂ´mica
+                                    Governança Ergonômica
                                   </div>
                                   <div className="text-[11px] font-black text-slate-300 italic uppercase">
-                                    AuditÃƒÂ¡vel
+                                    Auditável
                                   </div>
                                 </div>
                               </div>
@@ -699,7 +700,7 @@ export default function ErgonomicsAnalyticsPage() {
 
           <footer className="pt-8 pb-4 text-center">
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-              VigilÃƒÂ¢ncia ErgonÃƒÂ´mica Ativa Ã‚Â· SESMT SYSTEM Ã‚Â· NR-17
+              Vigilância Ergonômica Ativa · SESMT SYSTEM · NR-17
             </p>
           </footer>
         </div>
