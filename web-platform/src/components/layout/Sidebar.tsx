@@ -495,7 +495,7 @@ export default function Sidebar({
 
 
                            {/* Lic. Maternidade - Admin/Nurse (Full), Analytic_Manager (View) and Doctor (View) */}
-                           {userRole !== "operator" && userRole !== "social_assistant" && userRole !== "viewer" && (
+                           {true && (
                              <button
                                onClick={() => {
                                  setIsAfastamentosOpen(false);
