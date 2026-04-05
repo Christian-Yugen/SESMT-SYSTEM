@@ -122,18 +122,106 @@ export default function PsychosocialAnalyticsPage() {
     fetchData(session.access_token, startDate, endDate);
   }, [startDate, endDate, fetchData]);
 
+  const [showMethodology, setShowMethodology] = useState(false);
+
   useEffect(() => {
     if (initializationRef.current) return;
     initializationRef.current = true;
     handleRefresh();
   }, [handleRefresh]);
 
-  // -------------------------------------------------------------------------
-  // Render Principal (Estrutura Idêntica à Epidemiologia)
-  // -------------------------------------------------------------------------
-
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden relative">
+      {/* Metodologia Modal */}
+      {showMethodology && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowMethodology(false)}
+          />
+          <div className="relative bg-white w-full max-w-3xl rounded-none shadow-2xl overflow-hidden border-2 border-[#1A3351] animate-in fade-in zoom-in duration-300">
+            <div className="bg-[#1A3351] px-4 py-1.5 text-white relative flex justify-between items-center border-b-2 border-[#E31E24]">
+              <div className="flex items-center gap-2">
+                <Info className="w-3.5 h-3.5 text-[#E31E24]" />
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Metodologia: Escore Psicossocial</h2>
+              </div>
+              <button 
+                onClick={() => setShowMethodology(false)}
+                className="h-5 w-5 rounded-none bg-white/5 flex items-center justify-center hover:bg-[#E31E24] transition-all border border-white/10"
+              >
+                <span className="text-base font-light leading-none">×</span>
+              </button>
+            </div>
+
+            <div className="p-4 font-sans text-black">
+              <div className="border border-slate-200 rounded-none overflow-hidden mb-4">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-50 text-[9px] font-bold uppercase text-slate-500 tracking-widest">
+                    <tr className="border-b border-slate-200">
+                      <th className="px-3 py-2 w-[80px] text-center border-r border-slate-200">Peso</th>
+                      <th className="px-3 py-2 w-[180px] border-r border-slate-200">Indicador Estrutural</th>
+                      <th className="px-3 py-2">Descrição Técnica</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      { weight: '30%', label: 'Concentração CID F', desc: 'Afastamentos por transtornos mentais em relação ao volume total.' },
+                      { weight: '20%', label: 'Exposição Estimada', desc: 'Média de escores em avaliações e questionários de vigilância ativa.' },
+                      { weight: '20%', label: 'Recorrência', desc: 'Percentual de servidores com episódios repetidos no mesmo período.' },
+                      { weight: '15%', label: 'Tendência', desc: 'Análise da curva de evolução da patologia no grupo monitorado.' },
+                      { weight: '15%', label: 'Dias Perdidos', desc: 'Volume de ausência motivado exclusivamente por saúde mental.' }
+                    ].map((row, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-3 py-1 text-center border-r border-slate-100">
+                          <span className="text-[11px] font-normal text-[#E31E24] tabular-nums">{row.weight}</span>
+                        </td>
+                        <td className="px-3 py-1 border-r border-slate-100">
+                          <div className="text-[10px] font-normal text-slate-900 uppercase tracking-tighter leading-none">{row.label}</div>
+                        </td>
+                        <td className="px-3 py-1">
+                          <p className="text-[10px] text-slate-700 leading-tight font-normal">{row.desc}</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-[9px] text-slate-500 uppercase tracking-tight text-center mb-2">
+                  Matriz de Soma Ponderada NR-1 baseada em dados clínicos e indicadores epidemiológicos.
+                </p>
+                <div className="w-full bg-slate-50 p-3 border border-slate-200 text-center">
+                   <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">Algoritmo de Vigilância (Matriz Ponderada)</p>
+                   <p className="text-[10px] text-slate-900 leading-none font-sans">
+                     Score = (CID F × 0.3) + (Recorrência × 0.2) + (Exposição Média × 0.2) + (Tendência × 0.15) + (Impacto Dias × 0.15)
+                   </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button 
+                  onClick={() => setShowMethodology(false)}
+                  className="px-5 py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-none shadow-md hover:bg-[#E31E24] transition-all"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+            
+            <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex justify-between items-center">
+              <span className="text-[8px] font-bold text-[#1A3351]/40 uppercase tracking-widest leading-none">SESMT SYSTEM · GOVERNANÇA DIGITAL</span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="text-[10px] text-slate-400 font-medium">Powered by</span>
+                <div className="flex items-start">
+                  <span className="text-[12px] font-black text-slate-900 tracking-[0.10em] uppercase leading-none">UXBRAS</span>
+                  <span className="text-[10px] font-bold text-slate-900 ml-[1px]">®</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SIDEBAR */}
       <div className="print:hidden">
@@ -296,7 +384,7 @@ export default function PsychosocialAnalyticsPage() {
 
                       {/* Bloco de Resumo (Ouro) */}
                       <div className="bg-white border border-slate-200 border-l-4 border-l-[#1A3351] px-4 py-3">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                           <div className="flex items-start gap-2">
                             <Calendar className="w-4 h-4 text-[#1A3351]/50 mt-0.5" />
                             <div>
@@ -304,7 +392,7 @@ export default function PsychosocialAnalyticsPage() {
                               <p className="text-[12px] font-bold text-[#1A3351] mt-0.5">{startDate} a {endDate}</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
                             <TrendingUp className="w-4 h-4 text-[#1A3351]/50 mt-0.5" />
                             <div>
                               <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Total de Sinais</p>
@@ -313,7 +401,7 @@ export default function PsychosocialAnalyticsPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
                             <Clock className="w-4 h-4 text-[#1A3351]/50 mt-0.5" />
                             <div>
                               <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Dias de Impacto</p>
@@ -322,12 +410,21 @@ export default function PsychosocialAnalyticsPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
                             <Users className="w-4 h-4 text-[#1A3351]/50 mt-0.5" />
                             <div className="flex flex-col">
                               <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">População Monitorada</span>
                               <span className="text-lg font-black text-[#1A3351] leading-none">
                                 {model.view.cards.find(c => c.id === 'affected-servers')?.value || '0'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-2 border-l border-slate-100 pl-4">
+                            <TrendingUp className="w-4 h-4 text-[#E31E24] mt-0.5" />
+                            <div className="flex flex-col">
+                              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter text-[#E31E24]">Morbidade Psicossocial</span>
+                              <span className="text-lg font-black text-[#E31E24] leading-none">
+                                {((model.data?.totalImpactedServers || 0) / (model.data?.totalWorkforceBaseline || 1) * 100).toFixed(2)}%
                               </span>
                             </div>
                           </div>
@@ -350,7 +447,34 @@ export default function PsychosocialAnalyticsPage() {
                                     <th className="px-4 py-1 border-r border-slate-200 w-[120px]">CIDS PRINCIPAIS</th>
                                     <th className="px-4 py-1 text-right w-[60px]">Freq.</th>
                                     <th className="px-4 py-1 text-right w-[80px]">Dias</th>
-                                    <th className="px-4 py-1 text-center w-[140px]">Risco Social</th>
+                                    <th className="px-4 py-1 text-center w-[140px] relative group overflow-visible">
+                                      <div className="flex items-center justify-center gap-1.5 py-1">
+                                        Risco Social
+                                        <button 
+                                          title="Clique para ver o detalhamento do cálculo"
+                                          onClick={() => setShowMethodology(true)}
+                                          className="flex items-center justify-center transition-all"
+                                        >
+                                          <Info className="w-4 h-4 text-[#E31E24] hover:text-[#c4191f] cursor-pointer animate-pulse-subtle active:scale-90" />
+                                        </button>
+                                      </div>
+                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[240px] bg-[#1A3351] text-white p-4 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 normal-case font-normal text-left border border-white/10 backdrop-blur-sm">
+                                        <div className="flex items-center gap-2 border-b border-white/20 pb-2 mb-3">
+                                          <div className="w-2 h-2 rounded-full bg-[#E31E24] animate-pulse"></div>
+                                          <p className="font-black uppercase text-[10px] tracking-widest text-white">Governança de Risco (NR-1)</p>
+                                        </div>
+                                        <ul className="space-y-2 text-[11px]">
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Concentração CID F</span> <span className="font-black text-[#E31E24]">30%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Exposição Estimada</span> <span className="font-black text-[#E31E24]">20%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Recorrência de Casos</span> <span className="font-black text-[#E31E24]">20%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Tendência Temporal</span> <span className="font-black text-[#E31E24]">15%</span></li>
+                                          <li className="flex justify-between items-center bg-white/5 p-1.5 rounded"><span>• Dias Perdidos Totais</span> <span className="font-black text-[#E31E24]">15%</span></li>
+                                        </ul>
+                                        <div className="mt-4 pt-2 border-t border-white/10 italic text-white/40 text-[9px] leading-tight text-center">
+                                          Metodologia de Inteligência Epidemiológica SESMT
+                                        </div>
+                                      </div>
+                                    </th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -442,7 +566,7 @@ export default function PsychosocialAnalyticsPage() {
                                                     <span className="ml-2">({cargo.impactedServerCount} casos)</span>
                                                   </div>
                                                 </td>
-                                                <td className="px-4 py-2 align-top max-w-[400px]">
+                                                <td className="px-4 py-2 align-middle max-w-[400px]">
                                                   <div className="flex flex-col gap-0.5">
                                                     {displayedUnits.map((unidade, idx) => (
                                                       <div key={idx} className="text-[12px] text-slate-700 leading-tight font-normal truncate" title={unidade}>

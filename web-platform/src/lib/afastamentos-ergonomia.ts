@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const EMPTY_DIMENSION = "NAO_INFORMADO";
 const SCORE_MAX = 100;
-const MUSCULOSKELETAL_PREFIXES = ["M", "G56", "R29", "S", "T92"];
+const MUSCULOSKELETAL_PREFIXES = ["M"];
 const SCORE_COMPONENTS = {
   exposure: 30,
   assessment: 25,
@@ -79,6 +79,7 @@ export interface ErgonomicCidRow {
 
 export interface ErgonomicVinculoRow {
   vinculo_id: number;
+  servidor_id: number | null;
   unidade_orcamentaria: string | null;
   local_trabalho: string | null;
   secretaria: string | null;
@@ -207,6 +208,9 @@ export interface ErgonomicAnalyticalSignal {
   averageExposureScore: number;
   musculoskeletalShare: number;
   lostDays: number;
+  musculoskeletalEvents: number;
+  associatedCids?: string[];
+  impactedServerCount?: number;
   score: number;
   criticality: ErgonomicCriticality;
   justification: string;
@@ -223,17 +227,6 @@ export interface ErgonomicCutItem {
   maxScore: number;
   criticality: ErgonomicCriticality;
   justification: string;
-}
-
-export interface ErgonomicValidationOutput {
-  factorsAssessmentsConsistent: boolean;
-  exposuresAssessmentsConsistent: boolean;
-  actionsAssessmentsConsistent: boolean;
-  contextConsistency: boolean;
-  criticalityConsistency: boolean;
-  explainabilityConsistent: boolean;
-  hasBlockingIssues: boolean;
-  issues: string[];
 }
 
 export interface ErgonomicAnalysisOutput {
@@ -253,6 +246,20 @@ export interface ErgonomicAnalysisOutput {
     grupoAnaliticoMusculoesqueletico: ErgonomicCutItem[];
   };
   validation: ErgonomicValidationOutput;
+  totalImpactedServers: number;
+  totalMonitoredPopulation: number;
+  totalWorkforceBaseline: number;
+}
+
+export interface ErgonomicValidationOutput {
+  factorsAssessmentsConsistent: boolean;
+  exposuresAssessmentsConsistent: boolean;
+  actionsAssessmentsConsistent: boolean;
+  contextConsistency: boolean;
+  criticalityConsistency: boolean;
+  explainabilityConsistent: boolean;
+  hasBlockingIssues: boolean;
+  issues: string[];
 }
 
 export interface ErgonomicRepository {
@@ -266,188 +273,104 @@ export class ErgonomicApplicationError extends Error {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Engine de Negócio
+// ---------------------------------------------------------------------------
+
 function normalizeDimension(value: string | null | undefined): string {
-  const normalized = (value || "").trim().toUpperCase();
-  return normalized.length > 0 ? normalized : EMPTY_DIMENSION;
+  if (!value) return EMPTY_DIMENSION;
+  const trimmed = value.trim().toUpperCase();
+  return trimmed || EMPTY_DIMENSION;
 }
 
-function round(value: number, precision = 4): number {
-  const factor = 10 ** precision;
-  return Math.round(value * factor) / factor;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
-
-function parseObservationTokens(
-  observacoes: string | null,
-): Record<string, string> {
-  const tokens: Record<string, string> = {};
-  (observacoes || "")
-    .split(/[;\n]/)
-    .map((chunk) => chunk.trim())
-    .filter(Boolean)
-    .forEach((chunk) => {
-      const separatorIndex = chunk.includes("=")
-        ? chunk.indexOf("=")
-        : chunk.indexOf(":");
-      if (separatorIndex <= 0) {
-        return;
-      }
-      const key = normalizeDimension(chunk.slice(0, separatorIndex)).replace(
-        /[^A-Z0-9_]/g,
-        "_",
-      );
-      const value = chunk.slice(separatorIndex + 1).trim();
-      if (value) {
-        tokens[key] = value;
-      }
-    });
-  return tokens;
-}
-
-function fetchRows<T>(
-  queryResult: {
-    data: T[] | null;
-    error: { message: string } | null;
-  },
-  sourceName: string,
-): T[] {
-  const { data, error } = queryResult;
-  if (error) {
-    throw new ErgonomicApplicationError(
-      `Falha ao carregar ${sourceName}: ${error.message}`,
-    );
-  }
-  return data || [];
-}
-
-function inferExposureScore(
-  frequency: string | null,
-  intensity: string | null,
-): number {
-  const freq = normalizeDimension(frequency);
-  const inten = normalizeDimension(intensity);
-
-  let score = 20;
-  if (freq.includes("CONTIN")) score += 40;
-  else if (freq.includes("DIAR")) score += 30;
-  else if (freq.includes("SEMAN")) score += 20;
-  else if (freq.includes("MENS")) score += 10;
-
-  if (inten.includes("ALTA") || inten.includes("ELEV")) score += 40;
-  else if (inten.includes("MOD")) score += 25;
-  else if (inten.includes("BAIX")) score += 10;
-
-  return round(clamp(score, 0, SCORE_MAX), 2);
-}
-
-function normalizeAssessmentScore(
-  score: number | null,
-  riskLevel: string | null,
-): number {
-  if (score !== null) {
-    if (score <= 1) return round(clamp(score * 100, 0, SCORE_MAX), 2);
-    if (score <= 10) return round(clamp(score * 10, 0, SCORE_MAX), 2);
-    return round(clamp(score, 0, SCORE_MAX), 2);
-  }
-
-  const normalizedRisk = normalizeDimension(riskLevel);
-  if (normalizedRisk.includes("CRIT")) return 95;
-  if (normalizedRisk.includes("ALTO")) return 80;
-  if (normalizedRisk.includes("MOD")) return 55;
-  if (normalizedRisk.includes("BAIX")) return 25;
-  return 0;
-}
-
-function isMusculoskeletalCid(
-  cidCode: string | null,
-  cidChapter: string | null,
-): boolean {
-  const prefix = normalizeDimension(cidCode).replace(/[^A-Z0-9]/g, "");
-  if (
-    MUSCULOSKELETAL_PREFIXES.some((candidate) => prefix.startsWith(candidate))
-  ) {
-    return true;
-  }
-
-  const chapter = normalizeDimension(cidChapter);
-  return (
-    chapter.includes("MUSC") ||
-    chapter.includes("OSTEO") ||
-    chapter.includes("TECIDO_CONJUNTIVO")
-  );
-}
-
-function classifyCriticality(score: number): ErgonomicCriticality {
-  if (score >= 75) return "CRITICA";
-  if (score >= 50) return "ALTA";
-  if (score >= 25) return "MODERADA";
-  return "BAIXA";
+function round(value: number, decimals: number): number {
+  const multiplier = Math.pow(10, decimals);
+  return Math.round(value * multiplier) / multiplier;
 }
 
 function average(values: number[]): number {
   if (values.length === 0) return 0;
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+  const sum = values.reduce((acc, v) => acc + (v || 0), 0);
+  return sum / values.length;
 }
 
-function buildMusculoskeletalGroup(params: {
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function isMusculoskeletalCid(cidCode: string | null, chapter: string | null): boolean {
+  if (!cidCode && !chapter) return false;
+  const code = (cidCode || "").toUpperCase();
+  const chap = (chapter || "").toUpperCase();
+  return (
+    MUSCULOSKELETAL_PREFIXES.some((prefix) => code.startsWith(prefix)) ||
+    chap.includes("XIII") ||
+    chap.startsWith("M")
+  );
+}
+
+function classifyCriticality(score: number): ErgonomicCriticality {
+  if (score >= 80) return "CRITICA";
+  if (score >= 60) return "ALTA";
+  if (score >= 40) return "MODERADA";
+  return "BAIXA";
+}
+
+function buildMusculoskeletalGroup(tokens: {
   cargo: string;
   localTrabalho: string;
   posto: string;
   tarefa: string;
 }): string {
-  return [params.cargo, params.localTrabalho, params.posto, params.tarefa].join(
-    " | ",
-  );
+  return `${tokens.cargo} | ${tokens.localTrabalho} | ${tokens.posto} | ${tokens.tarefa}`;
 }
 
 export function getActiveErgonomicFactors(
   dataset: ErgonomicDataset,
 ): ErgonomicFactorCatalogEntry[] {
   return dataset.factors
-    .filter((factor) => factor.is_active)
-    .map((factor) => ({
-      factorId: factor.ergonomic_factor_id,
-      code: normalizeDimension(factor.codigo),
-      factor: normalizeDimension(factor.nome),
-      description: normalizeDimension(factor.descricao),
-      categoryNR17: normalizeDimension(factor.categoria),
-      normativeReference: normalizeDimension(factor.fonte_normativa || "NR-17"),
-      status: "ATIVO" as const,
-    }))
-    .sort((left, right) => left.factor.localeCompare(right.factor));
+    .filter((f) => f.is_active)
+    .map((f) => ({
+      factorId: f.ergonomic_factor_id,
+      code: normalizeDimension(f.codigo),
+      factor: f.nome,
+      description: f.descricao || "",
+      categoryNR17: normalizeDimension(f.categoria),
+      normativeReference: f.fonte_normativa || "",
+      status: "ATIVO",
+    }));
 }
 
 export function groupErgonomicAssessments(
   dataset: ErgonomicDataset,
 ): ErgonomicAssessmentSummary[] {
-  const factorById = new Map(
-    dataset.factors.map((factor) => [factor.ergonomic_factor_id, factor]),
+  const factorsMap = new Map(
+    dataset.factors.map((f) => [f.ergonomic_factor_id, f]),
   );
-  const vinculoById = new Map(
-    dataset.vinculos.map((vinculo) => [vinculo.vinculo_id, vinculo]),
+  const vinculosMap = new Map(
+    dataset.vinculos.map((v) => [v.vinculo_id, v]),
   );
-  const tempoById = new Map(
-    dataset.tempos.map((tempo) => [tempo.tempo_id, tempo]),
+  const temposMap = new Map(
+    dataset.tempos.map((t) => [t.tempo_id, t]),
   );
 
   return dataset.assessments.map((assessment) => {
     const factor = assessment.ergonomic_factor_id
-      ? factorById.get(assessment.ergonomic_factor_id)
-      : undefined;
+      ? factorsMap.get(assessment.ergonomic_factor_id)
+      : null;
     const vinculo = assessment.vinculo_id
-      ? vinculoById.get(assessment.vinculo_id)
-      : undefined;
-    const tempo = assessment.tempo_id
-      ? tempoById.get(assessment.tempo_id)
-      : undefined;
-    const tokens = parseObservationTokens(assessment.observacoes);
+      ? vinculosMap.get(assessment.vinculo_id)
+      : null;
+    const tempo = assessment.tempo_id ? temposMap.get(assessment.tempo_id) : null;
 
-    const cargo = normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo);
-    const localTrabalho = normalizeDimension(vinculo?.local_trabalho);
-    const setor = normalizeDimension(tokens.SETOR || vinculo?.subdivisao);
+    const tokens = (assessment.observacoes || "").split("|").reduce((acc: any, part) => {
+      const [key, val] = part.split(":").map(s => s.trim());
+      if (key && val) acc[key.toUpperCase()] = val;
+      return acc;
+    }, {});
+
+    const cargo = normalizeDimension(vinculo?.cargo || vinculo?.natureza_cargo || tokens.CARGO);
+    const localTrabalho = normalizeDimension(vinculo?.local_trabalho || tokens.LOCAL);
     const posto = normalizeDimension(tokens.POSTO || tokens.POSTO_TRABALHO);
     const tarefa = normalizeDimension(tokens.TAREFA || tokens.ATIVIDADE);
 
@@ -455,35 +378,22 @@ export function groupErgonomicAssessments(
       assessmentId: assessment.ergonomic_assessment_id,
       factorId: assessment.ergonomic_factor_id,
       factorCode: normalizeDimension(factor?.codigo),
-      factorName: normalizeDimension(factor?.nome),
+      factorName: factor?.nome || EMPTY_DIMENSION,
       categoryNR17: normalizeDimension(factor?.categoria),
       unidadeOrcamentaria: normalizeDimension(vinculo?.unidade_orcamentaria),
       localTrabalho,
-      setor,
+      setor: normalizeDimension(tokens.SETOR),
       cargo,
       posto,
       tarefa,
-      preliminaryStatus: normalizeDimension(
-        tokens.STATUS_PRELIMINAR || tokens.PRELIMINAR,
-      ),
-      aetStatus: normalizeDimension(tokens.STATUS_AET || tokens.AET),
-      evaluationDate: tempo?.data_calendario || tokens.DATA_AVALIACAO || null,
-      responsible: normalizeDimension(
-        tokens.RESPONSAVEL || assessment.avaliador,
-      ),
-      evaluationMethod: normalizeDimension(
-        assessment.metodo_avaliacao || "AET",
-      ),
-      assessmentScore: normalizeAssessmentScore(
-        assessment.score,
-        assessment.nivel_risco,
-      ),
-      riskLevel: normalizeDimension(assessment.nivel_risco),
-      analyticalGroup: [
-        normalizeDimension(vinculo?.secretaria),
-        cargo,
-        localTrabalho,
-      ].join(" | "),
+      preliminaryStatus: normalizeDimension(tokens.STATUS_PRELIMINAR),
+      aetStatus: normalizeDimension(tokens.STATUS_AET),
+      evaluationDate: tempo?.data_calendario || null,
+      responsible: assessment.avaliador || EMPTY_DIMENSION,
+      evaluationMethod: assessment.metodo_avaliacao || EMPTY_DIMENSION,
+      assessmentScore: assessment.score || 0,
+      riskLevel: assessment.nivel_risco || EMPTY_DIMENSION,
+      analyticalGroup: `${normalizeDimension(vinculo?.secretaria)} | ${cargo} | ${localTrabalho}`,
       musculoskeletalAnalyticalGroup: buildMusculoskeletalGroup({
         cargo,
         localTrabalho,
@@ -498,49 +408,54 @@ export function groupErgonomicAssessments(
 export function groupErgonomicExposures(
   dataset: ErgonomicDataset,
 ): ErgonomicExposureSummary[] {
-  const factorById = new Map(
-    dataset.factors.map((factor) => [factor.ergonomic_factor_id, factor]),
+  const factorsMap = new Map(
+    dataset.factors.map((f) => [f.ergonomic_factor_id, f]),
   );
-  const vinculoById = new Map(
-    dataset.vinculos.map((vinculo) => [vinculo.vinculo_id, vinculo]),
+  const vinculosMap = new Map(
+    dataset.vinculos.map((v) => [v.vinculo_id, v]),
   );
 
   return dataset.exposures.map((exposure) => {
     const factor = exposure.ergonomic_factor_id
-      ? factorById.get(exposure.ergonomic_factor_id)
-      : undefined;
+      ? factorsMap.get(exposure.ergonomic_factor_id)
+      : null;
     const vinculo = exposure.vinculo_id
-      ? vinculoById.get(exposure.vinculo_id)
-      : undefined;
-    const tokens = parseObservationTokens(exposure.observacoes);
+      ? vinculosMap.get(exposure.vinculo_id)
+      : null;
 
-    const cargo = normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo);
-    const localTrabalho = normalizeDimension(
-      exposure.local_trabalho || vinculo?.local_trabalho,
-    );
+    const tokens = (exposure.observacoes || "").split("|").reduce((acc: any, part) => {
+      const [key, val] = part.split(":").map(s => s.trim());
+      if (key && val) acc[key.toUpperCase()] = val;
+      return acc;
+    }, {});
+
+    const cargo = normalizeDimension(vinculo?.cargo || vinculo?.natureza_cargo || tokens.CARGO);
+    const localTrabalho = normalizeDimension(exposure.local_trabalho || vinculo?.local_trabalho || tokens.LOCAL);
     const posto = normalizeDimension(tokens.POSTO || tokens.POSTO_TRABALHO);
     const tarefa = normalizeDimension(tokens.TAREFA || tokens.ATIVIDADE);
-    const exposureLevel = normalizeDimension(
-      tokens.NIVEL_EXPOSICAO || exposure.intensidade_exposicao,
-    );
+
+    const frequency = normalizeDimension(exposure.frequencia_exposicao);
+    const intensity = normalizeDimension(exposure.intensidade_exposicao);
+
+    let exposureScore = 0;
+    if (intensity.includes("ALTA") || intensity.includes("FORTE")) exposureScore = 80;
+    else if (intensity.includes("MODERADA")) exposureScore = 50;
+    else exposureScore = 20;
 
     return {
       exposureId: exposure.ergonomic_exposure_id,
       factorId: exposure.ergonomic_factor_id,
       factorCode: normalizeDimension(factor?.codigo),
-      factorName: normalizeDimension(factor?.nome),
+      factorName: factor?.nome || EMPTY_DIMENSION,
       categoryNR17: normalizeDimension(factor?.categoria),
       localTrabalho,
       cargo,
       posto,
       tarefa,
-      exposureLevel,
-      exposureScore: inferExposureScore(
-        exposure.frequencia_exposicao,
-        exposure.intensidade_exposicao,
-      ),
-      frequency: normalizeDimension(exposure.frequencia_exposicao),
-      intensity: normalizeDimension(exposure.intensidade_exposicao),
+      exposureLevel: intensity,
+      exposureScore,
+      frequency,
+      intensity,
       observation: exposure.observacoes || "",
       musculoskeletalAnalyticalGroup: buildMusculoskeletalGroup({
         cargo,
@@ -555,18 +470,20 @@ export function groupErgonomicExposures(
 export function groupErgonomicActionPlans(
   dataset: ErgonomicDataset,
 ): ErgonomicActionPlanSummary[] {
-  const vinculoById = new Map(
-    dataset.vinculos.map((vinculo) => [vinculo.vinculo_id, vinculo]),
+  const vinculosMap = new Map(
+    dataset.vinculos.map((v) => [v.vinculo_id, v]),
   );
 
   return dataset.actionPlans.map((plan) => {
-    const vinculo = plan.vinculo_id
-      ? vinculoById.get(plan.vinculo_id)
-      : undefined;
-    const tokens = parseObservationTokens(plan.observacoes);
+    const vinculo = plan.vinculo_id ? vinculosMap.get(plan.vinculo_id) : null;
+    const tokens = (plan.observacoes || "").split("|").reduce((acc: any, part) => {
+      const [key, val] = part.split(":").map(s => s.trim());
+      if (key && val) acc[key.toUpperCase()] = val;
+      return acc;
+    }, {});
 
-    const cargo = normalizeDimension(vinculo?.natureza_cargo || vinculo?.cargo);
-    const localTrabalho = normalizeDimension(vinculo?.local_trabalho);
+    const cargo = normalizeDimension(vinculo?.cargo || vinculo?.natureza_cargo || tokens.CARGO);
+    const localTrabalho = normalizeDimension(vinculo?.local_trabalho || tokens.LOCAL);
     const posto = normalizeDimension(tokens.POSTO || tokens.POSTO_TRABALHO);
     const tarefa = normalizeDimension(tokens.TAREFA || tokens.ATIVIDADE);
 
@@ -685,42 +602,71 @@ export function integrateErgonomicRiskProfile(
     return map;
   }, new Map<string, ErgonomicActionPlanSummary[]>());
 
-  const eventByAfastamento = new Map(
-    dataset.events.map((event) => [event.afastamento_id, event]),
+  const impactedServersGlobal = new Set<number>();
+  const vinculoById = new Map(
+    dataset.vinculos.map((vinculo) => [vinculo.vinculo_id, vinculo]),
   );
+
   const musculoskeletalByGroup = new Map<
     string,
-    { total: number; musc: number; lostDays: number }
+    { 
+      total: number; 
+      musc: number; 
+      lostDays: number; 
+      secretaria: string; 
+      cargo: string; 
+      localTrabalho: string;
+      cids: Set<string>;
+      servers: Set<number>;
+    }
   >();
 
+  const cidsByEvent = new Map<number, ErgonomicCidRow[]>();
   dataset.cids.forEach((cid) => {
-    const event = eventByAfastamento.get(cid.afastamento_id);
-    if (!event || !event.vinculo_id) {
-      return;
-    }
-    const vinculo = dataset.vinculos.find(
-      (item) => item.vinculo_id === event.vinculo_id,
-    );
-    if (!vinculo) {
-      return;
-    }
+    const list = cidsByEvent.get(cid.afastamento_id) || [];
+    list.push(cid);
+    cidsByEvent.set(cid.afastamento_id, list);
+  });
+
+  dataset.events.forEach((event) => {
+    if (!event.vinculo_id || !event.servidor_id) return;
+    const eventDate = event.data_inicio.slice(0, 10);
+    if (eventDate < period.startDate || eventDate > period.endDate) return;
+
+    const eventCids = cidsByEvent.get(event.afastamento_id) || [];
+    if (eventCids.length === 0) return;
+
+    const vinculo = vinculoById.get(event.vinculo_id);
+    if (!vinculo) return;
 
     const key = buildMusculoskeletalGroup({
-      cargo: normalizeDimension(vinculo.natureza_cargo || vinculo.cargo),
+      cargo: normalizeDimension(vinculo.cargo || vinculo.natureza_cargo),
       localTrabalho: normalizeDimension(vinculo.local_trabalho),
       posto: EMPTY_DIMENSION,
       tarefa: EMPTY_DIMENSION,
     });
+
+    const isMusculoskeletalEvent = eventCids.some(cid => isMusculoskeletalCid(cid.cid_codigo, cid.cid_capitulo));
     const current = musculoskeletalByGroup.get(key) || {
       total: 0,
       musc: 0,
       lostDays: 0,
+      secretaria: normalizeDimension(vinculo.secretaria),
+      cargo: normalizeDimension(vinculo.cargo || vinculo.natureza_cargo),
+      localTrabalho: normalizeDimension(vinculo.local_trabalho),
+      cids: new Set<string>(),
+      servers: new Set<number>(),
     };
-    const weight = cid.occurrence_weight || 0;
-    current.total += weight;
-    if (isMusculoskeletalCid(cid.cid_codigo, cid.cid_capitulo)) {
-      current.musc += weight;
-      current.lostDays += cid.allocated_days || event.dias_afastado || 0;
+
+    current.total += 1;
+    if (isMusculoskeletalEvent) {
+      current.musc += 1;
+      current.lostDays += event.dias_afastado || 0;
+      eventCids.forEach(cid => {
+        if (cid.cid_codigo) current.cids.add(cid.cid_codigo);
+      });
+      current.servers.add(event.servidor_id);
+      impactedServersGlobal.add(event.servidor_id);
     }
     musculoskeletalByGroup.set(key, current);
   });
@@ -729,6 +675,7 @@ export function integrateErgonomicRiskProfile(
     ...assessmentsByGroup.keys(),
     ...exposuresByGroup.keys(),
     ...actionsByGroup.keys(),
+    ...musculoskeletalByGroup.keys(),
   ]);
 
   const signalsByAnalyticalGroup = Array.from(allGroupKeys)
@@ -737,36 +684,49 @@ export function integrateErgonomicRiskProfile(
       const exposures = exposuresByGroup.get(groupKey) || [];
       const actions = actionsByGroup.get(groupKey) || [];
 
-      const baseAssessment = assessments[0];
+      const musculoskeletalContext = musculoskeletalByGroup.get(
+        buildMusculoskeletalGroup({
+          cargo: assessments[0]?.cargo || exposures[0]?.cargo || actions[0]?.cargo || EMPTY_DIMENSION,
+          localTrabalho: assessments[0]?.localTrabalho || exposures[0]?.localTrabalho || actions[0]?.localTrabalho || EMPTY_DIMENSION,
+          posto: EMPTY_DIMENSION,
+          tarefa: EMPTY_DIMENSION,
+        }),
+      ) || musculoskeletalByGroup.get(groupKey) || { 
+        total: 0, 
+        musc: 0, 
+        lostDays: 0, 
+        secretaria: EMPTY_DIMENSION, 
+        cargo: EMPTY_DIMENSION, 
+        localTrabalho: EMPTY_DIMENSION 
+      };
+
       const cargo =
-        baseAssessment?.cargo ||
+        assessments[0]?.cargo ||
         exposures[0]?.cargo ||
         actions[0]?.cargo ||
+        musculoskeletalContext.cargo ||
         EMPTY_DIMENSION;
+
       const localTrabalho =
-        baseAssessment?.localTrabalho ||
+        assessments[0]?.localTrabalho ||
         exposures[0]?.localTrabalho ||
         actions[0]?.localTrabalho ||
+        musculoskeletalContext.localTrabalho ||
         EMPTY_DIMENSION;
+
       const posto =
-        baseAssessment?.posto ||
+        assessments[0]?.posto ||
         exposures[0]?.posto ||
         actions[0]?.posto ||
         EMPTY_DIMENSION;
+
       const tarefa =
-        baseAssessment?.tarefa ||
+        assessments[0]?.tarefa ||
         exposures[0]?.tarefa ||
         actions[0]?.tarefa ||
         EMPTY_DIMENSION;
 
-      const musculoskeletalContext = musculoskeletalByGroup.get(
-        buildMusculoskeletalGroup({
-          cargo,
-          localTrabalho,
-          posto: EMPTY_DIMENSION,
-          tarefa: EMPTY_DIMENSION,
-        }),
-      ) || { total: 0, musc: 0, lostDays: 0 };
+      const finalSecretaria = assessments[0]?.analyticalGroup?.split(" | ")[0] || musculoskeletalContext.secretaria || EMPTY_DIMENSION;
 
       const averageAssessmentScore = round(
         average(assessments.map((item) => item.assessmentScore)),
@@ -846,11 +806,10 @@ export function integrateErgonomicRiskProfile(
 
       return {
         musculoskeletalAnalyticalGroup: groupKey,
-        secretaria:
-          baseAssessment?.analyticalGroup.split(" | ")[0] || EMPTY_DIMENSION,
+        secretaria: finalSecretaria,
         cargo,
         localTrabalho,
-        setor: baseAssessment?.setor || EMPTY_DIMENSION,
+        setor: assessments[0]?.setor || EMPTY_DIMENSION,
         posto,
         tarefa,
         totalAssessments: assessments.length,
@@ -864,6 +823,9 @@ export function integrateErgonomicRiskProfile(
         averageExposureScore,
         musculoskeletalShare,
         lostDays: round(musculoskeletalContext.lostDays, 4),
+        musculoskeletalEvents: musculoskeletalContext.musc,
+        associatedCids: Array.from(musculoskeletalContext.cids || []),
+        impactedServerCount: musculoskeletalContext.servers?.size || 0,
         score,
         criticality,
         justification:
@@ -871,7 +833,7 @@ export function integrateErgonomicRiskProfile(
           `avaliacao media ${averageAssessmentScore}, backlog de acoes ${openCriticalActions} e contexto musculoesqueletico ` +
           `${round(musculoskeletalShare * 100, 2)}%, sem inferencia causal automatica.`,
         scoreBreakdown,
-      } satisfies ErgonomicAnalyticalSignal;
+      };
     })
     .sort((left, right) => right.score - left.score);
 
@@ -930,6 +892,9 @@ export function integrateErgonomicRiskProfile(
       hasBlockingIssues: false,
       issues: [],
     },
+    totalImpactedServers: impactedServersGlobal.size,
+    totalMonitoredPopulation: impactedServersGlobal.size,
+    totalWorkforceBaseline: new Set(dataset.vinculos.map(v => v.servidor_id)).size || dataset.vinculos.length,
   };
 
   analysis.validation = validateErgonomicAnalysis(analysis);
@@ -1048,88 +1013,119 @@ export function validateErgonomicAnalysis(
   };
 }
 
+export async function fetchAllPages<T>(
+  queryFn: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>,
+  sourceName: string
+): Promise<T[]> {
+  const results: T[] = [];
+  const PAGE_SIZE = 1000;
+  let from = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await queryFn(from, to);
+    if (error) {
+      throw new ErgonomicApplicationError(`Falha ao carregar ${sourceName}: ${error.message} (Code: ${error.code})`);
+    }
+    const rows = data ?? [];
+    results.push(...rows);
+    if (rows.length < PAGE_SIZE) {
+      hasMore = false;
+    } else {
+      from += PAGE_SIZE;
+    }
+  }
+  return results;
+}
+
 export function createSupabaseErgonomicRepository(
   client: SupabaseClient,
 ): ErgonomicRepository {
   return {
-    async loadDataset(): Promise<ErgonomicDataset> {
-      const factors = fetchRows<ErgonomicFactorRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_ergonomic_factor")
-          .select(
-            "ergonomic_factor_id, codigo, nome, descricao, categoria, fonte_normativa, is_active",
-          ),
-        "catalogo de fatores ergonomicos",
-      );
+    async loadDataset(): Promise<ErgonomicDataset> {      const [factors, assessments, exposures, actionPlans, events, cids, vinculos, tempos] = await Promise.all([
+        fetchAllPages<ErgonomicFactorRow>(
+          (from, to) => 
+            client
+              .schema("abs_intel")
+              .from("abs_dim_ergonomic_factor")
+              .select("ergonomic_factor_id, codigo, nome, descricao, categoria, fonte_normativa, is_active")
+              .order("ergonomic_factor_id")
+              .range(from, to),
+          "catalogo de fatores ergonomicos"
+        ),
+        fetchAllPages<ErgonomicAssessmentRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_fact_ergonomic_assessment")
+              .select("ergonomic_assessment_id, servidor_id, vinculo_id, tempo_id, ergonomic_factor_id, metodo_avaliacao, score, nivel_risco, avaliador, observacoes")
+              .order("ergonomic_assessment_id")
+              .range(from, to),
+          "avaliacoes ergonomicas"
+        ),
+        fetchAllPages<ErgonomicExposureRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_fact_ergonomic_exposure")
+              .select("ergonomic_exposure_id, servidor_id, vinculo_id, ergonomic_factor_id, local_trabalho, frequencia_exposicao, intensidade_exposicao, inicio_exposicao, fim_exposicao, observacoes")
+              .order("ergonomic_exposure_id")
+              .range(from, to),
+          "exposicoes ergonomicas"
+        ),
+        fetchAllPages<ErgonomicActionPlanRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_fact_ergonomic_action_plan")
+              .select("ergonomic_action_plan_id, ergonomic_assessment_id, servidor_id, vinculo_id, prioridade, acao_recomendada, responsavel, data_prevista, data_execucao, status_acao, observacoes")
+              .order("ergonomic_action_plan_id")
+              .range(from, to),
+          "plano de acao ergonomico"
+        ),
+        fetchAllPages<ErgonomicEventRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_fact_afastamento_evento")
+              .select("afastamento_id, servidor_id, vinculo_id, data_inicio, dias_afastado")
+              .order("afastamento_id")
+              .range(from, to),
+          "eventos epidemiologicos"
+        ),
+        fetchAllPages<ErgonomicCidRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_fact_afastamento_cid")
+              .select("afastamento_id, cid_codigo, cid_capitulo, occurrence_weight, allocated_days")
+              .order("afastamento_id")
+              .range(from, to),
+          "cids de afastamento"
+        ),
+        fetchAllPages<ErgonomicVinculoRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_dim_vinculo_servidor")
+              .select("vinculo_id, servidor_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo, subdivisao")
+              .order("vinculo_id")
+              .range(from, to),
+          "contexto ocupacional"
+        ),
+        fetchAllPages<ErgonomicTempoRow>(
+          (from, to) =>
+            client
+              .schema("abs_intel")
+              .from("abs_dim_tempo")
+              .select("tempo_id, data_calendario, competencia_yyyymm")
+              .order("tempo_id")
+              .range(from, to),
+          "dimensao tempo"
+        )
+      ]);
 
-      const assessments = fetchRows<ErgonomicAssessmentRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_ergonomic_assessment")
-          .select(
-            "ergonomic_assessment_id, servidor_id, vinculo_id, tempo_id, ergonomic_factor_id, metodo_avaliacao, score, nivel_risco, avaliador, observacoes",
-          ),
-        "avaliacoes ergonomicas",
-      );
-
-      const exposures = fetchRows<ErgonomicExposureRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_ergonomic_exposure")
-          .select(
-            "ergonomic_exposure_id, servidor_id, vinculo_id, ergonomic_factor_id, local_trabalho, frequencia_exposicao, intensidade_exposicao, inicio_exposicao, fim_exposicao, observacoes",
-          ),
-        "exposicoes ergonomicas",
-      );
-
-      const actionPlans = fetchRows<ErgonomicActionPlanRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_ergonomic_action_plan")
-          .select(
-            "ergonomic_action_plan_id, ergonomic_assessment_id, servidor_id, vinculo_id, prioridade, acao_recomendada, responsavel, data_prevista, data_execucao, status_acao, observacoes",
-          ),
-        "plano de acao ergonomico",
-      );
-
-      const events = fetchRows<ErgonomicEventRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_afastamento_evento")
-          .select(
-            "afastamento_id, servidor_id, vinculo_id, data_inicio, dias_afastado",
-          ),
-        "eventos epidemiologicos",
-      );
-
-      const cids = fetchRows<ErgonomicCidRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_fact_afastamento_cid")
-          .select(
-            "afastamento_id, cid_codigo, cid_capitulo, occurrence_weight, allocated_days",
-          ),
-        "cids de afastamento",
-      );
-
-      const vinculos = fetchRows<ErgonomicVinculoRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_vinculo_servidor")
-          .select(
-            "vinculo_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo, subdivisao",
-          ),
-        "contexto ocupacional",
-      );
-
-      const tempos = fetchRows<ErgonomicTempoRow>(
-        await client
-          .schema("abs_intel")
-          .from("abs_dim_tempo")
-          .select("tempo_id, data_calendario, competencia_yyyymm"),
-        "dimensao tempo",
-      );
 
       return {
         factors,
