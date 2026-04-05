@@ -697,7 +697,9 @@ export function integrateErgonomicRiskProfile(
         lostDays: 0, 
         secretaria: EMPTY_DIMENSION, 
         cargo: EMPTY_DIMENSION, 
-        localTrabalho: EMPTY_DIMENSION 
+        localTrabalho: EMPTY_DIMENSION,
+        cids: new Set<string>(),
+        servers: new Set<number>()
       };
 
       const cargo =
@@ -824,8 +826,8 @@ export function integrateErgonomicRiskProfile(
         musculoskeletalShare,
         lostDays: round(musculoskeletalContext.lostDays, 4),
         musculoskeletalEvents: musculoskeletalContext.musc,
-        associatedCids: Array.from(musculoskeletalContext.cids || []),
-        impactedServerCount: musculoskeletalContext.servers?.size || 0,
+        associatedCids: Array.from<string>(musculoskeletalContext.cids),
+        impactedServerCount: musculoskeletalContext.servers.size,
         score,
         criticality,
         justification:
