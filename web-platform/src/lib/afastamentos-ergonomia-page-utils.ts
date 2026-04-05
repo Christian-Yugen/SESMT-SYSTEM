@@ -99,7 +99,6 @@ export function buildErgonomicPageModel(
       value: data.totalImpactedServers.toLocaleString("pt-BR"),
       unit: "pessoas",
       description: `Impacto de ${impactPct.toFixed(2)}% do efetivo total (casos >15 dias)`,
-      accent: "info"
     },
     {
       id: "ergo-events",
