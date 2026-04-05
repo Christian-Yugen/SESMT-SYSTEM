@@ -168,11 +168,11 @@ export default function ErgonomicsAnalyticsPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {[
-                      { weight: '30%', label: 'Exposição Média', desc: 'Nível de intensidade e frequência de exposição a riscos ergonômicos.' },
-                      { weight: '25%', label: 'Avaliação Técnica', desc: 'Nota técnica resultante dos laudos e análises preliminares (AET).' },
-                      { weight: '20%', label: 'Backlog de Ações', desc: 'Razão de planos de ação preventivos em aberto ou em atraso.' },
-                      { weight: '15%', label: 'Concentração CID M', desc: 'Prevalência de afastamentos musculoesqueléticos em relação ao total.' },
-                      { weight: '10%', label: 'Gravidade (Dias)', desc: 'Total de dias de impacto temporal por patologias ergonômicas.' }
+                      { weight: '20%', label: 'Exposição Média', desc: 'Nível de intensidade e frequência de exposição a riscos ergonômicos (NR-17/AET).' },
+                      { weight: '10%', label: 'Avaliação Técnica', desc: 'Nota técnica resultante dos laudos e análises preliminares (AET).' },
+                      { weight: '10%', label: 'Backlog de Ações', desc: 'Razão de planos de ação preventivos em aberto ou em atraso.' },
+                      { weight: '10%', label: 'Concentração CID M', desc: 'Prevalência de afastamentos musculoesqueléticos (Cap. XIII) em relação ao total.' },
+                      { weight: '50%', label: 'Morbidade Relativa (DEA)', desc: 'Impacto absoluto do grupo versus o pior caso da mesma Secretaria: combina dias perdidos (70%) e volume de servidores afetados (30%).' }
                     ].map((row, idx) => (
                       <tr key={idx} className="hover:bg-slate-50 transition-colors">
                         <td className="px-3 py-1 text-center border-r border-slate-100">
@@ -197,7 +197,7 @@ export default function ErgonomicsAnalyticsPage() {
                 <div className="w-full bg-slate-50 p-3 border border-slate-200 text-center">
                    <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">Algoritmo de Priorização (Matriz Ponderada)</p>
                    <p className="text-[10px] text-slate-900 leading-none font-sans">
-                     Score = (Exposição × 0.3) + (Avaliação × 0.25) + (Planos Ação × 0.2) + (Concentração CID × 0.15) + (Dias Perdidos × 0.1)
+                     Score = (Exposição × 0.2) + (Morbidade Relativa DEA × 0.5) + (Avaliação × 0.1) + (Planos Ação × 0.1) + (Concentração CID × 0.1)
                    </p>
                 </div>
               </div>
@@ -529,11 +529,7 @@ export default function ErgonomicsAnalyticsPage() {
                                     const sortedSecretarias = Object.values(groups)
                                       .filter((sec: any) => Object.values(sec.cargos).some((c: any) => c.impactedServerCount > 0))
                                       .sort((a: any, b: any) => {
-                                      const diff = b.maxScore - a.maxScore;
-                                      if (diff !== 0) return diff;
-                                      const totalDaysA = Object.values(a.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
-                                      const totalDaysB = Object.values(b.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
-                                      return totalDaysB - totalDaysA;
+                                      // Primario: Secretaria com mais CASOS lidera`r`n                                       const totalA = Object.values(a.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;`r`n                                       const totalB = Object.values(b.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;`r`n                                       if (totalB !== totalA) return totalB - totalA;`r`n                                       return b.maxScore - a.maxScore;
                                     });
 
                                     return sortedSecretarias.map((sec, secIdx) => (
@@ -544,7 +540,7 @@ export default function ErgonomicsAnalyticsPage() {
                                               <div className="flex items-center gap-3">
                                                 <div className={`w-2 h-5 ${sec.maxScore >= 75 ? 'bg-[#E31E24]' : 'bg-[#1A3351]'}`}></div>
                                                 <span className="text-[14px] font-black text-[#1A3351] uppercase tracking-normal">{sec.name}</span>
-                                                <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">{Object.keys(sec.cargos).length} CARGOS EM ALERTA</span>
+                                                <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">{Object.values(sec.cargos).filter((c: any) => c.impactedServerCount > 0).length} CARGOS EM ALERTA</span>
                                               </div>
                                               <div className="flex items-center">
                                                 <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">SCORE MÁXIMO: {sec.maxScore.toFixed(0)}%</div>

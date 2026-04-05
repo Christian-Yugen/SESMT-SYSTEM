@@ -165,11 +165,11 @@ export default function PsychosocialAnalyticsPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {[
-                      { weight: '30%', label: 'Concentração CID F', desc: 'Afastamentos por transtornos mentais em relação ao volume total.' },
-                      { weight: '20%', label: 'Exposição Estimada', desc: 'Média de escores em avaliações e questionários de vigilância ativa.' },
-                      { weight: '20%', label: 'Recorrência', desc: 'Percentual de servidores com episódios repetidos no mesmo período.' },
-                      { weight: '15%', label: 'Tendência', desc: 'Análise da curva de evolução da patologia no grupo monitorado.' },
-                      { weight: '15%', label: 'Dias Perdidos', desc: 'Volume de ausência motivado exclusivamente por saúde mental.' }
+                      { weight: '20%', label: 'Concentração CID F', desc: 'Prevalência de afastamentos por transtornos mentais (F) em relação ao total de eventos clínicos compatíveis.' },
+                      { weight: '20%', label: 'Exposição Estimada', desc: 'Média de escores em avaliações e questionários de vigilância ativa (NR-1/PGR).' },
+                      { weight: '5%', label: 'Recorrência', desc: 'Fração de servidores com episódios repetidos no período. Usado como sinal sentinela complementar.' },
+                      { weight: '5%', label: 'Tendência Temporal', desc: 'Razão de evolução da patologia entre a primeira e segunda metade do período monitorado.' },
+                      { weight: '50%', label: 'Morbidade Relativa (DEA)', desc: 'Impacto absoluto do grupo em relação ao pior caso da mesma Secretaria: combina dias perdidos (70%) e volume de servidores afetados (30%).' }
                     ].map((row, idx) => (
                       <tr key={idx} className="hover:bg-slate-50 transition-colors">
                         <td className="px-3 py-1 text-center border-r border-slate-100">
@@ -194,7 +194,7 @@ export default function PsychosocialAnalyticsPage() {
                 <div className="w-full bg-slate-50 p-3 border border-slate-200 text-center">
                    <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">Algoritmo de Vigilância (Matriz Ponderada)</p>
                    <p className="text-[10px] text-slate-900 leading-none font-sans">
-                     Score = (CID F × 0.3) + (Recorrência × 0.2) + (Exposição Média × 0.2) + (Tendência × 0.15) + (Impacto Dias × 0.15)
+                     Score = (CID F × 0.2) + (Exposição × 0.2) + (Morbidade Relativa DEA × 0.5) + (Tendência × 0.05) + (Recorrência × 0.05)
                    </p>
                 </div>
               </div>
@@ -524,11 +524,11 @@ export default function PsychosocialAnalyticsPage() {
                                     }, {} as Record<string, any>);
 
                                     const sortedSecretarias = Object.values(groups).sort((a: any, b: any) => {
-                                      const diff = b.maxScore - a.maxScore;
-                                      if (diff !== 0) return diff;
-                                      const totalDaysA = Object.values(a.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
-                                      const totalDaysB = Object.values(b.cargos).reduce((sum: number, c: any) => sum + (c.totalDays || 0), 0) as number;
-                                      return totalDaysB - totalDaysA;
+                                      // Primario: maior numero total de casos
+                                      const totalA = Object.values(a.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
+                                      const totalB = Object.values(b.cargos).reduce((s: number, c: any) => s + (c.impactedServerCount || 0), 0) as number;
+                                      if (totalB !== totalA) return totalB - totalA;
+                                      return b.maxScore - a.maxScore;
                                     });
 
                                     return sortedSecretarias.map((sec, secIdx) => (
@@ -539,7 +539,7 @@ export default function PsychosocialAnalyticsPage() {
                                               <div className="flex items-center gap-3">
                                                 <div className={`w-2 h-5 ${sec.maxScore >= 75 ? 'bg-[#E31E24]' : 'bg-[#1A3351]'}`}></div>
                                                 <span className="text-[14px] font-black text-[#1A3351] uppercase tracking-normal">{sec.name}</span>
-                                                <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">{Object.keys(sec.cargos).length} CARGOS EM ALERTA</span>
+                                                <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">{Object.values(sec.cargos).filter((c: any) => c.impactedServerCount > 0).length} CARGOS EM ALERTA</span>
                                               </div>
                                               <div className="flex items-center">
                                                 <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">SCORE MÁXIMO: {sec.maxScore.toFixed(0)}%</div>
