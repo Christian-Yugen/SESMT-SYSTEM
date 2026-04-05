@@ -4,11 +4,11 @@ const EMPTY_DIMENSION = "NAO_INFORMADO";
 const SCORE_MAX = 100;
 const MUSCULOSKELETAL_PREFIXES = ["M"];
 const SCORE_COMPONENTS = {
-  exposure: 30,
-  assessment: 25,
-  actionBacklog: 20,
-  musculoskeletalShare: 15,
-  lostDays: 10,
+  exposure: 20,
+  assessment: 10,
+  actionBacklog: 10,
+  musculoskeletalShare: 10,
+  lostDays: 50,
 } as const;
 
 export interface ErgonomicFactorRow {
@@ -684,6 +684,15 @@ export function integrateErgonomicRiskProfile(
     ...musculoskeletalByGroup.keys(),
   ]);
 
+  // FRONTEIRA LOCAL (DEA-inspired): Identifica os Benchmarks de Risco no Dataset Atual
+  let globalMaxLostDays = 0;
+  let globalMaxServers = 0;
+  
+  Array.from(musculoskeletalByGroup.values()).forEach(acc => {
+    if (acc.lostDays > globalMaxLostDays) globalMaxLostDays = acc.lostDays;
+    if (acc.servers.size > globalMaxServers) globalMaxServers = acc.servers.size;
+  });
+
   const signalsByAnalyticalGroup = Array.from(allGroupKeys)
     .map((groupKey) => {
       const assessments = assessmentsByGroup.get(groupKey) || [];
@@ -759,6 +768,11 @@ export function integrateErgonomicRiskProfile(
               4,
             );
 
+      // EFICIENCIA RELATIVA DO PROBLEMA (DEA-STYLE)
+      const daysEfficiency = globalMaxLostDays > 0 ? clamp(musculoskeletalContext.lostDays / globalMaxLostDays, 0, 1) : 0;
+      const servantsEfficiency = globalMaxServers > 0 ? clamp(musculoskeletalContext.servers.size / globalMaxServers, 0, 1) : 0;
+      const morbidityRatio = (daysEfficiency * 0.7) + (servantsEfficiency * 0.3);
+
       const scoreBreakdown: ErgonomicScoreBreakdown = {
         exposurePoints: round(
           (averageExposureScore / SCORE_MAX) * SCORE_COMPONENTS.exposure,
@@ -777,8 +791,7 @@ export function integrateErgonomicRiskProfile(
           4,
         ),
         lostDaysPoints: round(
-          clamp(musculoskeletalContext.lostDays / 365, 0, 1) *
-            SCORE_COMPONENTS.lostDays,
+          morbidityRatio * SCORE_COMPONENTS.lostDays,
           4,
         ),
       };

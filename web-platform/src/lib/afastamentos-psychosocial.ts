@@ -3,10 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const EMPTY_DIMENSION = "NAO_INFORMADO";
 const SCORE_MAX = 100;
 const SCORE_COMPONENTS = {
-  cidFShare: 30,
-  recurrence: 20,
-  trend: 15,
-  lostDays: 15,
+  cidFShare: 20,
+  recurrence: 5,
+  trend: 5,
+  absoluteImpact: 50,
   exposure: 20,
 } as const;
 const COMPATIBLE_CID_PREFIXES = ["F", "R45", "T74", "Z56", "Z73"];
@@ -667,6 +667,8 @@ function buildScoreBreakdown(params: {
   lostDays: number;
   averageExposureScore: number;
   impactedServerCount: number;
+  maxLostDays: number;
+  maxImpactedServers: number;
 }): PsychosocialScoreBreakdown {
   const cidFSharePoints = round(
     clamp(params.cidFShare / 1.0, 0, 1) * SCORE_COMPONENTS.cidFShare,
@@ -681,13 +683,13 @@ function buildScoreBreakdown(params: {
     4,
   );
   
-  // Morbidade: Peso dividido entre dias totais (60%) e volume de pessoas (40%)
-  const daysFactor = clamp(params.lostDays / 1000, 0, 1);
-  const volumeFactor = clamp(params.impactedServerCount / 50, 0, 1);
-  const morbidityRatio = (daysFactor * 0.6) + (volumeFactor * 0.4);
+  // EFICIENCIA RELATIVA DO PROBLEMA (DEA-STYLE)
+  // O grupo com o maior numero de dias ou servidores tera 100% desses pontos.
+  const daysEfficiency = params.maxLostDays > 0 ? clamp(params.lostDays / params.maxLostDays, 0, 1) : 0;
+  const servantsEfficiency = params.maxImpactedServers > 0 ? clamp(params.impactedServerCount / params.maxImpactedServers, 0, 1) : 0;
   
-  const lostDaysPoints = round(
-    morbidityRatio * SCORE_COMPONENTS.lostDays,
+  const absoluteImpactPoints = round(
+    ((daysEfficiency * 0.7) + (servantsEfficiency * 0.3)) * SCORE_COMPONENTS.absoluteImpact,
     4,
   );
 
@@ -700,7 +702,7 @@ function buildScoreBreakdown(params: {
     cidFSharePoints,
     recurrencePoints,
     trendPoints,
-    lostDaysPoints,
+    lostDaysPoints: absoluteImpactPoints, // REAPROVEITANDO AO INTERFACE PARA EVITAR QUEBRA
     exposurePoints,
   };
 }
@@ -841,6 +843,16 @@ export function integrateRiskProfile(
     signalsByGroupAccumulator.set(analyticalGroup, current);
   });
 
+  // FRONTEIRA LOCAL (DEA-inspired): Identifica os Benchmarks de Risco no Dataset Atual
+  let globalMaxLostDays = 0;
+  let globalMaxImpactedServers = 0;
+  
+  Array.from(signalsByGroupAccumulator.values()).forEach(acc => {
+    if (acc.lostDays > globalMaxLostDays) globalMaxLostDays = acc.lostDays;
+    const servCount = acc.serverEventCounts.size;
+    if (servCount > globalMaxImpactedServers) globalMaxImpactedServers = servCount;
+  });
+
   const signalsByAnalyticalGroup = Array.from(
     signalsByGroupAccumulator.entries(),
   )
@@ -863,6 +875,7 @@ export function integrateRiskProfile(
         4,
       );
       const trendRatio = buildTrendRatio(accumulator.monthlyCompatibleEvents);
+      
       const scoreBreakdown = buildScoreBreakdown({
         cidFShare,
         recurrenceRate,
@@ -870,6 +883,8 @@ export function integrateRiskProfile(
         lostDays: accumulator.lostDays,
         averageExposureScore,
         impactedServerCount: accumulator.serverEventCounts.size,
+        maxLostDays: globalMaxLostDays,
+        maxImpactedServers: globalMaxImpactedServers,
       });
       const score = round(
         scoreBreakdown.cidFSharePoints +
