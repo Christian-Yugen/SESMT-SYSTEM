@@ -23,7 +23,9 @@ import {
   TrendingUp,
   Scale,
   FileText,
+  User,
 } from "lucide-react";
+import Sidebar from "@/components/layout/Sidebar";
 import { Servidor, ServidorSearchResult } from "@/types";
 
 export default function NewAbonoPage() {
@@ -39,7 +41,7 @@ export default function NewAbonoPage() {
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [, setUserName] = useState<string>("Usuário");
+  const [userName, setUserName] = useState<string>("Usuário");
 
   // Form data
   const [formData, setFormData] = useState({
@@ -263,122 +265,12 @@ export default function NewAbonoPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
       {/* SIDEBAR */}
-      <aside
-        className={`
-                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform
-                ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-            `}
-      >
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex justify-between items-center w-full lg:hidden mb-4">
-            <span className="text-white font-bold text-xs uppercase">Menu</span>
-            <button onClick={() => setIsSidebarOpen(false)}>
-              <X className="w-6 h-6 text-white" />
-            </button>
-          </div>
-          <div className="w-full h-16 mt-2 mb-4 flex items-center justify-center">
-            <Image
-              src="/images/logo_white.png"
-              alt="SESMT"
-              width={160}
-              height={56}
-              className="h-14 w-auto object-contain"
-            />
-          </div>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] -mt-2">
-            SESMT SYSTEM
-          </p>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          <button
-            onClick={() => router.push("/")}
-            className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
-          >
-            <LayoutDashboard className="w-4 h-4 shrink-0" />
-            <span>Criar documentos</span>
-          </button>
-
-          <button
-            onClick={() => router.push("/referrals")}
-            className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider whitespace-nowrap"
-          >
-            <ClipboardList className="w-4 h-4 shrink-0" />
-            <span>Central de Evidências</span>
-          </button>
-
-          <div className="group">
-            <button className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider">
-              <HeartPulse className="w-4 h-4 shrink-0" />
-              <span>Benefícios</span>
-            </button>
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <Database className="w-3.5 h-3.5 shrink-0" />
-              <span>Auxílio Doença</span>
-            </button>
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <FileSearch className="w-3.5 h-3.5 shrink-0" />
-              <span>Readaptação</span>
-            </button>
-            <button
-              onClick={() => router.push("/abono")}
-              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none bg-white/10 text-white font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-            >
-              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
-              <span>Abono Salarial</span>
-            </button>
-            <button
-              onClick={() => router.push("/abono/lei")}
-              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-            >
-              <Scale className="w-3.5 h-3.5 shrink-0" />
-              <span>Legislação e Regras</span>
-            </button>
-            <button
-              onClick={() => router.push("/abono/portarias")}
-              className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap"
-            >
-              <FileText className="w-3.5 h-3.5 shrink-0" />
-              <span>Portarias</span>
-            </button>
-            <button className="hidden group-hover:flex w-full items-center gap-1.5 p-2 pl-9 rounded-none text-white/60 hover:bg-white/5 hover:text-white transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
-              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span>Redução de Jornada</span>
-            </button>
-          </div>
-
-          {(userRole === "admin" || userRole === "social_assistant") && (
-            <>
-              <div className="group">
-                <button
-                  onClick={() => router.push("/history")}
-                  className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-                >
-                  <HistoryIcon className="w-4 h-4 shrink-0" />
-                  <span>Histórico</span>
-                </button>
-              </div>
-
-              <button
-                onClick={() => router.push("/archive")}
-                className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-              >
-                <FolderOpen className="w-4 h-4 shrink-0" />
-                <span>Arquivo Médico</span>
-              </button>
-            </>
-          )}
-        </nav>
-
-        <div className="mt-auto space-y-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px] px-4"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
-        </div>
-      </aside>
+      <Sidebar
+        userRole={userRole}
+        userName="Usuário"
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
 
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
@@ -463,10 +355,21 @@ export default function NewAbonoPage() {
                           <p className="text-sm font-bold text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">
                             {s.nome}
                           </p>
-                          <div className="flex gap-4 mt-1">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase">
                               CPF: {s.cpf}
                             </p>
+                            <p className="text-[10px] font-bold text-[#1A3351]/60 uppercase">
+                              CARGO: {s.cargo}
+                            </p>
+                            <p className="text-[10px] font-bold text-[#1A3351]/60 uppercase">
+                              MATRÍCULA: {s.matricula}
+                            </p>
+                            {s.natureza_cargo && (
+                              <p className="text-[10px] font-bold text-[#E31E24]/70 uppercase">
+                                NATUREZA: {s.natureza_cargo}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
@@ -479,30 +382,63 @@ export default function NewAbonoPage() {
               )}
 
               {selectedServidor && (
-                <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-none grid grid-cols-2 gap-4 animate-in fade-in duration-300">
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase">
-                      Nome
-                    </p>
-                    <p className="text-xl font-bold uppercase text-[#1A3351]">
-                      {selectedServidor.Nome}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase">
-                      Cargo
-                    </p>
-                    <p className="font-bold uppercase text-sm text-[#1A3351]">
-                      {selectedServidor.Cargo}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase">
-                      Secretaria
-                    </p>
-                    <p className="font-bold uppercase text-sm text-[#1A3351]">
-                      {selectedServidor.Secretaria}
-                    </p>
+                <div className="bg-slate-50 p-6 border-2 border-slate-200 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex justify-between items-start">
+                    <div className="flex gap-6 items-center">
+                      <div className="p-4 bg-[#1A3351] text-white shadow-lg">
+                        <User className="w-8 h-8" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 flex-1">
+                        <div className="md:col-span-2 border-b border-slate-200 pb-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Servidor
+                          </p>
+                          <p className="text-2xl font-bold text-[#1A3351] uppercase leading-none">
+                            {selectedServidor.Nome}
+                          </p>
+                          <p className="text-xs font-bold text-slate-500 uppercase mt-1">
+                            CPF: {selectedServidor.CPF || selectedServidor["CPF."] || "---"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Matrícula / Vínculo
+                          </p>
+                          <p className="text-sm font-bold text-emerald-600 uppercase">
+                            MAT: {selectedServidor.Matrícula || "---"} • CONTRATO:{" "}
+                            {selectedServidor.contrato || "1"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Cargo / Natureza
+                          </p>
+                          <p className="text-xs font-bold text-slate-700 uppercase leading-relaxed">
+                            {selectedServidor.Cargo || "---"}{" "}
+                            {selectedServidor.natureza_cargo
+                              ? `(${selectedServidor.natureza_cargo})`
+                              : ""}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Secretaria
+                          </p>
+                          <p className="text-xs font-bold text-slate-700 uppercase truncate">
+                            {selectedServidor.Secretaria || "---"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedServidor(null);
+                        setSearchQuery("");
+                      }}
+                      className="px-4 py-2 border-2 border-red-100 text-[#E31E24] hover:bg-[#E31E24] hover:text-white transition-all uppercase text-[10px] font-bold rounded-none"
+                    >
+                      Trocar Servidor
+                    </button>
                   </div>
                 </div>
               )}
