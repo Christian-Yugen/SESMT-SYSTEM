@@ -13,7 +13,24 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storageKey: "sesmt-auth-session",
   },
   global: {
-    fetch: (url, options) => fetch(url, { ...options, cache: "no-store" }),
+    fetch: async (url, options) => {
+      try {
+        return await fetch(url, { ...options, cache: "no-store" });
+      } catch (err: any) {
+        // Suprime erros de rede durante auto-refresh de token (ex: offline, token expirado)
+        // para evitar TypeError: Failed to fetch no console.
+        const isAuthUrl = typeof url === "string" && url.includes("/auth/v1/token");
+        if (isAuthUrl) {
+          console.warn("[sesmt-auth] Falha de rede durante renovação de token. Sessão pode ter expirado.");
+          // Retorna uma resposta vazia mas valida para o Supabase processar
+          return new Response(JSON.stringify({ error: "network_error", error_description: "Failed to fetch" }), {
+            status: 0,
+            headers: { "content-type": "application/json" },
+          });
+        }
+        throw err;
+      }
+    },
   },
 });
 

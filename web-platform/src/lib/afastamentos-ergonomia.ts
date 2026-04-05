@@ -4,11 +4,11 @@ const EMPTY_DIMENSION = "NAO_INFORMADO";
 const SCORE_MAX = 100;
 const MUSCULOSKELETAL_PREFIXES = ["M"];
 const SCORE_COMPONENTS = {
-  exposure: 30,
-  assessment: 25,
-  actionBacklog: 20,
-  musculoskeletalShare: 15,
-  lostDays: 10,
+  exposure: 20,
+  assessment: 10,
+  actionBacklog: 10,
+  musculoskeletalShare: 10,
+  lostDays: 50,
 } as const;
 
 export interface ErgonomicFactorRow {
@@ -302,6 +302,10 @@ function isMusculoskeletalCid(cidCode: string | null, chapter: string | null): b
   if (!cidCode && !chapter) return false;
   const code = (cidCode || "").toUpperCase();
   const chap = (chapter || "").toUpperCase();
+  
+  // Exclusao explicita de CID F e Z no contexto de ergonomia pura
+  if (code.startsWith("F") || code.startsWith("Z")) return false;
+
   return (
     MUSCULOSKELETAL_PREFIXES.some((prefix) => code.startsWith(prefix)) ||
     chap.includes("XIII") ||
@@ -663,7 +667,9 @@ export function integrateErgonomicRiskProfile(
       current.musc += 1;
       current.lostDays += event.dias_afastado || 0;
       eventCids.forEach(cid => {
-        if (cid.cid_codigo) current.cids.add(cid.cid_codigo);
+        if (cid.cid_codigo && isMusculoskeletalCid(cid.cid_codigo, cid.cid_capitulo)) {
+          current.cids.add(cid.cid_codigo);
+        }
       });
       current.servers.add(event.servidor_id);
       impactedServersGlobal.add(event.servidor_id);
@@ -677,6 +683,19 @@ export function integrateErgonomicRiskProfile(
     ...actionsByGroup.keys(),
     ...musculoskeletalByGroup.keys(),
   ]);
+
+
+  // FRONTEIRA POR SECRETARIA (DEA): Cada secretaria tem seu proprio benchmark de risco
+  // O pior caso dentro de cada secretaria define 100% do score daquela secretaria.
+  const fronteiraPorSecretaria = new Map<string, { maxLostDays: number; maxServers: number }>();
+
+  Array.from(musculoskeletalByGroup.values()).forEach(acc => {
+    const sec = acc.secretaria;
+    const existing = fronteiraPorSecretaria.get(sec) || { maxLostDays: 0, maxServers: 0 };
+    if (acc.lostDays > existing.maxLostDays) existing.maxLostDays = acc.lostDays;
+    if (acc.servers.size > existing.maxServers) existing.maxServers = acc.servers.size;
+    fronteiraPorSecretaria.set(sec, existing);
+  });
 
   const signalsByAnalyticalGroup = Array.from(allGroupKeys)
     .map((groupKey) => {
@@ -753,6 +772,13 @@ export function integrateErgonomicRiskProfile(
               4,
             );
 
+      // EFICIENCIA RELATIVA POR SECRETARIA (DEA-STYLE)
+      // O pior caso DENTRO da mesma secretaria define o 100% de morbidade.
+      const secFronteira = fronteiraPorSecretaria.get(musculoskeletalContext.secretaria) ?? { maxLostDays: 1, maxServers: 1 };
+      const daysEfficiency = secFronteira.maxLostDays > 0 ? clamp(musculoskeletalContext.lostDays / secFronteira.maxLostDays, 0, 1) : 0;
+      const servantsEfficiency = secFronteira.maxServers > 0 ? clamp(musculoskeletalContext.servers.size / secFronteira.maxServers, 0, 1) : 0;
+      const morbidityRatio = (daysEfficiency * 0.7) + (servantsEfficiency * 0.3);
+
       const scoreBreakdown: ErgonomicScoreBreakdown = {
         exposurePoints: round(
           (averageExposureScore / SCORE_MAX) * SCORE_COMPONENTS.exposure,
@@ -771,8 +797,7 @@ export function integrateErgonomicRiskProfile(
           4,
         ),
         lostDaysPoints: round(
-          clamp(musculoskeletalContext.lostDays / 30, 0, 1) *
-            SCORE_COMPONENTS.lostDays,
+          morbidityRatio * SCORE_COMPONENTS.lostDays,
           4,
         ),
       };

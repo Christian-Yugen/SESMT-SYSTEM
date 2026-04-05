@@ -3,10 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const EMPTY_DIMENSION = "NAO_INFORMADO";
 const SCORE_MAX = 100;
 const SCORE_COMPONENTS = {
-  cidFShare: 30,
-  recurrence: 20,
-  trend: 15,
-  lostDays: 15,
+  cidFShare: 20,
+  recurrence: 5,
+  trend: 5,
+  absoluteImpact: 50,
   exposure: 20,
 } as const;
 const COMPATIBLE_CID_PREFIXES = ["F", "R45", "T74", "Z56", "Z73"];
@@ -666,23 +666,33 @@ function buildScoreBreakdown(params: {
   trendRatio: number;
   lostDays: number;
   averageExposureScore: number;
+  impactedServerCount: number;
+  maxLostDays: number;
+  maxImpactedServers: number;
 }): PsychosocialScoreBreakdown {
   const cidFSharePoints = round(
-    clamp(params.cidFShare / 0.6, 0, 1) * SCORE_COMPONENTS.cidFShare,
+    clamp(params.cidFShare / 1.0, 0, 1) * SCORE_COMPONENTS.cidFShare,
     4,
   );
   const recurrencePoints = round(
-    clamp(params.recurrenceRate / 0.6, 0, 1) * SCORE_COMPONENTS.recurrence,
+    clamp(params.recurrenceRate / 1.0, 0, 1) * SCORE_COMPONENTS.recurrence,
     4,
   );
   const trendPoints = round(
-    clamp(params.trendRatio / 1, 0, 1) * SCORE_COMPONENTS.trend,
+    clamp(params.trendRatio / 2.0, 0, 1) * SCORE_COMPONENTS.trend,
     4,
   );
-  const lostDaysPoints = round(
-    clamp(params.lostDays / 120, 0, 1) * SCORE_COMPONENTS.lostDays,
+  
+  // EFICIENCIA RELATIVA DO PROBLEMA (DEA-STYLE)
+  // O grupo com o maior numero de dias ou servidores tera 100% desses pontos.
+  const daysEfficiency = params.maxLostDays > 0 ? clamp(params.lostDays / params.maxLostDays, 0, 1) : 0;
+  const servantsEfficiency = params.maxImpactedServers > 0 ? clamp(params.impactedServerCount / params.maxImpactedServers, 0, 1) : 0;
+  
+  const absoluteImpactPoints = round(
+    ((daysEfficiency * 0.7) + (servantsEfficiency * 0.3)) * SCORE_COMPONENTS.absoluteImpact,
     4,
   );
+
   const exposurePoints = round(
     clamp(params.averageExposureScore / 100, 0, 1) * SCORE_COMPONENTS.exposure,
     4,
@@ -692,7 +702,7 @@ function buildScoreBreakdown(params: {
     cidFSharePoints,
     recurrencePoints,
     trendPoints,
-    lostDaysPoints,
+    lostDaysPoints: absoluteImpactPoints, // REAPROVEITANDO AO INTERFACE PARA EVITAR QUEBRA
     exposurePoints,
   };
 }
@@ -833,6 +843,19 @@ export function integrateRiskProfile(
     signalsByGroupAccumulator.set(analyticalGroup, current);
   });
 
+  // FRONTEIRA POR SECRETARIA (DEA): Cada secretaria tem seu proprio benchmark de risco
+  // O pior caso dentro de cada secretaria define 100% do score daquela secretaria.
+  const fronteiraPorSecretaria = new Map<string, { maxLostDays: number; maxImpactedServers: number }>();
+
+  Array.from(signalsByGroupAccumulator.values()).forEach(acc => {
+    const sec = acc.secretaria;
+    const existing = fronteiraPorSecretaria.get(sec) || { maxLostDays: 0, maxImpactedServers: 0 };
+    if (acc.lostDays > existing.maxLostDays) existing.maxLostDays = acc.lostDays;
+    const servCount = acc.serverEventCounts.size;
+    if (servCount > existing.maxImpactedServers) existing.maxImpactedServers = servCount;
+    fronteiraPorSecretaria.set(sec, existing);
+  });
+
   const signalsByAnalyticalGroup = Array.from(
     signalsByGroupAccumulator.entries(),
   )
@@ -855,12 +878,16 @@ export function integrateRiskProfile(
         4,
       );
       const trendRatio = buildTrendRatio(accumulator.monthlyCompatibleEvents);
+      
       const scoreBreakdown = buildScoreBreakdown({
         cidFShare,
         recurrenceRate,
         trendRatio,
         lostDays: accumulator.lostDays,
         averageExposureScore,
+        impactedServerCount: accumulator.serverEventCounts.size,
+        maxLostDays: fronteiraPorSecretaria.get(accumulator.secretaria)?.maxLostDays ?? 1,
+        maxImpactedServers: fronteiraPorSecretaria.get(accumulator.secretaria)?.maxImpactedServers ?? 1,
       });
       const score = round(
         scoreBreakdown.cidFSharePoints +
