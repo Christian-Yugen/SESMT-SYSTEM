@@ -319,7 +319,7 @@ export default function Sidebar({
                 <span>Criar documentos</span>
               </button>
 
-              {(userRole !== "viewer" || userRole === "doctor") && (
+              {userRole !== "viewer" && (
                 <button
                   onClick={() => {
                     handleCollapseAll();
@@ -335,7 +335,7 @@ export default function Sidebar({
           )}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
-          {(userRole !== "viewer" || pathname.includes("/afastamentos") || userRole === "analytic_manager" || userRole === "doctor") && (
+          {(userRole !== "viewer" || pathname.includes("/afastamentos") || userRole === "analytic_manager") && (
             <div className="space-y-1">
               <button
                 onClick={handleToggleBenefits}
