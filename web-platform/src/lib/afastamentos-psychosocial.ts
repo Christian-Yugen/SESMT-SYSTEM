@@ -70,6 +70,7 @@ export interface PsychosocialCidRow {
 
 export interface PsychosocialVinculoRow {
   vinculo_id: number;
+  servidor_id: number | null;
   unidade_orcamentaria: string | null;
   local_trabalho: string | null;
   secretaria: string | null;
@@ -218,6 +219,8 @@ export interface PsychosocialAnalysisOutput {
     grupoAnalitico: PsychosocialCutItem[];
   };
   validation: PsychosocialValidationOutput;
+  totalImpactedServers: number;
+  totalWorkforceBaseline: number;
 }
 
 export interface PsychosocialRepository {
@@ -726,6 +729,17 @@ export function integrateRiskProfile(
     }
   >();
 
+  const impactedServersGlobal = new Set<number>();
+  dataset.events.forEach(event => {
+    const hasCompatibleCid = dataset.cids.some(c => 
+      c.afastamento_id === event.afastamento_id && 
+      isCompatiblePsychosocialCid(c.cid_codigo, c.cid_capitulo)
+    );
+    if (hasCompatibleCid && event.servidor_id) {
+      impactedServersGlobal.add(event.servidor_id);
+    }
+  });
+
   assessments.forEach((assessment) => {
     const current = signalsByGroupAccumulator.get(
       assessment.analyticalGroup,
@@ -985,6 +999,8 @@ export function integrateRiskProfile(
       hasBlockingIssues: false,
       issues: [],
     },
+    totalImpactedServers: impactedServersGlobal.size,
+    totalWorkforceBaseline: new Set(dataset.vinculos.map(v => v.servidor_id)).size || dataset.vinculos.length,
   };
 
   analysis.validation = validatePsychosocialAnalysis(analysis);
@@ -1110,7 +1126,7 @@ export function createSupabasePsychosocialRepository(
           "cids"
         ),
         fetchAllPages<PsychosocialVinculoRow>(
-          (from, to) => client.schema("abs_intel").from("abs_dim_vinculo_servidor").select("vinculo_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo").range(from, to),
+          (from, to) => client.schema("abs_intel").from("abs_dim_vinculo_servidor").select("vinculo_id, servidor_id, unidade_orcamentaria, local_trabalho, secretaria, cargo, natureza_cargo").range(from, to),
           "vinculos"
         ),
         fetchAllPages<PsychosocialTempoRow>(

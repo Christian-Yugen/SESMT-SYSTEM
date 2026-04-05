@@ -24,6 +24,7 @@ import {
   CloudDownload,
   MessageSquarePlus,
   Brain,
+  Activity,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ensureISO } from "@/lib/utils";
@@ -284,6 +285,16 @@ export default function Sidebar({
                           >
                             <Brain className="w-3.5 h-3.5 shrink-0" />
                             <span>Psicossocial</span>
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              router.push("/afastamentos/ergonomia-analytics")
+                            }
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 transition-all text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/ergonomia-analytics") ? "bg-white/5 text-amber-300 font-bold border-l-2 border-amber-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                          >
+                            <Activity className="w-3.5 h-3.5 shrink-0" />
+                            <span>Ergonomia</span>
                           </button>
                         </>
                       )}
