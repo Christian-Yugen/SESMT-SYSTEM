@@ -513,7 +513,8 @@ export default function ErgonomicsAnalyticsPage() {
                                       }
 
                                       const c = sec.cargos[sig.cargo];
-                                      c.unidades.add(sig.localTrabalho);
+                                      // Adiciona local apenas se houve afastamento real (nao apenas avaliacao)
+                                      if (sig.musculoskeletalEvents > 0) c.unidades.add(sig.localTrabalho);
                                       sig.associatedCids?.forEach(cid => c.cids.add(cid));
                                       c.totalWeight += sig.musculoskeletalEvents;
                                       c.totalDays += sig.lostDays;

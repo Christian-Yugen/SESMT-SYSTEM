@@ -510,7 +510,8 @@ export default function PsychosocialAnalyticsPage() {
                                       }
 
                                       const c = sec.cargos[sig.cargo];
-                                      c.unidades.add(sig.localTrabalho);
+                                      // Adiciona local apenas se houve evento clinico real (nao apenas avaliacao psicossocial)
+                                      if (sig.cidCompatibleWeight > 0) c.unidades.add(sig.localTrabalho);
                                       sig.associatedCids?.forEach(cid => c.cids.add(cid));
                                       c.totalWeight += sig.cidCompatibleWeight;
                                       c.totalDays += sig.lostDays;
