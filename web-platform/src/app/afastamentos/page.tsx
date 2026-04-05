@@ -27,6 +27,7 @@ import {
   Save,
   FileText,
   Briefcase,
+  Info,
 } from "lucide-react";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
@@ -881,9 +882,17 @@ export default function AfastamentosPage() {
                   <div className="flex items-center gap-2">
                     <ClipboardList className="w-5 h-5 text-[#1A3351]" />
                     <div>
-                      <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">
-                        Afastamentos
-                      </h2>
+                      <div className="flex items-center gap-1.5">
+                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold leading-none uppercase tracking-tight text-[#1A3351]">
+                          Afastamentos
+                        </h2>
+                        <span
+                          title="Dados baseados em afastamentos registrados na plataforma (casos com auxílio-doença / afastamentos superiores a 15 dias)."
+                          className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
+                        >
+                          <Info className="w-3 h-3" />
+                        </span>
+                      </div>
                       <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em] mt-0.5 hidden sm:block">
                         SESMT • Saúde Ocupacional
                       </p>
