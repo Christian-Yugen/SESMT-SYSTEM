@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Standardized Header Refresh
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
@@ -12,7 +12,9 @@ import {
   Calendar,
   Clock,
   ExternalLink,
+  X,
 } from "lucide-react";
+import ActionIconButton from "@/components/filters/ActionIconButton";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
@@ -430,7 +432,8 @@ export default function EpidemiologiaPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState("Usuário");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  
   const defaultDatesRef = useRef(getDefaultDates());
   const [startDate, setStartDate] = useState(defaultDatesRef.current.startDate);
   const [endDate, setEndDate] = useState(defaultDatesRef.current.endDate);
@@ -626,7 +629,7 @@ export default function EpidemiologiaPage() {
                     Epidemiologia <span className="text-[#E31E24]">Geral</span>
                   </h1>
                   <span
-                    title="Leitura principal · indicadores padronizados por população · para aprofundamento clínico por CID, use CID Analytics"
+                    title="Dados baseados em afastamentos registrados na plataforma (casos com auxílio-doença / afastamentos superiores a 15 dias)."
                     className="text-black/30 hover:text-[#1A3351] transition-colors cursor-help shrink-0"
                   >
                     <Info className="w-3 h-3" />
@@ -645,40 +648,57 @@ export default function EpidemiologiaPage() {
             <div className="h-6 w-px bg-[#1A3351]/20 shrink-0 hidden md:block" />
 
             {/* Controles de data + botão Consultar */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full md:flex-1">
-              <div className="flex items-center gap-1 bg-white border border-slate-300 px-2 py-1 shadow-sm">
-                <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
-                <label
-                  htmlFor="epi-start-date"
-                  className="text-[9px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap"
-                >
-                  De
-                </label>
-                <input
-                  id="epi-start-date"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="text-[11px] font-medium text-[#1A3351] bg-transparent border-0 outline-none cursor-pointer w-32"
-                />
-              </div>
-
-              <div className="flex items-center gap-1 bg-white border border-slate-300 px-2 py-1 shadow-sm">
-                <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
-                <label
-                  htmlFor="epi-end-date"
-                  className="text-[9px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap"
-                >
-                  Até
-                </label>
-                <input
-                  id="epi-end-date"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="text-[11px] font-medium text-[#1A3351] bg-transparent border-0 outline-none cursor-pointer w-32"
-                />
-              </div>
+            <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2 w-full md:flex-1 relative">
+              <ActionIconButton
+                icon={<Calendar className="w-4 h-4" />}
+                label="Período"
+                variant="filter"
+                open={isDateFilterOpen}
+                onToggle={setIsDateFilterOpen}
+                active={Boolean(startDate || endDate)}
+              >
+                <div className="bg-white border border-slate-200 shadow-2x shadow-slate-300 w-72 p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="space-y-1.5">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Data Inicial</span>
+                    <input
+                      type="date"
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Data Final</span>
+                    <input
+                      type="date"
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        setStartDate("");
+                        setEndDate("");
+                        setIsDateFilterOpen(false);
+                      }}
+                      className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-[#E31E24] hover:bg-red-50 hover:border-red-100 transition-all"
+                    >
+                      Limpar
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDateFilterOpen(false);
+                        fetchContract(startDate, endDate);
+                      }}
+                      className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-md"
+                    >
+                      Consultar
+                    </button>
+                  </div>
+                </div>
+              </ActionIconButton>
 
               <button
                 onClick={() => fetchContract(startDate, endDate)}
