@@ -777,7 +777,7 @@ export function integrateErgonomicRiskProfile(
           4,
         ),
         lostDaysPoints: round(
-          clamp(musculoskeletalContext.lostDays / 30, 0, 1) *
+          clamp(musculoskeletalContext.lostDays / 365, 0, 1) *
             SCORE_COMPONENTS.lostDays,
           4,
         ),
