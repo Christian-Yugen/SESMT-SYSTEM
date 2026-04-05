@@ -335,7 +335,7 @@ export default function Sidebar({
           )}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
-          {(userRole !== "viewer" || pathname.includes("/afastamentos") || userRole === "analytic_manager") && (
+          {(userRole !== "viewer" || pathname.includes("/afastamentos")) && (
             <div className="space-y-1">
               <button
                 onClick={handleToggleBenefits}
@@ -414,9 +414,7 @@ export default function Sidebar({
                           )}
 
                           {/* ABONO SALARIAL (NÍVEL 2) - Bloqueio Médico para versão padrão */}
-                          {userRole !== "nurse" &&
-                            userRole !== "operator" &&
-                            userRole !== "doctor" && (
+                          {(userRole === "admin" || userRole === "analytic_manager") && (
                             <div className="space-y-1 mt-1">
                               <button
                                 onClick={handleToggleAbono}
@@ -497,10 +495,7 @@ export default function Sidebar({
 
 
                            {/* Lic. Maternidade - Admin/Nurse (Full), Analytic_Manager (View) and Doctor (View) */}
-                           {(userRole === "nurse" ||
-                             userRole === "admin" ||
-                             userRole === "analytic_manager" ||
-                             userRole === "doctor") && (
+                           {userRole !== "operator" && userRole !== "social_assistant" && userRole !== "viewer" && (
                              <button
                                onClick={() => {
                                  setIsAfastamentosOpen(false);
@@ -559,12 +554,7 @@ export default function Sidebar({
             </div>
           )}
 
-          {(userRole === "admin" ||
-            userRole === "nurse" ||
-            userRole === "social_assistant" ||
-            userRole === "analytic_manager" ||
-            userRole === "doctor" ||
-            pathname.includes("/afastamentos")) && (
+             {userRole !== "viewer" && (
             <div className="space-y-1">
                 <button
                   onClick={handleToggleHistory}
