@@ -110,7 +110,7 @@ export default function DeletionRequestsPage() {
             .select("role")
             .eq("id", session.user.id)
             .single();
-          if (!data || data.role !== "admin") {
+          if (!data || (data.role !== "admin" && data.role !== "analytic_manager")) {
             router.push("/");
             return;
           }
@@ -475,7 +475,7 @@ export default function DeletionRequestsPage() {
                   />
                 )}
 
-                {approvedCount > 0 && (
+                {approvedCount > 0 && userRole !== "analytic_manager" && (
                   <ActionIconButton
                     className="hidden md:block"
                     icon={<HistoryIcon className="w-4 h-4" />}
@@ -658,7 +658,7 @@ export default function DeletionRequestsPage() {
                             </div>
                           </div>
 
-                          {request.status === "pending" && (
+                          {request.status === "pending" && userRole !== "analytic_manager" && (
                             <div className="flex gap-3 mt-4">
                               <button
                                 onClick={() => handleApproveRequest(request)}

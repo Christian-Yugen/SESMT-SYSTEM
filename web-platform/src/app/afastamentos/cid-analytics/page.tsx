@@ -487,7 +487,12 @@ function CidAnalyticsPage() {
 
         if (profile) {
           setUserRole(profile.role);
-          if (profile.role !== "admin" && profile.role !== "nurse") {
+          if (
+            profile.role !== "admin" &&
+            profile.role !== "nurse" &&
+            profile.role !== "analytic_manager" &&
+            profile.role !== "doctor"
+          ) {
             router.push("/");
             return;
           }
@@ -1489,7 +1494,7 @@ function CidAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden">
       <div className="print:hidden">
         <Sidebar
           userRole={userRole}
@@ -1499,7 +1504,7 @@ function CidAnalyticsPage() {
         />
       </div>
 
-      <main className="flex-1 min-w-0 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
+      <main className="flex-1 min-w-0 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
         <section className="bg-[#B0B0B0] px-2.5 sm:px-4 lg:px-6 py-3 border-b-[6px] border-[#10b981] shrink-0 shadow-lg print:hidden">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:flex-nowrap md:gap-3">
             <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 shrink-0">

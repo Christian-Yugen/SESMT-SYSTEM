@@ -83,7 +83,7 @@ export default function UsersPage() {
             .select("role")
             .eq("id", session.user.id)
             .single();
-          if (!prof || prof.role !== "admin") {
+          if (!prof || (prof.role !== "admin" && prof.role !== "analytic_manager")) {
             router.push("/");
             return;
           }
@@ -306,12 +306,14 @@ export default function UsersPage() {
                   showAsoTypeFilter={false}
                   activeFilterCount={headerActiveFilterCount}
                   extraActions={
-                    <ActionIconButton
-                      icon={<UserPlus className="w-4 h-4" />}
-                      label="Novo operador"
-                      variant="danger"
-                      onClick={() => setIsInviteModalOpen(true)}
-                    />
+                    userRole !== "analytic_manager" && (
+                      <ActionIconButton
+                        icon={<UserPlus className="w-4 h-4" />}
+                        label="Novo operador"
+                        variant="danger"
+                        onClick={() => setIsInviteModalOpen(true)}
+                      />
+                    )
                   }
                 />
               </div>
@@ -385,6 +387,7 @@ export default function UsersPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <select
+                              disabled={userRole === "analytic_manager"}
                               value={user.role || "operator"}
                               onChange={(e) =>
                                 handleUpdateRole(user.id, e.target.value)
@@ -404,12 +407,13 @@ export default function UsersPage() {
                                                                     : user.role ===
                                                                         "analytic_manager"
                                                                       ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                                                                      : user.role ===
-                                                                          "operator"
-                                                                        ? "bg-blue-50 text-blue-600 border border-blue-100"
-                                                                        : "bg-slate-50 text-slate-500 border border-slate-200"
+                                                                      : user.role === "doctor"
+                                                                        ? "bg-teal-50 text-teal-700 border border-teal-200"
+                                                                        : user.role === "operator"
+                                                                          ? "bg-blue-50 text-blue-600 border border-blue-100"
+                                                                          : "bg-slate-50 text-slate-500 border border-slate-200"
                                                             }
-                                                            outline-none cursor-pointer
+                                                            outline-none cursor-pointer disabled:cursor-default disabled:opacity-80
                                                         `}
                             >
                               <option value="admin">
@@ -427,6 +431,9 @@ export default function UsersPage() {
                               <option value="operator">
                                 OPERADOR (APENAS ENCAMINHAM.)
                               </option>
+                              <option value="doctor">
+                                MÉDICO (AUDITOR CLÍNICO)
+                              </option>
                               <option value="viewer">
                                 VISUALIZADOR (CONSULTA)
                               </option>
@@ -439,21 +446,23 @@ export default function UsersPage() {
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              className="p-2 text-slate-400 hover:text-[#1A3351] transition-colors"
-                              title="Editar Perfil"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProfile(user.id)}
-                              className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                              title="Revogar Acesso"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                            {userRole !== "analytic_manager" && (
+                              <div className="flex items-center justify-center gap-2">
+                                <button
+                                  className="p-2 text-slate-400 hover:text-[#1A3351] transition-colors"
+                                  title="Editar Perfil"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProfile(user.id)}
+                                  className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                  title="Revogar Acesso"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
                         </td>
                       </tr>
                     ))}
@@ -465,33 +474,36 @@ export default function UsersPage() {
               <div className="lg:hidden divide-y divide-slate-200">
                 {filteredProfiles.map((user) => (
                   <div key={user.id} className="p-4 flex flex-col gap-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-100 rounded-none flex items-center justify-center shrink-0 border border-slate-200">
-                          <UserRound className="w-5 h-5 text-slate-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-[#1A3351] uppercase leading-tight mb-1">
-                            {user.full_name || user.email.split("@")[0]}
-                          </p>
-                          <p className="text-[10px] font-medium text-slate-400 truncate max-w-[180px]">
-                            {user.email}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteProfile(user.id)}
-                        className="p-2 text-red-500/80 hover:text-red-500 transition-colors bg-red-50 rounded-none border border-red-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                     <div className="flex items-start justify-between">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-slate-100 rounded-none flex items-center justify-center shrink-0 border border-slate-200">
+                           <UserRound className="w-5 h-5 text-slate-400" />
+                         </div>
+                         <div>
+                           <p className="text-sm font-bold text-[#1A3351] uppercase leading-tight mb-1">
+                             {user.full_name || user.email.split("@")[0]}
+                           </p>
+                           <p className="text-[10px] font-medium text-slate-400 truncate max-w-[180px]">
+                             {user.email}
+                           </p>
+                         </div>
+                       </div>
+                       {userRole !== "analytic_manager" && (
+                         <button
+                           onClick={() => handleDeleteProfile(user.id)}
+                           className="p-2 text-red-500/80 hover:text-red-500 transition-colors bg-red-50 rounded-none border border-red-100"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </button>
+                       )}
+                     </div>
 
                     <div className="flex flex-col gap-2">
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-1">
                         Acesso:
                       </p>
                       <select
+                        disabled={userRole === "analytic_manager"}
                         value={user.role || "operator"}
                         onChange={(e) =>
                           handleUpdateRole(user.id, e.target.value)
@@ -509,12 +521,13 @@ export default function UsersPage() {
                                                         : user.role ===
                                                             "analytic_manager"
                                                           ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                                                          : user.role ===
-                                                              "operator"
-                                                            ? "bg-blue-50 text-blue-600 border border-blue-100"
-                                                            : "bg-slate-50 text-slate-500 border border-slate-200"
+                                                          : user.role === "doctor"
+                                                            ? "bg-teal-50 text-teal-700 border border-teal-200"
+                                                            : user.role === "operator"
+                                                              ? "bg-blue-50 text-blue-600 border border-blue-100"
+                                                              : "bg-slate-50 text-slate-500 border border-slate-200"
                                                 }
-                                                outline-none focus:ring-2 focus:ring-[#1A3351]/10
+                                                outline-none focus:ring-2 focus:ring-[#1A3351]/10 disabled:opacity-80
                                             `}
                       >
                         <option value="admin">ADMINISTRADOR</option>
@@ -522,6 +535,7 @@ export default function UsersPage() {
                         <option value="social_assistant">ASSIST. SOCIAL</option>
                         <option value="analytic_manager">GERENTE BI</option>
                         <option value="operator">OPERADOR</option>
+                        <option value="doctor">MÉDICO</option>
                         <option value="viewer">VISUALIZADOR</option>
                       </select>
                     </div>
@@ -612,6 +626,9 @@ export default function UsersPage() {
                           </option>
                           <option value="operator">
                             OPERADOR (APENAS ENCAMINHAM.)
+                          </option>
+                          <option value="doctor">
+                            MÉDICO (AUDITOR CLÍNICO)
                           </option>
                           <option value="viewer">
                             VISUALIZADOR (CONSULTA)

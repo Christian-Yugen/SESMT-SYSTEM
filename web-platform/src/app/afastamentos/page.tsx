@@ -379,7 +379,12 @@ export default function AfastamentosPage() {
             .single();
           if (data) {
             setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse") {
+            if (
+              data.role !== "admin" &&
+              data.role !== "nurse" &&
+              data.role !== "analytic_manager" &&
+              data.role !== "doctor"
+            ) {
               router.push("/");
               return;
             }
@@ -842,7 +847,7 @@ export default function AfastamentosPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden">
       <div className="print:hidden">
         <Sidebar
           userRole={userRole}
@@ -865,7 +870,7 @@ export default function AfastamentosPage() {
 
       <main
         onClick={() => setExpandedCpf(null)}
-        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
       >
         {/* HEADER */}
         {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}
@@ -1027,12 +1032,14 @@ export default function AfastamentosPage() {
                           variant="primary"
                           onClick={() => router.push("/afastamentos/analytics")}
                         />
-                        <ActionIconButton
-                          icon={<PlusCircle className="w-4 h-4" />}
-                          label="Novo afastamento"
-                          variant="success"
-                          onClick={() => router.push("/afastamentos/new")}
-                        />
+                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
+                          <ActionIconButton
+                            icon={<PlusCircle className="w-4 h-4" />}
+                            label="Novo afastamento"
+                            variant="success"
+                            onClick={() => router.push("/afastamentos/new")}
+                          />
+                        )}
                       </>
                     }
                   />
@@ -1421,49 +1428,62 @@ export default function AfastamentosPage() {
                                     >
                                       <Printer className="w-3 h-3" /> Portaria
                                     </button>
-                                    <button
-                                      onClick={() => openEditModal(record)}
-                                      className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                    >
-                                      <Pencil className="w-3 h-3" /> Editar
-                                    </button>
-                                    <button
-                                      onClick={() => openNotesModal(record)}
-                                      className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                    >
-                                      <ClipboardList className="w-3 h-3" />{" "}
-                                      Anotações
-                                    </button>
-                                    {record.situacao === "EM_ANDAMENTO" && (
+                                    {userRole === "doctor" && (
+                                      <button
+                                        onClick={() => openNotesModal(record)}
+                                        className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                      >
+                                        <ClipboardList className="w-3 h-3" />{" "}
+                                        Anotações
+                                      </button>
+                                    )}
+                                    {userRole !== "analytic_manager" && userRole !== "doctor" && (
                                       <>
                                         <button
-                                          onClick={() =>
-                                            router.push(
-                                              `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
-                                            )
-                                          }
-                                          className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                          onClick={() => openEditModal(record)}
+                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
                                         >
-                                          <RotateCcw className="w-3 h-3" />{" "}
-                                          PRORROGAR
+                                          <Pencil className="w-3 h-3" /> Editar
                                         </button>
-                                        {!record.tipo_afastamento
-                                          ?.toUpperCase()
-                                          .includes("MATERNIDADE") && (
-                                          <button
-                                            onClick={() =>
-                                              handleAltaMedica(record)
-                                            }
-                                            disabled={updatingId === record.id}
-                                            className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
-                                          >
-                                            {updatingId === record.id ? (
-                                              <Loader2 className="w-3 h-3 animate-spin" />
-                                            ) : (
-                                              <CheckCircle2 className="w-3 h-3" />
+                                        <button
+                                          onClick={() => openNotesModal(record)}
+                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                        >
+                                          <ClipboardList className="w-3 h-3" />{" "}
+                                          Anotações
+                                        </button>
+                                        {record.situacao === "EM_ANDAMENTO" && (
+                                          <>
+                                            <button
+                                              onClick={() =>
+                                                router.push(
+                                                  `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
+                                                )
+                                              }
+                                              className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                            >
+                                              <RotateCcw className="w-3 h-3" />{" "}
+                                              PRORROGAR
+                                            </button>
+                                            {!record.tipo_afastamento
+                                              ?.toUpperCase()
+                                              .includes("MATERNIDADE") && (
+                                              <button
+                                                onClick={() =>
+                                                  handleAltaMedica(record)
+                                                }
+                                                disabled={updatingId === record.id}
+                                                className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
+                                              >
+                                                {updatingId === record.id ? (
+                                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                                ) : (
+                                                  <CheckCircle2 className="w-3 h-3" />
+                                                )}
+                                                DAR ALTA
+                                              </button>
                                             )}
-                                            DAR ALTA
-                                          </button>
+                                          </>
                                         )}
                                       </>
                                     )}

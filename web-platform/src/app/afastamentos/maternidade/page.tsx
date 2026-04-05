@@ -368,7 +368,12 @@ export default function MaternidadeAfastamentosPage() {
             .single();
           if (data) {
             setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse") {
+            if (
+              data.role !== "admin" &&
+              data.role !== "nurse" &&
+              data.role !== "analytic_manager" &&
+              data.role !== "doctor"
+            ) {
               router.push("/");
               return;
             }
@@ -977,14 +982,16 @@ export default function MaternidadeAfastamentosPage() {
                             </div>
                           </div>
                         </ActionIconButton>
-                        <ActionIconButton
-                          icon={<PlusCircle className="w-4 h-4" />}
-                          label="Nova licença maternidade"
-                          variant="success"
-                          onClick={() =>
-                            router.push("/afastamentos/new?tipo=maternidade")
-                          }
-                        />
+                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
+                          <ActionIconButton
+                            icon={<PlusCircle className="w-4 h-4" />}
+                            label="Nova licença maternidade"
+                            variant="success"
+                            onClick={() =>
+                              router.push("/afastamentos/new?tipo=maternidade")
+                            }
+                          />
+                        )}
                       </>
                     }
                   />
@@ -1359,31 +1366,44 @@ export default function MaternidadeAfastamentosPage() {
                                     >
                                       <Printer className="w-3 h-3" /> Portaria
                                     </button>
-                                    <button
-                                      onClick={() => openEditModal(record)}
-                                      className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                    >
-                                      <Pencil className="w-3 h-3" /> Editar
-                                    </button>
-                                    <button
-                                      onClick={() => openNotesModal(record)}
-                                      className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                    >
-                                      <ClipboardList className="w-3 h-3" />{" "}
-                                      Anotações
-                                    </button>
-                                    {record.situacao === "EM_ANDAMENTO" && (
+                                    {userRole === "doctor" && (
                                       <button
-                                        onClick={() =>
-                                          router.push(
-                                            `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}&tipo=maternidade`,
-                                          )
-                                        }
-                                        className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                        onClick={() => openNotesModal(record)}
+                                        className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
                                       >
-                                        <RotateCcw className="w-3 h-3" />{" "}
-                                        PRORROGAR
+                                        <ClipboardList className="w-3 h-3" />{" "}
+                                        Anotações
                                       </button>
+                                    )}
+                                    {userRole !== "analytic_manager" && userRole !== "doctor" && (
+                                      <>
+                                        <button
+                                          onClick={() => openEditModal(record)}
+                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                        >
+                                          <Pencil className="w-3 h-3" /> Editar
+                                        </button>
+                                        <button
+                                          onClick={() => openNotesModal(record)}
+                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                        >
+                                          <ClipboardList className="w-3 h-3" />{" "}
+                                          Anotações
+                                        </button>
+                                        {record.situacao === "EM_ANDAMENTO" && (
+                                          <button
+                                            onClick={() =>
+                                              router.push(
+                                                `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}&tipo=maternidade`,
+                                              )
+                                            }
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                          >
+                                            <RotateCcw className="w-3 h-3" />{" "}
+                                            PRORROGAR
+                                          </button>
+                                        )}
+                                      </>
                                     )}
                                     {/* Botão CID */}
                                     <button

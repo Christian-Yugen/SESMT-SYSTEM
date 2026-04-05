@@ -703,7 +703,7 @@ export default function AbonoPage() {
                             variant="primary"
                             onClick={() => router.push("/abono/analytics")}
                           />
-                          {userRole !== "analytic_manager" && (
+                          {userRole !== "analytic_manager" && userRole !== "doctor" && (
                             <ActionIconButton
                               icon={<PlusCircle className="w-4 h-4" />}
                               label="Novo lançamento"
@@ -1078,7 +1078,7 @@ export default function AbonoPage() {
                                         </div>
                                       </div>
                                       <div className="flex flex-col gap-2 items-end justify-center">
-                                        {userRole !== "analytic_manager" && (
+                                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
                                           <>
                                             <button
                                               onClick={() =>

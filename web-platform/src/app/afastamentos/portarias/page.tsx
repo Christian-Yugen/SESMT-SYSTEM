@@ -54,7 +54,7 @@ export default function AfastamentoPortariasPage() {
             .single();
           if (data) {
             setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse") {
+            if (data.role !== "admin" && data.role !== "nurse" && data.role !== "analytic_manager") {
               router.push("/");
               return;
             }
@@ -183,12 +183,14 @@ export default function AfastamentoPortariasPage() {
                 Portarias de Afastamento
               </h2>
             </div>
-            <button
-              onClick={() => router.push("/afastamentos/new")}
-              className="bg-emerald-600 text-white px-6 py-2 rounded-none font-bold text-[10px] uppercase shadow-md w-full sm:w-auto"
-            >
-              Nova Portaria
-            </button>
+            {userRole !== "analytic_manager" && (
+              <button
+                onClick={() => router.push("/afastamentos/new")}
+                className="bg-emerald-600 text-white px-6 py-2 rounded-none font-bold text-[10px] uppercase shadow-md w-full sm:w-auto"
+              >
+                Nova Portaria
+              </button>
+            )}
           </div>
 
           <div className="relative">

@@ -143,7 +143,10 @@ export default function ArchivePage() {
             if (data.role === "social_assistant") {
               router.push("/abono");
               return;
-            } else if (data.role === "operator" || data.role === "viewer") {
+            } else if (
+              (data.role === "operator" || data.role === "viewer") &&
+              data.role !== "analytic_manager"
+            ) {
               router.push("/");
               return;
             }
@@ -587,28 +590,32 @@ export default function ArchivePage() {
                   )}
 
                   <div className="mt-4 pt-4 border-t border-slate-200 flex gap-2">
-                    {folder.status === "ARQUIVADO" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedFolder(folder);
-                          setShowWithdrawModal(true);
-                        }}
-                        className="flex-1 h-10 bg-[#1A3351] text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
-                      >
-                        Retirada
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedFolder(folder);
-                          setShowReturnModal(true);
-                        }}
-                        className="flex-1 h-10 bg-green-600 text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
-                      >
-                        Devolução
-                      </button>
+                    {userRole !== "analytic_manager" && (
+                      <>
+                        {folder.status === "ARQUIVADO" ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFolder(folder);
+                              setShowWithdrawModal(true);
+                            }}
+                            className="flex-1 h-10 bg-[#1A3351] text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
+                          >
+                            Retirada
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFolder(folder);
+                              setShowReturnModal(true);
+                            }}
+                            className="flex-1 h-10 bg-green-600 text-white text-[10px] lg:text-xs font-bold uppercase hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
+                          >
+                            Devolução
+                          </button>
+                        )}
+                      </>
                     )}
                     <button
                       onClick={(e) => {
@@ -616,9 +623,10 @@ export default function ArchivePage() {
                         handleSelectFolder(folder);
                         setShowHistoryModal(true);
                       }}
-                      className="w-12 h-10 bg-slate-600 text-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none"
+                      className={`${userRole === "analytic_manager" ? "w-full" : "w-12"} h-10 bg-slate-600 text-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all shadow-md rounded-none`}
                     >
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 mr-2" />
+                      {userRole === "analytic_manager" && "Ver Histórico"}
                     </button>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
+import { supabase } from "@/lib/supabase";
 import Sidebar from "@/components/layout/Sidebar";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
@@ -60,6 +61,8 @@ export default function ErgonomicsAnalyticsPage() {
   const [endDate, setEndDate] = useState(defaultDates.current.endDate);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
   const [expandedSecretarias, setExpandedSecretarias] = useState<Set<string>>(new Set());
 
@@ -131,13 +134,36 @@ export default function ErgonomicsAnalyticsPage() {
   const [showMethodology, setShowMethodology] = useState(false);
 
   useEffect(() => {
-    if (initializationRef.current) return;
-    initializationRef.current = true;
-    handleRefresh();
-  }, [handleRefresh]);
+    const checkAuthAndFetch = async () => {
+      const { session, error } = await safeGetSession();
+      if (error || !session) {
+        await handleAuthError(error || new Error("Sessão expirada"));
+        router.push("/login");
+        return;
+      }
+      
+      // Fetch role from profiles table (Standard)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+      
+      const metadata = session.user.user_metadata;
+      setUserName(metadata.fullName || metadata.name || session.user.email?.split("@")[0] || "Usuário");
+      setUserRole(profile?.role || metadata.role || "viewer");
+
+      if (!initializationRef.current) {
+        initializationRef.current = true;
+        fetchData(session.access_token, startDate, endDate);
+      }
+    };
+    
+    checkAuthAndFetch();
+  }, [router, startDate, endDate, fetchData]);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden relative">
+    <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden relative">
       {/* Metodologia Modal */}
       {showMethodology && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
@@ -234,8 +260,8 @@ export default function ErgonomicsAnalyticsPage() {
         <Sidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
-          userName="Gestor SESMT"
-          userRole="admin"
+          userName={userName}
+          userRole={userRole}
         />
         {isSidebarOpen && (
           <div
@@ -245,7 +271,7 @@ export default function ErgonomicsAnalyticsPage() {
         )}
       </div>
 
-      <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
+      <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
 
         {/* ----------------------------------------------------------------- */}
         {/* HEADER (PADRÃO IMAGEM 2)                                         */}
