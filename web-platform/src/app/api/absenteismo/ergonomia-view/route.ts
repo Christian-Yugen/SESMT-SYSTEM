@@ -178,7 +178,7 @@ export async function GET(request: Request) {
     const result = integrateErgonomicRiskProfile(dataset, { startDate, endDate });
     console.info(`[ergo-view] analysis_concluded [${requestId}] signals=${result.signalsByAnalyticalGroup.length}`);
 
-    return jsonResponse(result, 200, requestId);
+    return jsonResponse({ ...result, _v: "2.0-cid-strict" }, 200, requestId);
   } catch (err: any) {
     const isAppError = err instanceof ErgonomicApplicationError;
     const dbErrorCode = err?.code || (err as any)?.originalError?.code;
