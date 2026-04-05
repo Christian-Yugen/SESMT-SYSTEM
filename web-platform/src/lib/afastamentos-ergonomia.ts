@@ -1016,7 +1016,7 @@ export function validateErgonomicAnalysis(
 }
 
 export async function fetchAllPages<T>(
-  queryFn: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>,
+  queryFn: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>,
   sourceName: string
 ): Promise<T[]> {
   const results: T[] = [];
