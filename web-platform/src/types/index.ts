@@ -34,6 +34,7 @@ export interface ExamesMap {
 export interface AbonoRecord {
   servidor_contrato?: string;
   servidor_matricula?: string;
+  servidor_cargo?: string;
   id: number;
   cpf: string;
   nome: string;

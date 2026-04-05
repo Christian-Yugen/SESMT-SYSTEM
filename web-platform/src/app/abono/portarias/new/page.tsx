@@ -143,6 +143,7 @@ export default function NewPortariaPage() {
       Sexo: s.sexo,
       "Local de Trabalho": s.local_trabalho,
       contrato: s.contrato,
+      natureza_cargo: s.natureza_cargo,
     });
     setFormData((prev) => ({
       ...prev,
@@ -380,21 +381,21 @@ export default function NewPortariaPage() {
                           <p className="text-sm font-bold text-[#1A3351] group-hover:text-[#E31E24] transition-colors uppercase">
                             {s.nome}
                           </p>
-                          <div className="flex gap-4 mt-1">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase">
                               CPF: {s.cpf}
                             </p>
-                            <p className="text-[10px] font-bold text-amber-600 uppercase">
-                              Matrícula: {s.matricula}
+                            <p className="text-[10px] font-bold text-[#1A3351]/60 uppercase">
+                              CARGO: {s.cargo}
                             </p>
-                            {s.contrato && (
-                              <p className="text-[10px] font-bold text-[#E31E24] uppercase">
-                                Contrato: {s.contrato}
+                            <p className="text-[10px] font-bold text-[#1A3351]/60 uppercase">
+                              MATRÍCULA: {s.matricula}
+                            </p>
+                            {s.natureza_cargo && (
+                              <p className="text-[10px] font-bold text-[#E31E24]/70 uppercase">
+                                NATUREZA: {s.natureza_cargo}
                               </p>
                             )}
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">
-                              Cargo: {s.cargo}
-                            </p>
                           </div>
                         </div>
                         <div className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-[#1A3351] group-hover:bg-[#E31E24] group-hover:text-white group-hover:border-[#E31E24] transition-all uppercase">
@@ -407,71 +408,63 @@ export default function NewPortariaPage() {
               )}
 
               {selectedServidor && (
-                <div className="mt-6 p-5 bg-white border-2 border-slate-200 rounded-none shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="flex items-center gap-4 pb-2 border-b border-slate-100">
-                    <div className="w-12 h-12 bg-[#1A3351] rounded-none flex items-center justify-center text-white shrink-0">
-                      <User className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Servidor Selecionado
-                      </p>
-                      <p className="text-xl font-bold uppercase text-[#1A3351]">
-                        {selectedServidor.Nome}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 pt-2 text-sm">
-                    <div className="flex items-center gap-2 md:col-span-2">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">
-                        Cargo:
-                      </p>
-                      <p className="font-bold uppercase text-[#1A3351]">
-                        {selectedServidor.Cargo}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 md:col-span-2">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">
-                        Secretaria:
-                      </p>
-                      <p className="font-bold uppercase text-[#1A3351]">
-                        {selectedServidor.Secretaria}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 md:col-span-2">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">
-                        Lotação:
-                      </p>
-                      <p className="font-bold uppercase text-[#1A3351]">
-                        {selectedServidor["Local de Trabalho"] || "---"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">
-                        Matrícula:
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold text-slate-700">
-                          {selectedServidor.Matrícula}
-                        </p>
-                        {selectedServidor.contrato && (
-                          <span className="bg-[#E31E24] text-white text-[9px] px-1.5 py-0.5 rounded-none font-bold uppercase">
-                            Contrato {selectedServidor.contrato}
-                          </span>
-                        )}
+                <div className="bg-slate-50 p-6 border-2 border-slate-200 shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex justify-between items-start">
+                    <div className="flex gap-6 items-center">
+                      <div className="p-4 bg-[#1A3351] text-white shadow-lg">
+                        <User className="w-8 h-8" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 flex-1">
+                        <div className="md:col-span-2 border-b border-slate-200 pb-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Servidor
+                          </p>
+                          <p className="text-2xl font-bold text-[#1A3351] uppercase leading-none">
+                            {selectedServidor.Nome}
+                          </p>
+                          <p className="text-xs font-bold text-slate-500 uppercase mt-1">
+                            CPF: {selectedServidor.CPF || selectedServidor["CPF."] || "---"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Matrícula / Vínculo
+                          </p>
+                          <p className="text-sm font-bold text-emerald-600 uppercase">
+                            MAT: {selectedServidor.Matrícula || "---"} • CONTRATO:{" "}
+                            {selectedServidor.contrato || "1"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Cargo / Natureza
+                          </p>
+                          <p className="text-xs font-bold text-slate-700 uppercase leading-relaxed">
+                            {selectedServidor.Cargo || "---"}{" "}
+                            {selectedServidor.natureza_cargo
+                              ? `(${selectedServidor.natureza_cargo})`
+                              : ""}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Secretaria
+                          </p>
+                          <p className="text-xs font-bold text-slate-700 uppercase truncate">
+                            {selectedServidor.Secretaria || "---"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase w-20 shrink-0">
-                        Sexo:
-                      </p>
-                      <p className="font-bold uppercase text-slate-700">
-                        {selectedServidor.Sexo === "F"
-                          ? "Feminino"
-                          : "Masculino"}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedServidor(null);
+                        setSearchQuery("");
+                      }}
+                      className="px-4 py-2 border-2 border-red-100 text-[#E31E24] hover:bg-[#E31E24] hover:text-white transition-all uppercase text-[10px] font-bold rounded-none"
+                    >
+                      Trocar Servidor
+                    </button>
                   </div>
                 </div>
               )}

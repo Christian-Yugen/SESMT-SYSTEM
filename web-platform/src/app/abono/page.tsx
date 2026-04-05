@@ -169,7 +169,7 @@ export default function AbonoPage() {
       );
       const { data: servData } = await supabase
         .from("servidores")
-        .select("cpf, matricula, contrato, secretaria, natureza_cargo")
+        .select("cpf, matricula, contrato, secretaria, natureza_cargo, cargo")
         .in("cpf", cpfs);
 
       if (servData) {
@@ -187,6 +187,8 @@ export default function AbonoPage() {
               srv?.matricula || r.servidor_matricula || undefined,
             servidor_contrato:
               srv?.contrato || r.servidor_contrato || undefined,
+            servidor_cargo:
+              srv?.cargo || r.servidor_cargo || undefined,
             secretaria: r.secretaria || srv?.secretaria || undefined,
             natureza_cargo:
               r.natureza_cargo || srv?.natureza_cargo || undefined,
@@ -840,33 +842,11 @@ export default function AbonoPage() {
                         }}
                         name={group.nome}
                         cpf={maskCpf(group.cpf)}
-                        cargo={
-                          typeof group.benefits[0].natureza_cargo === "string"
-                            ? group.benefits[0].natureza_cargo
-                            : undefined
-                        }
-                        matricula={
-                          typeof group.benefits[0].servidor_matricula ===
-                          "string"
-                            ? group.benefits[0].servidor_matricula
-                            : undefined
-                        }
-                        natureza={
-                          typeof group.benefits[0].natureza_cargo === "string"
-                            ? group.benefits[0].natureza_cargo
-                            : undefined
-                        }
-                        secretaria={
-                          typeof group.benefits[0].secretaria === "string"
-                            ? group.benefits[0].secretaria
-                            : undefined
-                        }
-                        contrato={
-                          typeof group.benefits[0].servidor_contrato ===
-                          "string"
-                            ? group.benefits[0].servidor_contrato
-                            : undefined
-                        }
+                        cargo={group.benefits[0].servidor_cargo}
+                        matricula={group.benefits[0].servidor_matricula}
+                        natureza={group.benefits[0].natureza_cargo}
+                        secretaria={group.benefits[0].secretaria}
+                        contrato={group.benefits[0].servidor_contrato}
                         badges={
                           <span className="text-[11px] font-normal px-1.5 py-0.5 bg-slate-200 text-slate-600 uppercase whitespace-nowrap">
                             {group.benefits.length}{" "}
@@ -1312,7 +1292,7 @@ export default function AbonoPage() {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-300">
                 <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Nome do Servidor
+                  Nome do Servidor / Natureza
                 </th>
                 <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
                   Portaria
@@ -1346,9 +1326,14 @@ export default function AbonoPage() {
                       className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"} border-b border-slate-100`}
                     >
                       <td className="p-0.5 px-2 border border-slate-100 font-medium">
-                        <p className="text-[9px] text-slate-600 uppercase leading-tight">
+                        <p className="text-[9px] text-slate-600 uppercase leading-tight font-bold">
                           {record.nome}
                         </p>
+                        {record.natureza_cargo && (
+                          <p className="text-[7.5px] text-slate-400 font-medium uppercase mt-0.5">
+                            {record.natureza_cargo}
+                          </p>
+                        )}
                       </td>
                       <td className="p-0.5 px-2 border border-slate-100 uppercase">
                         <div className="flex flex-col leading-tight">
