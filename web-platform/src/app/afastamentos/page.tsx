@@ -842,7 +842,7 @@ export default function AfastamentosPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden">
       <div className="print:hidden">
         <Sidebar
           userRole={userRole}
@@ -865,7 +865,7 @@ export default function AfastamentosPage() {
 
       <main
         onClick={() => setExpandedCpf(null)}
-        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative"
       >
         {/* HEADER */}
         {/* HEADER - Smart Dynamic Header com Colapso de Espaço */}

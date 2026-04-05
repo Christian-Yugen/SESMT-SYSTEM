@@ -598,7 +598,7 @@ export default function EpidemiologiaPage() {
   const { cards, summary, cuts, trend } = pageModel;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden">
       <div className="print:hidden">
         <Sidebar
           userRole={userRole}
@@ -614,7 +614,7 @@ export default function EpidemiologiaPage() {
         )}
       </div>
 
-      <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative">
+      <main className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-hidden relative">
         {/* ----------------------------------------------------------------- */}
         {/* HEADER                                                             */}
         {/* ----------------------------------------------------------------- */}
