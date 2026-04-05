@@ -663,7 +663,9 @@ export function integrateErgonomicRiskProfile(
       current.musc += 1;
       current.lostDays += event.dias_afastado || 0;
       eventCids.forEach(cid => {
-        if (cid.cid_codigo) current.cids.add(cid.cid_codigo);
+        if (cid.cid_codigo && isMusculoskeletalCid(cid.cid_codigo, cid.cid_capitulo)) {
+          current.cids.add(cid.cid_codigo);
+        }
       });
       current.servers.add(event.servidor_id);
       impactedServersGlobal.add(event.servidor_id);
