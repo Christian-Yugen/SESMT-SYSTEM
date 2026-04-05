@@ -684,13 +684,17 @@ export function integrateErgonomicRiskProfile(
     ...musculoskeletalByGroup.keys(),
   ]);
 
-  // FRONTEIRA LOCAL (DEA-inspired): Identifica os Benchmarks de Risco no Dataset Atual
-  let globalMaxLostDays = 0;
-  let globalMaxServers = 0;
-  
+
+  // FRONTEIRA POR SECRETARIA (DEA): Cada secretaria tem seu proprio benchmark de risco
+  // O pior caso dentro de cada secretaria define 100% do score daquela secretaria.
+  const fronteiraPorSecretaria = new Map<string, { maxLostDays: number; maxServers: number }>();
+
   Array.from(musculoskeletalByGroup.values()).forEach(acc => {
-    if (acc.lostDays > globalMaxLostDays) globalMaxLostDays = acc.lostDays;
-    if (acc.servers.size > globalMaxServers) globalMaxServers = acc.servers.size;
+    const sec = acc.secretaria;
+    const existing = fronteiraPorSecretaria.get(sec) || { maxLostDays: 0, maxServers: 0 };
+    if (acc.lostDays > existing.maxLostDays) existing.maxLostDays = acc.lostDays;
+    if (acc.servers.size > existing.maxServers) existing.maxServers = acc.servers.size;
+    fronteiraPorSecretaria.set(sec, existing);
   });
 
   const signalsByAnalyticalGroup = Array.from(allGroupKeys)
@@ -768,9 +772,11 @@ export function integrateErgonomicRiskProfile(
               4,
             );
 
-      // EFICIENCIA RELATIVA DO PROBLEMA (DEA-STYLE)
-      const daysEfficiency = globalMaxLostDays > 0 ? clamp(musculoskeletalContext.lostDays / globalMaxLostDays, 0, 1) : 0;
-      const servantsEfficiency = globalMaxServers > 0 ? clamp(musculoskeletalContext.servers.size / globalMaxServers, 0, 1) : 0;
+      // EFICIENCIA RELATIVA POR SECRETARIA (DEA-STYLE)
+      // O pior caso DENTRO da mesma secretaria define o 100% de morbidade.
+      const secFronteira = fronteiraPorSecretaria.get(musculoskeletalContext.secretaria) ?? { maxLostDays: 1, maxServers: 1 };
+      const daysEfficiency = secFronteira.maxLostDays > 0 ? clamp(musculoskeletalContext.lostDays / secFronteira.maxLostDays, 0, 1) : 0;
+      const servantsEfficiency = secFronteira.maxServers > 0 ? clamp(musculoskeletalContext.servers.size / secFronteira.maxServers, 0, 1) : 0;
       const morbidityRatio = (daysEfficiency * 0.7) + (servantsEfficiency * 0.3);
 
       const scoreBreakdown: ErgonomicScoreBreakdown = {

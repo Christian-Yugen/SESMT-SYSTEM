@@ -843,14 +843,17 @@ export function integrateRiskProfile(
     signalsByGroupAccumulator.set(analyticalGroup, current);
   });
 
-  // FRONTEIRA LOCAL (DEA-inspired): Identifica os Benchmarks de Risco no Dataset Atual
-  let globalMaxLostDays = 0;
-  let globalMaxImpactedServers = 0;
-  
+  // FRONTEIRA POR SECRETARIA (DEA): Cada secretaria tem seu proprio benchmark de risco
+  // O pior caso dentro de cada secretaria define 100% do score daquela secretaria.
+  const fronteiraPorSecretaria = new Map<string, { maxLostDays: number; maxImpactedServers: number }>();
+
   Array.from(signalsByGroupAccumulator.values()).forEach(acc => {
-    if (acc.lostDays > globalMaxLostDays) globalMaxLostDays = acc.lostDays;
+    const sec = acc.secretaria;
+    const existing = fronteiraPorSecretaria.get(sec) || { maxLostDays: 0, maxImpactedServers: 0 };
+    if (acc.lostDays > existing.maxLostDays) existing.maxLostDays = acc.lostDays;
     const servCount = acc.serverEventCounts.size;
-    if (servCount > globalMaxImpactedServers) globalMaxImpactedServers = servCount;
+    if (servCount > existing.maxImpactedServers) existing.maxImpactedServers = servCount;
+    fronteiraPorSecretaria.set(sec, existing);
   });
 
   const signalsByAnalyticalGroup = Array.from(
@@ -883,8 +886,8 @@ export function integrateRiskProfile(
         lostDays: accumulator.lostDays,
         averageExposureScore,
         impactedServerCount: accumulator.serverEventCounts.size,
-        maxLostDays: globalMaxLostDays,
-        maxImpactedServers: globalMaxImpactedServers,
+        maxLostDays: fronteiraPorSecretaria.get(accumulator.secretaria)?.maxLostDays ?? 1,
+        maxImpactedServers: fronteiraPorSecretaria.get(accumulator.secretaria)?.maxImpactedServers ?? 1,
       });
       const score = round(
         scoreBreakdown.cidFSharePoints +
