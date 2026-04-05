@@ -302,6 +302,10 @@ function isMusculoskeletalCid(cidCode: string | null, chapter: string | null): b
   if (!cidCode && !chapter) return false;
   const code = (cidCode || "").toUpperCase();
   const chap = (chapter || "").toUpperCase();
+  
+  // Exclusao explicita de CID F e Z no contexto de ergonomia pura
+  if (code.startsWith("F") || code.startsWith("Z")) return false;
+
   return (
     MUSCULOSKELETAL_PREFIXES.some((prefix) => code.startsWith(prefix)) ||
     chap.includes("XIII") ||
