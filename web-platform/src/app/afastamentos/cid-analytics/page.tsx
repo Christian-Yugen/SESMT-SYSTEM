@@ -487,7 +487,12 @@ function CidAnalyticsPage() {
 
         if (profile) {
           setUserRole(profile.role);
-          if (profile.role !== "admin" && profile.role !== "nurse") {
+          if (
+            profile.role !== "admin" &&
+            profile.role !== "nurse" &&
+            profile.role !== "analytic_manager" &&
+            profile.role !== "doctor"
+          ) {
             router.push("/");
             return;
           }

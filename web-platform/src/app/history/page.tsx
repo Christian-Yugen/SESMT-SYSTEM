@@ -1593,8 +1593,8 @@ export default function HistoryPage() {
                             </span>
                           </div>
                           <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
-                            {/* Botão de Edição ASO / Encaminhamento */}
                             {!entry.deletion_pending &&
+                              userRole !== "doctor" &&
                               (userRole === "admin" ||
                                 userRole === entry.creator_role) && (
                                 <button
@@ -1652,6 +1652,7 @@ export default function HistoryPage() {
                             </span>
                             {currentUserId === entry.generated_by &&
                               userRole !== "analytic_manager" &&
+                              userRole !== "doctor" &&
                               (entry.deletion_pending ? (
                                 <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white font-bold text-[9px] uppercase shadow-md cursor-not-allowed">
                                   <AlertCircle className="w-3.5 h-3.5 animate-pulse shrink-0" />

@@ -319,7 +319,7 @@ export default function Sidebar({
                 <span>Criar documentos</span>
               </button>
 
-              {userRole !== "viewer" && (
+              {(userRole !== "viewer" || userRole === "doctor") && (
                 <button
                   onClick={() => {
                     handleCollapseAll();
@@ -335,7 +335,7 @@ export default function Sidebar({
           )}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
-          {(userRole !== "viewer" || pathname.includes("/afastamentos")) && (
+          {(userRole !== "viewer" || pathname.includes("/afastamentos") || userRole === "analytic_manager" || userRole === "doctor") && (
             <div className="space-y-1">
               <button
                 onClick={handleToggleBenefits}
@@ -354,7 +354,7 @@ export default function Sidebar({
                 <div className="flex flex-col space-y-1 bg-black/10 p-1">
                   {userRole !== "social_assistant" && (
                     <>
-                      {(userRole === "admin" || userRole === "nurse") && (
+                      {(userRole === "admin" || userRole === "nurse" || userRole === "analytic_manager" || userRole === "doctor") && (
                         <div className="space-y-1">
                           <button
                             onClick={handleToggleAfastamentos}
@@ -413,8 +413,10 @@ export default function Sidebar({
                             </div>
                           )}
 
-                          {/* ABONO SALARIAL (NÍVEL 2) */}
-                          {userRole !== "nurse" && userRole !== "operator" && (
+                          {/* ABONO SALARIAL (NÍVEL 2) - Bloqueio Médico para versão padrão */}
+                          {userRole !== "nurse" &&
+                            userRole !== "operator" &&
+                            userRole !== "doctor" && (
                             <div className="space-y-1 mt-1">
                               <button
                                 onClick={handleToggleAbono}
@@ -428,7 +430,7 @@ export default function Sidebar({
                                   className={`w-3 h-3 transition-transform duration-200 ${isAbonoOpen ? "rotate-180" : ""}`}
                                 />
                               </button>
-
+                              {/* Centralizado para evitar duplicidade de submenus no código original */}
                               {isAbonoOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
                                   <button
@@ -457,38 +459,81 @@ export default function Sidebar({
                             </div>
                           )}
 
-                          {/* Lic. Maternidade continua dentro de Benefícios mas fora do submenu Afastamentos para clareza? 
-                              Ou também é um tipo de Afastamento? 
-                              O usuário disse que CID, Epidemio, Psicossocial e Ergonimia são "submenu do submenu Afastamentos". 
-                              Vou seguir o pedido literal. Maternidade fica no nível do Afastamentos. */}
-                            <button
-                              onClick={() => {
-                                setIsAfastamentosOpen(false);
-                                setIsAbonoOpen(false);
-                                router.push("/afastamentos/maternidade");
-                              }}
-                              className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-pink-500/20 text-pink-300 font-medium shadow-md border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
-                            >
-                                <Baby className="w-3 h-3 shrink-0" />
-                                <span>Lic. Maternidade</span>
-                            </button>
+                          {/* ABONO SALARIAL (MÉDICO - VIEW ONLY) */}
+                          {userRole === "doctor" && (
+                            <div className="space-y-1 mt-1">
+                              <button
+                                onClick={handleToggleAbono}
+                                className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left is-active-folder ${pathname.startsWith("/abono") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Wallet className="w-3.5 h-3.5 shrink-0 group-hover:text-emerald-400" />
+                                  <span>Abono Salarial</span>
+                                </div>
+                                <ChevronDown
+                                  className={`w-3 h-3 transition-transform duration-200 ${isAbonoOpen ? "rotate-180" : ""}`}
+                                />
+                              </button>
+                              {isAbonoOpen && (
+                                <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
+                                  <button
+                                    onClick={() => router.push("/abono")}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
+                                  >
+                                    <LayoutDashboard className="w-3 h-3 shrink-0" />
+                                    <span>Consulta de Abonos</span>
+                                  </button>
+                                  <button
+                                    onClick={() => router.push("/abono/lei")}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/lei" ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
+                                  >
+                                    <Scale className="w-3 h-3 shrink-0" />
+                                    <span>Legislação e Regras</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+
+                           {/* Lic. Maternidade - Admin/Nurse (Full), Analytic_Manager (View) and Doctor (View) */}
+                           {(userRole === "nurse" ||
+                             userRole === "admin" ||
+                             userRole === "analytic_manager" ||
+                             userRole === "doctor") && (
+                             <button
+                               onClick={() => {
+                                 setIsAfastamentosOpen(false);
+                                 setIsAbonoOpen(false);
+                                 router.push("/afastamentos/maternidade");
+                               }}
+                               className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-pink-500/20 text-pink-300 font-medium shadow-md border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                             >
+                               <Baby className="w-3 h-3 shrink-0" />
+                               <span>Lic. Maternidade</span>
+                             </button>
+                           )}
                         </div>
                       )}
 
-                      <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
-                        <FileSearch className="w-3.5 h-3.5 shrink-0" />
-                        <span>Readaptação</span>
-                      </button>
+                      {(userRole === "admin" ||
+                        userRole === "analytic_manager" ||
+                        userRole === "doctor") && (
+                        <div className="space-y-1">
+                          <button className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}>
+                            <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                            <span>Redução de Jornada</span>
+                          </button>
+                          <button className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}>
+                            <FileSearch className="w-3.5 h-3.5 shrink-0" />
+                            <span>Readaptação</span>
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
 
 
-                  {userRole !== "social_assistant" && (
-                    <button className="w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap cursor-not-allowed opacity-50">
-                      <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                      <span>Redução de Jornada</span>
-                    </button>
-                  )}
                 </div>
               )}
             </div>
@@ -514,7 +559,12 @@ export default function Sidebar({
             </div>
           )}
 
-          {(userRole === "admin" || userRole === "nurse" || userRole === "social_assistant" || pathname.includes("/afastamentos")) && (
+          {(userRole === "admin" ||
+            userRole === "nurse" ||
+            userRole === "social_assistant" ||
+            userRole === "analytic_manager" ||
+            userRole === "doctor" ||
+            pathname.includes("/afastamentos")) && (
             <div className="space-y-1">
                 <button
                   onClick={handleToggleHistory}
@@ -560,7 +610,7 @@ export default function Sidebar({
             </button>
           )}
 
-          {userRole === "admin" && (
+          {(userRole === "admin" || userRole === "analytic_manager") && (
             <div className="space-y-1">
               <button
                 onClick={handleToggleAdmin}
