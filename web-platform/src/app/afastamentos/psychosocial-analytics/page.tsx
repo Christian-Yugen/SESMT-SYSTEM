@@ -449,7 +449,7 @@ export default function PsychosocialAnalyticsPage() {
                                     <th className="px-4 py-1 text-right w-[80px]">Dias</th>
                                     <th className="px-4 py-1 text-center w-[140px] relative group overflow-visible">
                                       <div className="flex items-center justify-center gap-1.5 py-1">
-                                        Risco Social
+                                        Risco Psicossocial
                                         <button 
                                           title="Clique para ver o detalhamento do cálculo"
                                           onClick={() => setShowMethodology(true)}

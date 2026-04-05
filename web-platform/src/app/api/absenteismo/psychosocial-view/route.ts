@@ -252,7 +252,7 @@ export async function GET(request: Request) {
     console.info(`[psy-view] report_generated [${requestId}] signals=${result.signalsByAnalyticalGroup.length}`);
 
     // 5. Retorno dos dados
-    return jsonResponse(result, 200, requestId);
+    return jsonResponse({ ...result, _v: "2.0-psy-strict" }, 200, requestId);
   } catch (err: any) {
     const isApplicationError = err instanceof PsychosocialApplicationError;
     const message = isApplicationError

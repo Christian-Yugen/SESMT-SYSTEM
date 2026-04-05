@@ -680,7 +680,7 @@ function buildScoreBreakdown(params: {
     4,
   );
   const lostDaysPoints = round(
-    clamp(params.lostDays / 120, 0, 1) * SCORE_COMPONENTS.lostDays,
+    clamp(params.lostDays / 365, 0, 1) * SCORE_COMPONENTS.lostDays,
     4,
   );
   const exposurePoints = round(
