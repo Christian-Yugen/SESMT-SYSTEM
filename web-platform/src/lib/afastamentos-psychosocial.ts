@@ -668,19 +668,19 @@ function buildScoreBreakdown(params: {
   averageExposureScore: number;
 }): PsychosocialScoreBreakdown {
   const cidFSharePoints = round(
-    clamp(params.cidFShare / 0.6, 0, 1) * SCORE_COMPONENTS.cidFShare,
+    clamp(params.cidFShare / 1.0, 0, 1) * SCORE_COMPONENTS.cidFShare,
     4,
   );
   const recurrencePoints = round(
-    clamp(params.recurrenceRate / 0.6, 0, 1) * SCORE_COMPONENTS.recurrence,
+    clamp(params.recurrenceRate / 1.0, 0, 1) * SCORE_COMPONENTS.recurrence,
     4,
   );
   const trendPoints = round(
-    clamp(params.trendRatio / 1, 0, 1) * SCORE_COMPONENTS.trend,
+    clamp(params.trendRatio / 2.0, 0, 1) * SCORE_COMPONENTS.trend,
     4,
   );
   const lostDaysPoints = round(
-    clamp(params.lostDays / 365, 0, 1) * SCORE_COMPONENTS.lostDays,
+    clamp(params.lostDays / 1000, 0, 1) * SCORE_COMPONENTS.lostDays,
     4,
   );
   const exposurePoints = round(
