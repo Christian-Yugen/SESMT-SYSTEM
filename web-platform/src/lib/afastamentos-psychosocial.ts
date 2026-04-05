@@ -666,6 +666,7 @@ function buildScoreBreakdown(params: {
   trendRatio: number;
   lostDays: number;
   averageExposureScore: number;
+  impactedServerCount: number;
 }): PsychosocialScoreBreakdown {
   const cidFSharePoints = round(
     clamp(params.cidFShare / 1.0, 0, 1) * SCORE_COMPONENTS.cidFShare,
@@ -679,10 +680,17 @@ function buildScoreBreakdown(params: {
     clamp(params.trendRatio / 2.0, 0, 1) * SCORE_COMPONENTS.trend,
     4,
   );
+  
+  // Morbidade: Peso dividido entre dias totais (60%) e volume de pessoas (40%)
+  const daysFactor = clamp(params.lostDays / 1000, 0, 1);
+  const volumeFactor = clamp(params.impactedServerCount / 50, 0, 1);
+  const morbidityRatio = (daysFactor * 0.6) + (volumeFactor * 0.4);
+  
   const lostDaysPoints = round(
-    clamp(params.lostDays / 1000, 0, 1) * SCORE_COMPONENTS.lostDays,
+    morbidityRatio * SCORE_COMPONENTS.lostDays,
     4,
   );
+
   const exposurePoints = round(
     clamp(params.averageExposureScore / 100, 0, 1) * SCORE_COMPONENTS.exposure,
     4,
@@ -861,6 +869,7 @@ export function integrateRiskProfile(
         trendRatio,
         lostDays: accumulator.lostDays,
         averageExposureScore,
+        impactedServerCount: accumulator.serverEventCounts.size,
       });
       const score = round(
         scoreBreakdown.cidFSharePoints +
