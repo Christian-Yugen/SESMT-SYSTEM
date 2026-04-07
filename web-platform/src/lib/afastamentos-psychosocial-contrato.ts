@@ -460,6 +460,7 @@ function buildCutBlock(
       : round(Math.max(...scores), policy.rounding.scoreScale);
 
   const topFactors = topFactorsFromSignals(signals);
+
   const observations = [
     stableContext
       ? "Criticidade do recorte calculada apenas com sinais que possuem contexto psicossocial minimamente estavel."

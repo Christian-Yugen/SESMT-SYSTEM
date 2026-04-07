@@ -137,11 +137,6 @@ export default function Sidebar({
       setIsHistoryOpen(false);
       setIsAdminOpen(false);
     } else if (pathname.startsWith("/afastamentos")) {
-      setIsBenefitsOpen(true);
-      setIsAfastamentosOpen(true);
-      setIsAbonoOpen(false);
-      setIsHistoryOpen(false);
-      setIsAdminOpen(false);
     } else if (pathname.includes("/abono")) {
       setIsBenefitsOpen(true);
       setIsAbonoOpen(true);
@@ -410,6 +405,7 @@ export default function Sidebar({
                                 <Activity className="w-3 h-3 shrink-0" />
                                 <span>Ergonomia</span>
                               </button>
+
                             </div>
                           )}
 
