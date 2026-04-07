@@ -1738,55 +1738,6 @@ export default function MaternidadeAfastamentosPage() {
           </div>
         )}
 
-
-        <style jsx global>{`
-          @media print {
-            html,
-            body {
-              height: auto !important;
-              overflow: visible !important;
-              background: white !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-
-            #print-area {
-              display: block !important;
-              position: relative !important;
-              width: 100% !important;
-              min-height: 100% !important;
-              height: auto !important;
-              z-index: 99999 !important;
-              background: white !important;
-              padding: 0 !important;
-              margin: 0 !important;
-            }
-
-            #print-area table {
-              width: 100% !important;
-              border-collapse: collapse !important;
-              page-break-inside: auto !important;
-            }
-
-            #print-area tr {
-              page-break-inside: avoid !important;
-              page-break-after: auto !important;
-            }
-
-            #print-area thead {
-              display: table-header-group !important;
-            }
-
-            #print-area tfoot {
-              display: table-footer-group !important;
-            }
-
-            @page {
-              size: ${printLayout};
-              margin: 1.5cm 1cm 2cm 1cm;
-            }
-          }
-        `}</style>
       </main>
 
       {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - TOTALMENTE ISOLADA) */}
