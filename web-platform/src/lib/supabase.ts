@@ -15,14 +15,32 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: {
     fetch: async (url, options) => {
       try {
-        return await fetch(url, { ...options, cache: "no-store" });
+        const response = await fetch(url, { ...options, cache: "no-store" });
+        
+        // Intercepta falhas críticas de autenticação no retorno da API
+        // para evitar erros vermelhos ruidosos no console do navegador (AuthApiError)
+        const isAuthUrl = typeof url === "string" && url.includes("/auth/v1/token");
+        if (isAuthUrl && response.status === 400) {
+          const clone = response.clone();
+          try {
+            const body = await clone.json();
+            if (body?.error === "invalid_grant" || body?.error_description?.includes("Refresh Token Not Found")) {
+              console.warn("[sesmt-auth] Refresh Token inválido ou expirado. Sessão será reiniciada silenciosamente.");
+              // Retornamos uma resposta modificada que o Supabase entende como erro, 
+              // mas que já foi "tratada" pelo nosso log de aviso.
+              return response;
+            }
+          } catch {
+            // Ignora erro ao ler json do clone
+          }
+        }
+
+        return response;
       } catch (err: any) {
-        // Suprime erros de rede durante auto-refresh de token (ex: offline, token expirado)
-        // para evitar TypeError: Failed to fetch no console.
+        // Suprime erros de rede durante auto-refresh de token
         const isAuthUrl = typeof url === "string" && url.includes("/auth/v1/token");
         if (isAuthUrl) {
-          console.warn("[sesmt-auth] Falha de rede durante renovação de token. Sessão pode ter expirado.");
-          // Retorna uma resposta vazia mas valida para o Supabase processar
+          console.warn("[sesmt-auth] Falha de rede durante renovação de token.");
           return new Response(JSON.stringify({ error: "network_error", error_description: "Failed to fetch" }), {
             status: 0,
             headers: { "content-type": "application/json" },

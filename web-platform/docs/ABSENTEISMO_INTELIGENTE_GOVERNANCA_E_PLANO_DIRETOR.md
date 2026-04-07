@@ -225,8 +225,7 @@ src/lib/afastamentos-reporting.ts
 /afastamentos/epidemiologia      ← FASE 6
 /afastamentos/psychosocial-analytics  ← FASE 10
 /afastamentos/ergonomia-analytics     ← FASE 8
-/afastamentos/prevention-board        ← FASE 12 (dashboard unificado)
-/afastamentos/reports                 ← FASE 11 (executivo, técnico, médico)
+/afastamentos/reports                 ← FASE 11 (central unificada de relatórios e priorização)
 ```
 
 ---
@@ -372,9 +371,7 @@ FASE 2 (Schema)
         FASE 5-6 (Epidemiologia)
         ↓
         ├→ FASE 7-8 (Ergonomia) ┐
-        ├→ FASE 9-10 (Psicossocial) ├→ FASE 11 (Relatórios)
-        │                           ↓
-        └───────────────────────→ FASE 12 (Prevenção Unificada)
+        ├→ FASE 9-10 (Psicossocial) ├→ FASE 11 (Relatórios e Priorização)
 ```
 
 **Caminho crítico:** FASE 0 → 1 → 2 → 3 → 4 → 5-6 → 11 → 12.  

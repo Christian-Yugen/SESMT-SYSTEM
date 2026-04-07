@@ -8,6 +8,7 @@ import {
 } from "@/lib/afastamentos-ergonomia";
 
 export type ErgonomicConsumptionCutDimension =
+  | "secretaria"
   | "cargo"
   | "local_trabalho"
   | "posto"
@@ -119,6 +120,7 @@ export interface ErgonomicConsumptionContract {
   policy: ErgonomicConsumptionPolicy;
   overview: ErgonomicOverviewBlock;
   cuts: {
+    secretaria: ErgonomicContractCutBlock[];
     cargo: ErgonomicContractCutBlock[];
     localTrabalho: ErgonomicContractCutBlock[];
     posto: ErgonomicContractCutBlock[];
@@ -225,7 +227,10 @@ function filterActionableSignals(
   signals: ErgonomicAnalyticalSignal[],
 ): ErgonomicAnalyticalSignal[] {
   return signals.filter(
-    (signal) => signal.totalAssessments > 0 || signal.totalExposures > 0,
+    (signal) => 
+      signal.totalAssessments > 0 || 
+      signal.totalExposures > 0 || 
+      signal.score > 0,
   );
 }
 
@@ -480,6 +485,7 @@ function buildCutBlock(
       : round(Math.max(...scores), policy.rounding.scoreScale);
 
   const topFactors = topFactorsFromSignals(signals);
+
   const observacoes = [
     stableContext
       ? "Criticidade do recorte calculada com contexto ergonomico minimamente estavel (avaliacao e exposicao)."
@@ -576,6 +582,11 @@ export function buildErgonomicConsumptionContract(
     policy,
     overview: buildOverview(analysis, period, policy),
     cuts: {
+      secretaria: buildCutBlocks(
+        "secretaria",
+        groupSignals(signals, (signal) => [signal.secretaria]),
+        policy,
+      ),
       cargo: buildCutBlocks(
         "cargo",
         groupSignals(signals, (signal) => [signal.cargo]),

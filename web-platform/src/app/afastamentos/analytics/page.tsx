@@ -32,14 +32,19 @@ import {
   Calendar,
   Filter,
   ClipboardList,
-  TrendingUp,
   Printer,
+  FileText,
+  TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import { 
+  generateAbsenteeismDashboardReportPDF 
+} from "@/lib/afastamento-report-pdf";
 import {
   countActiveFilters,
   matchesUnifiedNameCpfSearch,
@@ -105,7 +110,7 @@ export default function AfastamentosAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
-  const [, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
 
   // Filtros
@@ -356,84 +361,12 @@ export default function AfastamentosAnalyticsPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#0A111C] text-white font-sans overflow-x-hidden">
       {/* SIDEBAR */}
-      <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#1A3351] border-r border-white/10 flex flex-col p-4 shrink-0 shadow-2xl transition-transform duration-300 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
-      >
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex justify-between items-center w-full lg:hidden mb-4">
-            <span className="text-white font-bold text-xs uppercase">Menu</span>
-            <button onClick={() => setIsSidebarOpen(false)}>
-              <X className="w-6 h-6 text-white" />
-            </button>
-          </div>
-          <Image
-            src="/images/logo_white.png"
-            alt="SESMT"
-            width={160}
-            height={56}
-            className="h-14 w-auto object-contain mt-2 mb-2"
-          />
-          <div className="text-center w-full px-1 mt-2">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">
-              SESMT SYSTEM
-            </p>
-            <p className="text-xs font-bold text-white/70 uppercase tracking-wider truncate">
-              Olá, <span className="text-white">{userName}</span>
-            </p>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          <button
-            onClick={() => router.push("/")}
-            className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-          >
-            <LayoutDashboard className="w-4 h-4 shrink-0" />
-            <span>Painel Geral</span>
-          </button>
-          <button
-            onClick={() => router.push("/afastamentos")}
-            className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-          >
-            <ClipboardList className="w-4 h-4 shrink-0" />
-            <span>Afastamentos</span>
-          </button>
-          <button className="w-full flex items-center gap-1.5 p-3 rounded-none bg-white/10 text-white font-bold text-xs uppercase tracking-wider shadow-sm border border-white/5">
-            <BarChart3 className="w-4 h-4 shrink-0" />
-            <span>Indicadores BI</span>
-          </button>
-          <button
-            onClick={() => router.push("/history")}
-            className="w-full flex items-center gap-1.5 p-3 rounded-none text-white/70 hover:bg-white/5 hover:text-white transition-all font-bold text-xs uppercase tracking-wider"
-          >
-            <HistoryIcon className="w-4 h-4 shrink-0" />
-            <span>Histórico ASO</span>
-          </button>
-        </nav>
-
-        <div className="mt-auto space-y-4 px-4">
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/login");
-            }}
-            className="w-full flex items-center gap-1.5 p-2 text-white/30 hover:text-white transition-all font-bold uppercase tracking-widest text-[10px]"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
-          <div className="pl-4 pb-6 flex flex-col border-t border-white/5 pt-4">
-            <p className="text-[10px] font-normal text-white/60 leading-none mb-1 text-left">
-              Powered by
-            </p>
-            <p className="text-[18px] font-bold text-white leading-none tracking-[0.1em] text-left">
-              UXBRAS
-              <span className="text-[12px] font-normal align-top ml-0.5 tracking-normal">
-                ®
-              </span>
-            </p>
-          </div>
-        </div>
-      </aside>
+      <Sidebar
+        userRole={userRole}
+        userName={userName}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
 
       {/* MAIN */}
       <main className="flex-1 flex flex-col bg-[#D3D3D3] text-black min-h-screen lg:h-screen lg:overflow-visible relative">
@@ -529,6 +462,22 @@ export default function AfastamentosAnalyticsPage() {
                       label="Imprimir vista analítica"
                       variant="primary"
                       onClick={handlePrintReport}
+                    />
+
+                    <ActionIconButton
+                      icon={<FileText className="w-4 h-4" />}
+                      label="Gerar relatório profissional (PDF)"
+                      variant="primary"
+                      onClick={() => {
+                        const reportFilters = {
+                          searchTerm: searchTerm,
+                          startDate: startDate,
+                          endDate: endDate,
+                          secretaria: filterSecretaria,
+                          natureza: filterNatureza
+                        };
+                        generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
+                      }}
                     />
                   </>
                 }

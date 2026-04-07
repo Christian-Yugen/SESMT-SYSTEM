@@ -44,7 +44,10 @@ import {
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
-import { generateServidorReportPDF } from "@/lib/afastamento-report-pdf";
+import { 
+  generateServidorReportPDF, 
+  generateAbsenteeismDashboardReportPDF 
+} from "@/lib/afastamento-report-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import { BarChart3 } from "lucide-react";
@@ -1022,6 +1025,25 @@ export default function AfastamentosPage() {
                                 {printLayout === "landscape" && (
                                   <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
                                 )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const reportFilters = {
+                                    searchTerm: filters.searchTerm,
+                                    startDate: filters.startDate,
+                                    endDate: filters.endDate,
+                                    secretaria: filters.filterSecretaria,
+                                    natureza: filters.filterAsoType
+                                  };
+                                  generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
+                                  setIsPrintPopoverOpen(false);
+                                }}
+                                className="w-full text-left p-3 rounded-none flex items-center gap-3 hover:bg-emerald-50 text-emerald-700 transition-colors border-t border-slate-100"
+                              >
+                                <FileText className="w-4 h-4" />
+                                <span className="text-[10px] font-bold uppercase">
+                                  📄 Gerar Relatório Profissional (PDF)
+                                </span>
                               </button>
                             </div>
                           </div>

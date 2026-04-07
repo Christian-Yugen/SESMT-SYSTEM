@@ -19,6 +19,7 @@ import {
   Search,
   TrendingUp,
   Users,
+  FileText,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
@@ -40,12 +41,15 @@ import CidPriorityRankingPanel from "@/components/analytics/cid/CidPriorityRanki
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { supabase } from "@/lib/supabase";
 import type { AfastamentoRecord } from "@/types";
-import {
-  buildCidAnalyticsDataset,
-  buildCidAnalyticsMetrics,
-  CID_ANALYTICS_DEFAULT_POLICY,
+import { 
+  buildCidAnalyticsDataset, 
+  buildCidAnalyticsMetrics, 
+  CID_ANALYTICS_DEFAULT_POLICY 
 } from "@/lib/afastamentos-cid-analytics";
 import { buildCidManagerialIntelligence } from "@/lib/afastamentos-cid-managerial";
+import { 
+  generateAbsenteeismDashboardReportPDF 
+} from "@/lib/afastamento-report-pdf";
 import { getCIDChapter, getCIDDetails, normalizeCID } from "@/lib/cid-utils";
 import { CID_ANALYTICS_PAGE_ARCHITECTURE } from "@/lib/afastamentos-cid-page-architecture";
 import { normalizeSearchTerm } from "@/components/filters/filtersUtils";
@@ -1757,6 +1761,26 @@ function CidAnalyticsPage() {
                         </div>
                       </div>
                     </ActionIconButton>
+
+                    <ActionIconButton
+                      icon={<FileText className="w-4 h-4" />}
+                      label="Gerar relatório profissional (PDF)"
+                      variant="primary"
+                      onClick={() => {
+                        const filteredIds = new Set(filtered.events.map(e => e.event.afastamentoId));
+                        const filteredAfastamentos = records.filter(r => filteredIds.has(r.id));
+                        
+                        const reportFilters = {
+                          searchTerm: searchTerm,
+                          startDate: startDate,
+                          endDate: endDate,
+                          secretaria: filterSecretaria,
+                          natureza: filterNatureza
+                        };
+                        
+                        generateAbsenteeismDashboardReportPDF(filteredAfastamentos, reportFilters);
+                      }}
+                    />
                   </>
                 }
               />

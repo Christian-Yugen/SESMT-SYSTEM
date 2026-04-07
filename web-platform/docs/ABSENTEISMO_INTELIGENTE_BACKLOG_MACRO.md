@@ -390,9 +390,9 @@ Incorporar avaliação psicossocial (LIPT-69, NR-1, PGR), priorizar CID F, vincu
 
 | Campo | Conteúdo |
 |-------|----------|
-| **Status Atual** | NÃO INICIADA |
-| **% Completo** | 0% |
-| **Data Estimada** | 22 de julho - 4 de agosto de 2026 |
+| **Status Atual** | EM EXECUÇÃO |
+| **% Completo** | 10% |
+| **Data Estimada** | 6 de abril de 2026 |
 | **Responsável** | Especialista em Relatórios + Comunicação SESMT |
 
 ### Objetivo
@@ -431,54 +431,26 @@ Gerar relatórios estruturados (executivo, técnico, médico) com linguagem apro
 
 ---
 
-## FASE 12 — PREVENÇÃO UNIFICADA E DASHBOARD DE PRIORIZAÇÃO
+## FASE 12 — [DESCONTINUADA COMO TELA / INTEGRADA À FASE 11]
 
 | Campo | Conteúdo |
 |-------|----------|
-| **Status Atual** | NÃO INICIADA |
-| **% Completo** | 0% |
-| **Data Estimada** | 5-18 de agosto de 2026 |
-| **Responsável** | Especialista em BI + Epidemiologista |
+| **Status Atual** | DESCONTINUADA |
+| **Decisão** | Produto/Arquitetura: Redundância com telas analíticas. |
+| **Observação** | O valor de integração de score SPI foi absorvido pela Central de Relatórios (FASE 11). |
 
-### Objetivo
-Consolidar todas as análises numa visão única de prevenção com recomendações prioritárias e rastreamento de ações.
+---
 
-### Entregáveis Esperados
-- [ ] Lib `src/lib/afastamentos-prevention-priority.ts` com:
-  - `unifyAllRisks()` — combina epidemiologia + ergonomia + psicossocial em score único
-  - `computePreventionROI()` — estima impacto de cada ação (dias evitáveis, custo-benefício)
-  - `generateExecutiveRecommendations()` — gera top 5 ações por impacto esperado
-  - `trackInterventionResults()` — monitora execução e efeito de ações
-- [ ] Dashboard `/afastamentos/prevention-board` com:
-  - Score unificado de risco por secretaria/cargo
-  - Ranking de recomendações por ROI
-  - Histórico de ações executadas e seu impacto (antes/depois)
-  - Roadmap de próximas ações
-- [ ] Documento de metodologia de priorização (como score é combinado?)
-- [ ] Documentação de rastreamento de ações (schema, workflow, responsáveis)
+---
 
-### Artefatos Esperados
-- 1 lib TS (prevention-priority)
-- 1 dashboard Next.js (`/afastamentos/prevention-board`)
-- Componentes de visualização (cards, gráficos)
-- Schema para `fact_prevention_action` (ação, status, expectativa de impacto, result real após 3+ meses)
+## FASE 12 — [FUSIONADA COM FASE 11]
 
-### Testes/Validações Esperados
-- [ ] Score unificado varia de 0-100 sem inconsistências
-- [ ] Ranking por ROI é razoável (ação com maior impacto está no topo)
-- [ ] Dashboard responsivo, carrega em <3s
-- [ ] Histórico de ações funciona: usuário consegue registrar ação, marcar "concluída", inserir resultados
-- [ ] Comparativo antes/depois: depois que ação X foi executada, indicador Y melhorou de W para Z?
+| Campo | Conteúdo |
+|-------|----------|
+| **Status Atual** | DESCONTINUADA |
+| **Ponto de Integração** | A lógica de ROI de Prevenção e Score SPI foi integrada à Central de Relatórios (FASE 11). |
 
-### Dependências
-- FASE 11 relatórios ✓
-- Todas as análises (5-6, 7-8, 9-10) OK
-
-### Observações Críticas
-- **METODOLOGIA:** Como combinar epidemiologia + ergonomia + psicossocial em 1 score? Documentar pesos e validação
-- **ROI:** Estimativa de impacto é difícil. Começar conservador (ex: "se 50% de afastamentos de CID M em cargo X diminuem, X dias são poupados")
-- **RASTREAMENTO:** Ações devem ter responsável, deadline, evidência de execução
-- **LEARNING:** Após 6+ meses, sistema aprende: "ações ergonômicas com score Y tiveram sucesso Z%"
+---
 
 ---
 
@@ -494,8 +466,8 @@ Consolidar todas as análises numa visão única de prevenção com recomendaç�
 | 5-6 | 1 | 1 | 1 | — | CONCLUÍDA |
 | 7-8 | 1 | 1 | 1 | 1 | PARCIAL (Epi OK) |
 | 9-10 | 1 | 1 | 1 | 1 | PARCIAL (Psy OK) |
-| 11 | — | 1 | 1 | — | NOT STARTED |
-| 12 | 1 | 1 | 1 | 1 | NOT STARTED |
+| 11 | — | 1 | 1 | — | EM EXECUÇÃO |
+| 12 | 1 | 1 | 1 | 1 | DESCONTINUADA |
 
 ---
 
