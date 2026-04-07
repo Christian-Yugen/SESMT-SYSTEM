@@ -559,14 +559,15 @@ export default function AbonoPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
-      {/* SIDEBAR */}
-      <Sidebar
-        userRole={userRole}
-        userName={userName}
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden print:bg-white">
+      <div className="print:hidden">
+        <Sidebar
+          userRole={userRole}
+          userName={userName}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
 
       {isSidebarOpen && (
         <div
@@ -751,7 +752,7 @@ export default function AbonoPage() {
           {/* CONTEÚDO */}
           <div
             onScroll={handleMainScroll}
-            className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8"
+            className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 print:hidden"
           >
             {/* STATS CARDS - DINÂMICOS E INTERATIVOS */}
             <StatisticCardRow columns={5} className="shrink-0">
@@ -1366,9 +1367,17 @@ export default function AbonoPage() {
             </tbody>
           </table>
 
-          {/* RODAPÉ DO PDF */}
-          <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
-            <p className="text-[7.5px] font-normal text-slate-500">
+          {/* RODAPÉ DO PDF COM LGPD */}
+          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto">
+            <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+            </p>
+            <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+              O uso destas informações é restrito à gestão estratégica do SESMT. 
+              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prevía.
+            </p>
+            <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
               Gerado via SESMT SYSTEM - Powered by UXBRAS®
             </p>
           </div>

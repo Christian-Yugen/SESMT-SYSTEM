@@ -409,6 +409,14 @@ export default function AbonoAnalyticsPage() {
                               .join("")}
                         </tbody>
                     </table>
+                    <div style="background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; text-align: center; max-width: 80%; margin-left: auto; margin-right: auto;">
+                        <span style="font-size: 8px; font-weight: 900; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block;">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
+                        <p style="font-size: 7.5px; color: #333; text-align: center; margin: 0; line-height: 1.4; font-weight: 500;">
+                            Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                            O uso destas informações é restrito à gestão estratégica do SESMT. 
+                            Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+                        </p>
+                    </div>
                     <div style="margin-top: 30px; font-size: 7.5px; text-align: center; color: #777; border-top: 1px solid #eee; padding-top: 10px; font-weight: normal;">
                         Gerado via SESMT SYSTEM - Powered by UXBRAS®
                     </div>

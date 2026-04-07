@@ -780,7 +780,7 @@ export default function MaternidadeAfastamentosPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-x-hidden print:bg-white">
       <div className="print:hidden">
         <Sidebar
           userRole={userRole}
@@ -802,11 +802,11 @@ export default function MaternidadeAfastamentosPage() {
 
       <main
         onClick={() => setExpandedCpf(null)}
-        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative"
+        className="flex-1 flex flex-col bg-[#D3D3D3] min-h-screen lg:h-screen lg:overflow-visible relative print:bg-white print:h-auto print:overflow-visible"
       >
         {/* HEADER */}
         <div
-          className={`grid transition-all duration-500 ease-in-out ${showHeader ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0 pointer-events-none"}`}
+          className={`grid transition-all duration-500 ease-in-out print:hidden ${showHeader ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0 pointer-events-none"}`}
         >
           <div className="overflow-visible">
             <section
@@ -946,25 +946,7 @@ export default function MaternidadeAfastamentosPage() {
                                   <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
                                 )}
                               </button>
-                              <button
-                                onClick={() => {
-                                  const reportFilters = {
-                                    searchTerm: filters.searchTerm,
-                                    startDate: filters.startDate,
-                                    endDate: filters.endDate,
-                                    secretaria: filters.filterSecretaria,
-                                    natureza: filters.filterAsoType
-                                  };
-                                  generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
-                                  setIsPrintPopoverOpen(false);
-                                }}
-                                className="w-full text-left p-3 rounded-none flex items-center gap-3 hover:bg-pink-50 text-pink-700 transition-colors border-t border-slate-100"
-                              >
-                                <FileText className="w-4 h-4" />
-                                <span className="text-[10px] font-bold uppercase">
-                                  📄 Gerar Relatório Profissional (PDF)
-                                </span>
-                              </button>
+
                             </div>
                           </div>
                         </ActionIconButton>
@@ -1018,10 +1000,10 @@ export default function MaternidadeAfastamentosPage() {
           </div>
         </div>
 
-        {/* CONTEÚDO */}
+        {/* CONTEÚDO PRINCIPAL (OCULTO NA IMPRESSÃO PARA EVITAR CONFLITO) */}
         <div
           onScroll={handleMainScroll}
-          className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 print:hidden"
+          className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-8 print:hidden"
         >
           {/* STATS CARDS */}
           <StatisticCardRow columns={5} className="shrink-0">
@@ -1756,134 +1738,6 @@ export default function MaternidadeAfastamentosPage() {
           </div>
         )}
 
-        {/* RELATÓRIO PDF */}
-        <div
-          id="print-area"
-          className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto"
-        >
-          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/logo.png"
-                alt="Logo"
-                width={160}
-                height={48}
-                className="h-12 w-auto object-contain"
-                priority
-              />
-              <div className="h-10 w-[1px] bg-slate-200 mx-1" />
-              <div className="flex flex-col">
-                <p className="text-[10px] font-bold text-slate-500 uppercase leading-none mb-0.5">
-                  Prefeitura Três Lagoas
-                </p>
-                <p className="text-[9px] font-medium text-slate-400 uppercase leading-none">
-                  SESMT - Saúde Ocupacional
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">
-                Relatório Gerencial de Licenças Maternidade
-              </h1>
-              <div className="text-[8px] font-bold text-slate-400 uppercase">
-                OP: {userName} | {new Date().toLocaleDateString("pt-BR")}{" "}
-                {new Date().toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-3.5 bg-[#E31E24]" />
-              <p className="text-[8px] font-bold uppercase text-[#1A3351]">
-                REGISTROS:{" "}
-                <span className="text-[#E31E24]">{filteredRecords.length}</span>
-              </p>
-            </div>
-            <p className="text-[7.5px] font-medium uppercase text-slate-400 truncate max-w-[60%] italic">
-              FILTROS: {printFiltersDesc}
-            </p>
-          </div>
-
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-300">
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Nome do Servidor
-                </th>
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Identificação
-                </th>
-                <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">
-                  Início
-                </th>
-                <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">
-                  Término
-                </th>
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Secretaria
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRecords
-                .sort((a, b) => a.servidor_nome.localeCompare(b.servidor_nome))
-                .map((record, index) => (
-                  <tr
-                    key={index}
-                    className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"} border-b border-slate-100`}
-                  >
-                    <td className="p-0.5 px-2 border border-slate-100 font-medium max-w-[200px]">
-                      <p className="text-[9px] font-bold text-slate-700 uppercase leading-tight truncate">
-                        {record.servidor_nome}
-                      </p>
-                      <p className="text-[7.5px] text-slate-400 font-medium mt-0.5 uppercase tracking-tighter truncate">
-                        {record.servidor_cargo ||
-                          record.natureza_cargo ||
-                          "---"}
-                      </p>
-                    </td>
-                    <td className="p-0.5 px-2 border border-slate-100 uppercase">
-                      <div className="flex flex-col leading-tight">
-                        <span className="text-[8px] text-slate-500 mb-0.5">
-                          <span className="font-bold text-slate-400">
-                            MATRI:
-                          </span>{" "}
-                          {record.servidor_matricula}
-                        </span>
-                        {record.servidor_contrato && (
-                          <span className="text-[8px] text-slate-500">
-                            <span className="font-bold text-slate-400">
-                              CONTRATO:
-                            </span>{" "}
-                            {record.servidor_contrato}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-0.5 text-[8px] font-bold text-[#1A3351] border border-slate-100 text-center whitespace-nowrap">
-                      {formatDate(record.data_inicio)}
-                    </td>
-                    <td className="p-0.5 text-[8px] font-bold text-[#E31E24] border border-slate-100 text-center whitespace-nowrap">
-                      {formatDate(record.data_fim)}
-                    </td>
-                    <td className="p-0.5 px-2 text-[8px] font-normal text-slate-400 border border-slate-100 uppercase leading-tight truncate max-w-[180px]">
-                      {record.servidor_secretaria || "---"}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-
-          <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
-            <p className="text-[7.5px] font-normal text-slate-500">
-              Gerado via SESMT SYSTEM - Powered by UXBRAS®
-            </p>
-          </div>
-        </div>
 
         <style jsx global>{`
           @media print {
@@ -1898,30 +1752,134 @@ export default function MaternidadeAfastamentosPage() {
 
             #print-area {
               display: block !important;
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
+              position: relative !important;
               width: 100% !important;
+              min-height: 100% !important;
+              height: auto !important;
               z-index: 99999 !important;
               background: white !important;
+              padding: 0 !important;
+              margin: 0 !important;
             }
 
             #print-area table {
               width: 100% !important;
               border-collapse: collapse !important;
+              page-break-inside: auto !important;
             }
 
             #print-area tr {
               page-break-inside: avoid !important;
+              page-break-after: auto !important;
+            }
+
+            #print-area thead {
+              display: table-header-group !important;
+            }
+
+            #print-area tfoot {
+              display: table-footer-group !important;
             }
 
             @page {
               size: ${printLayout};
-              margin: 0.5cm;
+              margin: 1.5cm 1cm 2cm 1cm;
             }
           }
         `}</style>
       </main>
+
+      {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - TOTALMENTE ISOLADA) */}
+      <div id="print-area" className="hidden print:block bg-white text-black p-0 m-0 w-full">
+        <div className="p-8">
+          <div className="flex justify-between items-center border-b-2 border-slate-300 pb-4 mb-6">
+            <div className="flex items-center gap-4">
+              <Image src="/images/logo.png" alt="Logo" width={180} height={50} className="h-14 w-auto object-contain" />
+              <div className="h-12 w-px bg-slate-300 mx-2" />
+              <div>
+                <p className="text-xs font-bold text-slate-800 uppercase leading-none mb-1">Prefeitura Três Lagoas</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">SESMT - Saúde Ocupacional</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <h1 className="text-xl font-black text-[#1A3351] uppercase tracking-tighter">Relatório Gerencial: Maternidade</h1>
+              <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">EMISSÃO: {new Date().toLocaleDateString("pt-BR")} | OP: {userName}</p>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-300 p-2 mb-6 flex justify-between items-center">
+            <p className="text-[10px] font-bold uppercase text-[#1A3351]">Filtros Aplicados: <span className="text-slate-600 font-medium">{printFiltersDesc}</span></p>
+            <p className="text-[10px] font-bold uppercase text-[#1A3351]">Total de Registros: <span className="text-[#E31E24]">{filteredRecords.length}</span></p>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-300">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Servidora</th>
+                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Identificação</th>
+                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-center">Início</th>
+                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-center">Término</th>
+                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Secretaria</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecords
+                .sort((a, b) => a.servidor_nome.localeCompare(b.servidor_nome))
+                .map((record, index) => (
+                  <tr key={index} className="border-b border-slate-200">
+                    <td className="border border-slate-300 p-2">
+                       <p className="text-[11px] font-bold text-black uppercase leading-tight">{record.servidor_nome}</p>
+                       <p className="text-[9px] text-slate-600 font-normal mt-0.5 uppercase">{record.servidor_cargo || "---"}</p>
+                    </td>
+                    <td className="border border-slate-300 p-2">
+                       <p className="text-[10px] text-slate-700 font-normal uppercase">MATRI: {record.servidor_matricula}</p>
+                       {record.servidor_contrato && <p className="text-[9px] text-slate-500 uppercase">CONTRATO: {record.servidor_contrato}</p>}
+                    </td>
+                    <td className="border border-slate-300 p-2 text-center text-[10px] text-[#1A3351]">{formatDate(record.data_inicio)}</td>
+                    <td className="border border-slate-300 p-2 text-center text-[10px] text-[#E31E24]">{formatDate(record.data_fim)}</td>
+                    <td className="border border-slate-300 p-2 text-[10px] text-slate-700 uppercase leading-tight">{record.servidor_secretaria || "---"}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+
+          <div className="mt-10 pt-6 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-10">
+            <p className="text-[11px] font-black text-slate-900 mb-2 uppercase tracking-tighter shadow-sm">
+               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+            </p>
+            <p className="text-[10px] text-slate-700 leading-relaxed mb-6 font-medium text-center">
+              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+              O uso destas informações é restrito à gestão estratégica do SESMT. 
+              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+            <div className="pt-4 border-t border-slate-200">
+              <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold uppercase">
+                Gerado via SESMT SYSTEM - Powered by UXBRAS®
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * { visibility: hidden !important; }
+              #print-area, #print-area * { visibility: visible !important; }
+              #print-area { 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 100% !important; 
+                display: block !important;
+                background: white !important;
+              }
+              @page { size: ${printLayout}; margin: 1cm; }
+            }
+          `,
+        }}
+      />
     </div>
   );
 }
