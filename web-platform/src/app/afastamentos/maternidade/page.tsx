@@ -43,7 +43,10 @@ import {
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
-import { generateServidorReportPDF } from "@/lib/afastamento-report-pdf";
+import { 
+  generateServidorReportPDF, 
+  generateAbsenteeismDashboardReportPDF 
+} from "@/lib/afastamento-report-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
 import type { AfastamentoRecord } from "@/types";
@@ -256,47 +259,11 @@ export default function MaternidadeAfastamentosPage() {
   }, [cidEditInput]);
 
   const runAutoRepair = useCallback(async (data: AfastamentoRecord[]) => {
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const toProrrogar = data.filter(
-        (r) => r.situacao === "EM_ANDAMENTO" && r.renovado_por_id !== null,
-      );
-
-      const toFinalize = data.filter((r) => {
-        if (r.situacao !== "EM_ANDAMENTO") return false;
-        if (!r.data_fim) return false;
-        const end = new Date(r.data_fim + "T00:00:00");
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 30);
-        return end < thirtyDaysAgo;
-      });
-
-      if (toProrrogar.length > 0) {
-        await supabase
-          .from("afastamentos")
-          .update({ situacao: "PRORROGADO" })
-          .in(
-            "id",
-            toProrrogar.map((r) => r.id),
-          );
-        toProrrogar.forEach((r) => (r.situacao = "PRORROGADO"));
-      }
-
-      if (toFinalize.length > 0) {
-        await supabase
-          .from("afastamentos")
-          .update({ situacao: "FINALIZADO" })
-          .in(
-            "id",
-            toFinalize.map((r) => r.id),
-          );
-        toFinalize.forEach((r) => (r.situacao = "FINALIZADO"));
-      }
-    } catch (err) {
-      console.error("Error in auto-repair:", err);
-    }
+    // A Licença Maternidade possui prazos longos e fixos (180 dias).
+    // Removemos a auto-finalização agressiva que existia no módulo geral 
+    // para evitar que erros de interpretação de data ou fusos horários 
+    // finalizem o afastamento precocemente antes da revisão humana.
+    return;
   }, []);
 
   const loadRecords = useCallback(async () => {
@@ -978,6 +945,25 @@ export default function MaternidadeAfastamentosPage() {
                                 {printLayout === "landscape" && (
                                   <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
                                 )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const reportFilters = {
+                                    searchTerm: filters.searchTerm,
+                                    startDate: filters.startDate,
+                                    endDate: filters.endDate,
+                                    secretaria: filters.filterSecretaria,
+                                    natureza: filters.filterAsoType
+                                  };
+                                  generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
+                                  setIsPrintPopoverOpen(false);
+                                }}
+                                className="w-full text-left p-3 rounded-none flex items-center gap-3 hover:bg-pink-50 text-pink-700 transition-colors border-t border-slate-100"
+                              >
+                                <FileText className="w-4 h-4" />
+                                <span className="text-[10px] font-bold uppercase">
+                                  📄 Gerar Relatório Profissional (PDF)
+                                </span>
                               </button>
                             </div>
                           </div>
