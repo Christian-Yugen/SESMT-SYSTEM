@@ -1907,7 +1907,7 @@ export default function AfastamentosPage() {
           </div>
         )}
           {/* RODAPÉ DO PDF COM LGPD */}
-          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto">
+          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto pb-10">
             <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
@@ -1920,46 +1920,44 @@ export default function AfastamentosPage() {
               Gerado via SESMT SYSTEM - Powered by UXBRAS®
             </p>
           </div>
-        </div>
 
-        <style jsx global>{`
-          @media print {
-            /* CASO O COMPONENTE ESTEJA ANINHADO, GARANTE QUE SÓ ELE SEJA VISÍVEL */
-            html,
-            body {
-              height: auto !important;
-              overflow: visible !important;
-              background: white !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-
-            #print-area {
-              display: block !important;
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
-              z-index: 99999 !important;
-              background: white !important;
-            }
-
-            #print-area table {
-              width: 100% !important;
-              border-collapse: collapse !important;
-            }
-
-            #print-area tr {
-              page-break-inside: avoid !important;
-            }
-
-            @page {
-              size: ${printLayout};
-              margin: 0.5cm;
-            }
-          }
-        `}</style>
-      </main>
-    </div>
-  );
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @media print {
+                html,
+                body {
+                  height: auto !important;
+                  overflow: visible !important;
+                  background: white !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                }
+                #print-area {
+                  display: block !important;
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  z-index: 99999 !important;
+                  background: white !important;
+                }
+                #print-area table {
+                  width: 100% !important;
+                  border-collapse: collapse !important;
+                }
+                #print-area tr {
+                  page-break-inside: avoid !important;
+                }
+                @page {
+                  size: ${printLayout};
+                  margin: 0.5cm;
+                }
+              }
+            `,
+          }}
+        />
+        </main>
+      </div>
+    );
 }

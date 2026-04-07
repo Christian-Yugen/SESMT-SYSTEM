@@ -1383,30 +1383,34 @@ export default function AbonoPage() {
           </div>
         </div>
 
-        <style jsx global>{`
-          @media print {
-            #print-area {
-              display: block !important;
-              position: relative !important;
-              z-index: 9999 !important;
-            }
-            #print-area table {
-              display: table !important;
-              width: 100% !important;
-            }
-            #print-area tr {
-              display: table-row !important;
-            }
-            #print-area td,
-            #print-area th {
-              display: table-cell !important;
-            }
-            @page {
-              size: ${printLayout};
-              margin: 0.5cm;
-            }
-          }
-        `}</style>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @media print {
+                #print-area {
+                  display: block !important;
+                  position: relative !important;
+                  z-index: 9999 !important;
+                }
+                #print-area table {
+                  display: table !important;
+                  width: 100% !important;
+                }
+                #print-area tr {
+                  display: table-row !important;
+                }
+                #print-area td,
+                #print-area th {
+                  display: table-cell !important;
+                }
+                @page {
+                  size: ${printLayout};
+                  margin: 0.5cm;
+                }
+              }
+            `,
+          }}
+        />
       </main>
     </div>
   );

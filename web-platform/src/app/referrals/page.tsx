@@ -828,11 +828,214 @@ export default function ReferralsPage() {
               </div>
             </div>
 
-            <div className="bg-[#B0B0B0] p-6 text-center border-2 border-slate-300 shadow-inner rounded-none">
-              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">
-                SESMT SYSTEM — Módulo de Digital Referrals — Powered by UXBRAS®
+            {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
+            <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+              <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+                🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
               </p>
+              <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+                Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                                        <div className="py-2 text-center text-slate-500 text-[10px] uppercase italic font-medium leading-relaxed">
+                                          {isDemissional
+                                            ? DEMISSIONAL_CLINICAL_ONLY_MESSAGE
+                                            : "Apenas clínicos registrados."}
+                                        </div>
+                                      );
+                                    }
+
+                                    return filteredExams.map(
+                                      (exam: ExamJsonItem, i: number) => (
+                                        <div
+                                          key={i}
+                                          className="flex items-center gap-2 text-[10px] lg:text-[11px] font-bold text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight"
+                                        >
+                                          <div className="w-1.5 h-1.5 bg-[#E31E24] rounded-none shrink-0" />
+                                          {typeof exam === "string"
+                                            ? exam
+                                            : exam.name}
+                                        </div>
+                                      ),
+                                    );
+                                  }
+
+                                  // Fallback para o formato legado em aso_type string
+                                  const match =
+                                    entry.aso_type.match(/\[(.*?)\]/);
+                                  if (match && match[1]) {
+                                    const exams = match[1]
+                                      .split(",")
+                                      .map((e) => e.trim())
+                                      .filter(
+                                        (e) => !isClinicalOccupationalExam(e),
+                                      );
+
+                                    if (exams.length === 0) {
+                                      return (
+                                        <div className="py-2 text-center text-slate-500 text-[10px] uppercase italic font-medium leading-relaxed">
+                                          {isDemissional
+                                            ? DEMISSIONAL_CLINICAL_ONLY_MESSAGE
+                                            : "Apenas clínicos registrados."}
+                                        </div>
+                                      );
+                                    }
+
+                                    return exams.map((exam, i) => (
+                                      <div
+                                        key={i}
+                                        className="flex items-center gap-2 text-[10px] lg:text-[11px] font-medium text-slate-700 uppercase border-b border-slate-50 pb-1 last:border-0 leading-tight"
+                                      >
+                                        <div className="w-1.5 h-1.5 bg-[#E31E24] shrink-0" />
+                                        {exam}
+                                      </div>
+                                    ));
+                                  }
+                                  return (
+                                    <p className="text-[10px] text-slate-400 uppercase italic text-center font-medium">
+                                      Consulte o PDF oficial.
+                                    </p>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+
+                            <div className="md:col-span-12 flex flex-col lg:flex-row justify-between items-stretch lg:items-center bg-slate-100/50 p-4 border border-slate-200 mt-2 gap-4 lg:gap-10 rounded-none">
+                              <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-10">
+                                <div>
+                                  <span className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase mb-0.5 block tracking-widest">
+                                    Auditor emitente
+                                  </span>
+                                  <p className="text-[10px] lg:text-[11px] font-bold text-[#1A3351] uppercase">
+                                    {entry.operator_name ||
+                                      operatorsMap[entry.generated_by] ||
+                                      entry.generated_by}
+                                  </p>
+                                </div>
+                                <div className="h-0.5 lg:h-8 w-full lg:w-px bg-slate-200" />
+                                <div>
+                                  <span className="text-[8px] lg:text-[9px] font-bold text-slate-400 uppercase mb-0.5 block tracking-widest">
+                                    Status de Auditoria
+                                  </span>
+                                  <p className="text-[10px] lg:text-[11px] font-bold text-[#28A745] uppercase flex items-center gap-1">
+                                    ✓ REGISTRADO
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="px-4 py-2 bg-white border-2 border-[#1A3351] text-center shadow-sm rounded-none">
+                                <p className="text-[9px] lg:text-[10px] font-bold text-[#1A3351] uppercase leading-none">
+                                  REF: {entry.id}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-8 pt-4 border-t border-slate-200 flex flex-col lg:flex-row justify-between items-center gap-4">
+                            <button
+                              onClick={() => {
+                                const asoTypeMatch =
+                                  entry.aso_type.match(/\((.*?)\)/);
+                                const asoType =
+                                  asoTypeMatch && asoTypeMatch[1]
+                                    ? asoTypeMatch[1]
+                                    : "Encaminhamento";
+
+                                // Extrair dados do banco (preferencial) ou string (legado)
+                                const examsMatch =
+                                  entry.aso_type.match(/\[([\s\S]*?)\]/);
+                                const exams =
+                                  entry.exams_json &&
+                                  Array.isArray(entry.exams_json)
+                                    ? entry.exams_json.map((e: ExamJsonItem) =>
+                                        typeof e === "string" ? e : e.name,
+                                      )
+                                    : examsMatch && examsMatch[1]
+                                      ? examsMatch[1]
+                                          .split(",")
+                                          .map((e) => e.trim())
+                                      : [];
+
+                                const risksMatch =
+                                  entry.aso_type.match(/<([\s\S]*?)>/);
+                                const details =
+                                  entry.risks ||
+                                  (risksMatch && risksMatch[1]
+                                    ? risksMatch[1]
+                                    : "");
+                                const docData = {
+                                  Nome: entry.servidor_nome,
+                                  CPF: entry.servidor_cpf,
+                                  "CPF.": entry.servidor_cpf,
+                                  "Dt.Nascimento":
+                                    entry.servidor_nascimento || "",
+                                  Cargo: entry.cargo || "",
+                                  Secretaria: entry.secretaria || "",
+                                  contrato: entry.contrato || "",
+                                };
+
+                                const examConfig = {
+                                  exames: exams,
+                                  riscos: "",
+                                  detalhes: details,
+                                };
+
+                                import("@/lib/pdf-generator").then((m) => {
+                                  m.generateReferralPDF(
+                                    docData,
+                                    examConfig,
+                                    asoType,
+                                    exams.map(() =>
+                                      new Date(
+                                        entry.generated_at,
+                                      ).toLocaleDateString("pt-BR"),
+                                    ),
+                                    entry.operator_name ||
+                                      operatorsMap[entry.generated_by] ||
+                                      "SISTEMA",
+                                  );
+                                });
+                              }}
+                              className="w-full lg:w-auto h-12 px-8 lg:px-6 bg-[#1A3351] text-white text-[10px] font-bold uppercase hover:brightness-110 shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 rounded-none border-b-4 border-slate-900"
+                            >
+                              <Printer className="w-3.5 h-3.5" /> Reemitir PDF
+                              Oficial
+                            </button>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-full">
+                              Audit-Hash:{" "}
+                              {Math.random()
+                                .toString(36)
+                                .substring(7)
+                                .toUpperCase()}
+                              -{entry.id}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-24 text-center flex flex-col items-center gap-4">
+                    <ClipboardList className="w-16 h-16 text-slate-200" />
+                    <p className="text-slate-400 uppercase font-bold text-xs italic tracking-[0.3em]">
+                      Nenhum encaminhamento registrado para os filtros aplicados
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
+            <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+              <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+                🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+              </p>
+              <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+                Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                O uso destas informações é restrito à gestão estratégica do SESMT. 
+                Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+              </p>
+              <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
+                Gerado via SESMT SYSTEM - Powered by UXBRAS®
+            </p>
           </div>
         </div>
       </main>
