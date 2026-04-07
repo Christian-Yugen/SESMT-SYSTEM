@@ -313,9 +313,17 @@ export function generatePortariaPDF(
     align: "center",
   });
 
-  // === RODAPÉ PADRÃO ===
-  doc.setFontSize(7.5);
+  // === RODAPÉ PADRÃO (inclui aviso LGPD) ===
+  doc.setFontSize(7);
   doc.setFont("times", "normal");
+  doc.setTextColor(120);
+  doc.text(
+    "IMPORTANTE: Privacidade e Proteção de Dados (LGPD) — Uso restrito à gestão estratégica do SESMT.",
+    pageWidth / 2,
+    doc.internal.pageSize.getHeight() - 14,
+    { align: "center" },
+  );
+  doc.setFontSize(7.5);
   doc.setTextColor(150);
   doc.text(
     "Gerado via SESMT SYSTEM - Powered by UXBRAS®",

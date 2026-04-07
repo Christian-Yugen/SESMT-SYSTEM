@@ -42,9 +42,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
 import FilterChips from "@/components/filters/FilterChips";
 import ActionIconButton from "@/components/filters/ActionIconButton";
-import { 
-  generateAbsenteeismDashboardReportPDF 
-} from "@/lib/afastamento-report-pdf";
+import { generateAbsenteeismDashboardReportPDF } from "@/lib/afastamento-report-pdf";
 import {
   countActiveFilters,
   matchesUnifiedNameCpfSearch,
@@ -474,9 +472,12 @@ export default function AfastamentosAnalyticsPage() {
                           startDate: startDate,
                           endDate: endDate,
                           secretaria: filterSecretaria,
-                          natureza: filterNatureza
+                          natureza: filterNatureza,
                         };
-                        generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
+                        generateAbsenteeismDashboardReportPDF(
+                          filteredRecords,
+                          reportFilters,
+                        );
                       }}
                     />
                   </>
@@ -776,14 +777,15 @@ export default function AfastamentosAnalyticsPage() {
           </div>
 
           {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
-          <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+          <div className="hidden print:block mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto">
             <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
             <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
-              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-              O uso destas informações é restrito à gestão estratégica do SESMT. 
-              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
             <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
               Gerado via SESMT SYSTEM - Powered by UXBRAS®

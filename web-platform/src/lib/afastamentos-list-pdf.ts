@@ -210,6 +210,15 @@ export function generateAfastamentosListPDF(
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+    // Aviso LGPD curto
+    doc.setFontSize(6.5);
+    doc.setTextColor(120);
+    doc.text(
+      "IMPORTANTE: Privacidade e Proteção de Dados (LGPD) — Uso restrito à gestão estratégica do SESMT.",
+      pageWidth / 2,
+      doc.internal.pageSize.getHeight() - 12,
+      { align: "center" },
+    );
     doc.setFontSize(6);
     doc.setTextColor(200);
     doc.text(

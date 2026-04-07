@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
   FileSearch,
@@ -103,6 +104,7 @@ interface HistoryEntry {
 type HistoryFilters = FilterState & {
   filterShift: string;
   selectedAsoSubtypes: string[];
+  selectedNames?: string[];
 };
 
 export default function HistoryPage() {
@@ -119,6 +121,7 @@ export default function HistoryPage() {
     filterAsoType: "all",
     filterShift: "all",
     selectedAsoSubtypes: [],
+    selectedNames: [],
   };
   const [filters, setFilters] = useState<HistoryFilters>(INITIAL_FILTERS);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -139,6 +142,8 @@ export default function HistoryPage() {
 
   const [isAsoSubtypeFilterOpen, setIsAsoSubtypeFilterOpen] = useState(false);
   const [isShiftFilterOpen, setIsShiftFilterOpen] = useState(false);
+  const [isNameFilterOpen, setIsNameFilterOpen] = useState(false);
+  const [nameSearch, setNameSearch] = useState("");
 
   const setSearchTerm = (value: string) => {
     setFilters((prev) => ({ ...prev, searchTerm: value }));
@@ -161,6 +166,9 @@ export default function HistoryPage() {
   const setSelectedAsoSubtypes = (value: string[]) => {
     setFilters((prev) => ({ ...prev, selectedAsoSubtypes: value }));
   };
+  const setSelectedNames = (value: string[]) => {
+    setFilters((prev) => ({ ...prev, selectedNames: value }));
+  };
   const setFilterShift = (value: string) => {
     setFilters((prev) => ({ ...prev, filterShift: value }));
   };
@@ -169,6 +177,7 @@ export default function HistoryPage() {
     setIsDateFilterOpen(false);
     setIsAsoSubtypeFilterOpen(false);
     setIsShiftFilterOpen(false);
+    setIsNameFilterOpen(false);
   };
 
   useEffect(() => {
@@ -188,6 +197,7 @@ export default function HistoryPage() {
     filterAsoType: filterType,
     filterShift,
     selectedAsoSubtypes,
+    selectedNames = [],
   } = filters;
 
   useEffect(() => {
@@ -216,7 +226,8 @@ export default function HistoryPage() {
   const headerActiveFilterCount =
     baseActiveFilterCount +
     (filterShift !== "all" ? 1 : 0) +
-    (selectedAsoSubtypes.length > 0 ? 1 : 0);
+    (selectedAsoSubtypes.length > 0 ? 1 : 0) +
+    (selectedNames && selectedNames.length > 0 ? 1 : 0);
 
   // Estados para Edição ASO 2.0
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -637,11 +648,17 @@ export default function HistoryPage() {
       }
     }
 
+    const matchesSelectedNames =
+      !selectedNames || selectedNames.length === 0
+        ? true
+        : selectedNames.includes(entry.servidor_nome);
+
     return (
       matchesSearch &&
       matchesUser &&
       matchesType &&
       matchesAsoSubtype &&
+      matchesSelectedNames &&
       matchesSecretaria &&
       matchesStartDate &&
       matchesEndDate &&
@@ -1089,6 +1106,14 @@ export default function HistoryPage() {
               ${rows}
             </tbody>
           </table>
+          <div class="lgpd-box">
+            <span class="lgpd-title">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
+            <p class="lgpd-text">
+                Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                O uso destas informações é restrito à gestão estratégica do SESMT. 
+                Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+          </div>
           <div class="footer">Gerado via SESMT SYSTEM - Powered by UXBRAS®</div>
         </body>
       </html>
@@ -1241,6 +1266,88 @@ export default function HistoryPage() {
                                   TARDE (13h - 18h)
                                 </option>
                               </select>
+                            </div>
+                          </div>
+                        </ActionIconButton>
+
+                        <ActionIconButton
+                          icon={<User className="w-4 h-4" />}
+                          label="Filtro de nomes"
+                          variant="contextual"
+                          active={selectedNames && selectedNames.length > 0}
+                          open={isNameFilterOpen}
+                          onToggle={setIsNameFilterOpen}
+                          showMenuIndicator
+                        >
+                          <div className="w-80 bg-white border-2 border-[#7C2D12] shadow-2xl rounded-none overflow-hidden">
+                            <div className="p-3 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] font-bold text-[#7C2D12] uppercase tracking-wider">
+                                  Selecionar Nomes
+                                </span>
+                                {selectedNames && selectedNames.length > 0 && (
+                                  <button
+                                    onClick={() => setSelectedNames([])}
+                                    className="text-[8px] font-bold text-[#E31E24] hover:underline uppercase"
+                                  >
+                                    Limpar
+                                  </button>
+                                )}
+                              </div>
+
+                              <input
+                                type="search"
+                                value={nameSearch}
+                                onChange={(e) => setNameSearch(e.target.value)}
+                                placeholder="Buscar nome..."
+                                className="w-full px-3 py-2 border border-slate-200 text-[10px] outline-none"
+                              />
+
+                              <div className="max-h-56 overflow-y-auto border-t pt-2">
+                                {Array.from(
+                                  new Set(
+                                    history
+                                      .map((h) => h.servidor_nome)
+                                      .filter(Boolean),
+                                  ),
+                                )
+                                  .sort((a, b) => a.localeCompare(b, "pt-BR"))
+                                  .filter((n) =>
+                                    n
+                                      .toLowerCase()
+                                      .includes(nameSearch.toLowerCase()),
+                                  )
+                                  .map((name) => (
+                                    <label
+                                      key={name}
+                                      className="flex items-center gap-3 p-2 hover:bg-slate-50 cursor-pointer rounded-none transition-colors"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        className="w-4 h-4 accent-[#1A3351] cursor-pointer"
+                                        checked={selectedNames?.includes(name)}
+                                        onChange={(e) => {
+                                          if (e.target.checked)
+                                            setSelectedNames([
+                                              ...(selectedNames || []),
+                                              name,
+                                            ]);
+                                          else
+                                            setSelectedNames(
+                                              (selectedNames || []).filter(
+                                                (s) => s !== name,
+                                              ),
+                                            );
+                                        }}
+                                      />
+                                      <span
+                                        className={`text-[10px] font-bold uppercase transition-colors ${selectedNames?.includes(name) ? "text-[#1A3351]" : "text-slate-500"}`}
+                                      >
+                                        {name}
+                                      </span>
+                                    </label>
+                                  ))}
+                              </div>
                             </div>
                           </div>
                         </ActionIconButton>
@@ -1416,6 +1523,14 @@ export default function HistoryPage() {
                             key: "subtypes",
                             label:
                               "Subtipos ASO: " + selectedAsoSubtypes.length,
+                          },
+                        ]
+                      : []),
+                    ...(selectedNames && selectedNames.length > 0
+                      ? [
+                          {
+                            key: "names",
+                            label: `Nomes: ${selectedNames.length}`,
                           },
                         ]
                       : []),
@@ -1772,14 +1887,15 @@ export default function HistoryPage() {
           </div>
 
           {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
-          <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+          <div className="hidden print:block mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto">
             <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
             <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
-              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-              O uso destas informações é restrito à gestão estratégica do SESMT. 
-              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
             <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
               Gerado via SESMT SYSTEM - Powered by UXBRAS®
@@ -2443,6 +2559,163 @@ export default function HistoryPage() {
           </div>
         )}
       </main>
+
+      {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE) */}
+      <div
+        id="print-area"
+        className="hidden print:block bg-white text-black p-0 m-0 w-full"
+      >
+        <div className="p-2 pt-0.5">
+          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1 mb-1">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={160}
+                height={48}
+                className="h-12 w-auto object-contain"
+                priority
+              />
+              <div className="h-10 w-px bg-slate-200 mx-1" />
+              <div className="flex flex-col">
+                <p className="text-[10px] font-bold text-slate-700 uppercase leading-none mb-0.5">
+                  Prefeitura Três Lagoas
+                </p>
+                <p className="text-[9px] font-bold text-slate-600 uppercase leading-none">
+                  SESMT - Saúde Ocupacional
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">
+                Relatório Gerencial - Histórico
+              </h1>
+              <div className="text-[9px] font-medium text-slate-600 uppercase">
+                OP: {userName} | {new Date().toLocaleDateString("pt-BR")}{" "}
+                {new Date().toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-white p-1 mb-1 border border-slate-300 rounded-none">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-[#E31E24]" />
+              <p className="text-[9px] font-bold uppercase text-[#1A3351]">
+                REGISTROS:{" "}
+                <span className="text-[#E31E24]">{sortedHistory.length}</span>
+              </p>
+            </div>
+            <p className="text-[9px] font-bold uppercase text-slate-700 truncate max-w-[60%] italic">
+              FILTROS:{" "}
+              {startDate
+                ? new Date(startDate + "T00:00:00").toLocaleDateString("pt-BR")
+                : "INÍCIO"}{" "}
+              ATÉ{" "}
+              {endDate
+                ? new Date(endDate + "T00:00:00").toLocaleDateString("pt-BR")
+                : "HOJE"}
+            </p>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-300">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Data
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Servidor
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">
+                  Tipo
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Cargo
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Secretaria
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedHistory.slice().map((entry) => {
+                const full = new Date(entry.generated_at).toLocaleString(
+                  "pt-BR",
+                );
+                const [date, time] = full.split(" ");
+                const abbrev = (() => {
+                  const t = (entry.aso_type || "").toUpperCase();
+                  const prefix = t.includes("ENCAMINHAMENTO") ? "ENC" : "ASO";
+                  if (t.includes("ADMISS")) return `${prefix} ADM`;
+                  if (t.includes("DEMISS")) return `${prefix} DEM`;
+                  if (t.includes("RETORNO")) return `${prefix} RET`;
+                  if (t.includes("MUDANÇA")) return `${prefix} MUD`;
+                  if (t.includes("PERIÓDIC")) return `${prefix} PER`;
+                  return t.length > 12 ? t.substring(0, 12) + "..." : t;
+                })();
+
+                return (
+                  <tr key={entry.id} className="border-b border-slate-200">
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700">
+                      <div className="font-bold">{date}</div>
+                      <div className="text-[9px] text-slate-500">
+                        {time ? time.substring(0, 5) : ""}
+                      </div>
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2">
+                      <p className="text-[11px] font-bold text-black uppercase leading-tight">
+                        {entry.servidor_nome}
+                      </p>
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#1A3351]">
+                      {abbrev}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase">
+                      {entry.cargo || "---"}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase">
+                      {entry.secretaria || "---"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          <div className="hidden print:block mt-4 pt-3 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-4">
+            <p className="text-[11px] font-black text-slate-900 mb-1 uppercase tracking-tighter shadow-sm">
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+            </p>
+            <p className="text-[10px] text-slate-700 leading-relaxed mb-3 font-medium text-center">
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold">
+                Gerado via SESMT SYSTEM - Powered by UXBRAS®
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * { visibility: hidden !important; }
+              #print-area, #print-area * { visibility: visible !important; }
+              #print-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; display: block !important; background: white !important; }
+              @page { size: landscape; margin: 1cm; }
+            }
+          `,
+        }}
+      />
     </div>
   );
 }
