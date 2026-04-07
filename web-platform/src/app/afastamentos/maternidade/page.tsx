@@ -1791,25 +1791,52 @@ export default function MaternidadeAfastamentosPage() {
 
       {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - TOTALMENTE ISOLADA) */}
       <div id="print-area" className="hidden print:block bg-white text-black p-0 m-0 w-full">
-        <div className="p-8">
-          <div className="flex justify-between items-center border-b-2 border-slate-300 pb-4 mb-6">
-            <div className="flex items-center gap-4">
-              <Image src="/images/logo.png" alt="Logo" width={180} height={50} className="h-14 w-auto object-contain" />
-              <div className="h-12 w-px bg-slate-300 mx-2" />
-              <div>
-                <p className="text-xs font-bold text-slate-800 uppercase leading-none mb-1">Prefeitura Três Lagoas</p>
-                <p className="text-[10px] font-bold text-slate-600 uppercase">SESMT - Saúde Ocupacional</p>
+        <div className="p-4 pt-1">
+          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={160}
+                height={48}
+                className="h-12 w-auto object-contain"
+                priority
+              />
+              <div className="h-10 w-[1px] bg-slate-200 mx-1" />
+              <div className="flex flex-col">
+                <p className="text-[10px] font-bold text-slate-700 uppercase leading-none mb-0.5">
+                  Prefeitura Três Lagoas
+                </p>
+                <p className="text-[9px] font-bold text-slate-600 uppercase leading-none">
+                  SESMT - Saúde Ocupacional
+                </p>
               </div>
             </div>
             <div className="text-right">
-              <h1 className="text-xl font-black text-[#1A3351] uppercase tracking-tighter">Relatório Gerencial: Maternidade</h1>
-              <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">EMISSÃO: {new Date().toLocaleDateString("pt-BR")} | OP: {userName}</p>
+              <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">
+                Relatório Gerencial de Licenças Maternidade
+              </h1>
+              <div className="text-[9px] font-medium text-slate-600 uppercase">
+                OP: {userName} | {new Date().toLocaleDateString("pt-BR")}{" "}
+                {new Date().toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-300 p-2 mb-6 flex justify-between items-center">
-            <p className="text-[10px] font-bold uppercase text-[#1A3351]">Filtros Aplicados: <span className="text-slate-600 font-medium">{printFiltersDesc}</span></p>
-            <p className="text-[10px] font-bold uppercase text-[#1A3351]">Total de Registros: <span className="text-[#E31E24]">{filteredRecords.length}</span></p>
+          <div className="flex items-center justify-between bg-white p-1 mb-2 border border-slate-300 rounded-none">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-[#E31E24]" />
+              <p className="text-[9px] font-bold uppercase text-[#1A3351]">
+                REGISTROS:{" "}
+                <span className="text-[#E31E24]">{filteredRecords.length}</span>
+              </p>
+            </div>
+            <p className="text-[9px] font-bold uppercase text-slate-700 truncate max-w-[60%] italic">
+              FILTROS: {printFiltersDesc}
+            </p>
           </div>
 
           <table className="w-full border-collapse border border-slate-300">
@@ -1853,7 +1880,7 @@ export default function MaternidadeAfastamentosPage() {
               Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
             <div className="pt-4 border-t border-slate-200">
-              <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold uppercase">
+              <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold">
                 Gerado via SESMT SYSTEM - Powered by UXBRAS®
               </p>
             </div>
