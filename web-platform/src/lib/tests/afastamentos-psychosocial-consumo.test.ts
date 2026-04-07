@@ -150,6 +150,7 @@ function buildDataset(): PsychosocialDataset {
     vinculos: [
       {
         vinculo_id: 201,
+        servidor_id: 101,
         unidade_orcamentaria: "UO_EDUCACAO",
         local_trabalho: "ESCOLA_CENTRAL",
         secretaria: "EDUCACAO",
@@ -158,6 +159,7 @@ function buildDataset(): PsychosocialDataset {
       },
       {
         vinculo_id: 202,
+        servidor_id: 103,
         unidade_orcamentaria: "UO_SAUDE",
         local_trabalho: "UBS_CENTRO",
         secretaria: "SAUDE",

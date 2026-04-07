@@ -230,6 +230,7 @@ function buildDataset(): ErgonomicDataset {
     vinculos: [
       {
         vinculo_id: 201,
+        servidor_id: 101,
         unidade_orcamentaria: "UO_SAUDE_URG",
         local_trabalho: "UPA_CENTRO",
         secretaria: "SAUDE",
@@ -239,6 +240,7 @@ function buildDataset(): ErgonomicDataset {
       },
       {
         vinculo_id: 202,
+        servidor_id: 103,
         unidade_orcamentaria: "UO_SAUDE_BASE",
         local_trabalho: "UBS_SUL",
         secretaria: "SAUDE",
