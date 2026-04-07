@@ -1183,23 +1183,23 @@ export default function MaternidadeAfastamentosPage() {
                         onClick={(e) => e.stopPropagation()}
                         className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5"
                       >
-                        <div className="space-y-6">
-                          <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">
+                        <div className="space-y-3">
+                          <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-1">
                             Histórico de Licenças Maternidade
                           </h5>
 
-                          <div className="grid grid-cols-1 gap-6">
+                          <div className="grid grid-cols-1 gap-2">
                             {group.items.map((record) => {
                               const status = getStatus(record);
                               return (
                                 <div
                                   key={record.id}
-                                  className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-visible group/card"
+                                  className="bg-white p-3 mb-2 border border-slate-200 relative overflow-hidden group/item rounded-none"
                                 >
                                   <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
                                   {/* INFO GRID - 3 colunas */}
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
                                     {/* COLUNA 1: VÍNCULO */}
                                     <div className="space-y-1">
                                       <p className="text-[9px] font-bold text-slate-400 uppercase">
@@ -1327,7 +1327,7 @@ export default function MaternidadeAfastamentosPage() {
                                   </div>
 
                                   {/* BOTÕES */}
-                                  <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
+                                  <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100 relative z-10 justify-start">
                                     <button
                                       onClick={() => handleViewPortaria(record)}
                                       className="flex items-center gap-1.5 px-2 py-1 bg-slate-200 text-slate-800 hover:bg-slate-300 font-bold rounded-none border border-slate-300 text-[10px] uppercase transition-all"
@@ -1401,13 +1401,13 @@ export default function MaternidadeAfastamentosPage() {
 
                                   {/* PAINEL CID EXPANDIDO */}
                                   {revealedCids.has(record.id) && (
-                                    <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
-                                      <div className="flex flex-col gap-3">
+                                    <div className="mt-2 border-t border-slate-100 pt-2 relative z-10">
+                                      <div className="flex flex-col gap-2">
                                         {record.afastamento_cids &&
                                           record.afastamento_cids.length >
                                             0 && (
                                             <div className="divide-y divide-slate-100">
-                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
                                                 Diagnósticos CID-10
                                               </p>
                                               {record.afastamento_cids.map(
@@ -1421,8 +1421,8 @@ export default function MaternidadeAfastamentosPage() {
                                             </div>
                                           )}
 
-                                        <div className="bg-slate-50/50 p-3 rounded-none border border-slate-200/50">
-                                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                        <div className="bg-slate-50/50 p-2 rounded-none border border-slate-200/50">
+                                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                             <ClipboardList className="w-3 h-3" />{" "}
                                             Anotações do Registro
                                           </p>
@@ -1442,7 +1442,7 @@ export default function MaternidadeAfastamentosPage() {
                                   )}
 
                                   {/* INFO DE AUDITORIA */}
-                                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end text-[10px] items-center gap-1.5 font-normal text-slate-500 uppercase tracking-tighter relative z-10 transition-opacity hover:opacity-100 opacity-80">
+                                  <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end text-[10px] items-center gap-1.5 font-normal text-slate-500 uppercase tracking-tighter relative z-10 transition-opacity hover:opacity-100 opacity-80">
                                     <span>Criado por:</span>
                                     <span className="text-slate-600">
                                       {profilesMap[record.criado_por] ||
@@ -1742,8 +1742,8 @@ export default function MaternidadeAfastamentosPage() {
 
       {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - TOTALMENTE ISOLADA) */}
       <div id="print-area" className="hidden print:block bg-white text-black p-0 m-0 w-full">
-        <div className="p-4 pt-1">
-          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
+        <div className="p-2 pt-0.5">
+          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1 mb-1">
             <div className="flex items-center gap-3">
               <Image
                 src="/images/logo.png"
@@ -1777,7 +1777,7 @@ export default function MaternidadeAfastamentosPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between bg-white p-1 mb-2 border border-slate-300 rounded-none">
+          <div className="flex items-center justify-between bg-white p-1 mb-1 border border-slate-300 rounded-none">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-4 bg-[#E31E24]" />
               <p className="text-[9px] font-bold uppercase text-[#1A3351]">
@@ -1793,11 +1793,11 @@ export default function MaternidadeAfastamentosPage() {
           <table className="w-full border-collapse border border-slate-300">
             <thead>
               <tr className="bg-slate-100">
-                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Servidora</th>
-                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Identificação</th>
-                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-center">Início</th>
-                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-center">Término</th>
-                <th className="border border-slate-300 p-2 text-[10px] font-bold uppercase text-left">Secretaria</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Servidora</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Identificação</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">Início</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">Término</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Secretaria</th>
               </tr>
             </thead>
             <tbody>
@@ -1805,32 +1805,32 @@ export default function MaternidadeAfastamentosPage() {
                 .sort((a, b) => a.servidor_nome.localeCompare(b.servidor_nome))
                 .map((record, index) => (
                   <tr key={index} className="border-b border-slate-200">
-                    <td className="border border-slate-300 p-2">
+                    <td className="border border-slate-300 py-0.5 px-2">
                        <p className="text-[11px] font-bold text-black uppercase leading-tight">{record.servidor_nome}</p>
-                       <p className="text-[9px] text-slate-600 font-normal mt-0.5 uppercase">{record.servidor_cargo || "---"}</p>
+                       <p className="text-[9px] text-slate-600 font-normal mt-0 uppercase">{record.servidor_cargo || "---"}</p>
                     </td>
-                    <td className="border border-slate-300 p-2">
+                    <td className="border border-slate-300 py-0.5 px-2">
                        <p className="text-[10px] text-slate-700 font-normal uppercase">MATRI: {record.servidor_matricula}</p>
                        {record.servidor_contrato && <p className="text-[9px] text-slate-500 uppercase">CONTRATO: {record.servidor_contrato}</p>}
                     </td>
-                    <td className="border border-slate-300 p-2 text-center text-[10px] text-[#1A3351]">{formatDate(record.data_inicio)}</td>
-                    <td className="border border-slate-300 p-2 text-center text-[10px] text-[#E31E24]">{formatDate(record.data_fim)}</td>
-                    <td className="border border-slate-300 p-2 text-[10px] text-slate-700 uppercase leading-tight">{record.servidor_secretaria || "---"}</td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#1A3351]">{formatDate(record.data_inicio)}</td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#E31E24]">{formatDate(record.data_fim)}</td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase leading-tight">{record.servidor_secretaria || "---"}</td>
                   </tr>
                 ))}
             </tbody>
           </table>
 
-          <div className="mt-10 pt-6 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-10">
-            <p className="text-[11px] font-black text-slate-900 mb-2 uppercase tracking-tighter shadow-sm">
+          <div className="mt-4 pt-3 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-4">
+            <p className="text-[11px] font-black text-slate-900 mb-1 uppercase tracking-tighter shadow-sm">
                🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
-            <p className="text-[10px] text-slate-700 leading-relaxed mb-6 font-medium text-center">
+            <p className="text-[10px] text-slate-700 leading-relaxed mb-3 font-medium text-center">
               Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
               O uso destas informações é restrito à gestão estratégica do SESMT. 
               Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
-            <div className="pt-4 border-t border-slate-200">
+            <div className="pt-2 border-t border-slate-200">
               <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold">
                 Gerado via SESMT SYSTEM - Powered by UXBRAS®
               </p>
