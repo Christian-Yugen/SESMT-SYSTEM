@@ -918,10 +918,11 @@ export default function HistoryPage() {
           </table>
 
           <div class="lgpd-box">
-            <span class="lgpd-title">IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
+            <span class="lgpd-title">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
             <p class="lgpd-text">
-                Este relatório atende à Lei nº 13.709/2018 (LGPD). Uso exclusivo para gestão operacional do SESMT.
-                Proibido compartilhamento com terceiros. O uso indevido sujeita o infrator às sanções administrativas e legais previstas na legislação vigente.
+                Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                O uso destas informações é restrito à gestão estratégica do SESMT. 
+                Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
           </div>
 
@@ -1048,7 +1049,11 @@ export default function HistoryPage() {
             .time-part { display: block; font-size: 7.5px; color: #777; }
 
             .stats-bar { font-size: 8px; font-weight: 900; margin-bottom: 5px; color: #1A3351; text-transform: uppercase; border-left: 3px solid #E31E24; padding-left: 8px; }
-            .footer { margin-top: 20px; font-size: 7px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+            .lgpd-box { margin-top: 15px; border: 1px solid #eee; padding: 10px; text-align: center; max-width: 80%; margin-left: auto; margin-right: auto; }
+            .lgpd-title { font-size: 8px; font-weight: bold; color: #333; display: block; margin-bottom: 4px; text-transform: uppercase; }
+            .lgpd-text { font-size: 7px; color: #666; margin: 0; line-height: 1.3; }
+
+            .footer { margin-top: 15px; font-size: 7px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
           </style>
         </head>
         <body onload="window.print(); window.close();">
@@ -1766,9 +1771,18 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          <div className="bg-[#B0B0B0] p-4 text-center border-2 border-slate-300 shadow-md">
-            <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">
-              Powered by UXBRAS® — Gestão Estratégica SESMT
+          {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
+          <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+            <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+            </p>
+            <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+              O uso destas informações é restrito à gestão estratégica do SESMT. 
+              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+            <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
+              Gerado via SESMT SYSTEM - Powered by UXBRAS®
             </p>
           </div>
         </div>

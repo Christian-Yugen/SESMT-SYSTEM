@@ -651,9 +651,9 @@ export default function AnalyticsPage() {
                         .stat-value { font-size: 16px; font-weight: 900; color: #1A3351; }
 
                         .footer { margin-top: 30px; font-size: 7.5px; text-align: center; color: #777; border-top: 1px solid #eee; padding-top: 10px; font-weight: normal; }
-                        .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; border-radius: 0px; }
+                        .lgpd-box { background: #fcfcfc; border: 1px solid #e0e0e0; padding: 10px; margin-top: 20px; border-radius: 0px; text-align: center; max-width: 80%; margin-left: auto; margin-right: auto; }
                         .lgpd-title { font-size: 8px; font-weight: 900; color: #1A3351; text-transform: uppercase; margin-bottom: 4px; display: block; }
-                        .lgpd-text { font-size: 8px; color: #333; text-align: justify; margin: 0; line-height: 1.4; font-weight: 500; }
+                        .lgpd-text { font-size: 7.5px; color: #333; text-align: center; margin: 0; line-height: 1.4; font-weight: 500; }
                     </style>
                 </head>
                 <body>
@@ -713,8 +713,8 @@ export default function AnalyticsPage() {
                         <span class="lgpd-title">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</span>
                         <p class="lgpd-text">
                             Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-                            O uso destas informações é restrito à gestão estratégica do SESMT. Proibida a divulgação pública ou 
-                            compartilhamento com terceiros sem autorização prévia.
+                            O uso destas informações é restrito à gestão estratégica do SESMT. 
+                            Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
                         </p>
                     </div>
 

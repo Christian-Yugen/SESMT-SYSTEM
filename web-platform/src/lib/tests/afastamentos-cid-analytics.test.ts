@@ -1,4 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert";
+const expect = (val: any) => ({
+  toBe: (expected: any) => assert.strictEqual(val, expected),
+  not: { toBeNull: () => assert.notStrictEqual(val, null) },
+  toBeNull: () => assert.strictEqual(val, null),
+  toBeGreaterThan: (expected: number) => assert.ok(val > expected),
+  toBeLessThan: (expected: number) => assert.ok(val < expected),
+  toEqual: (expected: any) => assert.deepStrictEqual(val, expected),
+  toHaveLength: (expected: number) => assert.strictEqual(val.length, expected),
+  notToBeNull: () => assert.notStrictEqual(val, null),
+});
 import {
   safeDate,
   calcInclusiveDays,
@@ -88,9 +99,10 @@ describe("buildCidAnalyticsMetrics (core scenarios)", () => {
         endDate: "2026-04-03",
         daysAway: 3,
         secretaria: "S1",
-        cargo: "C1",
-        naturezaCargo: "N1",
-        tipoAfastamento: "AUX. DOENCA",
+        cargo: "TECNICO_ADMIN",
+        natureza_cargo: "ADMINISTRATIVO",
+        servidor_id: 101,
+        subdivisao: "ATENDIMENTO",
         isAcidenteTrabalho: false,
         competency: "2026-04",
       },

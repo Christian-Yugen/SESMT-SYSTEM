@@ -828,9 +828,18 @@ export default function ReferralsPage() {
               </div>
             </div>
 
-            <div className="bg-[#B0B0B0] p-6 text-center border-2 border-slate-300 shadow-inner rounded-none">
-              <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-600">
-                SESMT SYSTEM — Módulo de Digital Referrals — Powered by UXBRAS®
+            {/* RODAPÉ LGPD PADRÃO SESMT-SYSTEM */}
+            <div className="mt-12 pb-10 px-6 border-t border-black/5 text-center max-w-4xl mx-auto print:block">
+              <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+                🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+              </p>
+              <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+                Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+                O uso destas informações é restrito à gestão estratégica do SESMT. 
+                Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+              </p>
+              <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100 text-center">
+                Gerado via SESMT SYSTEM - Powered by UXBRAS®
               </p>
             </div>
           </div>

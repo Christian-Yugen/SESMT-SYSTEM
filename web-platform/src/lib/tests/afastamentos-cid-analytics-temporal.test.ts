@@ -1,4 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert";
+const expect = (val: any) => ({
+  toBe: (expected: any) => assert.strictEqual(val, expected),
+  not: { toBeNull: () => assert.notStrictEqual(val, null) },
+  toBeNull: () => assert.strictEqual(val, null),
+  toBeGreaterThan: (expected: number) => assert.ok(val > expected),
+  toBeLessThan: (expected: number) => assert.ok(val < expected),
+  toEqual: (expected: any) => assert.deepStrictEqual(val, expected),
+  toHaveLength: (expected: number) => assert.strictEqual(val.length, expected),
+});
 import { buildCidAnalyticsDataset } from "../afastamentos-cid-analytics";
 
 function filterByStartDate(events: any[], startDate: string, endDate: string) {

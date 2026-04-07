@@ -1906,177 +1906,58 @@ export default function AfastamentosPage() {
             </div>
           </div>
         )}
-        {/* RELATÓRIO PDF (OCULTO NA TELA, VISÍVEL NA IMPRESSÃO) */}
-        <div
-          id="print-area"
-          className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 pt-1 overflow-y-auto"
-        >
-          {/* CABEÇALHO OFICIAL - ULTRA COMPACTO (SYNC COM ABONO) */}
-          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1.5 mb-2">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/logo.png"
-                alt="Logo"
-                width={160}
-                height={48}
-                className="h-12 w-auto object-contain"
-                priority
-              />
-              <div className="h-10 w-[1px] bg-slate-200 mx-1" />
-              <div className="flex flex-col">
-                <p className="text-[10px] font-bold text-slate-500 uppercase leading-none mb-0.5">
-                  Prefeitura Três Lagoas
-                </p>
-                <p className="text-[9px] font-medium text-slate-400 uppercase leading-none">
-                  SESMT - Saúde Ocupacional
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">
-                Relatório Gerencial de Afastamentos
-              </h1>
-              <div className="text-[8px] font-bold text-slate-400 uppercase">
-                OP: {userName} | {new Date().toLocaleDateString("pt-BR")}{" "}
-                {new Date().toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* RESUMO DOS FILTROS - DISCRETO (SYNC COM ABONO) */}
-          <div className="flex items-center justify-between bg-slate-50/50 p-1 mb-2 border border-slate-100 rounded-none">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-3.5 bg-[#E31E24]" />
-              <p className="text-[8px] font-bold uppercase text-[#1A3351]">
-                REGISTROS:{" "}
-                <span className="text-[#E31E24]">{filteredRecords.length}</span>
-              </p>
-            </div>
-            <p className="text-[7.5px] font-medium uppercase text-slate-400 truncate max-w-[60%] italic">
-              FILTROS: {printFiltersDesc}
+          {/* RODAPÉ DO PDF COM LGPD */}
+          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto pb-10">
+            <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
-          </div>
-
-          {/* TABELA DE DADOS - MÁXIMA COMPACTAÇÃO (SYNC COM ABONO) */}
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-300">
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Nome do Servidor
-                </th>
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Identificação
-                </th>
-                <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">
-                  Início
-                </th>
-                <th className="p-1 text-[8px] font-bold uppercase text-slate-500 text-center border border-slate-200">
-                  Término
-                </th>
-                <th className="p-1 px-2 text-[8px] font-bold uppercase text-slate-500 text-left border border-slate-200">
-                  Secretaria
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRecords
-                .sort((a, b) => a.servidor_nome.localeCompare(b.servidor_nome))
-                .map((record, index) => (
-                  <tr
-                    key={index}
-                    className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"} border-b border-slate-100`}
-                  >
-                    <td className="p-0.5 px-2 border border-slate-100 font-medium max-w-[200px]">
-                      <p className="text-[9px] font-bold text-slate-700 uppercase leading-tight truncate">
-                        {record.servidor_nome}
-                      </p>
-                      <p className="text-[7.5px] text-slate-400 font-medium mt-0.5 uppercase tracking-tighter truncate">
-                        {record.servidor_cargo ||
-                          record.natureza_cargo ||
-                          "---"}
-                      </p>
-                    </td>
-                    <td className="p-0.5 px-2 border border-slate-100 uppercase">
-                      <div className="flex flex-col leading-tight">
-                        <span className="text-[8px] text-slate-500 mb-0.5">
-                          <span className="font-bold text-slate-400">
-                            MATRI:
-                          </span>{" "}
-                          {record.servidor_matricula}
-                        </span>
-                        {record.servidor_contrato && (
-                          <span className="text-[8px] text-slate-500">
-                            <span className="font-bold text-slate-400">
-                              CONTRATO:
-                            </span>{" "}
-                            {record.servidor_contrato}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-0.5 text-[8px] font-bold text-[#1A3351] border border-slate-100 text-center whitespace-nowrap">
-                      {formatDate(record.data_inicio)}
-                    </td>
-                    <td className="p-0.5 text-[8px] font-bold text-[#E31E24] border border-slate-100 text-center whitespace-nowrap">
-                      {formatDate(record.data_fim)}
-                    </td>
-                    <td className="p-0.5 px-2 text-[8px] font-normal text-slate-400 border border-slate-100 uppercase leading-tight truncate max-w-[180px]">
-                      {record.servidor_secretaria || "---"}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-
-          {/* RODAPÉ DO PDF */}
-          <div className="mt-4 pt-1 border-t border-slate-100 flex justify-center items-center opacity-60">
-            <p className="text-[7.5px] font-normal text-slate-500">
+            <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
+              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
+              O uso destas informações é restrito à gestão estratégica do SESMT. 
+              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+            <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
               Gerado via SESMT SYSTEM - Powered by UXBRAS®
             </p>
           </div>
-        </div>
 
-        <style jsx global>{`
-          @media print {
-            /* CASO O COMPONENTE ESTEJA ANINHADO, GARANTE QUE SÓ ELE SEJA VISÍVEL */
-            html,
-            body {
-              height: auto !important;
-              overflow: visible !important;
-              background: white !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-
-            #print-area {
-              display: block !important;
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
-              z-index: 99999 !important;
-              background: white !important;
-            }
-
-            #print-area table {
-              width: 100% !important;
-              border-collapse: collapse !important;
-            }
-
-            #print-area tr {
-              page-break-inside: avoid !important;
-            }
-
-            @page {
-              size: ${printLayout};
-              margin: 0.5cm;
-            }
-          }
-        `}</style>
-      </main>
-    </div>
-  );
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @media print {
+                html,
+                body {
+                  height: auto !important;
+                  overflow: visible !important;
+                  background: white !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                }
+                #print-area {
+                  display: block !important;
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  z-index: 99999 !important;
+                  background: white !important;
+                }
+                #print-area table {
+                  width: 100% !important;
+                  border-collapse: collapse !important;
+                }
+                #print-area tr {
+                  page-break-inside: avoid !important;
+                }
+                @page {
+                  size: ${printLayout};
+                  margin: 0.5cm;
+                }
+              }
+            `,
+          }}
+        />
+        </main>
+      </div>
+    );
 }
