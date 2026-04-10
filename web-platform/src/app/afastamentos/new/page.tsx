@@ -333,7 +333,7 @@ export default function NewAfastamentoPage() {
         .join(" e ");
 
       for (const bond of bondsToPersist) {
-        const { data: newAfastamento, error } = await supabase
+        const { data: newAfastamento, error: insertError } = await supabase
           .from("afastamentos")
           .insert({
             servidor_cpf: bond.cpf,
@@ -358,7 +358,16 @@ export default function NewAfastamentoPage() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (insertError)
+          throw new Error(insertError.message || JSON.stringify(insertError));
+        if (
+          !newAfastamento ||
+          typeof (newAfastamento as any).id === "undefined"
+        ) {
+          throw new Error(
+            "Resposta inesperada ao criar afastamento (id ausente).",
+          );
+        }
 
         // Inserir CIDs
         for (const cid of selectedCids) {
@@ -372,7 +381,7 @@ export default function NewAfastamentoPage() {
         }
 
         // Gerar Registro de Portaria
-        const { data: portariaRec } = await supabase
+        const { data: portariaRec, error: portariaError } = await supabase
           .from("portarias_afastamento")
           .insert({
             afastamento_id: newAfastamento.id,
@@ -383,6 +392,15 @@ export default function NewAfastamentoPage() {
           })
           .select()
           .single();
+
+        if (portariaError)
+          throw new Error(
+            portariaError.message || JSON.stringify(portariaError),
+          );
+        if (!portariaRec)
+          throw new Error(
+            "Resposta inesperada ao criar portaria (dados ausentes).",
+          );
 
         setGeneratedPortaria({
           ...portariaRec,
@@ -427,10 +445,18 @@ export default function NewAfastamentoPage() {
 
       setShowSuccess(true);
     } catch (err: unknown) {
-      console.error(err);
-      alert(
-        "Erro ao salvar: " + (err instanceof Error ? err.message : String(err)),
-      );
+      console.error("handleSave error:", err);
+      try {
+        const printable =
+          err instanceof Error
+            ? `${err.name}: ${err.message}\n${err.stack}`
+            : JSON.stringify(err, Object.getOwnPropertyNames(err));
+        console.error("handleSave details:", printable);
+        alert("Erro ao salvar: " + printable);
+      } catch (e) {
+        console.error("Erro ao serializar erro de salvamento:", e, err);
+        alert("Erro ao salvar (ver console para mais detalhes).");
+      }
     } finally {
       setSaving(false);
     }
