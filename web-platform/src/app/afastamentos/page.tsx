@@ -1500,26 +1500,18 @@ export default function AfastamentosPage() {
                                             </span>
                                           )}
                                         </div>
-                                        {record.situacao !== "FINALIZADO" &&
-                                          record.data_fim && (
-                                            <VencimentoAlerta
-                                          {record.situacao !== "FINALIZADO" &&
-                                            record.data_fim && (
-                                              record.data_fim && (
-                                                <VencimentoAlerta
-                                                  dateFim={record.data_fim}
-                                                />
-                                              )
-                                            )}
+                                        {record.situacao !== "FINALIZADO" && record.data_fim && (
+                                          <VencimentoAlerta dateFim={record.data_fim} />
+                                        )}
 
-                                          {record.situacao === "FINALIZADO" && record.data_alta && (
-                                            <div className="mt-2 text-right">
-                                              <span className="text-[10px] font-medium text-slate-500 uppercase">Alta médica:</span>
-                                              <div className="text-sm font-semibold text-slate-700">
-                                                {formatDate(record.data_alta)}{record.medico_alta ? ` — ${record.medico_alta}${record.medico_alta_crm ? ` (${record.medico_alta_crm})` : ''}` : ''}
-                                              </div>
+                                        {record.situacao === "FINALIZADO" && record.data_alta && (
+                                          <div className="mt-2 text-right">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase">Alta médica:</span>
+                                            <div className="text-sm font-semibold text-slate-700">
+                                              {formatDate(record.data_alta)}{record.medico_alta ? ` — ${record.medico_alta}${record.medico_alta_crm ? ` (${record.medico_alta_crm})` : ''}` : ''}
                                             </div>
-                                          )}
+                                          </div>
+                                        )}
                                   <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
                                     <button
                                       onClick={() => handleViewPortaria(record)}
