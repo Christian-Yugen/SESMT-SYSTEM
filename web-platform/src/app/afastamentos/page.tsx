@@ -1510,10 +1510,10 @@ export default function AfastamentosPage() {
                                             <div className="text-sm font-semibold text-slate-700">
                                               {formatDate(record.data_alta)}
                                               {record.medico_alta && (
-                                                <>
-                                                  {' '}- {record.medico_alta}
-                                                  {record.medico_alta_crm && ` (${record.medico_alta_crm})`}
-                                                </>
+                                                <span className="ml-1">
+                                                  — {record.medico_alta}
+                                                  {record.medico_alta_crm ? ' (' + record.medico_alta_crm + ')' : ''}
+                                                </span>
                                               )}
                                             </div>
                                           </div>
