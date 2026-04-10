@@ -27,7 +27,7 @@ export default function CidCodeRankingPanel({
   onClearChapterFocus,
 }: Readonly<CidCodeRankingPanelProps>) {
   return (
-    <section className="bg-white border border-slate-200 shadow-sm">
+    <section className="CidCodeRankingPanel bg-white border border-slate-200 shadow-sm">
       <header className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#1A3351] flex items-center gap-2">
@@ -69,28 +69,28 @@ export default function CidCodeRankingPanel({
       </header>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full min-w-[1100px]">
           <thead>
             <tr className="bg-[#B0B0B0]/35 border-b border-slate-200">
-              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[8%] min-w-[70px]">
                 CID
               </th>
-              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[44%] min-w-[360px]">
                 Descrição Clínica
               </th>
-              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[8%] min-w-[70px]">
                 Capítulo
               </th>
-              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[10%] min-w-[80px]">
                 Ocorrências
               </th>
-              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[10%] min-w-[80px]">
                 Afastamentos
               </th>
-              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[10%] min-w-[90px]">
                 Dias Perdidos
               </th>
-              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351]">
+              <th className="text-right px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#1A3351] w-[10%] min-w-[80px]">
                 Participação
               </th>
             </tr>
@@ -101,13 +101,13 @@ export default function CidCodeRankingPanel({
                 key={`${item.cidCode}-${item.cidChapter}`}
                 className="border-b border-slate-100 hover:bg-slate-50"
               >
-                <td className="px-3 py-2.5 text-[11px] font-bold text-[#1A3351] tabular-nums uppercase">
+                <td className="px-3 py-2.5 text-[11px] font-bold text-[#1A3351] tabular-nums uppercase w-[8%]">
                   {item.cidCode}
                 </td>
-                <td className="px-3 py-2.5 text-[11px] font-semibold text-slate-700 uppercase leading-tight">
+                <td className="px-3 py-2.5 text-[11px] font-semibold text-slate-700 leading-tight whitespace-normal break-words w-[44%]">
                   {item.cidDesc}
                 </td>
-                <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide w-[8%]">
                   {item.cidChapter}
                 </td>
                 <td className="px-3 py-2.5 text-[11px] font-bold text-right text-slate-700 tabular-nums">

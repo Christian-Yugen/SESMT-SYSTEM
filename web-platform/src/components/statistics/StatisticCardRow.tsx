@@ -21,7 +21,7 @@ export default function StatisticCardRow({
   const columnsClass = COLUMN_CLASS_MAP[columns];
 
   return (
-    <div className={`grid ${columnsClass} gap-2 lg:gap-3 ${className}`}>
+    <div className={`StatisticCardRow grid ${columnsClass} gap-2 lg:gap-3 ${className}`}>
       {children}
     </div>
   );

@@ -47,7 +47,7 @@ export default function CidPriorityRankingPanel({
   scoreFormulaLabel,
 }: Readonly<CidPriorityRankingPanelProps>) {
   return (
-    <section className="bg-white border border-slate-200 shadow-sm">
+    <section className="CidPriorityRankingPanel bg-white border border-slate-200 shadow-sm">
       <header className="px-4 py-3 border-b border-slate-200 bg-slate-50">
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#1A3351] flex items-center gap-2">
           <Layers3 className="w-4 h-4" /> {title}

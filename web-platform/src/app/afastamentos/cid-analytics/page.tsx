@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Users,
   FileText,
+  Printer,
 } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
@@ -41,15 +42,13 @@ import CidPriorityRankingPanel from "@/components/analytics/cid/CidPriorityRanki
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { supabase } from "@/lib/supabase";
 import type { AfastamentoRecord } from "@/types";
-import { 
-  buildCidAnalyticsDataset, 
-  buildCidAnalyticsMetrics, 
-  CID_ANALYTICS_DEFAULT_POLICY 
+import {
+  buildCidAnalyticsDataset,
+  buildCidAnalyticsMetrics,
+  CID_ANALYTICS_DEFAULT_POLICY,
 } from "@/lib/afastamentos-cid-analytics";
 import { buildCidManagerialIntelligence } from "@/lib/afastamentos-cid-managerial";
-import { 
-  generateAbsenteeismDashboardReportPDF 
-} from "@/lib/afastamento-report-pdf";
+import { generateAbsenteeismDashboardReportPDF } from "@/lib/afastamento-report-pdf";
 import { getCIDChapter, getCIDDetails, normalizeCID } from "@/lib/cid-utils";
 import { CID_ANALYTICS_PAGE_ARCHITECTURE } from "@/lib/afastamentos-cid-page-architecture";
 import { normalizeSearchTerm } from "@/components/filters/filtersUtils";
@@ -329,6 +328,267 @@ function CidAnalyticsPage() {
     () => searchParams.get("endDate") ?? "",
   );
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
+  const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
+    "landscape",
+  );
+
+  const openPrintWindow = useCallback(
+    (layout: "portrait" | "landscape") => {
+      const node = document.getElementById("print-area");
+      if (!node) {
+        try {
+          window.print();
+        } catch (e) {}
+        return;
+      }
+
+      const win = window.open("", "_blank");
+      if (!win) {
+        try {
+          window.print();
+        } catch (e) {}
+        return;
+      }
+
+      // Collect styles (link and style tags) to preserve visual fidelity
+      const styles = Array.from(
+        document.querySelectorAll("link[rel=stylesheet], style"),
+      )
+        .map((el) => el.outerHTML)
+        .join("\n");
+
+      const today = new Date().toLocaleDateString("pt-BR");
+      const logoUrl = window.location.origin + "/images/logo.png";
+      const operatorName = (typeof userName === "string" && userName) || "";
+
+      const headerCss = `
+      .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #E31E24; padding-bottom: 8px; margin-bottom: 10px; }
+      .logo-area img { height: 42px; width: auto; }
+      .report-title-area { text-align: center; flex: 1; }
+      .report-title-area h1 { margin: 0; font-size: 14px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
+      .report-info { font-size: 9px; color: #666; font-weight: 400; margin-top: 4px; }
+      /* Ensure header and footer stay visible when original page print CSS hides everything except #print-area */
+      @media print {
+        .official-header, .official-header * { visibility: visible !important; }
+        #print-area, #print-area * { visibility: visible !important; }
+        .report-footer, .report-footer * { visibility: visible !important; }
+          /* Prefer to place footer in the physical bottom of the last page.
+            JS will insert a spacer before the footer when possible; fallback CSS class
+            .report-footer--force-break can be applied to force a new page when needed. */
+        .report-footer { page-break-inside: avoid !important; margin-top: 12px !important; display:block !important; }
+        .report-footer--force-break { page-break-before: always !important; break-before: page !important; }
+      }
+      `;
+
+      const headerHtml = `
+      <div class="official-header">
+        <div class="logo-area"><img src="${logoUrl}" alt="Logo" /></div>
+        <div class="report-title-area">
+          <h1>Gestão Analítica de Afastamentos por CID</h1>
+          <div class="report-info">(Dados baseados em afastamentos registrados na plataforma (casos com auxílio-doença / afastamentos superiores a 15 dias)).</div>
+        </div>
+        <div style="text-align:right;font-size:9px;color:#666;min-width:120px;">
+          <div>Operador: ${operatorName}</div>
+          <div>Data: ${today}</div>
+        </div>
+      </div>
+    `;
+
+      const footerHtml = `
+      <div class="report-footer" style="margin-top:16px;border-top:2px solid #E5E7EB;padding-top:12px;text-align:center;max-width:90%;margin-left:auto;margin-right:auto;">
+        <p style="font-size:11px;font-weight:800;color:#111;text-transform:uppercase;margin:0 0 6px;">
+          🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+        </p>
+        <p style="font-size:10px;color:#666;margin:0 0 8px;line-height:1.25;">
+          Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. O uso destas informações é restrito à gestão estratégica do SESMT. Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+        </p>
+        <div style="padding-top:8px;border-top:1px solid #E6E6E6;">
+          <p style="font-size:9px;color:#9CA3AF;letter-spacing:0.2em;font-weight:700;margin:6px 0 0;">
+            Gerado via SESMT SYSTEM - Powered by UXBRAS®
+          </p>
+        </div>
+      </div>
+    `;
+
+      // Clone print area and inject explicit colgroup for the CidCodeRankingPanel table
+      let printContentHtml = node.outerHTML;
+      try {
+        const cloned = node.cloneNode(true) as HTMLElement;
+        // Replace live-rendered SVG charts into the cloned DOM so printed SVGs keep
+        // their computed sizes, gradients and paths (fixes Recharts distortion in print).
+        try {
+          const panelClasses = [
+            ".CidClinicalTrendPanel",
+            ".CidRecurrenceSummaryPanel",
+          ];
+          panelClasses.forEach((panelClass) => {
+            const livePanels = Array.from(
+              node.querySelectorAll(panelClass) as NodeListOf<HTMLElement>,
+            );
+            const clonedPanels = Array.from(
+              cloned.querySelectorAll(panelClass) as NodeListOf<HTMLElement>,
+            );
+            const count = Math.min(livePanels.length, clonedPanels.length);
+            for (let i = 0; i < count; i++) {
+              try {
+                const liveSvgs = Array.from(
+                  livePanels[i].querySelectorAll(
+                    "svg",
+                  ) as NodeListOf<SVGElement>,
+                );
+                const clonedSvgs = Array.from(
+                  clonedPanels[i].querySelectorAll(
+                    "svg",
+                  ) as NodeListOf<SVGElement>,
+                );
+                const sc = Math.min(liveSvgs.length, clonedSvgs.length);
+                for (let j = 0; j < sc; j++) {
+                  try {
+                    const liveOuter = (liveSvgs[j] as Element).outerHTML;
+                    // Use the live SVG markup directly in the cloned DOM (simpler and more reliable)
+                    clonedSvgs[j].outerHTML = liveOuter;
+                  } catch (e) {
+                    // ignore per-svg errors
+                  }
+                }
+              } catch (e) {
+                // ignore per-panel svg replacement errors
+              }
+            }
+          });
+        } catch (e) {
+          // ignore svg replacement errors
+        }
+        // Inject colgroup for key tables so printed layout matches screen proportions
+        try {
+          const selectors = [
+            ".CidCodeRankingPanel table",
+            ".CidChapterRankingPanel table",
+          ];
+          selectors.forEach((sel) => {
+            const table = cloned.querySelector(sel) as HTMLTableElement | null;
+            const liveTable = node.querySelector(
+              sel,
+            ) as HTMLTableElement | null;
+            if (!table) return;
+            let colgroupHtml = "<colgroup>";
+            if (liveTable) {
+              const headerCells = Array.from(
+                (liveTable.querySelectorAll(
+                  "thead th",
+                ) as NodeListOf<HTMLElement>) || [],
+              );
+              if (headerCells.length > 0) {
+                const widths = headerCells.map((th) =>
+                  Math.max(
+                    1,
+                    Math.round(
+                      th.getBoundingClientRect().width || th.offsetWidth || 0,
+                    ),
+                  ),
+                );
+                const total = widths.reduce((s, v) => s + v, 0) || 1;
+                widths.forEach((w) => {
+                  const pct = Math.max(
+                    1,
+                    Math.round((w / total) * 10000) / 100,
+                  );
+                  colgroupHtml += `<col style="width:${pct}% !important">`;
+                });
+              } else {
+                colgroupHtml +=
+                  '<col style="width:8% !important"><col style="width:52% !important"><col style="width:6% !important"><col style="width:8% !important"><col style="width:8% !important"><col style="width:10% !important"><col style="width:8% !important">';
+              }
+            } else {
+              colgroupHtml +=
+                '<col style="width:8% !important"><col style="width:52% !important"><col style="width:6% !important"><col style="width:8% !important"><col style="width:8% !important"><col style="width:10% !important"><col style="width:8% !important">';
+            }
+            colgroupHtml += "</colgroup>";
+            table.insertAdjacentHTML("afterbegin", colgroupHtml);
+            (table as HTMLElement).setAttribute(
+              "style",
+              "table-layout: fixed !important; width: 100% !important;",
+            );
+          });
+        } catch (err) {
+          // ignore and continue with cloned outerHTML
+        }
+        // Replace colored progress bars with inline SVGs so they print even when "background graphics" are disabled
+        try {
+          const barPanelSelectors = [
+            ".CidCodeRankingPanel",
+            ".CidChapterRankingPanel",
+            ".CidRecurrenceSummaryPanel",
+          ];
+          barPanelSelectors.forEach((panelSel) => {
+            const liveBars = Array.from(
+              (node.querySelectorAll(
+                `${panelSel} table td div > div[style*="width"]`,
+              ) as NodeListOf<HTMLElement>) || [],
+            );
+            const clonedBars = Array.from(
+              (cloned.querySelectorAll(
+                `${panelSel} table td div > div[style*="width"]`,
+              ) as NodeListOf<HTMLElement>) || [],
+            );
+            for (let i = 0; i < clonedBars.length; i++) {
+              const liveBar = liveBars[i];
+              const clonedBar = clonedBars[i];
+              if (!clonedBar) continue;
+              let pct = 0;
+              try {
+                const styleWidth =
+                  liveBar?.style?.width ||
+                  clonedBar.getAttribute("style") ||
+                  "";
+                const m = (styleWidth || "").match(/([0-9.]+)\s*%/);
+                if (m) {
+                  pct = parseFloat(m[1]);
+                } else if (liveBar && liveBar.parentElement) {
+                  const pw =
+                    liveBar.parentElement.getBoundingClientRect().width || 0;
+                  const w = liveBar.getBoundingClientRect().width || 0;
+                  pct = pw ? Math.round((w / pw) * 100) : 0;
+                }
+              } catch (e) {
+                pct = 0;
+              }
+              if (!isFinite(pct) || pct < 0) pct = 0;
+              if (pct > 100) pct = 100;
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 8" preserveAspectRatio="none" width="100%" height="8" style="display:block"><rect x="0" y="0" width="100" height="8" fill="#F1F5F9"/><rect x="0" y="0" width="${pct}" height="8" fill="#E31E24"/></svg>`;
+              const parent = clonedBar.parentElement;
+              if (parent) parent.innerHTML = svg;
+            }
+          });
+        } catch (e) {
+          // ignore bar replacement errors
+        }
+        printContentHtml = cloned.outerHTML;
+      } catch (e) {
+        // fallback to original outerHTML
+        printContentHtml = node.outerHTML;
+      }
+
+      const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Relatório CID</title>${styles}<style>${headerCss}@media print{ @page { size: ${layout}; margin: 1cm; } } body{background:white;margin:0;padding:10px;color:#111;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;} #print-area { display: block !important; }</style></head><body>${headerHtml}${printContentHtml}${footerHtml}</body></html>`;
+
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      // Small delay to let resources load
+      setTimeout(() => {
+        try {
+          win.focus();
+          win.print();
+          // close the window after printing
+          win.close();
+        } catch (e) {
+          // ignore
+        }
+      }, 600);
+    },
+    [userName],
+  );
 
   const [filterSecretaria, setFilterSecretaria] = useState("all");
   const [filterCidChapter, setFilterCidChapter] = useState(
@@ -1763,22 +2023,82 @@ function CidAnalyticsPage() {
                     </ActionIconButton>
 
                     <ActionIconButton
+                      icon={<Printer className="w-4 h-4" />}
+                      label="Gerar relatório PDF"
+                      variant="primary"
+                      open={isPrintPopoverOpen}
+                      onToggle={setIsPrintPopoverOpen}
+                      showMenuIndicator
+                    >
+                      <div className="w-56 bg-white border-2 border-[#1A3351] shadow-2xl animate-in fade-in slide-in-from-top-2">
+                        <div className="p-3 border-b border-slate-100 bg-slate-50">
+                          <p className="text-[9px] font-bold text-[#1A3351] uppercase tracking-wider">
+                            Escolha a Orientação
+                          </p>
+                        </div>
+                        <div className="p-2 space-y-1">
+                          <button
+                            onClick={() => {
+                              setPrintLayout("portrait");
+                              setTimeout(() => {
+                                openPrintWindow("portrait");
+                                setIsPrintPopoverOpen(false);
+                              }, 100);
+                            }}
+                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                          >
+                            <span className="text-[10px] font-bold uppercase">
+                              ↗ Vertical (Retrato)
+                            </span>
+                            {printLayout === "portrait" && (
+                              <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setPrintLayout("landscape");
+                              setTimeout(() => {
+                                openPrintWindow("landscape");
+                                setIsPrintPopoverOpen(false);
+                              }, 100);
+                            }}
+                            className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
+                          >
+                            <span className="text-[10px] font-bold uppercase">
+                              ➡ Horizontal (Paisagem)
+                            </span>
+                            {printLayout === "landscape" && (
+                              <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </ActionIconButton>
+
+                    <ActionIconButton
                       icon={<FileText className="w-4 h-4" />}
                       label="Gerar relatório profissional (PDF)"
                       variant="primary"
                       onClick={() => {
-                        const filteredIds = new Set(filtered.events.map(e => e.event.afastamentoId));
-                        const filteredAfastamentos = records.filter(r => filteredIds.has(r.id));
-                        
+                        const filteredIds = new Set(
+                          filtered.events.map((e) => e.event.afastamentoId),
+                        );
+                        const filteredAfastamentos = records.filter((r) =>
+                          filteredIds.has(r.id),
+                        );
+
                         const reportFilters = {
                           searchTerm: searchTerm,
                           startDate: startDate,
                           endDate: endDate,
                           secretaria: filterSecretaria,
-                          natureza: filterNatureza
+                          natureza: filterNatureza,
                         };
-                        
-                        generateAbsenteeismDashboardReportPDF(filteredAfastamentos, reportFilters);
+
+                        generateAbsenteeismDashboardReportPDF(
+                          filteredAfastamentos,
+                          reportFilters,
+                        );
                       }}
                     />
                   </>
@@ -1830,7 +2150,10 @@ function CidAnalyticsPage() {
             </div>
           )}
 
-          <div className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden max-w-full">
+          <div
+            id="print-area"
+            className="bg-white border-2 border-slate-300 shadow-xl overflow-hidden max-w-full"
+          >
             <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
                 Núcleo Analítico CID
@@ -1852,6 +2175,145 @@ function CidAnalyticsPage() {
           </div>
         </div>
       </main>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              html, body { height: auto !important; overflow: visible !important; }
+              body * { visibility: hidden !important; }
+              #print-area, #print-area * { visibility: visible !important; }
+
+              /* Base compacting and font sizing */
+              #print-area { 
+                position: static !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: auto !important; 
+                max-width: ${printLayout === "portrait" ? "190mm" : "277mm"} !important;
+                display: block !important;
+                background: white !important;
+                overflow: visible !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                box-sizing: border-box !important;
+                font-size: 9px !important;
+                line-height: 1.05 !important;
+                color: #111 !important;
+              }
+
+              /* Force wrapping and breaking rules so long lines/tables don't overflow */
+              #print-area * { box-sizing: border-box !important; white-space: normal !important; overflow-wrap: anywhere !important; word-break: break-word !important; hyphens: auto !important; }
+
+              /* Remove bold: force normal weight for all print-area elements */
+              #print-area, #print-area * { font-weight: 400 !important; }
+
+              /* Headings: keep compact but not bold */
+              #print-area h1, #print-area h2, #print-area h3, #print-area h4 { font-weight: 400 !important; margin: 2px 0 !important; padding: 0 !important; }
+              #print-area h3 { font-size: 12px !important; }
+
+              /* Tables: fit to container and allow row breaks; repeat header/footer on new pages */
+              table { width: 100% !important; table-layout: fixed !important; page-break-inside: auto !important; break-inside: auto !important; min-width: 0 !important; }
+              /* Override utility min-width classes used in components */
+              #print-area [class*="min-w-"] { min-width: 0 !important; }
+              /* Make overflow wrappers visible for print */
+              #print-area .overflow-x-auto { overflow: visible !important; }
+              th, td { white-space: normal !important; overflow-wrap: anywhere !important; word-break: break-word !important; padding: 4px !important; }
+              thead { display: table-header-group !important; }
+              tfoot { display: table-footer-group !important; }
+
+              /* Column width hints for portrait to avoid overflow (applies when printLayout is portrait) */
+              #print-area table th:nth-child(1), #print-area table td:nth-child(1) { width: 40% !important; }
+              #print-area table th:nth-child(2), #print-area table td:nth-child(2) { width: 8% !important; }
+              #print-area table th:nth-child(3), #print-area table td:nth-child(3) { width: 12% !important; }
+              #print-area table th:nth-child(4), #print-area table td:nth-child(4) { width: 8% !important; }
+              #print-area table th:nth-child(5), #print-area table td:nth-child(5) { width: 10% !important; }
+              #print-area table th:nth-child(6), #print-area table td:nth-child(6) { width: 10% !important; }
+              #print-area table th:nth-child(7), #print-area table td:nth-child(7) { width: 12% !important; }
+
+                /* Specific override for the CidCodeRankingPanel table used in "Ranking de CIDs Específicos".
+                  The page-level generic nth-child widths above may not match this table's column order,
+                  so set explicit widths here so the 'Descrição Clínica' column gets the majority space.
+                */
+                #print-area .CidCodeRankingPanel table { table-layout: fixed !important; width: 100% !important; }
+                /* Reduce vertical padding and font-size in the CidCodeRankingPanel for print so columns fit */
+                #print-area .CidCodeRankingPanel table th, #print-area .CidCodeRankingPanel table td { padding: 3px 6px !important; font-size: 8.8px !important; }
+                /* Keep numeric columns on a single line */
+                #print-area .CidCodeRankingPanel table th:nth-child(n+4), #print-area .CidCodeRankingPanel table td:nth-child(n+4) { white-space: nowrap !important; overflow: visible !important; }
+                /* Allow clinical description to break and wrap tightly */
+                #print-area .CidCodeRankingPanel table th:nth-child(2), #print-area .CidCodeRankingPanel table td:nth-child(2) { white-space: normal !important; overflow-wrap: anywhere !important; word-break: break-word !important; line-height: 1.05 !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(1), #print-area .CidCodeRankingPanel table td:nth-child(1) { width: 8% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(2), #print-area .CidCodeRankingPanel table td:nth-child(2) { width: 52% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(3), #print-area .CidCodeRankingPanel table td:nth-child(3) { width: 6% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(4), #print-area .CidCodeRankingPanel table td:nth-child(4) { width: 8% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(5), #print-area .CidCodeRankingPanel table td:nth-child(5) { width: 8% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(6), #print-area .CidCodeRankingPanel table td:nth-child(6) { width: 10% !important; }
+                #print-area .CidCodeRankingPanel table th:nth-child(7), #print-area .CidCodeRankingPanel table td:nth-child(7) { width: 8% !important; }
+
+              /* Prevent full-screen containers from creating empty space (but keep fixed pixel heights like h-[260px]) */
+              #print-area [class*="h-screen"], #print-area [class*="min-h-screen"] { min-height: auto !important; height: auto !important; max-height: none !important; }
+
+                /* (No forced fixed height for clinical trend panel — keep natural layout) */
+
+              /* Compact spacing for print: reduce large paddings/margins */
+              #print-area [class*="p-"], #print-area [class*="px-"], #print-area [class*="py-"], #print-area [class*="pt-"], #print-area [class*="pb-"], #print-area [class*="pl-"], #print-area [class*="pr-"] { padding: 4px !important; }
+              #print-area [class*="m-"], #print-area [class*="mt-"], #print-area [class*="mb-"], #print-area [class*="mx-"], #print-area [class*="my-"] { margin: 4px !important; }
+              #print-area [class*="space-y-"] > * + * { margin-top: 4px !important; }
+
+              /* Reduce heading spacing */
+              #print-area h1, #print-area h2, #print-area h3, #print-area h4 { margin: 2px 0 !important; padding: 0 !important; }
+
+              /* Remove heavy shadows for cleaner print */
+              #print-area .shadow-xl, #print-area .shadow-2xl, #print-area .shadow-lg, #print-area .shadow-md { box-shadow: none !important; }
+
+              /* Images scaled to container */
+              #print-area img { max-width: 100% !important; height: auto !important; }
+
+              /* Try to keep small cards together (avoid splitting tiny blocks), but allow large sections to flow */
+              #print-area .StatisticCard, #print-area .StatisticCardRow, #print-area .CidChapterRankingPanel, #print-area .CidCodeRankingPanel, #print-area .CidClinicalTrendPanel, #print-area .CidOccupationalRankingPanel, #print-area .CidNatureImpactPanel, #print-area .CidOccupationalCrossPanel, #print-area .CidRecurrenceSummaryPanel, #print-area .CidRecurrenceInvestigativeTable, #print-area .CidManagerialAlertsPanel, #print-area .CidPriorityRankingPanel { page-break-inside: avoid !important; break-inside: avoid !important; }
+
+              /* StatisticCard compact rules */
+              #print-area .StatisticCard { padding: 4px !important; gap: 8px !important; }
+              #print-area .StatisticCard p, #print-area .StatisticCard h3, #print-area .StatisticCard span { font-weight: 400 !important; }
+              #print-area .StatisticCard p { font-size: 9px !important; margin: 0 !important; }
+              #print-area .StatisticCard h3 { font-size: 12px !important; }
+
+              /* Force compact statistic cards: hide icons, stack content vertically and allocate narrow equal widths so 5 cards fit a single row */
+              #print-area .StatisticCardRow { display: flex !important; flex-wrap: nowrap !important; gap: 2px !important; grid-template-columns: none !important; align-items: stretch !important; justify-content: space-between !important; }
+              /* give each card ~18% width so five fit in one row with smaller gaps */
+              #print-area .StatisticCardRow > * { min-width: 0 !important; flex: 0 0 17% !important; max-width: 17% !important; box-sizing: border-box !important; }
+              /* vertical card layout to reduce horizontal footprint */
+              #print-area .StatisticCard { display: flex !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; padding: 4px 6px !important; gap: 4px !important; border-left-width: 1px !important; }
+              /* hide decorative icons to save space */
+              #print-area .StatisticCard .shrink-0, #print-area .StatisticCard svg { display: none !important; }
+              /* ensure content fits: single line with ellipsis */
+              #print-area .StatisticCard h3, #print-area .StatisticCard p, #print-area .StatisticCard span { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; text-transform: none !important; letter-spacing: normal !important; }
+              /* compact typography: make value heading smaller to fit */
+              #print-area .StatisticCard h3 { font-size: 9px !important; margin: 0 !important; font-weight: 400 !important; }
+              #print-area .StatisticCard p, #print-area .StatisticCard span { font-size: 8px !important; }
+              /* hide subtitle and helperText inside StatisticCard for print */
+              #print-area .StatisticCard h3 + span { display: none !important; }
+              #print-area .StatisticCard p.mt-1 { display: none !important; }
+
+              /* Priority ranking table compact */
+              #print-area .CidPriorityRankingPanel table, #print-area .CidPriorityRankingPanel th, #print-area .CidPriorityRankingPanel td { font-size: 9px !important; font-weight: 400 !important; padding: 4px !important; }
+              /* Make the small 'Faixa' badge more compact in portrait prints */
+              #print-area .CidPriorityRankingPanel td:nth-child(3) .inline-flex,
+              #print-area .CidPriorityRankingPanel th:nth-child(3) .inline-flex {
+                font-size: 7.5px !important;
+                padding: 2px 6px !important;
+                line-height: 1 !important;
+              }
+
+              /* Reduce general table font slightly to help fit */
+              #print-area table, #print-area th, #print-area td { font-size: 8.5px !important; }
+
+              @page { size: ${printLayout}; margin: 1cm; }
+            }
+          `,
+        }}
+      />
     </div>
   );
 }

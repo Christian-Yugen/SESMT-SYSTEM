@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart3, CalendarClock, Layers3 } from "lucide-react";
+import { CID_CHAPTERS } from "@/lib/cid-utils";
 import type { ChapterRankingItem, CidPanelSortMode } from "./types";
 
 interface CidChapterRankingPanelProps {
@@ -28,15 +29,39 @@ export default function CidChapterRankingPanel({
 }: Readonly<CidChapterRankingPanelProps>) {
   const maxDays = items[0]?.daysLost || 0;
 
+  function findChapterDescription(rawChapter: string | undefined | null) {
+    if (!rawChapter) return "";
+    const candidate = String(rawChapter).toUpperCase().trim();
+    // Try exact match first
+    let found = CID_CHAPTERS.find(
+      (c) => c.capitulo.toUpperCase() === candidate,
+    );
+    if (found) return found.descricao;
+    // Try contains/startsWith to handle values like 'Capítulo V' or 'V - ...'
+    found = CID_CHAPTERS.find((c) => {
+      const code = c.capitulo.toUpperCase();
+      return (
+        candidate === code ||
+        candidate.startsWith(code) ||
+        candidate.includes(` ${code}`) ||
+        candidate.includes(`${code} `) ||
+        candidate.includes(`${code}-`) ||
+        candidate.includes(`${code} -`)
+      );
+    });
+    return found ? found.descricao : "";
+  }
+
   return (
-    <section className="bg-white border border-slate-200 shadow-sm">
+    <section className="CidChapterRankingPanel bg-white border border-slate-200 shadow-sm">
       <header className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#1A3351] flex items-center gap-2">
             <Layers3 className="w-4 h-4" /> Ranking por Capítulo CID
           </h4>
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mt-1">
-            Entradas CID = total de registros CID no capítulo · Licenças = eventos distintos com ao menos 1 CID do capítulo
+            Entradas CID = total de registros CID no capítulo · Licenças =
+            eventos distintos com ao menos 1 CID do capítulo
           </p>
         </div>
 
@@ -95,8 +120,15 @@ export default function CidChapterRankingPanel({
                   onClick={() => onSelectChapter(item.chapter)}
                   className={`border-b border-slate-100 cursor-pointer ${isSelected ? "bg-emerald-50" : "hover:bg-slate-50"}`}
                 >
-                  <td className="px-3 py-2.5 text-[11px] font-bold uppercase tracking-wide text-[#1A3351]">
-                    {item.chapter}
+                  <td className="px-3 py-2.5 text-[11px] tracking-wide">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
+                      <span className="text-[11px] font-bold uppercase text-[#1A3351]">
+                        {item.chapter}
+                      </span>
+                      <span className="text-[11px] text-slate-600 font-medium">
+                        {findChapterDescription(item.chapter)}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-3 py-2.5 text-[11px] font-bold text-right text-slate-700 tabular-nums">
                     {formatNumber(item.occurrences)}
