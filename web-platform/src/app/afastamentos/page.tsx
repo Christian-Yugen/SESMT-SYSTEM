@@ -1500,21 +1500,37 @@ export default function AfastamentosPage() {
                                             </span>
                                           )}
                                         </div>
-                                        {record.situacao !== "FINALIZADO" && record.data_fim && (
-                                          <VencimentoAlerta dateFim={record.data_fim} />
-                                        )}
+                                        {record.situacao !== "FINALIZADO" &&
+                                          record.data_fim && (
+                                            <VencimentoAlerta
+                                              dateFim={record.data_fim}
+                                            />
+                                          )}
 
-                                        {record.situacao === "FINALIZADO" && record.data_alta && (
-                                          <div className="mt-2 text-right">
-                                            <span className="text-[10px] font-medium text-slate-500 uppercase">Alta médica:</span>
-                                            <div className="text-sm font-semibold text-slate-700">
-                                                    {formatDate(record.data_alta)}
-                                                    {record.medico_alta && (
-                                                      <span className="ml-1">— {record.medico_alta}{record.medico_alta_crm ? ' (' + record.medico_alta_crm + ')' : ''}</span>
-                                                    )}
+                                        {record.situacao === "FINALIZADO" &&
+                                          record.data_alta && (
+                                            <div className="mt-2 text-right">
+                                              <span className="text-[10px] font-medium text-slate-500 uppercase">
+                                                Alta médica:
+                                              </span>
+                                              <div className="text-sm font-semibold text-slate-700">
+                                                {formatDate(record.data_alta)}
+                                                {record.medico_alta && (
+                                                  <span className="ml-1">
+                                                    — {record.medico_alta}
+                                                    {record.medico_alta_crm
+                                                      ? " (" +
+                                                        record.medico_alta_crm +
+                                                        ")"
+                                                      : ""}
+                                                  </span>
+                                                )}
+                                              </div>
                                             </div>
-                                          </div>
-                                        )}
+                                          )}
+                                      </div>
+                                    </div>
+                                  </div>
                                   <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
                                     <button
                                       onClick={() => handleViewPortaria(record)}
@@ -2015,56 +2031,90 @@ export default function AfastamentosPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
-                      Data da Alta Médica
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none"
-                      value={altaFormData.data_alta}
-                      onChange={(e) =>
-                        setAltaFormData({
-                          ...altaFormData,
-                          data_alta: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
-                      Médico (Nome)
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none uppercase"
-                      value={altaFormData.medico_alta}
-                      onChange={(e) =>
-                        setAltaFormData({
-                          ...altaFormData,
-                          medico_alta: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
+                    Data da Alta Médica
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none"
+                    value={altaFormData.data_alta}
+                    onChange={(e) =>
+                      setAltaFormData({
+                        ...altaFormData,
+                        data_alta: e.target.value,
+                      })
+                    }
+                  />
                 </div>
 
                 <div>
                   <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
-                    CRM (opcional)
+                    Médico Responsável pela Alta
                   </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none uppercase"
-                    value={altaFormData.medico_alta_crm}
-                    onChange={(e) =>
-                      setAltaFormData({
-                        ...altaFormData,
-                        medico_alta_crm: e.target.value,
-                      })
-                    }
-                  />
+                  {altaFormData.medico_alta ? (
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#1A3351] border-2 border-[#1A3351]">
+                      <div className="flex flex-col">
+                        <span className="text-[12px] font-bold uppercase text-white leading-tight">
+                          {altaFormData.medico_alta.startsWith("JULIA")
+                            ? "Dra."
+                            : "Dr."}{" "}
+                          {altaFormData.medico_alta}
+                        </span>
+                        <span className="text-[10px] font-medium text-blue-200 uppercase">
+                          {altaFormData.medico_alta_crm}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAltaFormData((prev) => ({
+                            ...prev,
+                            medico_alta: "",
+                            medico_alta_crm: "",
+                          }))
+                        }
+                        className="text-[10px] font-bold uppercase text-blue-300 hover:text-white underline underline-offset-2 transition-colors ml-6 flex-shrink-0"
+                      >
+                        Trocar
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3">
+                      {[
+                        {
+                          nome: "ISSAM FARES JUNIOR",
+                          crm: "CRM/MS 3744",
+                          titulo: "Dr.",
+                        },
+                        {
+                          nome: "JULIA OLIVEIRA MENDES PEREIRA",
+                          crm: "CRM/MS 14653",
+                          titulo: "Dra.",
+                        },
+                      ].map((perito) => (
+                        <button
+                          key={perito.crm}
+                          type="button"
+                          onClick={() =>
+                            setAltaFormData((prev) => ({
+                              ...prev,
+                              medico_alta: perito.nome,
+                              medico_alta_crm: perito.crm,
+                            }))
+                          }
+                          className="flex-1 flex flex-col items-start px-4 py-3 border-2 border-slate-300 bg-white hover:border-[#1A3351] hover:bg-slate-50 transition-all text-left"
+                        >
+                          <span className="text-[11px] font-bold uppercase text-slate-700 leading-tight">
+                            {perito.titulo} {perito.nome}
+                          </span>
+                          <span className="text-[10px] font-medium text-slate-400 uppercase">
+                            {perito.crm}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-none-b-lg flex justify-end gap-3">
