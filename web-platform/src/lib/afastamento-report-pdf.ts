@@ -167,6 +167,15 @@ export function generateServidorReportPDF(
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+    // Aviso LGPD curto (apenas no rodapé dos relatórios PDF)
+    doc.setFontSize(7);
+    doc.setTextColor(120);
+    doc.text(
+      "IMPORTANTE: Privacidade e Proteção de Dados (LGPD) — Uso restrito à gestão estratégica do SESMT.",
+      pageWidth / 2,
+      doc.internal.pageSize.getHeight() - 16,
+      { align: "center" },
+    );
     doc.setFontSize(7.5);
     doc.setTextColor(150);
     doc.text(
@@ -239,18 +248,25 @@ export function generateAbsenteeismDashboardReportPDF(
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text("FILTROS APLICADOS NO DASHBOARD:", 20, y);
-  
+
   doc.setFont("helvetica", "normal");
   const filterParts = [];
   if (filters.searchTerm) filterParts.push(`Busca: ${filters.searchTerm}`);
-  if (filters.startDate || filters.endDate) 
-    filterParts.push(`Período: ${filters.startDate || "..."} até ${filters.endDate || "..."}`);
-  if (filters.secretaria && filters.secretaria !== "all") filterParts.push(`Secretaria: ${filters.secretaria}`);
-  if (filters.natureza && filters.natureza !== "all") filterParts.push(`Natureza: ${filters.natureza}`);
-  
-  const filterText = filterParts.length > 0 ? filterParts.join(" | ") : "Nenhum filtro aplicado (Listagem Total)";
+  if (filters.startDate || filters.endDate)
+    filterParts.push(
+      `Período: ${filters.startDate || "..."} até ${filters.endDate || "..."}`,
+    );
+  if (filters.secretaria && filters.secretaria !== "all")
+    filterParts.push(`Secretaria: ${filters.secretaria}`);
+  if (filters.natureza && filters.natureza !== "all")
+    filterParts.push(`Natureza: ${filters.natureza}`);
+
+  const filterText =
+    filterParts.length > 0
+      ? filterParts.join(" | ")
+      : "Nenhum filtro aplicado (Listagem Total)";
   doc.text(filterText.toUpperCase(), 20, y + 5, { maxWidth: pageWidth - 40 });
-  
+
   doc.setFont("helvetica", "bold");
   doc.text(`TOTAL DE REGISTROS: ${records.length}`, pageWidth - 55, y + 5);
 
@@ -258,13 +274,16 @@ export function generateAbsenteeismDashboardReportPDF(
 
   // === TABELA DE DADOS ===
   const tableData = records.map((r) => {
-    const cids = r.afastamento_cids?.map(c => c.cid_codigo).join(", ") || "---";
+    const cids =
+      r.afastamento_cids?.map((c) => c.cid_codigo).join(", ") || "---";
     return [
       capitalizeName(r.servidor_cargo || r.natureza_cargo || "---"),
       capitalizeName(r.servidor_matricula || "---"),
       capitalizeName(r.servidor_contrato || "---"),
       r.tipo_afastamento,
-      r.data_inicio ? new Date(r.data_inicio).toLocaleDateString("pt-BR") : "---",
+      r.data_inicio
+        ? new Date(r.data_inicio).toLocaleDateString("pt-BR")
+        : "---",
       r.data_fim ? new Date(r.data_fim).toLocaleDateString("pt-BR") : "---",
       r.dias_afastado?.toString() || "---",
       cids,
@@ -287,16 +306,18 @@ export function generateAbsenteeismDashboardReportPDF(
         "Status",
       ],
     ],
-    body: records.map(r => [
+    body: records.map((r) => [
       `${capitalizeName(r.servidor_cargo || r.natureza_cargo || "---")}`,
       r.servidor_matricula || "---",
       r.servidor_contrato || "---",
       r.tipo_afastamento,
-      r.data_inicio ? new Date(r.data_inicio).toLocaleDateString("pt-BR") : "---",
+      r.data_inicio
+        ? new Date(r.data_inicio).toLocaleDateString("pt-BR")
+        : "---",
       r.data_fim ? new Date(r.data_fim).toLocaleDateString("pt-BR") : "---",
       r.dias_afastado?.toString() || "---",
-      r.afastamento_cids?.map(c => c.cid_codigo).join(", ") || "---",
-      r.status === "ATIVO" ? "ATIVO" : "FINALIZADO"
+      r.afastamento_cids?.map((c) => c.cid_codigo).join(", ") || "---",
+      r.status === "ATIVO" ? "ATIVO" : "FINALIZADO",
     ]),
     theme: "grid",
     headStyles: {
@@ -329,7 +350,7 @@ export function generateAbsenteeismDashboardReportPDF(
         pageHeight - 8,
         { align: "center" },
       );
-    }
+    },
   });
 
   // === OUTPUT ===

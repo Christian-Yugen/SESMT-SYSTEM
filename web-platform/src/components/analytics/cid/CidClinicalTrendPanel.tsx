@@ -22,7 +22,7 @@ export default function CidClinicalTrendPanel({
   chapterLabel,
 }: Readonly<CidClinicalTrendPanelProps>) {
   return (
-    <section className="bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
+    <section className="CidClinicalTrendPanel bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#1A3351] flex items-center gap-2">
           <LineChart className="w-4 h-4" /> Tendência Clínica (Leve)
@@ -45,14 +45,22 @@ export default function CidClinicalTrendPanel({
                 <stop offset="95%" stopColor="#E31E24" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="#f0f0f0"
+            />
             <XAxis
               dataKey="competency"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 9, fontWeight: 700, fill: "#7C8899" }}
             />
-            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 700, fill: "#7C8899" }} />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 9, fontWeight: 700, fill: "#7C8899" }}
+            />
             <Tooltip
               contentStyle={{
                 borderRadius: "0px",

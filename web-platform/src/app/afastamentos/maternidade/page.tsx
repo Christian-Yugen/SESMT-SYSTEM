@@ -43,9 +43,9 @@ import {
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
-import { 
-  generateServidorReportPDF, 
-  generateAbsenteeismDashboardReportPDF 
+import {
+  generateServidorReportPDF,
+  generateAbsenteeismDashboardReportPDF,
 } from "@/lib/afastamento-report-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
@@ -260,8 +260,8 @@ export default function MaternidadeAfastamentosPage() {
 
   const runAutoRepair = useCallback(async (data: AfastamentoRecord[]) => {
     // A Licença Maternidade possui prazos longos e fixos (180 dias).
-    // Removemos a auto-finalização agressiva que existia no módulo geral 
-    // para evitar que erros de interpretação de data ou fusos horários 
+    // Removemos a auto-finalização agressiva que existia no módulo geral
+    // para evitar que erros de interpretação de data ou fusos horários
     // finalizem o afastamento precocemente antes da revisão humana.
     return;
   }, []);
@@ -946,20 +946,22 @@ export default function MaternidadeAfastamentosPage() {
                                   <div className="w-1.5 h-1.5 rounded-none bg-[#E31E24]" />
                                 )}
                               </button>
-
                             </div>
                           </div>
                         </ActionIconButton>
-                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                          <ActionIconButton
-                            icon={<PlusCircle className="w-4 h-4" />}
-                            label="Nova licença maternidade"
-                            variant="success"
-                            onClick={() =>
-                              router.push("/afastamentos/new?tipo=maternidade")
-                            }
-                          />
-                        )}
+                        {userRole !== "analytic_manager" &&
+                          userRole !== "doctor" && (
+                            <ActionIconButton
+                              icon={<PlusCircle className="w-4 h-4" />}
+                              label="Nova licença maternidade"
+                              variant="success"
+                              onClick={() =>
+                                router.push(
+                                  "/afastamentos/new?tipo=maternidade",
+                                )
+                              }
+                            />
+                          )}
                       </>
                     }
                   />
@@ -1343,36 +1345,43 @@ export default function MaternidadeAfastamentosPage() {
                                         Anotações
                                       </button>
                                     )}
-                                    {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                                      <>
-                                        <button
-                                          onClick={() => openEditModal(record)}
-                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                        >
-                                          <Pencil className="w-3 h-3" /> Editar
-                                        </button>
-                                        <button
-                                          onClick={() => openNotesModal(record)}
-                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                        >
-                                          <ClipboardList className="w-3 h-3" />{" "}
-                                          Anotações
-                                        </button>
-                                        {record.situacao === "EM_ANDAMENTO" && (
+                                    {userRole !== "analytic_manager" &&
+                                      userRole !== "doctor" && (
+                                        <>
                                           <button
                                             onClick={() =>
-                                              router.push(
-                                                `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}&tipo=maternidade`,
-                                              )
+                                              openEditModal(record)
                                             }
-                                            className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
                                           >
-                                            <RotateCcw className="w-3 h-3" />{" "}
-                                            PRORROGAR
+                                            <Pencil className="w-3 h-3" />{" "}
+                                            Editar
                                           </button>
-                                        )}
-                                      </>
-                                    )}
+                                          <button
+                                            onClick={() =>
+                                              openNotesModal(record)
+                                            }
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                          >
+                                            <ClipboardList className="w-3 h-3" />{" "}
+                                            Anotações
+                                          </button>
+                                          {record.situacao ===
+                                            "EM_ANDAMENTO" && (
+                                            <button
+                                              onClick={() =>
+                                                router.push(
+                                                  `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}&tipo=maternidade`,
+                                                )
+                                              }
+                                              className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
+                                            >
+                                              <RotateCcw className="w-3 h-3" />{" "}
+                                              PRORROGAR
+                                            </button>
+                                          )}
+                                        </>
+                                      )}
                                     {/* Botão CID */}
                                     <button
                                       onClick={(e) => {
@@ -1737,11 +1746,13 @@ export default function MaternidadeAfastamentosPage() {
             </div>
           </div>
         )}
-
       </main>
 
       {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - TOTALMENTE ISOLADA) */}
-      <div id="print-area" className="hidden print:block bg-white text-black p-0 m-0 w-full">
+      <div
+        id="print-area"
+        className="hidden print:block bg-white text-black p-0 m-0 w-full"
+      >
         <div className="p-2 pt-0.5">
           <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1 mb-1">
             <div className="flex items-center gap-3">
@@ -1793,11 +1804,21 @@ export default function MaternidadeAfastamentosPage() {
           <table className="w-full border-collapse border border-slate-300">
             <thead>
               <tr className="bg-slate-100">
-                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Servidora</th>
-                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Identificação</th>
-                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">Início</th>
-                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">Término</th>
-                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">Secretaria</th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Servidora
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Identificação
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">
+                  Início
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">
+                  Término
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Secretaria
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -1806,29 +1827,46 @@ export default function MaternidadeAfastamentosPage() {
                 .map((record, index) => (
                   <tr key={index} className="border-b border-slate-200">
                     <td className="border border-slate-300 py-0.5 px-2">
-                       <p className="text-[11px] font-bold text-black uppercase leading-tight">{record.servidor_nome}</p>
-                       <p className="text-[9px] text-slate-600 font-normal mt-0 uppercase">{record.servidor_cargo || "---"}</p>
+                      <p className="text-[11px] font-bold text-black uppercase leading-tight">
+                        {record.servidor_nome}
+                      </p>
+                      <p className="text-[9px] text-slate-600 font-normal mt-0 uppercase">
+                        {record.servidor_cargo || "---"}
+                      </p>
                     </td>
                     <td className="border border-slate-300 py-0.5 px-2">
-                       <p className="text-[10px] text-slate-700 font-normal uppercase">MATRI: {record.servidor_matricula}</p>
-                       {record.servidor_contrato && <p className="text-[9px] text-slate-500 uppercase">CONTRATO: {record.servidor_contrato}</p>}
+                      <p className="text-[10px] text-slate-700 font-normal uppercase">
+                        MATRI: {record.servidor_matricula}
+                      </p>
+                      {record.servidor_contrato && (
+                        <p className="text-[9px] text-slate-500 uppercase">
+                          CONTRATO: {record.servidor_contrato}
+                        </p>
+                      )}
                     </td>
-                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#1A3351]">{formatDate(record.data_inicio)}</td>
-                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#E31E24]">{formatDate(record.data_fim)}</td>
-                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase leading-tight">{record.servidor_secretaria || "---"}</td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#1A3351]">
+                      {formatDate(record.data_inicio)}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#E31E24]">
+                      {formatDate(record.data_fim)}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase leading-tight">
+                      {record.servidor_secretaria || "---"}
+                    </td>
                   </tr>
                 ))}
             </tbody>
           </table>
 
-          <div className="mt-4 pt-3 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-4">
+          <div className="hidden print:block mt-4 pt-3 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-4">
             <p className="text-[11px] font-black text-slate-900 mb-1 uppercase tracking-tighter shadow-sm">
-               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
             <p className="text-[10px] text-slate-700 leading-relaxed mb-3 font-medium text-center">
-              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-              O uso destas informações é restrito à gestão estratégica do SESMT. 
-              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prévia.
             </p>
             <div className="pt-2 border-t border-slate-200">
               <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold">

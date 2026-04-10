@@ -44,9 +44,9 @@ import {
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Loader2 } from "lucide-react";
-import { 
-  generateServidorReportPDF, 
-  generateAbsenteeismDashboardReportPDF 
+import {
+  generateServidorReportPDF,
+  generateAbsenteeismDashboardReportPDF,
 } from "@/lib/afastamento-report-pdf";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
 import { generateAfastamentoPDF } from "@/lib/afastamento-portaria-pdf";
@@ -1033,9 +1033,12 @@ export default function AfastamentosPage() {
                                     startDate: filters.startDate,
                                     endDate: filters.endDate,
                                     secretaria: filters.filterSecretaria,
-                                    natureza: filters.filterAsoType
+                                    natureza: filters.filterAsoType,
                                   };
-                                  generateAbsenteeismDashboardReportPDF(filteredRecords, reportFilters);
+                                  generateAbsenteeismDashboardReportPDF(
+                                    filteredRecords,
+                                    reportFilters,
+                                  );
                                   setIsPrintPopoverOpen(false);
                                 }}
                                 className="w-full text-left p-3 rounded-none flex items-center gap-3 hover:bg-emerald-50 text-emerald-700 transition-colors border-t border-slate-100"
@@ -1054,14 +1057,15 @@ export default function AfastamentosPage() {
                           variant="primary"
                           onClick={() => router.push("/afastamentos/analytics")}
                         />
-                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                          <ActionIconButton
-                            icon={<PlusCircle className="w-4 h-4" />}
-                            label="Novo afastamento"
-                            variant="success"
-                            onClick={() => router.push("/afastamentos/new")}
-                          />
-                        )}
+                        {userRole !== "analytic_manager" &&
+                          userRole !== "doctor" && (
+                            <ActionIconButton
+                              icon={<PlusCircle className="w-4 h-4" />}
+                              label="Novo afastamento"
+                              variant="success"
+                              onClick={() => router.push("/afastamentos/new")}
+                            />
+                          )}
                       </>
                     }
                   />
@@ -1459,56 +1463,65 @@ export default function AfastamentosPage() {
                                         Anotações
                                       </button>
                                     )}
-                                    {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                                      <>
-                                        <button
-                                          onClick={() => openEditModal(record)}
-                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                        >
-                                          <Pencil className="w-3 h-3" /> Editar
-                                        </button>
-                                        <button
-                                          onClick={() => openNotesModal(record)}
-                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                        >
-                                          <ClipboardList className="w-3 h-3" />{" "}
-                                          Anotações
-                                        </button>
-                                        {record.situacao === "EM_ANDAMENTO" && (
-                                          <>
-                                            <button
-                                              onClick={() =>
-                                                router.push(
-                                                  `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
-                                                )
-                                              }
-                                              className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
-                                            >
-                                              <RotateCcw className="w-3 h-3" />{" "}
-                                              PRORROGAR
-                                            </button>
-                                            {!record.tipo_afastamento
-                                              ?.toUpperCase()
-                                              .includes("MATERNIDADE") && (
+                                    {userRole !== "analytic_manager" &&
+                                      userRole !== "doctor" && (
+                                        <>
+                                          <button
+                                            onClick={() =>
+                                              openEditModal(record)
+                                            }
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                          >
+                                            <Pencil className="w-3 h-3" />{" "}
+                                            Editar
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              openNotesModal(record)
+                                            }
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                          >
+                                            <ClipboardList className="w-3 h-3" />{" "}
+                                            Anotações
+                                          </button>
+                                          {record.situacao ===
+                                            "EM_ANDAMENTO" && (
+                                            <>
                                               <button
                                                 onClick={() =>
-                                                  handleAltaMedica(record)
+                                                  router.push(
+                                                    `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
+                                                  )
                                                 }
-                                                disabled={updatingId === record.id}
-                                                className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
+                                                className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
                                               >
-                                                {updatingId === record.id ? (
-                                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                                ) : (
-                                                  <CheckCircle2 className="w-3 h-3" />
-                                                )}
-                                                DAR ALTA
+                                                <RotateCcw className="w-3 h-3" />{" "}
+                                                PRORROGAR
                                               </button>
-                                            )}
-                                          </>
-                                        )}
-                                      </>
-                                    )}
+                                              {!record.tipo_afastamento
+                                                ?.toUpperCase()
+                                                .includes("MATERNIDADE") && (
+                                                <button
+                                                  onClick={() =>
+                                                    handleAltaMedica(record)
+                                                  }
+                                                  disabled={
+                                                    updatingId === record.id
+                                                  }
+                                                  className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
+                                                >
+                                                  {updatingId === record.id ? (
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                  ) : (
+                                                    <CheckCircle2 className="w-3 h-3" />
+                                                  )}
+                                                  DAR ALTA
+                                                </button>
+                                              )}
+                                            </>
+                                          )}
+                                        </>
+                                      )}
                                     {/* Botão CID isolado à direita */}
                                     <button
                                       onClick={(e) => {
@@ -1906,58 +1919,156 @@ export default function AfastamentosPage() {
             </div>
           </div>
         )}
-          {/* RODAPÉ DO PDF COM LGPD */}
-          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto pb-10">
-            <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
-              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
-            </p>
-            <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
-              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-              O uso destas informações é restrito à gestão estratégica do SESMT. 
-              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.
-            </p>
-            <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
-              Gerado via SESMT SYSTEM - Powered by UXBRAS®
+      </main>
+      {/* ÁREA DE IMPRESSÃO (RAIZ DO COMPONENTE - MODELO Maternidade) */}
+      <div
+        id="print-area"
+        className="hidden print:block bg-white text-black p-0 m-0 w-full"
+      >
+        <div className="p-2 pt-0.5">
+          <div className="flex justify-between items-center border-b-[1px] border-slate-200 pb-1 mb-1">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={160}
+                height={48}
+                className="h-12 w-auto object-contain"
+                priority
+              />
+              <div className="h-10 w-[1px] bg-slate-200 mx-1" />
+              <div className="flex flex-col">
+                <p className="text-[10px] font-bold text-slate-700 uppercase leading-none mb-0.5">
+                  Prefeitura Três Lagoas
+                </p>
+                <p className="text-[9px] font-bold text-slate-600 uppercase leading-none">
+                  SESMT - Saúde Ocupacional
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <h1 className="text-base font-bold text-[#1A3351] uppercase tracking-tighter leading-tight">
+                Relatório Gerencial de Afastamentos
+              </h1>
+              <div className="text-[9px] font-medium text-slate-600 uppercase">
+                OP: {userName} | {new Date().toLocaleDateString("pt-BR")}{" "}
+                {new Date().toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-white p-1 mb-1 border border-slate-300 rounded-none">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-[#10b981]" />
+              <p className="text-[9px] font-bold uppercase text-[#1A3351]">
+                REGISTROS:{" "}
+                <span className="text-[#10b981]">{filteredRecords.length}</span>
+              </p>
+            </div>
+            <p className="text-[9px] font-bold uppercase text-slate-700 truncate max-w-[60%] italic">
+              FILTROS: {printFiltersDesc}
             </p>
           </div>
 
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              @media print {
-                html,
-                body {
-                  height: auto !important;
-                  overflow: visible !important;
-                  background: white !important;
-                  margin: 0 !important;
-                  padding: 0 !important;
-                }
-                #print-area {
-                  display: block !important;
-                  position: absolute !important;
-                  left: 0 !important;
-                  top: 0 !important;
-                  width: 100% !important;
-                  z-index: 99999 !important;
-                  background: white !important;
-                }
-                #print-area table {
-                  width: 100% !important;
-                  border-collapse: collapse !important;
-                }
-                #print-area tr {
-                  page-break-inside: avoid !important;
-                }
-                @page {
-                  size: ${printLayout};
-                  margin: 0.5cm;
-                }
-              }
-            `,
-          }}
-        />
-        </main>
+          <table className="w-full border-collapse border border-slate-300">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Servidor
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Identificação
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">
+                  Início
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-center">
+                  Término
+                </th>
+                <th className="border border-slate-300 p-1 text-[10px] font-bold uppercase text-left">
+                  Secretaria
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecords
+                .slice()
+                .sort((a, b) => a.servidor_nome.localeCompare(b.servidor_nome))
+                .map((record, index) => (
+                  <tr key={index} className="border-b border-slate-200">
+                    <td className="border border-slate-300 py-0.5 px-2">
+                      <p className="text-[11px] font-bold text-black uppercase leading-tight">
+                        {record.servidor_nome}
+                      </p>
+                      <p className="text-[9px] text-slate-600 font-normal mt-0 uppercase">
+                        {record.servidor_cargo || "---"}
+                      </p>
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2">
+                      <p className="text-[10px] text-slate-700 font-normal uppercase">
+                        MATRI: {record.servidor_matricula}
+                      </p>
+                      {record.servidor_contrato && (
+                        <p className="text-[9px] text-slate-500 uppercase">
+                          CONTRATO: {record.servidor_contrato}
+                        </p>
+                      )}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#1A3351]">
+                      {formatDate(record.data_inicio)}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-center text-[10px] text-[#E31E24]">
+                      {formatDate(record.data_fim)}
+                    </td>
+                    <td className="border border-slate-300 py-0.5 px-2 text-[10px] text-slate-700 uppercase leading-tight">
+                      {record.servidor_secretaria || "---"}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+
+          <div className="hidden print:block mt-4 pt-3 border-t-2 border-slate-300 text-center max-w-[90%] mx-auto pb-4">
+            <p className="text-[11px] font-black text-slate-900 mb-1 uppercase tracking-tighter shadow-sm">
+              🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
+            </p>
+            <p className="text-[10px] text-slate-700 leading-relaxed mb-3 font-medium text-center">
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prévia.
+            </p>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-[9px] text-slate-400 tracking-[0.3em] font-bold">
+                Gerado via SESMT SYSTEM - Powered by UXBRAS®
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    );
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * { visibility: hidden !important; }
+              #print-area, #print-area * { visibility: visible !important; }
+              #print-area { 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 100% !important; 
+                display: block !important;
+                background: white !important;
+              }
+              @page { size: ${printLayout}; margin: 1cm; }
+            }
+          `,
+        }}
+      />
+    </div>
+  );
 }

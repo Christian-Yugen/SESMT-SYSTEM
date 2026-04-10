@@ -187,8 +187,7 @@ export default function AbonoPage() {
               srv?.matricula || r.servidor_matricula || undefined,
             servidor_contrato:
               srv?.contrato || r.servidor_contrato || undefined,
-            servidor_cargo:
-              srv?.cargo || r.servidor_cargo || undefined,
+            servidor_cargo: srv?.cargo || r.servidor_cargo || undefined,
             secretaria: r.secretaria || srv?.secretaria || undefined,
             natureza_cargo:
               r.natureza_cargo || srv?.natureza_cargo || undefined,
@@ -547,6 +546,96 @@ export default function AbonoPage() {
     renewalTargetIds,
   ]);
 
+  const generateAbonoPrintReport = (layout: "portrait" | "landscape") => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const today = new Date().toLocaleDateString("pt-BR");
+    const logoUrl = window.location.origin + "/images/logo.png";
+
+    const recordsToPrint = stats.finalRecords
+      .slice()
+      .sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
+
+    const rows = recordsToPrint
+      .map((record) => {
+        const endDate = record.inicio
+          ? (() => {
+              const d = new Date(record.inicio + "T00:00:00");
+              d.setFullYear(d.getFullYear() + 1);
+              return d.toLocaleDateString("pt-BR");
+            })()
+          : "---";
+
+        return `
+            <tr>
+              <td style="padding:6px;border:1px solid #eee;font-size:10px;vertical-align:middle;">${(record.nome || "-").toUpperCase()}${
+                record.natureza_cargo
+                  ? `<div style=\"font-size:9px;color:#777;margin-top:4px;\">${record.natureza_cargo}</div>`
+                  : ""
+              }</td>
+              <td style="padding:6px;border:1px solid #eee;font-size:10px;">${record.portaria || "---"}</td>
+              <td style="padding:6px;border:1px solid #eee;text-align:center;font-size:10px;">${formatDate(record.inicio)}</td>
+              <td style="padding:6px;border:1px solid #eee;text-align:center;font-size:10px;">${endDate}</td>
+              <td style="padding:6px;border:1px solid #eee;font-size:10px;">${record.secretaria || "---"}</td>
+            </tr>
+          `;
+      })
+      .join("");
+
+    printWindow.document.write(`
+        <html>
+          <head>
+            <title>Relatório Gerencial de Abono - ${today}</title>
+            <style>
+              @page { size: ${layout}; margin: 1cm; }
+              body { font-family: sans-serif; color: #333; padding: 12px; }
+              .header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E31E24; padding-bottom:8px; margin-bottom:10px; }
+              .logo img { height:40px; }
+              h1 { color: #1A3351; font-size:14px; text-transform:uppercase; margin:0; }
+              .info { font-size:9px; font-weight:900; color:#666; text-transform:uppercase; }
+              table { width:100%; border-collapse: collapse; margin-top:8px; }
+              th { background:#f8f8f8; padding:6px; font-size:9px; color:#1A3351; text-transform:uppercase; border:1px solid #eaeaea; text-align:left; }
+              td { border:1px solid #eee; padding:6px; font-size:10px; vertical-align:middle; text-transform:uppercase; }
+              .lgpd { margin-top:14px; border-top:1px solid #eee; padding-top:8px; text-align:center; font-size:9px; color:#666; }
+              .powered { margin-top:8px; font-size:8px; color:#999; text-align:center; border-top:1px solid #eee; padding-top:6px; }
+            </style>
+          </head>
+          <body onload="window.print(); window.close();">
+            <div class="header">
+              <div class="logo"><img src="${logoUrl}" alt="Logo" /></div>
+              <div style="text-align:right;">
+                <h1>Relatório Gerencial de Abono</h1>
+                <div class="info">OP: ${userName} | EMISSÃO: ${today}</div>
+              </div>
+            </div>
+            <div style="font-size:9px;margin-bottom:8px;text-transform:uppercase;color:#1A3351;font-weight:900;">Registros: ${stats.finalRecords.length} • Filtros: ${stats.printFilters}</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome do Servidor / Natureza</th>
+                  <th>Portaria</th>
+                  <th style="text-align:center">Início</th>
+                  <th style="text-align:center">Término</th>
+                  <th>Secretaria</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+            <div class="lgpd">
+              <strong>🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</strong>
+              <p style="margin:8px 0 0; font-weight:600; font-size:9px;">Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. O uso destas informações é restrito à gestão estratégica do SESMT. Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prévia.</p>
+            </div>
+            <div class="powered">Gerado via SESMT SYSTEM - Powered by UXBRAS®</div>
+          </body>
+        </html>
+      `);
+
+    printWindow.document.close();
+  };
+
   if (loading) {
     return (
       <div className="h-screen w-full bg-[#D3D3D3] flex flex-col items-center justify-center gap-4">
@@ -665,10 +754,8 @@ export default function AbonoPage() {
                                 <button
                                   onClick={() => {
                                     setPrintLayout("portrait");
-                                    setTimeout(() => {
-                                      window.print();
-                                      setIsPrintPopoverOpen(false);
-                                    }, 100);
+                                    generateAbonoPrintReport("portrait");
+                                    setIsPrintPopoverOpen(false);
                                   }}
                                   className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "portrait" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
                                 >
@@ -682,10 +769,8 @@ export default function AbonoPage() {
                                 <button
                                   onClick={() => {
                                     setPrintLayout("landscape");
-                                    setTimeout(() => {
-                                      window.print();
-                                      setIsPrintPopoverOpen(false);
-                                    }, 100);
+                                    generateAbonoPrintReport("landscape");
+                                    setIsPrintPopoverOpen(false);
                                   }}
                                   className={`w-full text-left p-3 rounded-none flex items-center justify-between transition-colors ${printLayout === "landscape" ? "bg-[#E31E24]/10 text-[#E31E24]" : "hover:bg-slate-100 text-slate-600"}`}
                                 >
@@ -706,14 +791,15 @@ export default function AbonoPage() {
                             variant="primary"
                             onClick={() => router.push("/abono/analytics")}
                           />
-                          {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                            <ActionIconButton
-                              icon={<PlusCircle className="w-4 h-4" />}
-                              label="Novo lançamento"
-                              variant="success"
-                              onClick={() => router.push("/abono/new")}
-                            />
-                          )}
+                          {userRole !== "analytic_manager" &&
+                            userRole !== "doctor" && (
+                              <ActionIconButton
+                                icon={<PlusCircle className="w-4 h-4" />}
+                                label="Novo lançamento"
+                                variant="success"
+                                onClick={() => router.push("/abono/new")}
+                              />
+                            )}
                         </>
                       }
                     />
@@ -1059,37 +1145,38 @@ export default function AbonoPage() {
                                         </div>
                                       </div>
                                       <div className="flex flex-col gap-2 items-end justify-center">
-                                        {userRole !== "analytic_manager" && userRole !== "doctor" && (
-                                          <>
-                                            <button
-                                              onClick={() =>
-                                                router.push(
-                                                  `/abono/edit/${record.id}`,
-                                                )
-                                              }
-                                              className="px-6 py-2.5 bg-[#1A3351] text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40"
-                                            >
-                                              Editar Dados
-                                            </button>
-                                            {getBenefitStatus(
-                                              record,
-                                              renewalTargetIds,
-                                            ) === "expired" &&
-                                              !record.renovado_por_id && (
-                                                <button
-                                                  onClick={() =>
-                                                    router.push(
-                                                      `/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ""}`,
-                                                    )
-                                                  }
-                                                  className="px-6 py-2.5 bg-green-600 text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40 flex items-center justify-center gap-2"
-                                                >
-                                                  <TrendingUp className="w-4 h-4" />
-                                                  Renovar
-                                                </button>
-                                              )}
-                                          </>
-                                        )}
+                                        {userRole !== "analytic_manager" &&
+                                          userRole !== "doctor" && (
+                                            <>
+                                              <button
+                                                onClick={() =>
+                                                  router.push(
+                                                    `/abono/edit/${record.id}`,
+                                                  )
+                                                }
+                                                className="px-6 py-2.5 bg-[#1A3351] text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40"
+                                              >
+                                                Editar Dados
+                                              </button>
+                                              {getBenefitStatus(
+                                                record,
+                                                renewalTargetIds,
+                                              ) === "expired" &&
+                                                !record.renovado_por_id && (
+                                                  <button
+                                                    onClick={() =>
+                                                      router.push(
+                                                        `/abono/new?renew_from=${record.id}&cpf=${record.cpf}&beneficiario=${record.beneficiario_nome || ""}`,
+                                                      )
+                                                    }
+                                                    className="px-6 py-2.5 bg-green-600 text-white text-[11px] font-bold uppercase rounded-none shadow-sm hover:brightness-110 active:scale-95 transition-all w-full md:w-40 flex items-center justify-center gap-2"
+                                                  >
+                                                    <TrendingUp className="w-4 h-4" />
+                                                    Renovar
+                                                  </button>
+                                                )}
+                                            </>
+                                          )}
                                       </div>
                                     </div>
 
@@ -1368,14 +1455,15 @@ export default function AbonoPage() {
           </table>
 
           {/* RODAPÉ DO PDF COM LGPD */}
-          <div className="mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto">
+          <div className="hidden print:block mt-6 pt-4 border-t border-slate-200 text-center max-w-[80%] mx-auto">
             <p className="text-[9px] font-bold text-slate-800 mb-1 uppercase tracking-tighter">
               🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)
             </p>
             <p className="text-[8px] text-slate-600 leading-tight mb-4 text-center">
-              Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. 
-              O uso destas informações é restrito à gestão estratégica do SESMT. 
-              Proibida a divulgação pública ou compartilhamento com terceiros sem autorização prevía.
+              Este relatório gerencial contém dados agregados de produtividade
+              para fins de Business Intelligence. O uso destas informações é
+              restrito à gestão estratégica do SESMT. Proibida a divulgação
+              pública ou compartilhamento com terceiros sem autorização prevía.
             </p>
             <p className="text-[8px] text-slate-400 tracking-widest pt-2 border-t border-slate-100">
               Gerado via SESMT SYSTEM - Powered by UXBRAS®

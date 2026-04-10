@@ -60,6 +60,14 @@ export default function NewAfastamentoPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("Usuário");
   const [isMaternidadeContext, setIsMaternidadeContext] = useState(false);
+  // Quando houver múltiplos vínculos, permitir lançar em todos ou somente um
+  const [applyToAll, setApplyToAll] = useState<boolean>(true);
+  const [targetBondIndex, setTargetBondIndex] = useState<number | null>(null);
+  useEffect(() => {
+    // Ao trocar/receber vínculos, restaurar comportamento padrão (aplicar em todos)
+    setApplyToAll(true);
+    setTargetBondIndex(null);
+  }, [allBonds]);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -269,6 +277,11 @@ export default function NewAfastamentoPage() {
       return;
     }
 
+    if (allBonds.length > 1 && !applyToAll && targetBondIndex === null) {
+      alert("Selecione a matrícula alvo para o afastamento.");
+      return;
+    }
+
     setSaving(true);
     try {
       const {
@@ -311,9 +324,16 @@ export default function NewAfastamentoPage() {
         }
       }
 
-      // Lançar para todos os vínculos
-      for (const bond of allBonds) {
-        const { data: newAfastamento, error } = await supabase
+      // Lançar para vínculos conforme seleção do usuário (todos ou somente 1)
+      const bondsToPersist = applyToAll
+        ? allBonds
+        : [allBonds[targetBondIndex as number]];
+      const contractsForPortaria = bondsToPersist
+        .map((b) => b.contrato)
+        .join(" e ");
+
+      for (const bond of bondsToPersist) {
+        const { data: newAfastamento, error: insertError } = await supabase
           .from("afastamentos")
           .insert({
             servidor_cpf: bond.cpf,
@@ -338,7 +358,16 @@ export default function NewAfastamentoPage() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (insertError)
+          throw new Error(insertError.message || JSON.stringify(insertError));
+        if (
+          !newAfastamento ||
+          typeof (newAfastamento as any).id === "undefined"
+        ) {
+          throw new Error(
+            "Resposta inesperada ao criar afastamento (id ausente).",
+          );
+        }
 
         // Inserir CIDs
         for (const cid of selectedCids) {
@@ -352,7 +381,7 @@ export default function NewAfastamentoPage() {
         }
 
         // Gerar Registro de Portaria
-        const { data: portariaRec } = await supabase
+        const { data: portariaRec, error: portariaError } = await supabase
           .from("portarias_afastamento")
           .insert({
             afastamento_id: newAfastamento.id,
@@ -364,8 +393,14 @@ export default function NewAfastamentoPage() {
           .select()
           .single();
 
-        // Para o PDF, vamos consolidar os vínculos se houver mais de um
-        const allContracts = allBonds.map((b) => b.contrato).join(" e ");
+        if (portariaError)
+          throw new Error(
+            portariaError.message || JSON.stringify(portariaError),
+          );
+        if (!portariaRec)
+          throw new Error(
+            "Resposta inesperada ao criar portaria (dados ausentes).",
+          );
 
         setGeneratedPortaria({
           ...portariaRec,
@@ -379,7 +414,7 @@ export default function NewAfastamentoPage() {
           is_acidente_trabalho: formData.is_acidente_trabalho,
           perito_nome: formData.perito_nome,
           perito_crm: formData.perito_crm,
-          servidor_contrato: allContracts, // <--- Joined contracts
+          servidor_contrato: contractsForPortaria,
         });
 
         // Prorrogação: Procurar o registro anterior correspondente a este vínculo
@@ -396,7 +431,7 @@ export default function NewAfastamentoPage() {
               renovado_por_id: newAfastamento.id,
             })
             .eq("id", prevBondRec.id);
-        } else if (formData.renew_from_id && allBonds.length === 1) {
+        } else if (formData.renew_from_id && bondsToPersist.length === 1) {
           // Fallback para caso simples de 1 vínculo ou se a matrícula mudou (raro)
           await supabase
             .from("afastamentos")
@@ -410,10 +445,18 @@ export default function NewAfastamentoPage() {
 
       setShowSuccess(true);
     } catch (err: unknown) {
-      console.error(err);
-      alert(
-        "Erro ao salvar: " + (err instanceof Error ? err.message : String(err)),
-      );
+      console.error("handleSave error:", err);
+      try {
+        const printable =
+          err instanceof Error
+            ? `${err.name}: ${err.message}\n${err.stack}`
+            : JSON.stringify(err, Object.getOwnPropertyNames(err));
+        console.error("handleSave details:", printable);
+        alert("Erro ao salvar: " + printable);
+      } catch (e) {
+        console.error("Erro ao serializar erro de salvamento:", e, err);
+        alert("Erro ao salvar (ver console para mais detalhes).");
+      }
     } finally {
       setSaving(false);
     }
@@ -569,17 +612,54 @@ export default function NewAfastamentoPage() {
                 <div className="mt-4 bg-emerald-50 p-4 rounded-none border border-emerald-200">
                   <p className="text-[10px] font-bold text-emerald-700 uppercase mb-2">
                     Atenção: Este servidor possui {allBonds.length} vínculos
-                    ativos. O afastamento será aplicado a todos:
+                    ativos.
                   </p>
+
+                  <div className="flex items-center gap-3 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setApplyToAll(true);
+                        setTargetBondIndex(null);
+                      }}
+                      className={`px-3 py-2 text-[10px] font-bold uppercase ${applyToAll ? "bg-emerald-700 text-white" : "bg-white text-emerald-700"} border border-emerald-300`}
+                    >
+                      Aplicar em todos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setApplyToAll(false)}
+                      className={`px-3 py-2 text-[10px] font-bold uppercase ${!applyToAll ? "bg-emerald-700 text-white" : "bg-white text-emerald-700"} border border-emerald-300`}
+                    >
+                      Aplicar em apenas 1 matrícula
+                    </button>
+                  </div>
+
+                  {applyToAll ? (
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase mb-2">
+                      O afastamento será aplicado a todos:
+                    </p>
+                  ) : (
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase mb-2">
+                      Escolha a matrícula alvo:
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
-                    {allBonds.map((b, idx) => (
-                      <span
-                        key={b.id || `${b.matricula}-${b.contrato}-${idx}`}
-                        className="bg-white px-3 py-1 rounded-none text-[10px] font-bold shadow-sm border border-emerald-300"
-                      >
-                        Matrícula: {b.matricula} (C. {b.contrato})
-                      </span>
-                    ))}
+                    {allBonds.map((b, idx) => {
+                      const isSelected = targetBondIndex === idx;
+                      return (
+                        <button
+                          key={b.id || `${b.matricula}-${b.contrato}-${idx}`}
+                          onClick={() => {
+                            if (!applyToAll) setTargetBondIndex(idx);
+                          }}
+                          className={`px-3 py-1 rounded-none text-[10px] font-bold shadow-sm border ${applyToAll ? "bg-white border-emerald-300 text-slate-700" : isSelected ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-300 text-emerald-700"}`}
+                        >
+                          Matrícula: {b.matricula} (C. {b.contrato})
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -54,7 +54,7 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const variantClass = VARIANT_CLASSES[variant];
 
   const baseClass = [
-    "w-full border border-slate-200 border-l-4",
+    "StatisticCard w-full border border-slate-200 border-l-4",
     "px-3 py-2 sm:px-3.5 sm:py-2.5",
     "rounded-none transition-all duration-150",
     "flex items-center justify-between gap-2",
