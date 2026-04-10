@@ -79,6 +79,9 @@ export interface AfastamentoRecord {
   perito_nome: string;
   perito_crm: string;
   situacao: "EM_ANDAMENTO" | "FINALIZADO" | "PRORROGADO";
+  data_alta?: string;
+  medico_alta?: string;
+  medico_alta_crm?: string;
   status: string;
   observacoes: string;
   renovado_por_id: number | null;

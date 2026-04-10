@@ -231,6 +231,16 @@ export default function AfastamentosPage() {
   const [editingRecord, setEditingRecord] = useState<AfastamentoRecord | null>(
     null,
   );
+  // Alta médica modal
+  const [isAltaModalOpen, setIsAltaModalOpen] = useState(false);
+  const [altaSelectedRecord, setAltaSelectedRecord] =
+    useState<AfastamentoRecord | null>(null);
+  const [altaFormData, setAltaFormData] = useState({
+    data_alta: "",
+    medico_alta: "",
+    medico_alta_crm: "",
+  });
+  const [isSavingAlta, setIsSavingAlta] = useState(false);
   const [editFormData, setEditFormData] = useState({
     data_inicio: "",
     dias_afastado: "",
@@ -409,25 +419,19 @@ export default function AfastamentosPage() {
     checkAuth();
   }, [router, loadRecords]);
 
-  async function handleAltaMedica(record: AfastamentoRecord) {
-    if (
-      !confirm(
-        "Confirmar ALTA MÉDICA? O registro será marcado como FINALIZADO.",
-      )
-    )
-      return;
-    setUpdatingId(record.id);
-    const { error } = await supabase
-      .from("afastamentos")
-      .update({ situacao: "FINALIZADO" })
-      .eq("id", record.id);
-    if (!error)
-      setRecords(
-        records.map((r) =>
-          r.id === record.id ? { ...r, situacao: "FINALIZADO" } : r,
-        ),
-      );
-    setUpdatingId(null);
+  function handleAltaMedica(record: AfastamentoRecord) {
+    // Abrir modal para preencher data e médico responsável
+    setAltaSelectedRecord(record);
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    setAltaFormData({
+      data_alta: `${y}-${m}-${d}`,
+      medico_alta: record.perito_nome || "",
+      medico_alta_crm: record.perito_crm || "",
+    });
+    setIsAltaModalOpen(true);
   }
 
   const openEditModal = async (record: AfastamentoRecord) => {
@@ -574,6 +578,66 @@ export default function AfastamentosPage() {
       );
     } finally {
       setIsSavingNote(false);
+    }
+  }
+
+  async function handleConfirmAlta() {
+    if (!altaSelectedRecord) return;
+    if (!altaFormData.data_alta || !altaFormData.medico_alta) {
+      alert("Preencha a data da alta e o médico responsável.");
+      return;
+    }
+    setIsSavingAlta(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const auditHash = `AF-ALTA-${Date.now().toString(36).toUpperCase()}`;
+
+      const oldData = {
+        situacao: altaSelectedRecord.situacao,
+        data_alta: (altaSelectedRecord as any).data_alta || null,
+        medico_alta: (altaSelectedRecord as any).medico_alta || null,
+      };
+
+      const newData = {
+        situacao: "FINALIZADO",
+        data_alta: altaFormData.data_alta,
+        medico_alta: altaFormData.medico_alta,
+        medico_alta_crm: altaFormData.medico_alta_crm,
+        hash_auditoria: auditHash,
+      };
+
+      const { error } = await supabase
+        .from("afastamentos")
+        .update(newData)
+        .eq("id", altaSelectedRecord.id);
+      if (error) throw error;
+
+      await supabase.from("afastamentos_logs").insert({
+        afastamento_id: altaSelectedRecord.id,
+        usuario_id: user?.id,
+        usuario_email: user?.email,
+        alterado_por:
+          user?.user_metadata?.full_name || user?.email || "Sistema",
+        dados_anteriores: oldData,
+        dados_novos: newData,
+        motivo_alteracao: "Alta médica",
+        hash_auditoria: auditHash,
+      });
+
+      loadRecords();
+      setIsAltaModalOpen(false);
+      setAltaSelectedRecord(null);
+      alert("Alta médica registrada com sucesso.");
+    } catch (err: unknown) {
+      alert(
+        "Erro ao registrar alta: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
+    } finally {
+      setIsSavingAlta(false);
     }
   }
 
@@ -1439,14 +1503,23 @@ export default function AfastamentosPage() {
                                         {record.situacao !== "FINALIZADO" &&
                                           record.data_fim && (
                                             <VencimentoAlerta
-                                              dateFim={record.data_fim}
-                                            />
-                                          )}
-                                      </div>
-                                    </div>
-                                  </div>
+                                          {record.situacao !== "FINALIZADO" &&
+                                            record.data_fim && (
+                                              record.data_fim && (
+                                                <VencimentoAlerta
+                                                  dateFim={record.data_fim}
+                                                />
+                                              )
+                                            )}
 
-                                  {/* BOTÕES - parte inferior, distribuídos horizontalmente */}
+                                          {record.situacao === "FINALIZADO" && record.data_alta && (
+                                            <div className="mt-2 text-right">
+                                              <span className="text-[10px] font-medium text-slate-500 uppercase">Alta médica:</span>
+                                              <div className="text-sm font-semibold text-slate-700">
+                                                {formatDate(record.data_alta)}{record.medico_alta ? ` — ${record.medico_alta}${record.medico_alta_crm ? ` (${record.medico_alta_crm})` : ''}` : ''}
+                                              </div>
+                                            </div>
+                                          )}
                                   <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
                                     <button
                                       onClick={() => handleViewPortaria(record)}
@@ -1914,6 +1987,110 @@ export default function AfastamentosPage() {
                     <Save className="w-4 h-4" />
                   )}{" "}
                   Salvar Anotação
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* MODAL DE ALTA MÉDICA */}
+        {isAltaModalOpen && altaSelectedRecord && (
+          <div className="fixed inset-0 z-[165] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-left">
+            <div className="bg-white rounded-none shadow-2xl border-4 border-[#1A3351] w-full max-w-md flex flex-col">
+              <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-none-t-lg">
+                <h3 className="text-sm font-bold text-[#1A3351] uppercase flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" /> Registrar Alta Médica
+                </h3>
+                <button
+                  onClick={() => setIsAltaModalOpen(false)}
+                  className="text-slate-400 hover:text-red-500"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="bg-slate-100 px-4 py-3 rounded-none border border-slate-200">
+                  <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">
+                    Servidor
+                  </p>
+                  <p className="text-base font-bold text-[#1A3351]">
+                    {altaSelectedRecord.servidor_nome}
+                  </p>
+                  <p className="text-xs font-bold text-slate-600">
+                    Matrícula: {altaSelectedRecord.servidor_matricula}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 min-[390px]:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
+                      Data da Alta Médica
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none"
+                      value={altaFormData.data_alta}
+                      onChange={(e) =>
+                        setAltaFormData({
+                          ...altaFormData,
+                          data_alta: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
+                      Médico (Nome)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none uppercase"
+                      value={altaFormData.medico_alta}
+                      onChange={(e) =>
+                        setAltaFormData({
+                          ...altaFormData,
+                          medico_alta: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 block">
+                    CRM (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-none font-bold text-slate-700 outline-none uppercase"
+                    value={altaFormData.medico_alta_crm}
+                    onChange={(e) =>
+                      setAltaFormData({
+                        ...altaFormData,
+                        medico_alta_crm: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="p-5 border-t border-slate-100 bg-slate-50 rounded-none-b-lg flex justify-end gap-3">
+                <button
+                  onClick={() => setIsAltaModalOpen(false)}
+                  disabled={isSavingAlta}
+                  className="px-6 py-2.5 bg-slate-200 text-slate-700 font-bold text-xs uppercase rounded-none"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmAlta}
+                  disabled={isSavingAlta}
+                  className="px-6 py-2.5 bg-emerald-600 text-white font-bold text-xs uppercase rounded-none flex items-center gap-2"
+                >
+                  {isSavingAlta ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                  Confirmar Alta
                 </button>
               </div>
             </div>
