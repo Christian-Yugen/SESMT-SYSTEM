@@ -1257,488 +1257,511 @@ export default function AfastamentosPage() {
 
             <div className="divide-y divide-slate-200">
               {groupedRecords.length > 0 ? (
-                groupedRecords.map((group) => (
-                  <div key={group.cpf}>
-                    <RecordItem
-                      expanded={expandedCpf === group.cpf}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedCpf(
-                          expandedCpf === group.cpf ? null : group.cpf,
-                        );
-                      }}
-                      name={group.nome}
-                      cpf={maskCpf(group.cpf)}
-                      cargo={group.items[0].servidor_cargo}
-                      matricula={group.items[0].servidor_matricula}
-                      natureza={group.items[0].natureza_cargo}
-                      secretaria={group.items[0].servidor_secretaria}
-                      contrato={group.items[0].servidor_contrato}
-                      badges={
-                        <>
-                          <span className="text-[11px] font-normal px-1.5 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center whitespace-nowrap">
-                            {
-                              group.items.filter(
-                                (i) =>
-                                  getStatus(i) === "active" ||
-                                  getStatus(i) === "alert",
-                              ).length
-                            }{" "}
-                            VIGENTE(S)
-                          </span>
-                          <span className="text-[11px] font-normal px-1.5 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center whitespace-nowrap">
-                            {group.items.length} TOTAL
-                          </span>
-                        </>
-                      }
-                      actions={
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            try {
-                              const { data: servantBonds } = await supabase
-                                .from("servidores")
-                                .select(
-                                  "matricula, cargo, contrato, natureza_cargo, secretaria",
-                                )
-                                .eq("cpf", group.cpf);
+                groupedRecords.map((group) => {
+                  const finalizedCandidates = (group.items || [])
+                    .filter((r) => r.situacao === "FINALIZADO" && r.data_alta)
+                    .slice()
+                    .sort((a, b) =>
+                      (b.data_alta || "").localeCompare(a.data_alta || ""),
+                    );
+                  const latestFinalizado = finalizedCandidates.length
+                    ? finalizedCandidates[0]
+                    : null;
+                  const situacaoForHeader = latestFinalizado
+                    ? "FINALIZADO"
+                    : group.items[0]?.situacao;
+                  return (
+                    <div key={group.cpf}>
+                      <RecordItem
+                        expanded={expandedCpf === group.cpf}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCpf(
+                            expandedCpf === group.cpf ? null : group.cpf,
+                          );
+                        }}
+                        name={group.nome}
+                        cpf={maskCpf(group.cpf)}
+                        cargo={group.items[0].servidor_cargo}
+                        matricula={group.items[0].servidor_matricula}
+                        natureza={group.items[0].natureza_cargo}
+                        secretaria={group.items[0].servidor_secretaria}
+                        contrato={group.items[0].servidor_contrato}
+                        badges={
+                          <>
+                            <span className="text-[11px] font-normal px-1.5 h-5 bg-emerald-100 text-emerald-700 uppercase border border-emerald-200 flex items-center whitespace-nowrap">
+                              {
+                                group.items.filter(
+                                  (i) =>
+                                    getStatus(i) === "active" ||
+                                    getStatus(i) === "alert",
+                                ).length
+                              }{" "}
+                              VIGENTE(S)
+                            </span>
+                            <span className="text-[11px] font-normal px-1.5 h-5 bg-slate-200 text-slate-600 uppercase border border-slate-300 flex items-center whitespace-nowrap">
+                              {group.items.length} TOTAL
+                            </span>
+                          </>
+                        }
+                        actions={
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const { data: servantBonds } = await supabase
+                                  .from("servidores")
+                                  .select(
+                                    "matricula, cargo, contrato, natureza_cargo, secretaria",
+                                  )
+                                  .eq("cpf", group.cpf);
 
-                              const bonds =
-                                servantBonds?.map((b) => ({
-                                  matricula: b.matricula,
-                                  cargo: b.cargo || b.natureza_cargo,
-                                  contrato: b.contrato,
-                                  natureza: b.natureza_cargo,
-                                  secretaria: b.secretaria,
-                                })) || [];
+                                const bonds =
+                                  servantBonds?.map((b) => ({
+                                    matricula: b.matricula,
+                                    cargo: b.cargo || b.natureza_cargo,
+                                    contrato: b.contrato,
+                                    natureza: b.natureza_cargo,
+                                    secretaria: b.secretaria,
+                                  })) || [];
 
-                              generateServidorReportPDF(
-                                { nome: group.nome, cpf: group.cpf },
-                                group.items,
-                                bonds,
-                              );
-                            } catch (err) {
-                              console.error("Erro ao gerar relatório:", err);
-                              generateServidorReportPDF(
-                                { nome: group.nome, cpf: group.cpf },
-                                group.items,
-                                [],
-                              );
-                            }
-                          }}
-                          className="flex items-center gap-1.5 px-3 h-8 bg-white text-[#1A3351] hover:bg-slate-50 font-bold border border-slate-200 text-[9px] uppercase transition-all shadow-sm active:scale-95 shrink-0"
+                                generateServidorReportPDF(
+                                  { nome: group.nome, cpf: group.cpf },
+                                  group.items,
+                                  bonds,
+                                );
+                              } catch (err) {
+                                console.error("Erro ao gerar relatório:", err);
+                                generateServidorReportPDF(
+                                  { nome: group.nome, cpf: group.cpf },
+                                  group.items,
+                                  [],
+                                );
+                              }
+                            }}
+                            className="flex items-center gap-1.5 px-3 h-8 bg-white text-[#1A3351] hover:bg-slate-50 font-bold border border-slate-200 text-[9px] uppercase transition-all shadow-sm active:scale-95 shrink-0"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-slate-400" />{" "}
+                            Relatório
+                          </button>
+                        }
+                        rightMeta={
+                          expandedCpf !== group.cpf ? (
+                            <RecordDatePeriod
+                              startDate={formatDate(group.items[0].data_inicio)}
+                              endDate={formatDate(group.items[0].data_fim)}
+                              endColor={
+                                situacaoForHeader === "FINALIZADO"
+                                  ? "text-slate-400"
+                                  : group.items[0].data_fim
+                                    ? (() => {
+                                        const e = new Date(
+                                          group.items[0].data_fim,
+                                        );
+                                        e.setHours(0, 0, 0, 0);
+                                        const t = new Date();
+                                        t.setHours(0, 0, 0, 0);
+                                        return e < t
+                                          ? "text-[#E31E24]"
+                                          : "text-green-600";
+                                      })()
+                                    : "text-slate-400"
+                              }
+                              situacao={situacaoForHeader}
+                              finalizadoDate={
+                                latestFinalizado
+                                  ? formatDate(
+                                      latestFinalizado?.data_alta || "",
+                                    )
+                                  : group.items[0].data_alta
+                                    ? formatDate(group.items[0].data_alta)
+                                    : ""
+                              }
+                            />
+                          ) : undefined
+                        }
+                      />
+
+                      {expandedCpf === group.cpf && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5"
                         >
-                          <FileText className="w-3.5 h-3.5 text-slate-400" />{" "}
-                          Relatório
-                        </button>
-                      }
-                      rightMeta={
-                        expandedCpf !== group.cpf ? (
-                          <RecordDatePeriod
-                            startDate={formatDate(group.items[0].data_inicio)}
-                            endDate={formatDate(group.items[0].data_fim)}
-                            endColor={
-                              group.items[0].situacao === "FINALIZADO"
-                                ? "text-slate-400"
-                                : group.items[0].data_fim
-                                  ? (() => {
-                                      const e = new Date(
-                                        group.items[0].data_fim,
-                                      );
-                                      e.setHours(0, 0, 0, 0);
-                                      const t = new Date();
-                                      t.setHours(0, 0, 0, 0);
-                                      return e < t
-                                        ? "text-[#E31E24]"
-                                        : "text-green-600";
-                                    })()
-                                  : "text-slate-400"
-                            }
-                            situacao={group.items[0].situacao}
-                            finalizadoDate={
-                              group.items[0].data_alta
-                                ? formatDate(group.items[0].data_alta)
-                                : ""
-                            }
-                          />
-                        ) : undefined
-                      }
-                    />
+                          <div className="space-y-6">
+                            <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">
+                              Histórico de Benefícios
+                            </h5>
 
-                    {expandedCpf === group.cpf && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="px-4 md:px-12 py-8 bg-white border-t border-slate-100 animate-in slide-in-from-top-4 fade-in duration-500 relative z-[50] -mx-2 shadow-2xl ring-1 ring-black/5"
-                      >
-                        <div className="space-y-6">
-                          <h5 className="text-[11px] font-bold uppercase text-slate-400 tracking-[0.2em] border-b pb-2">
-                            Histórico de Benefícios
-                          </h5>
+                            <div className="grid grid-cols-1 gap-6">
+                              {group.items.map((record) => {
+                                const status = getStatus(record);
+                                return (
+                                  <div
+                                    key={record.id}
+                                    className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-visible group/card"
+                                  >
+                                    <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
 
-                          <div className="grid grid-cols-1 gap-6">
-                            {group.items.map((record) => {
-                              const status = getStatus(record);
-                              return (
-                                <div
-                                  key={record.id}
-                                  className="bg-white p-6 border-2 border-slate-200 shadow-sm hover:border-[#1A3351]/30 transition-all relative overflow-visible group/card"
-                                >
-                                  <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-[#1A3351]/5 group-hover/card:bg-[#1A3351]/10 transition-colors" />
-
-                                  {/* INFO GRID - 3 colunas */}
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                                    {/* COLUNA 1: VÍNCULO (ESQUERDA) */}
-                                    <div className="space-y-1">
-                                      <p className="text-[9px] font-bold text-slate-400 uppercase">
-                                        Vínculo do Afastamento
-                                      </p>
-                                      <div className="flex flex-col gap-1 mt-1">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
-                                            Matrícula:
-                                          </span>
-                                          <span className="text-sm font-semibold text-[#1A3351]">
-                                            {record.servidor_matricula}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
-                                            Contrato:
-                                          </span>
-                                          <span className="text-sm font-semibold text-[#1A3351]">
-                                            {record.servidor_contrato}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
-                                            Cargo:
-                                          </span>
-                                          <span className="text-[11px] font-semibold text-[#1A3351] uppercase">
-                                            {record.servidor_cargo || "---"}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
-                                            Natureza:
-                                          </span>
-                                          <span className="text-[11px] font-semibold text-[#1A3351] uppercase">
-                                            {record.natureza_cargo}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* COLUNA 2: DADOS ADICIONAIS (CENTRO) */}
-                                    <div className="space-y-1">
-                                      <p className="text-[9px] font-bold text-slate-400 uppercase">
-                                        Dados Adicionais
-                                      </p>
-                                      <div className="flex flex-col gap-2 mt-1">
-                                        <div>
-                                          <span className="text-[10px] font-medium text-slate-500 block uppercase">
-                                            Duração
-                                          </span>
-                                          <span className="text-sm font-semibold text-[#1A3351] flex items-center gap-1">
-                                            <Clock className="w-3.5 h-3.5 opacity-50" />{" "}
-                                            {record.dias_afastado || "N/D"} Dias
-                                          </span>
-                                        </div>
-                                        <div>
-                                          <span className="text-[10px] font-medium text-slate-500 block uppercase">
-                                            Diagnóstico (CID-10)
-                                          </span>
-                                          <span className="text-xs font-semibold text-[#1A3351]">
-                                            {record.afastamento_cids?.length ||
-                                              0}{" "}
-                                            código(s) registrado(s)
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* COLUNA 3: VIGÊNCIA E TIPO (DIREITA) */}
-                                    <div className="space-y-1 md:text-right flex flex-col md:items-end">
-                                      <div className="flex items-center gap-2 md:justify-end">
-                                        {record.is_acidente_trabalho && (
-                                          <span className="text-[9px] font-bold bg-red-600 text-white px-2 py-0.5 rounded-none shadow-sm animate-pulse">
-                                            ACIDENTE DE TRABALHO
-                                          </span>
-                                        )}
-                                        <p className="text-sm font-semibold text-[#1A3351] uppercase truncate">
-                                          {record.tipo_afastamento}
+                                    {/* INFO GRID - 3 colunas */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                                      {/* COLUNA 1: VÍNCULO (ESQUERDA) */}
+                                      <div className="space-y-1">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">
+                                          Vínculo do Afastamento
                                         </p>
-                                      </div>
-                                      <div className="flex items-center gap-2 mt-1 md:justify-end">
-                                        <span className="text-xs font-medium text-slate-500 uppercase">
-                                          Início:
-                                        </span>
-                                        <span className="text-sm font-semibold text-[#1A3351]">
-                                          {formatDate(record.data_inicio)}
-                                        </span>
-                                      </div>
-                                      <div className="flex flex-col md:items-end gap-1">
-                                        <div className="flex items-center gap-2 md:justify-end">
-                                          <span className="text-xs font-medium text-slate-500 uppercase">
-                                            Término:
-                                          </span>
-                                          {record.data_fim ? (
-                                            <span className="flex flex-wrap items-center gap-1.5 md:justify-end">
-                                              <span
-                                                className={
-                                                  status === "expired"
-                                                    ? "text-sm font-bold text-[#E31E24]"
-                                                    : "text-sm font-bold text-green-600"
-                                                }
-                                              >
-                                                {formatDate(record.data_fim)}
-                                              </span>
-                                              <span
-                                                className={`text-[9px] px-1.5 py-0.5 rounded-none border font-bold ${status === "active" || status === "alert" ? "bg-green-500 text-white border-green-600" : status === "finished" ? "bg-slate-300 text-slate-600 border-slate-400" : "bg-[#E31E24] text-white border-[#E31E24]"}`}
-                                              >
-                                                {status === "active"
-                                                  ? "VIGENTE"
-                                                  : status === "alert"
-                                                    ? "VENCENDO"
-                                                    : status === "finished"
-                                                      ? "FINALIZADO"
-                                                      : "VENCIDO"}
-                                              </span>
+                                        <div className="flex flex-col gap-1 mt-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
+                                              Matrícula:
                                             </span>
-                                          ) : (
-                                            <span className="text-sm font-semibold text-slate-400">
-                                              ---
+                                            <span className="text-sm font-semibold text-[#1A3351]">
+                                              {record.servidor_matricula}
                                             </span>
-                                          )}
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
+                                              Contrato:
+                                            </span>
+                                            <span className="text-sm font-semibold text-[#1A3351]">
+                                              {record.servidor_contrato}
+                                            </span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
+                                              Cargo:
+                                            </span>
+                                            <span className="text-[11px] font-semibold text-[#1A3351] uppercase">
+                                              {record.servidor_cargo || "---"}
+                                            </span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-medium text-slate-500 uppercase min-w-[60px]">
+                                              Natureza:
+                                            </span>
+                                            <span className="text-[11px] font-semibold text-[#1A3351] uppercase">
+                                              {record.natureza_cargo}
+                                            </span>
+                                          </div>
                                         </div>
-                                        {record.situacao !== "FINALIZADO" &&
-                                          record.data_fim && (
-                                            <VencimentoAlerta
-                                              dateFim={record.data_fim}
-                                            />
-                                          )}
+                                      </div>
 
-                                        {record.situacao === "FINALIZADO" &&
-                                          record.data_alta && (
-                                            <div className="mt-2 text-right">
-                                              <span className="text-[10px] font-medium text-slate-500 uppercase">
-                                                Alta médica:
-                                              </span>
-                                              <div className="text-sm font-semibold text-slate-700">
-                                                {formatDate(record.data_alta)}
-                                                {record.medico_alta && (
-                                                  <span className="ml-1">
-                                                    — {record.medico_alta}
-                                                    {record.medico_alta_crm
-                                                      ? " (" +
-                                                        record.medico_alta_crm +
-                                                        ")"
-                                                      : ""}
-                                                  </span>
-                                                )}
-                                              </div>
-                                            </div>
+                                      {/* COLUNA 2: DADOS ADICIONAIS (CENTRO) */}
+                                      <div className="space-y-1">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase">
+                                          Dados Adicionais
+                                        </p>
+                                        <div className="flex flex-col gap-2 mt-1">
+                                          <div>
+                                            <span className="text-[10px] font-medium text-slate-500 block uppercase">
+                                              Duração
+                                            </span>
+                                            <span className="text-sm font-semibold text-[#1A3351] flex items-center gap-1">
+                                              <Clock className="w-3.5 h-3.5 opacity-50" />{" "}
+                                              {record.dias_afastado || "N/D"}{" "}
+                                              Dias
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className="text-[10px] font-medium text-slate-500 block uppercase">
+                                              Diagnóstico (CID-10)
+                                            </span>
+                                            <span className="text-xs font-semibold text-[#1A3351]">
+                                              {record.afastamento_cids
+                                                ?.length || 0}{" "}
+                                              código(s) registrado(s)
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* COLUNA 3: VIGÊNCIA E TIPO (DIREITA) */}
+                                      <div className="space-y-1 md:text-right flex flex-col md:items-end">
+                                        <div className="flex items-center gap-2 md:justify-end">
+                                          {record.is_acidente_trabalho && (
+                                            <span className="text-[9px] font-bold bg-red-600 text-white px-2 py-0.5 rounded-none shadow-sm animate-pulse">
+                                              ACIDENTE DE TRABALHO
+                                            </span>
                                           )}
+                                          <p className="text-sm font-semibold text-[#1A3351] uppercase truncate">
+                                            {record.tipo_afastamento}
+                                          </p>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1 md:justify-end">
+                                          <span className="text-xs font-medium text-slate-500 uppercase">
+                                            Início:
+                                          </span>
+                                          <span className="text-sm font-semibold text-[#1A3351]">
+                                            {formatDate(record.data_inicio)}
+                                          </span>
+                                        </div>
+                                        <div className="flex flex-col md:items-end gap-1">
+                                          <div className="flex items-center gap-2 md:justify-end">
+                                            <span className="text-xs font-medium text-slate-500 uppercase">
+                                              Término:
+                                            </span>
+                                            {record.data_fim ? (
+                                              <span className="flex flex-wrap items-center gap-1.5 md:justify-end">
+                                                <span
+                                                  className={
+                                                    status === "expired"
+                                                      ? "text-sm font-bold text-[#E31E24]"
+                                                      : "text-sm font-bold text-green-600"
+                                                  }
+                                                >
+                                                  {formatDate(record.data_fim)}
+                                                </span>
+                                                <span
+                                                  className={`text-[9px] px-1.5 py-0.5 rounded-none border font-bold ${status === "active" || status === "alert" ? "bg-green-500 text-white border-green-600" : status === "finished" ? "bg-slate-300 text-slate-600 border-slate-400" : "bg-[#E31E24] text-white border-[#E31E24]"}`}
+                                                >
+                                                  {status === "active"
+                                                    ? "VIGENTE"
+                                                    : status === "alert"
+                                                      ? "VENCENDO"
+                                                      : status === "finished"
+                                                        ? "FINALIZADO"
+                                                        : "VENCIDO"}
+                                                </span>
+                                              </span>
+                                            ) : (
+                                              <span className="text-sm font-semibold text-slate-400">
+                                                ---
+                                              </span>
+                                            )}
+                                          </div>
+                                          {record.situacao !== "FINALIZADO" &&
+                                            record.data_fim && (
+                                              <VencimentoAlerta
+                                                dateFim={record.data_fim}
+                                              />
+                                            )}
+
+                                          {record.situacao === "FINALIZADO" &&
+                                            record.data_alta && (
+                                              <div className="mt-2 text-right">
+                                                <span className="text-[10px] font-medium text-slate-500 uppercase">
+                                                  Alta médica:
+                                                </span>
+                                                <div className="text-sm font-semibold text-slate-700">
+                                                  {formatDate(record.data_alta)}
+                                                  {record.medico_alta && (
+                                                    <span className="ml-1">
+                                                      — {record.medico_alta}
+                                                      {record.medico_alta_crm
+                                                        ? " (" +
+                                                          record.medico_alta_crm +
+                                                          ")"
+                                                        : ""}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            )}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                  <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
-                                    <button
-                                      onClick={() => handleViewPortaria(record)}
-                                      className="flex items-center gap-1.5 px-2 py-1 bg-slate-200 text-slate-800 hover:bg-slate-300 font-bold rounded-none border border-slate-300 text-[10px] uppercase transition-all"
-                                    >
-                                      <Printer className="w-3 h-3" /> Portaria
-                                    </button>
-                                    {userRole === "doctor" && (
+                                    <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-slate-100 relative z-10 justify-start">
                                       <button
-                                        onClick={() => openNotesModal(record)}
-                                        className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                        onClick={() =>
+                                          handleViewPortaria(record)
+                                        }
+                                        className="flex items-center gap-1.5 px-2 py-1 bg-slate-200 text-slate-800 hover:bg-slate-300 font-bold rounded-none border border-slate-300 text-[10px] uppercase transition-all"
                                       >
-                                        <ClipboardList className="w-3 h-3" />{" "}
-                                        Anotações
+                                        <Printer className="w-3 h-3" /> Portaria
                                       </button>
-                                    )}
-                                    {userRole !== "analytic_manager" &&
-                                      userRole !== "doctor" && (
-                                        <>
-                                          <button
-                                            onClick={() =>
-                                              openEditModal(record)
-                                            }
-                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                          >
-                                            <Pencil className="w-3 h-3" />{" "}
-                                            Editar
-                                          </button>
-                                          <button
-                                            onClick={() =>
-                                              openNotesModal(record)
-                                            }
-                                            className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
-                                          >
-                                            <ClipboardList className="w-3 h-3" />{" "}
-                                            Anotações
-                                          </button>
-                                          {record.situacao ===
-                                            "EM_ANDAMENTO" && (
-                                            <>
-                                              <button
-                                                onClick={() =>
-                                                  router.push(
-                                                    `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
-                                                  )
-                                                }
-                                                className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
-                                              >
-                                                <RotateCcw className="w-3 h-3" />{" "}
-                                                PRORROGAR
-                                              </button>
-                                              {!record.tipo_afastamento
-                                                ?.toUpperCase()
-                                                .includes("MATERNIDADE") && (
+                                      {userRole === "doctor" && (
+                                        <button
+                                          onClick={() => openNotesModal(record)}
+                                          className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                        >
+                                          <ClipboardList className="w-3 h-3" />{" "}
+                                          Anotações
+                                        </button>
+                                      )}
+                                      {userRole !== "analytic_manager" &&
+                                        userRole !== "doctor" && (
+                                          <>
+                                            <button
+                                              onClick={() =>
+                                                openEditModal(record)
+                                              }
+                                              className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                            >
+                                              <Pencil className="w-3 h-3" />{" "}
+                                              Editar
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                openNotesModal(record)
+                                              }
+                                              className="flex items-center gap-1.5 px-2 py-1 bg-[#1A3351] text-white font-bold rounded-none border border-[#0f2035] text-[10px] uppercase hover:bg-[#0f2035] active:scale-95 transition-all"
+                                            >
+                                              <ClipboardList className="w-3 h-3" />{" "}
+                                              Anotações
+                                            </button>
+                                            {record.situacao ===
+                                              "EM_ANDAMENTO" && (
+                                              <>
                                                 <button
                                                   onClick={() =>
-                                                    handleAltaMedica(record)
+                                                    router.push(
+                                                      `/afastamentos/new?renew_from=${record.id}&cpf=${record.servidor_cpf}`,
+                                                    )
                                                   }
-                                                  disabled={
-                                                    updatingId === record.id
-                                                  }
-                                                  className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
+                                                  className="flex items-center gap-1.5 px-2 py-1 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-none border border-amber-500 hover:bg-amber-600 hover:text-white uppercase transition-all"
                                                 >
-                                                  {updatingId === record.id ? (
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                  ) : (
-                                                    <CheckCircle2 className="w-3 h-3" />
-                                                  )}
-                                                  DAR ALTA
+                                                  <RotateCcw className="w-3 h-3" />{" "}
+                                                  PRORROGAR
                                                 </button>
-                                              )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
-                                    {/* Botão CID isolado à direita */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const s = new Set(revealedCids);
-                                        if (s.has(record.id))
-                                          s.delete(record.id);
-                                        else s.add(record.id);
-                                        setRevealedCids(s);
-                                      }}
-                                      className="flex items-center gap-1.5 px-2 py-1 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold rounded-none text-[10px] uppercase transition-all ml-auto"
-                                    >
-                                      {revealedCids.has(record.id) ? (
-                                        <>
-                                          <EyeOff className="w-3 h-3 text-emerald-600" />{" "}
-                                          Ocultar CID
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Eye className="w-3 h-3 text-emerald-600" />{" "}
-                                          Revelar CID
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
+                                                {!record.tipo_afastamento
+                                                  ?.toUpperCase()
+                                                  .includes("MATERNIDADE") && (
+                                                  <button
+                                                    onClick={() =>
+                                                      handleAltaMedica(record)
+                                                    }
+                                                    disabled={
+                                                      updatingId === record.id
+                                                    }
+                                                    className="flex items-center gap-1.5 px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-none border border-emerald-700 hover:bg-emerald-700 uppercase transition-all disabled:opacity-50"
+                                                  >
+                                                    {updatingId ===
+                                                    record.id ? (
+                                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                                    ) : (
+                                                      <CheckCircle2 className="w-3 h-3" />
+                                                    )}
+                                                    DAR ALTA
+                                                  </button>
+                                                )}
+                                              </>
+                                            )}
+                                          </>
+                                        )}
+                                      {/* Botão CID isolado à direita */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const s = new Set(revealedCids);
+                                          if (s.has(record.id))
+                                            s.delete(record.id);
+                                          else s.add(record.id);
+                                          setRevealedCids(s);
+                                        }}
+                                        className="flex items-center gap-1.5 px-2 py-1 border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold rounded-none text-[10px] uppercase transition-all ml-auto"
+                                      >
+                                        {revealedCids.has(record.id) ? (
+                                          <>
+                                            <EyeOff className="w-3 h-3 text-emerald-600" />{" "}
+                                            Ocultar CID
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Eye className="w-3 h-3 text-emerald-600" />{" "}
+                                            Revelar CID
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
 
-                                  {/* PAINEL CID EXPANDIDO */}
-                                  {revealedCids.has(record.id) && (
-                                    <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
-                                      <div className="flex flex-col gap-3">
-                                        {/* CID-10 SECTION */}
-                                        {record.afastamento_cids &&
-                                          record.afastamento_cids.length >
-                                            0 && (
-                                            <div className="divide-y divide-slate-100">
-                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                                                Diagnósticos CID-10
+                                    {/* PAINEL CID EXPANDIDO */}
+                                    {revealedCids.has(record.id) && (
+                                      <div className="mt-4 border-t border-slate-100 pt-3 relative z-10">
+                                        <div className="flex flex-col gap-3">
+                                          {/* CID-10 SECTION */}
+                                          {record.afastamento_cids &&
+                                            record.afastamento_cids.length >
+                                              0 && (
+                                              <div className="divide-y divide-slate-100">
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                                  Diagnósticos CID-10
+                                                </p>
+                                                {record.afastamento_cids.map(
+                                                  (cid) => (
+                                                    <CIDDetailItem
+                                                      key={cid.id}
+                                                      cid={cid}
+                                                    />
+                                                  ),
+                                                )}
+                                              </div>
+                                            )}
+
+                                          {/* ANOTAÇÕES SECTION */}
+                                          <div className="bg-slate-50/50 p-3 rounded-none border border-slate-200/50">
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                              <ClipboardList className="w-3 h-3" />{" "}
+                                              Anotações do Registro
+                                            </p>
+                                            {record.observacoes ? (
+                                              <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                                {record.observacoes}
                                               </p>
-                                              {record.afastamento_cids.map(
-                                                (cid) => (
-                                                  <CIDDetailItem
-                                                    key={cid.id}
-                                                    cid={cid}
-                                                  />
-                                                ),
-                                              )}
-                                            </div>
-                                          )}
-
-                                        {/* ANOTAÇÕES SECTION */}
-                                        <div className="bg-slate-50/50 p-3 rounded-none border border-slate-200/50">
-                                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                            <ClipboardList className="w-3 h-3" />{" "}
-                                            Anotações do Registro
-                                          </p>
-                                          {record.observacoes ? (
-                                            <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
-                                              {record.observacoes}
-                                            </p>
-                                          ) : (
-                                            <p className="text-[10px] font-medium text-slate-400 italic">
-                                              Nenhuma anotação registrada para
-                                              este afastamento.
-                                            </p>
-                                          )}
+                                            ) : (
+                                              <p className="text-[10px] font-medium text-slate-400 italic">
+                                                Nenhuma anotação registrada para
+                                                este afastamento.
+                                              </p>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  )}
-                                  {/* INFO DE AUDITORIA - SEM NEGRITO, TOTALMENTE UNIFICADO */}
-                                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end text-[10px] items-center gap-1.5 font-normal text-slate-500 uppercase tracking-tighter relative z-10 transition-opacity hover:opacity-100 opacity-80">
-                                    <span>Criado por:</span>
-                                    <span className="text-slate-600">
-                                      {profilesMap[record.criado_por] ||
-                                        record.criado_por ||
-                                        "Sistema"}
-                                    </span>
-                                    <span className="lowercase">
-                                      (
-                                      {new Date(
-                                        record.criado_em,
-                                      ).toLocaleString("pt-BR")}
-                                      )
-                                    </span>
-
-                                    {logs[record.id] &&
-                                      logs[record.id].length > 0 && (
-                                        <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
-                                          <span>Modificado por:</span>
-                                          <span className="text-slate-600">
-                                            {profilesMap[
-                                              logs[record.id][0].alterado_por
-                                            ] ||
-                                              logs[record.id][0].alterado_por}
-                                          </span>
-                                          <span className="lowercase">
-                                            (
-                                            {new Date(
-                                              logs[record.id][0].data_alteracao,
-                                            ).toLocaleString("pt-BR")}
-                                            )
-                                          </span>
-                                        </div>
-                                      )}
-
-                                    <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
-                                      <span>Audit ID</span>
-                                      <span className="text-slate-700 tracking-tight">
-                                        #
-                                        {record.hash_auditoria ||
-                                          `AF-${record.id}`}
+                                    )}
+                                    {/* INFO DE AUDITORIA - SEM NEGRITO, TOTALMENTE UNIFICADO */}
+                                    <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end text-[10px] items-center gap-1.5 font-normal text-slate-500 uppercase tracking-tighter relative z-10 transition-opacity hover:opacity-100 opacity-80">
+                                      <span>Criado por:</span>
+                                      <span className="text-slate-600">
+                                        {profilesMap[record.criado_por] ||
+                                          record.criado_por ||
+                                          "Sistema"}
                                       </span>
+                                      <span className="lowercase">
+                                        (
+                                        {new Date(
+                                          record.criado_em,
+                                        ).toLocaleString("pt-BR")}
+                                        )
+                                      </span>
+
+                                      {logs[record.id] &&
+                                        logs[record.id].length > 0 && (
+                                          <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
+                                            <span>Modificado por:</span>
+                                            <span className="text-slate-600">
+                                              {profilesMap[
+                                                logs[record.id][0].alterado_por
+                                              ] ||
+                                                logs[record.id][0].alterado_por}
+                                            </span>
+                                            <span className="lowercase">
+                                              (
+                                              {new Date(
+                                                logs[record.id][0]
+                                                  .data_alteracao,
+                                              ).toLocaleString("pt-BR")}
+                                              )
+                                            </span>
+                                          </div>
+                                        )}
+
+                                      <div className="flex items-center gap-1.5 ml-3 pl-3 border-l border-slate-200">
+                                        <span>Audit ID</span>
+                                        <span className="text-slate-700 tracking-tight">
+                                          #
+                                          {record.hash_auditoria ||
+                                            `AF-${record.id}`}
+                                        </span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <div className="p-8 text-center text-slate-500 font-bold uppercase text-xs">
                   Nenhum registro encontrado para os filtros selecionados.
