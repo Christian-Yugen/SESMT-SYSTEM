@@ -1338,17 +1338,27 @@ export default function AfastamentosPage() {
                             startDate={formatDate(group.items[0].data_inicio)}
                             endDate={formatDate(group.items[0].data_fim)}
                             endColor={
-                              group.items[0].data_fim
-                                ? (() => {
-                                    const e = new Date(group.items[0].data_fim);
-                                    e.setHours(0, 0, 0, 0);
-                                    const t = new Date();
-                                    t.setHours(0, 0, 0, 0);
-                                    return e < t
-                                      ? "text-[#E31E24]"
-                                      : "text-green-600";
-                                  })()
-                                : "text-slate-400"
+                              group.items[0].situacao === "FINALIZADO"
+                                ? "text-slate-400"
+                                : group.items[0].data_fim
+                                  ? (() => {
+                                      const e = new Date(
+                                        group.items[0].data_fim,
+                                      );
+                                      e.setHours(0, 0, 0, 0);
+                                      const t = new Date();
+                                      t.setHours(0, 0, 0, 0);
+                                      return e < t
+                                        ? "text-[#E31E24]"
+                                        : "text-green-600";
+                                    })()
+                                  : "text-slate-400"
+                            }
+                            situacao={group.items[0].situacao}
+                            finalizadoDate={
+                              group.items[0].data_alta
+                                ? formatDate(group.items[0].data_alta)
+                                : ""
                             }
                           />
                         ) : undefined
