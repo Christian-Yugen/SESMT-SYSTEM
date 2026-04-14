@@ -55,7 +55,7 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const variantClass = VARIANT_CLASSES[variant];
 
   const paddingClass = compact ? "px-2 py-1" : "px-3 py-2 sm:px-3.5 sm:py-2.5";
-  const valueSizeClass = compact ? "text-lg" : "text-xl";
+  const valueSizeClass = compact ? "text-[16px]" : "text-xl";
   const titleSizeClass = compact ? "text-[9px]" : "text-[10px]";
   const helperSizeClass = compact ? "text-[8px]" : "text-[9px]";
 
@@ -92,7 +92,7 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
             </span>
           ) : null}
         </div>
-        {helperText ? (
+        {!compact && helperText ? (
           <p
             className={`mt-1 ${helperSizeClass} font-medium uppercase tracking-wide text-slate-500`}
           >
@@ -100,7 +100,7 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
           </p>
         ) : null}
       </div>
-      {icon ? (
+      {icon && !compact ? (
         <div className="shrink-0 opacity-60" aria-hidden="true">
           {icon}
         </div>

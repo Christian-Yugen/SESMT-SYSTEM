@@ -274,11 +274,6 @@ export default function ErgonomicsAnalyticsPage() {
     [userName],
   );
 
-  const cardsList = model.view.cards || [];
-  const mid = Math.ceil(cardsList.length / 2);
-  const firstRowCards = cardsList.slice(0, mid);
-  const secondRowCards = cardsList.slice(mid);
-
   return (
     <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden relative">
       {/* Metodologia Modal */}
@@ -621,49 +616,16 @@ export default function ErgonomicsAnalyticsPage() {
                 <>
                   {activeTab === "visao-geral" && (
                     <div className="space-y-8">
-                      {/* Indicadores Executivos */}
+                      {/* Indicadores Executivos (compactos) */}
                       <StatisticCardsSection
                         title="Indicadores de Vigilância"
                         description="Métricas ergonômicas calculadas a partir de sinais sentinela (CID M) e NR-17"
                       >
                         <StatisticCardRow
-                          columns={3}
+                          columns={5}
                           className="gap-2 lg:gap-3"
                         >
-                          {firstRowCards.map((card) => {
-                            let accent:
-                              | "primary"
-                              | "success"
-                              | "warning"
-                              | "danger"
-                              | "info" = "primary";
-
-                            if (card.id.includes("events")) accent = "danger";
-                            if (card.id.includes("score")) accent = "warning";
-                            if (card.id.includes("actions")) accent = "primary";
-                            if (card.id.includes("days")) accent = "info";
-                            if (card.id.includes("servers")) accent = "info";
-
-                            return (
-                              <StatisticCard
-                                key={card.id}
-                                variant="analytic"
-                                accent={accent}
-                                title={card.label}
-                                value={card.value}
-                                subtitle={card.unit}
-                                helperText={card.description}
-                                compact
-                              />
-                            );
-                          })}
-                        </StatisticCardRow>
-
-                        <StatisticCardRow
-                          columns={3}
-                          className="gap-2 lg:gap-3"
-                        >
-                          {secondRowCards.map((card) => {
+                          {model.view.cards.map((card) => {
                             let accent:
                               | "primary"
                               | "success"
