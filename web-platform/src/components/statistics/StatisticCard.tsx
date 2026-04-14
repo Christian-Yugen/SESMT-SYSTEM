@@ -49,7 +49,7 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
     active = false,
     className = "",
     compact = false,
-  } = props as any;
+  } = props as StatisticCardBaseProps & Partial<StatisticCardInteractiveProps>;
 
   const accentClass = ACCENT_CLASSES[accent];
   const variantClass = VARIANT_CLASSES[variant];
@@ -75,11 +75,17 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const content = (
     <>
       <div className="min-w-0">
-        <p className={`${titleSizeClass} font-semibold uppercase tracking-widest text-slate-400 leading-none`}>
+        <p
+          className={`${titleSizeClass} font-semibold uppercase tracking-widest text-slate-400 leading-none`}
+        >
           {title}
         </p>
         <div className="mt-0.5 flex items-baseline gap-1">
-          <h3 className={`${valueSizeClass} font-bold leading-none tabular-nums`}>{value}</h3>
+          <h3
+            className={`${valueSizeClass} font-bold leading-none tabular-nums`}
+          >
+            {value}
+          </h3>
           {subtitle ? (
             <span className="text-[9px] font-medium text-slate-500">
               {subtitle}
@@ -87,7 +93,9 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
           ) : null}
         </div>
         {helperText ? (
-          <p className={`mt-1 ${helperSizeClass} font-medium uppercase tracking-wide text-slate-500`}>
+          <p
+            className={`mt-1 ${helperSizeClass} font-medium uppercase tracking-wide text-slate-500`}
+          >
             {helperText}
           </p>
         ) : null}

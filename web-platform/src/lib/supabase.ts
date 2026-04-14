@@ -69,6 +69,42 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Listener global para monitorar mudanças de estado e erros
 if (typeof window !== "undefined") {
+  // Evita múltiplas instalações do hook de filtro no console
+  if (!(window as any).__sesmt_console_filter_installed) {
+    const _origConsoleError = console.error.bind(console);
+    console.error = (...args: any[]) => {
+      try {
+        const text = args
+          .map((a) => {
+            if (typeof a === "string") return a;
+            if (a && typeof a.message === "string") return a.message;
+            try {
+              return JSON.stringify(a);
+            } catch {
+              return String(a);
+            }
+          })
+          .join(" ");
+
+        if (
+          /Refresh Token Not Found|Invalid Refresh Token|AuthApiError|invalid_grant/i.test(
+            text,
+          )
+        ) {
+          // Converte para warn para evitar a cor vermelha/stack ruidosa no console,
+          // mantendo o registro com um prefixo de identificação.
+          console.warn("[sesmt-auth][suppressed]", ...args);
+          return;
+        }
+      } catch (e) {
+        // Se falhar, cai para o comportamento normal
+      }
+
+      _origConsoleError(...args);
+    };
+
+    (window as any).__sesmt_console_filter_installed = true;
+  }
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === "SIGNED_OUT") {
       localStorage.removeItem("sesmt-auth-session");

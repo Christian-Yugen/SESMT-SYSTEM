@@ -626,7 +626,10 @@ export default function ErgonomicsAnalyticsPage() {
                         title="Indicadores de Vigilância"
                         description="Métricas ergonômicas calculadas a partir de sinais sentinela (CID M) e NR-17"
                       >
-                        <StatisticCardRow columns={3} className="gap-2 lg:gap-3">
+                        <StatisticCardRow
+                          columns={3}
+                          className="gap-2 lg:gap-3"
+                        >
                           {firstRowCards.map((card) => {
                             let accent:
                               | "primary"
@@ -656,7 +659,10 @@ export default function ErgonomicsAnalyticsPage() {
                           })}
                         </StatisticCardRow>
 
-                        <StatisticCardRow columns={3} className="gap-2 lg:gap-3">
+                        <StatisticCardRow
+                          columns={3}
+                          className="gap-2 lg:gap-3"
+                        >
                           {secondRowCards.map((card) => {
                             let accent:
                               | "primary"
