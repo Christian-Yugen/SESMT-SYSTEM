@@ -20,6 +20,7 @@ export interface StatisticCardBaseProps {
   variant?: StatisticCardVariant;
   active?: boolean;
   className?: string;
+  compact?: boolean;
 }
 
 export interface StatisticCardInteractiveProps extends StatisticCardBaseProps {

@@ -19,7 +19,6 @@ import {
   RefreshCw,
   Menu,
   Printer,
-  FileText,
   X,
 } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
@@ -75,9 +74,6 @@ export default function ErgonomicsAnalyticsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
   const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
-  const [printLayout, setPrintLayout] = useState<"portrait" | "landscape">(
-    "landscape",
-  );
   const [expandedSecretarias, setExpandedSecretarias] = useState<Set<string>>(
     new Set(),
   );
@@ -277,6 +273,11 @@ export default function ErgonomicsAnalyticsPage() {
     },
     [userName],
   );
+
+  const cardsList = model.view.cards || [];
+  const mid = Math.ceil(cardsList.length / 2);
+  const firstRowCards = cardsList.slice(0, mid);
+  const secondRowCards = cardsList.slice(mid);
 
   return (
     <div className="h-screen flex flex-col lg:flex-row bg-[#D3D3D3] text-black font-sans overflow-hidden relative">
@@ -520,21 +521,35 @@ export default function ErgonomicsAnalyticsPage() {
                 </div>
               </ActionIconButton>
 
-              <button
-                onClick={() => openPrintWindow("portrait")}
-                className="flex items-center justify-center h-[34px] px-3 bg-white text-[#1A3351] border border-slate-200 hover:bg-slate-50 transition-all"
-                title="Imprimir (retrato)"
+              <ActionIconButton
+                icon={<Printer className="w-3.5 h-3.5" />}
+                label="Impressão / Relatório"
+                variant="filter"
+                open={isPrintPopoverOpen}
+                onToggle={setIsPrintPopoverOpen}
+                showMenuIndicator={true}
               >
-                <Printer className="w-3.5 h-3.5" />
-              </button>
-
-              <button
-                onClick={() => openPrintWindow("landscape")}
-                className="flex items-center justify-center h-[34px] px-3 bg-white text-[#1A3351] border border-slate-200 hover:bg-slate-50 transition-all"
-                title="Gerar relatório (paisagem)"
-              >
-                <FileText className="w-3.5 h-3.5" />
-              </button>
+                <div className="bg-white border border-slate-200 shadow-sm p-2 w-44 space-y-1">
+                  <button
+                    onClick={() => {
+                      setIsPrintPopoverOpen(false);
+                      openPrintWindow("portrait");
+                    }}
+                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                  >
+                    Relatório — Retrato
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPrintPopoverOpen(false);
+                      openPrintWindow("landscape");
+                    }}
+                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                  >
+                    Relatório — Paisagem
+                  </button>
+                </div>
+              </ActionIconButton>
 
               <button
                 onClick={handleRefresh}
@@ -611,8 +626,8 @@ export default function ErgonomicsAnalyticsPage() {
                         title="Indicadores de Vigilância"
                         description="Métricas ergonômicas calculadas a partir de sinais sentinela (CID M) e NR-17"
                       >
-                        <StatisticCardRow columns={5}>
-                          {model.view.cards.map((card) => {
+                        <StatisticCardRow columns={3} className="gap-2 lg:gap-3">
+                          {firstRowCards.map((card) => {
                             let accent:
                               | "primary"
                               | "success"
@@ -635,6 +650,37 @@ export default function ErgonomicsAnalyticsPage() {
                                 value={card.value}
                                 subtitle={card.unit}
                                 helperText={card.description}
+                                compact
+                              />
+                            );
+                          })}
+                        </StatisticCardRow>
+
+                        <StatisticCardRow columns={3} className="gap-2 lg:gap-3">
+                          {secondRowCards.map((card) => {
+                            let accent:
+                              | "primary"
+                              | "success"
+                              | "warning"
+                              | "danger"
+                              | "info" = "primary";
+
+                            if (card.id.includes("events")) accent = "danger";
+                            if (card.id.includes("score")) accent = "warning";
+                            if (card.id.includes("actions")) accent = "primary";
+                            if (card.id.includes("days")) accent = "info";
+                            if (card.id.includes("servers")) accent = "info";
+
+                            return (
+                              <StatisticCard
+                                key={card.id}
+                                variant="analytic"
+                                accent={accent}
+                                title={card.label}
+                                value={card.value}
+                                subtitle={card.unit}
+                                helperText={card.description}
+                                compact
                               />
                             );
                           })}
