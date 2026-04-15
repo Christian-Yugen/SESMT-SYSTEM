@@ -190,7 +190,7 @@ export default function ErgonomicsAnalyticsPage() {
   }, [router, startDate, endDate, fetchData]);
 
   const openPrintWindow = useCallback(
-    (layout: "portrait" | "landscape") => {
+    async (layout: "portrait" | "landscape") => {
       const node = document.getElementById("print-area");
       if (!node) {
         try {
@@ -206,6 +206,11 @@ export default function ErgonomicsAnalyticsPage() {
         } catch (e) {}
         return;
       }
+
+      // wait for fonts to be ready to avoid fallback/shift in preview
+      try {
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      } catch (e) {}
 
       const styles = Array.from(
         document.querySelectorAll("link[rel=stylesheet], style"),
@@ -253,23 +258,113 @@ export default function ErgonomicsAnalyticsPage() {
       let printContentHtml = node.outerHTML;
       try {
         const cloned = node.cloneNode(true) as HTMLElement;
+
+        // Serialize dynamic graphics to preserve appearance in the new window
+        try {
+          const liveSvgs = Array.from(node.querySelectorAll("svg"));
+          const clonedSvgs = Array.from(cloned.querySelectorAll("svg"));
+          const svgCount = Math.min(liveSvgs.length, clonedSvgs.length);
+          for (let i = 0; i < svgCount; i++) {
+            try {
+              clonedSvgs[i].outerHTML = (liveSvgs[i] as Element).outerHTML;
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        try {
+          const liveCanvases = Array.from(node.querySelectorAll("canvas")) as HTMLCanvasElement[];
+          const clonedCanvases = Array.from(cloned.querySelectorAll("canvas"));
+          const canvasCount = Math.min(liveCanvases.length, clonedCanvases.length);
+          for (let i = 0; i < canvasCount; i++) {
+            try {
+              const data = liveCanvases[i].toDataURL();
+              clonedCanvases[i].outerHTML = `<img src="${data}" style="max-width:100%;height:auto;" alt="canvas"/>`;
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        // Apply deterministic print-only overrides directly to the cloned DOM
+        try {
+          const rows = Array.from(cloned.querySelectorAll(".StatisticCardRow")) as HTMLElement[];
+          rows.forEach((r) => {
+            try {
+              r.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
+              r.style.gap = "8px";
+              r.style.width = "100%";
+            } catch (e) {}
+          });
+
+          const cards = Array.from(cloned.querySelectorAll(".StatisticCard")) as HTMLElement[];
+          cards.forEach((card) => {
+            try {
+              card.style.padding = "6px 8px";
+              // reduzir título/valor
+              const title = card.querySelector("p");
+              if (title) (title as HTMLElement).style.fontSize = "10px";
+              const value = card.querySelector("h3");
+              if (value) (value as HTMLElement).style.fontSize = "16px";
+              // remover helper text para prevenir truncamento
+              const helper = card.querySelector("p.mt-1, p:nth-of-type(3)");
+              if (helper) (helper as HTMLElement).style.display = "none";
+            } catch (e) {}
+          });
+        } catch (e) {}
+
         printContentHtml = cloned.outerHTML;
       } catch (e) {
         printContentHtml = node.outerHTML;
       }
 
-      const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Relatório Ergonômico</title>${styles}<style>${headerCss}@media print{ @page { size: ${layout}; margin: 1cm; } } body{background:white;margin:0;padding:10px;color:#111;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;} #print-area { display: block !important; }</style></head><body>${headerHtml}${printContentHtml}${footerHtml}</body></html>`;
+      // Critical print CSS override: deterministic grid, full-width, reduced densities
+      const printOverrideCss = `
+        /* Ensure full usage of printable width and avoid shrink-to-fit */
+        html, body, #print-area { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+        /* Freeze the statistic card row to a deterministic 5-column grid on print/preview */
+        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, minmax(0,1fr)) !important; gap: 8px !important; }
+        /* Ensure cards use compact density only for print */
+        .StatisticCard { padding: 6px 8px !important; }
+        .StatisticCard p { font-size: 10px !important; }
+        .StatisticCard h3 { font-size: 16px !important; }
+        /* Prevent page-breaks splitting the top card rows */
+        .StatisticCardRow, .StatisticCard { page-break-inside: avoid !important; }
+        /* Make SVGs/images scale properly */
+        #print-area img, #print-area svg { max-width: 100% !important; height: auto !important; }
+        /* Remove UI-only controls from print */
+        .print\\:hidden, .print-hidden { display: none !important; }
+        @media print { html, body { -webkit-print-color-adjust: exact; color-adjust: exact; } }
+      `;
+
+      const pageSize = layout === "landscape" ? "A4 landscape" : "A4 portrait";
+
+      const html = `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><base href="${window.location.origin}/" />
+        <title>Relatório Ergonômico</title>
+        ${styles}
+        <style>
+          ${headerCss}
+          ${printOverrideCss}
+          @page { size: ${pageSize}; margin: 1cm; }
+          body{background:white;margin:0;padding:10px;color:#111;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;}
+          #print-area { display: block !important; width:100% !important; max-width:none !important; }
+        </style>
+      </head><body>${headerHtml}${printContentHtml}${footerHtml}</body></html>`;
 
       win.document.open();
       win.document.write(html);
       win.document.close();
+
+      // Delay to allow resources load in the new window, then print
       setTimeout(() => {
         try {
           win.focus();
           win.print();
-          win.close();
+          // do not forcibly close if user wants to inspect; close after small delay
+          setTimeout(() => {
+            try {
+              win.close();
+            } catch (e) {}
+          }, 500);
         } catch (e) {}
-      }, 600);
+      }, 700);
     },
     [userName],
   );
@@ -648,7 +743,6 @@ export default function ErgonomicsAnalyticsPage() {
                                 value={card.value}
                                 subtitle={card.unit}
                                 helperText={card.description}
-                                compact
                               />
                             );
                           })}
