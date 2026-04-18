@@ -354,14 +354,12 @@ export default function ErgonomicsAnalyticsPage() {
           cards.forEach((card) => {
             try {
               card.style.padding = "6px 8px";
-              // reduzir título/valor
+              // reduzir título/valor levemente para impressão, mas preservar textos auxiliares
               const title = card.querySelector("p");
               if (title) (title as HTMLElement).style.fontSize = "10px";
               const value = card.querySelector("h3");
               if (value) (value as HTMLElement).style.fontSize = "16px";
-              // remover helper text para prevenir truncamento
-              const helper = card.querySelector("p.mt-1, p:nth-of-type(3)");
-              if (helper) (helper as HTMLElement).style.display = "none";
+              // Preserve helperText and icons: do not remove helper paragraphs here
             } catch (e) {}
           });
         } catch (e) {}
@@ -379,7 +377,7 @@ export default function ErgonomicsAnalyticsPage() {
         #print-area { display:block !important; width: calc(100% - 2cm) !important; max-width: none !important; margin: 0 auto !important; padding: 0 !important; box-sizing: border-box !important; }
 
         /* Freeze the statistic card row to a deterministic 5-column grid on print/preview */
-        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, 20%) !important; gap: 8px !important; align-items: stretch !important; }
+        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, minmax(0,1fr)) !important; gap: 8px !important; align-items: stretch !important; }
 
         /* Ensure cards use compact density only for print and do not wrap */
         .StatisticCard { padding: 6px 8px !important; min-width: 0 !important; width: auto !important; box-sizing: border-box !important; }
@@ -393,6 +391,15 @@ export default function ErgonomicsAnalyticsPage() {
 
         /* Make SVGs/images scale properly and replace canvas with img earlier */
         #print-area img, #print-area svg { max-width: 100% !important; height: auto !important; }
+        /* Ensure icons and svgs inside StatisticCard are visible in print (override other page styles) */
+        #print-area .StatisticCard .shrink-0, #print-area .StatisticCard svg { display: block !important; opacity: 1 !important; }
+
+        /* Compact the secondary summary row (md:grid-cols-5) for print */
+        #print-area [class*="md:grid-cols-5"] { gap: 6px !important; }
+        #print-area [class*="md:grid-cols-5"] > * { padding: 6px 8px !important; }
+
+        /* Add internal padding to avoid cards touching page edge */
+        #print-area { padding: 10px 12px !important; }
 
         /* Remove UI-only controls from print */
         .print\\:hidden, .print-hidden, .print-hidden * { display: none !important; }
