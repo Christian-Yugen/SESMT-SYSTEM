@@ -302,6 +302,52 @@ export default function ErgonomicsAnalyticsPage() {
             } catch (e) {}
           });
 
+          // Transform responsive summary grids (ex: grid-cols-1 md:grid-cols-5)
+          // into a print-only StatisticCardRow containing StatisticCard children.
+          // This prevents the summary row from collapsing vertically in print.
+          try {
+            const candidateGrids = Array.from(
+              cloned.querySelectorAll(
+                '[class*="md:grid-cols-5"], [class*="lg:grid-cols-5"], [class*="grid-cols-5"]',
+              ),
+            ) as HTMLElement[];
+
+            candidateGrids.forEach((g) => {
+              try {
+                if (g.classList.contains("StatisticCardRow")) return;
+                // Skip if grid contains table-like structures
+                if (
+                  g.querySelector("table") ||
+                  (g.matches && g.matches("table"))
+                )
+                  return;
+                const children = Array.from(g.children).filter(
+                  (c) => (c as HTMLElement).innerHTML.trim().length > 0,
+                );
+                if (children.length < 2) return; // not a summary grid
+
+                const newRow = cloned.ownerDocument!.createElement("div");
+                newRow.className = "StatisticCardRow";
+                newRow.style.display = "grid";
+                newRow.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
+                newRow.style.gap = "8px";
+
+                children.forEach((ch) => {
+                  try {
+                    const card = cloned.ownerDocument!.createElement("div");
+                    card.className = "StatisticCard";
+                    // preserve inner markup
+                    card.innerHTML = (ch as HTMLElement).innerHTML;
+                    newRow.appendChild(card);
+                  } catch (e) {}
+                });
+
+                // replace the original grid with the new row
+                g.parentElement?.replaceChild(newRow, g);
+              } catch (e) {}
+            });
+          } catch (e) {}
+
           const cards = Array.from(
             cloned.querySelectorAll(".StatisticCard"),
           ) as HTMLElement[];
