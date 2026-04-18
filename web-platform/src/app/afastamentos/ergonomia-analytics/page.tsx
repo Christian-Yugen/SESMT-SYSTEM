@@ -272,20 +272,28 @@ export default function ErgonomicsAnalyticsPage() {
         } catch (e) {}
 
         try {
-          const liveCanvases = Array.from(node.querySelectorAll("canvas")) as HTMLCanvasElement[];
+          const liveCanvases = Array.from(
+            node.querySelectorAll("canvas"),
+          ) as HTMLCanvasElement[];
           const clonedCanvases = Array.from(cloned.querySelectorAll("canvas"));
-          const canvasCount = Math.min(liveCanvases.length, clonedCanvases.length);
+          const canvasCount = Math.min(
+            liveCanvases.length,
+            clonedCanvases.length,
+          );
           for (let i = 0; i < canvasCount; i++) {
             try {
               const data = liveCanvases[i].toDataURL();
-              clonedCanvases[i].outerHTML = `<img src="${data}" style="max-width:100%;height:auto;" alt="canvas"/>`;
+              clonedCanvases[i].outerHTML =
+                `<img src="${data}" style="max-width:100%;height:auto;" alt="canvas"/>`;
             } catch (e) {}
           }
         } catch (e) {}
 
         // Apply deterministic print-only overrides directly to the cloned DOM
         try {
-          const rows = Array.from(cloned.querySelectorAll(".StatisticCardRow")) as HTMLElement[];
+          const rows = Array.from(
+            cloned.querySelectorAll(".StatisticCardRow"),
+          ) as HTMLElement[];
           rows.forEach((r) => {
             try {
               r.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
@@ -294,7 +302,9 @@ export default function ErgonomicsAnalyticsPage() {
             } catch (e) {}
           });
 
-          const cards = Array.from(cloned.querySelectorAll(".StatisticCard")) as HTMLElement[];
+          const cards = Array.from(
+            cloned.querySelectorAll(".StatisticCard"),
+          ) as HTMLElement[];
           cards.forEach((card) => {
             try {
               card.style.padding = "6px 8px";
@@ -318,19 +328,30 @@ export default function ErgonomicsAnalyticsPage() {
       // Critical print CSS override: deterministic grid, full-width, reduced densities
       const printOverrideCss = `
         /* Ensure full usage of printable width and avoid shrink-to-fit */
-        html, body, #print-area { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+        html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+        /* Compensate @page margins: force print area to use available paper width */
+        #print-area { display:block !important; width: calc(100% - 2cm) !important; max-width: none !important; margin: 0 auto !important; padding: 0 !important; box-sizing: border-box !important; }
+
         /* Freeze the statistic card row to a deterministic 5-column grid on print/preview */
-        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, minmax(0,1fr)) !important; gap: 8px !important; }
-        /* Ensure cards use compact density only for print */
-        .StatisticCard { padding: 6px 8px !important; }
-        .StatisticCard p { font-size: 10px !important; }
+        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, 20%) !important; gap: 8px !important; align-items: stretch !important; }
+
+        /* Ensure cards use compact density only for print and do not wrap */
+        .StatisticCard { padding: 6px 8px !important; min-width: 0 !important; width: auto !important; box-sizing: border-box !important; }
+        .StatisticCard > .min-w-0 { overflow: visible !important; }
+        .StatisticCard p { font-size: 10px !important; white-space: normal !important; }
         .StatisticCard h3 { font-size: 16px !important; }
-        /* Prevent page-breaks splitting the top card rows */
-        .StatisticCardRow, .StatisticCard { page-break-inside: avoid !important; }
-        /* Make SVGs/images scale properly */
+        .StatisticCard, .StatisticCard * { break-inside: avoid !important; page-break-inside: avoid !important; }
+
+        /* If grid still wraps, prevent wrapping by forcing fixed basis on direct children */
+        .StatisticCardRow > * { flex: none !important; }
+
+        /* Make SVGs/images scale properly and replace canvas with img earlier */
         #print-area img, #print-area svg { max-width: 100% !important; height: auto !important; }
+
         /* Remove UI-only controls from print */
-        .print\\:hidden, .print-hidden { display: none !important; }
+        .print\\:hidden, .print-hidden, .print-hidden * { display: none !important; }
+
+        /* Improve color fidelity on print */
         @media print { html, body { -webkit-print-color-adjust: exact; color-adjust: exact; } }
       `;
 
