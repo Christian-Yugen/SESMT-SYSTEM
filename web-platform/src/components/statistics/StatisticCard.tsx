@@ -48,14 +48,20 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
     variant = "informative",
     active = false,
     className = "",
-  } = props;
+    compact = false,
+  } = props as StatisticCardBaseProps & Partial<StatisticCardInteractiveProps>;
 
   const accentClass = ACCENT_CLASSES[accent];
   const variantClass = VARIANT_CLASSES[variant];
 
+  const paddingClass = compact ? "px-2 py-1" : "px-3 py-2 sm:px-3.5 sm:py-2.5";
+  const valueSizeClass = compact ? "text-[16px]" : "text-xl";
+  const titleSizeClass = compact ? "text-[9px]" : "text-[10px]";
+  const helperSizeClass = compact ? "text-[8px]" : "text-[9px]";
+
   const baseClass = [
     "StatisticCard w-full border border-slate-200 border-l-4",
-    "px-3 py-2 sm:px-3.5 sm:py-2.5",
+    paddingClass,
     "rounded-none transition-all duration-150",
     "flex items-center justify-between gap-2",
     accentClass,
@@ -69,26 +75,32 @@ export default function StatisticCard(props: Readonly<StatisticCardProps>) {
   const content = (
     <>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 leading-none">
+        <p
+          className={`${titleSizeClass} font-semibold uppercase tracking-widest text-slate-400 leading-none`}
+        >
           {title}
         </p>
-        <div className="mt-0.5 flex items-baseline gap-1.5">
-          <h3 className="text-xl font-bold leading-none tabular-nums">
+        <div className="mt-0.5 flex items-baseline gap-1">
+          <h3
+            className={`${valueSizeClass} font-bold leading-none tabular-nums`}
+          >
             {value}
           </h3>
           {subtitle ? (
-            <span className="text-[10px] font-medium text-slate-500">
+            <span className="text-[9px] font-medium text-slate-500">
               {subtitle}
             </span>
           ) : null}
         </div>
-        {helperText ? (
-          <p className="mt-1 text-[9px] font-medium uppercase tracking-wide text-slate-500">
+        {!compact && helperText ? (
+          <p
+            className={`mt-1 ${helperSizeClass} font-medium uppercase tracking-wide text-slate-500`}
+          >
             {helperText}
           </p>
         ) : null}
       </div>
-      {icon ? (
+      {icon && !compact ? (
         <div className="shrink-0 opacity-60" aria-hidden="true">
           {icon}
         </div>

@@ -12,6 +12,7 @@ import {
   Calendar,
   Clock,
   ExternalLink,
+  Printer,
   X,
 } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
@@ -433,7 +434,8 @@ export default function EpidemiologiaPage() {
   const [userName, setUserName] = useState("Usuário");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
-  
+  const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
+
   const defaultDatesRef = useRef(getDefaultDates());
   const [startDate, setStartDate] = useState(defaultDatesRef.current.startDate);
   const [endDate, setEndDate] = useState(defaultDatesRef.current.endDate);
@@ -494,7 +496,9 @@ export default function EpidemiologiaPage() {
           typeof window !== "undefined"
             ? window.location.origin
             : process.env.NEXT_PUBLIC_APP_URL ||
-              (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+              (process.env.VERCEL_URL
+                ? `https://${process.env.VERCEL_URL}`
+                : "http://localhost:3000");
 
         const res = await fetch(
           `${baseUrl}/api/absenteismo/epidemiologia-view?${params.toString()}`,
@@ -575,6 +579,278 @@ export default function EpidemiologiaPage() {
     };
     init();
   }, [router, fetchContract]);
+
+  const openPrintWindow = useCallback(
+    async (layout: "portrait" | "landscape") => {
+      const node = document.getElementById("print-area");
+      if (!node) {
+        try {
+          window.print();
+        } catch (e) {}
+        return;
+      }
+
+      const win = window.open("", "_blank");
+      if (!win) {
+        try {
+          window.print();
+        } catch (e) {}
+        return;
+      }
+
+      try {
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      } catch (e) {}
+
+      const styles = Array.from(
+        document.querySelectorAll("link[rel=stylesheet], style"),
+      )
+        .map((el) => el.outerHTML)
+        .join("\n");
+
+      const today = new Date().toLocaleDateString("pt-BR");
+      const logoUrl = window.location.origin + "/images/logo.png";
+      const operatorName = (typeof userName === "string" && userName) || "";
+
+      const headerCss = `
+      .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #E31E24; padding-bottom: 8px; margin-bottom: 10px; }
+      .logo-area img { height: 42px; width: auto; }
+      .report-title-area { text-align: center; flex: 1; }
+      .report-title-area h1 { margin: 0; font-size: 14px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
+      .report-info { font-size: 9px; color: #666; font-weight: 400; margin-top: 4px; }
+      @media print { .official-header, .official-header * { visibility: visible !important; } #print-area, #print-area * { visibility: visible !important; } .report-footer { page-break-inside: avoid !important; margin-top: 12px !important; display:block !important; } }
+      `;
+
+      const headerHtml = `
+      <div class="official-header">
+        <div class="logo-area"><img src="${logoUrl}" alt="Logo" /></div>
+        <div class="report-title-area">
+          <h1>Relatório Epidemiológico - SESMT</h1>
+          <div class="report-info">(Análise Epidemiológica — dados agregados)</div>
+        </div>
+        <div style="text-align:right;font-size:9px;color:#666;min-width:120px;">
+          <div>Operador: ${operatorName}</div>
+          <div>Data: ${today}</div>
+        </div>
+      </div>
+    `;
+
+      const footerHtml = `
+      <div class="report-footer" style="margin-top:16px;border-top:2px solid #E5E7EB;padding-top:12px;text-align:center;max-width:90%;margin-left:auto;margin-right:auto;">
+        <p style="font-size:11px;font-weight:800;color:#111;text-transform:uppercase;margin:0 0 6px;">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</p>
+        <p style="font-size:10px;color:#666;margin:0 0 8px;line-height:1.25;">Este relatório gerencial contém dados agregados de produtividade para fins de Business Intelligence. O uso destas informações é restrito à gestão estratégica do SESMT.</p>
+        <div style="padding-top:8px;border-top:1px solid #E6E6E6;">
+          <p style="font-size:9px;color:#9CA3AF;letter-spacing:0.2em;font-weight:700;margin:6px 0 0;">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
+        </div>
+      </div>
+    `;
+
+      let printContentHtml = node.outerHTML;
+      try {
+        const cloned = node.cloneNode(true) as HTMLElement;
+
+        try {
+          const liveSvgs = Array.from(node.querySelectorAll("svg"));
+          const clonedSvgs = Array.from(cloned.querySelectorAll("svg"));
+          const svgCount = Math.min(liveSvgs.length, clonedSvgs.length);
+          for (let i = 0; i < svgCount; i++) {
+            try {
+              clonedSvgs[i].outerHTML = (liveSvgs[i] as Element).outerHTML;
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        try {
+          const liveCanvases = Array.from(
+            node.querySelectorAll("canvas"),
+          ) as HTMLCanvasElement[];
+          const clonedCanvases = Array.from(cloned.querySelectorAll("canvas"));
+          const canvasCount = Math.min(
+            liveCanvases.length,
+            clonedCanvases.length,
+          );
+          for (let i = 0; i < canvasCount; i++) {
+            try {
+              const data = liveCanvases[i].toDataURL();
+              clonedCanvases[i].outerHTML =
+                `<img src="${data}" style="max-width:100%;height:auto;" alt="canvas"/>`;
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        try {
+          const rows = Array.from(
+            cloned.querySelectorAll(".StatisticCardRow"),
+          ) as HTMLElement[];
+          rows.forEach((r) => {
+            try {
+              const childCount = Math.max(
+                1,
+                Math.min(5, (r.children && r.children.length) || 1),
+              );
+              r.style.gridTemplateColumns = `repeat(${childCount}, minmax(0, 1fr))`;
+              r.style.gap = "8px";
+              r.style.width = "100%";
+            } catch (e) {}
+          });
+
+          try {
+            const candidateGrids = Array.from(
+              cloned.querySelectorAll(
+                '[class*="md:grid-cols-5"], [class*="lg:grid-cols-5"], [class*="grid-cols-5"]',
+              ),
+            ) as HTMLElement[];
+            candidateGrids.forEach((g) => {
+              try {
+                if (g.classList.contains("StatisticCardRow")) return;
+                if (
+                  g.querySelector("table") ||
+                  (g.matches && g.matches("table"))
+                )
+                  return;
+                const children = Array.from(g.children).filter(
+                  (c) => (c as HTMLElement).innerHTML.trim().length > 0,
+                );
+                if (children.length < 2) return;
+
+                const newRow = cloned.ownerDocument!.createElement("div");
+                newRow.className = "StatisticCardRow";
+                newRow.style.display = "grid";
+                const cols = Math.max(1, Math.min(5, children.length));
+                newRow.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+                newRow.style.gap = "8px";
+
+                children.forEach((ch) => {
+                  try {
+                    const card = cloned.ownerDocument!.createElement("div");
+                    card.className = "StatisticCard";
+                    card.innerHTML = (ch as HTMLElement).innerHTML;
+                    newRow.appendChild(card);
+                  } catch (e) {}
+                });
+
+                g.parentElement?.replaceChild(newRow, g);
+              } catch (e) {}
+            });
+          } catch (e) {}
+
+          const cards = Array.from(
+            cloned.querySelectorAll(".StatisticCard"),
+          ) as HTMLElement[];
+          cards.forEach((card) => {
+            try {
+              card.style.padding = "6px 8px";
+              const title = card.querySelector("p");
+              if (title) (title as HTMLElement).style.fontSize = "10px";
+              const value = card.querySelector("h3");
+              if (value) (value as HTMLElement).style.fontSize = "16px";
+            } catch (e) {}
+          });
+        } catch (e) {}
+
+        try {
+          const tables = Array.from(
+            cloned.querySelectorAll("table"),
+          ) as HTMLElement[];
+          tables.forEach((table) => {
+            try {
+              (table as HTMLTableElement).style.width = "100%";
+              (table as HTMLTableElement).style.tableLayout = "auto";
+              table.style.maxWidth = "100%";
+              const ths = Array.from(
+                table.querySelectorAll("th"),
+              ) as HTMLElement[];
+              ths.forEach((th, idx) => {
+                try {
+                  th.style.whiteSpace = "normal";
+                  th.style.overflow = "visible";
+                  (th as HTMLElement).style.wordBreak = "break-word";
+                  if (idx === ths.length - 1) th.style.minWidth = "80px";
+                  else if (!th.style.minWidth) th.style.minWidth = "60px";
+                } catch (e) {}
+              });
+              const tds = Array.from(
+                table.querySelectorAll("td"),
+              ) as HTMLElement[];
+              tds.forEach((td) => {
+                try {
+                  td.style.whiteSpace = "normal";
+                  td.style.overflow = "visible";
+                  (td as HTMLElement).style.wordBreak = "break-word";
+                } catch (e) {}
+              });
+            } catch (e) {}
+          });
+        } catch (e) {}
+
+        printContentHtml = cloned.outerHTML;
+      } catch (e) {
+        printContentHtml = node.outerHTML;
+      }
+
+      const printOverrideCss = `
+        html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+        #print-area { display:block !important; width: calc(100% - 2cm) !important; max-width: none !important; margin: 0 auto !important; padding: 0 !important; box-sizing: border-box !important; }
+        .StatisticCardRow { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(0,1fr)) !important; gap: 8px !important; align-items: stretch !important; }
+        /* Ensure the first statistic row stretches its items to fill the available width */
+        #print-area .StatisticCardRow:first-of-type { grid-template-columns: repeat(auto-fit, minmax(0,1fr)) !important; }
+        .StatisticCard { padding: 6px 8px !important; min-width: 0 !important; width: auto !important; box-sizing: border-box !important; }
+        .StatisticCard > .min-w-0 { overflow: visible !important; }
+        .StatisticCard p { font-size: 10px !important; white-space: normal !important; }
+        .StatisticCard h3 { font-size: 16px !important; }
+        .StatisticCard, .StatisticCard * { break-inside: avoid !important; page-break-inside: avoid !important; }
+        .StatisticCardRow > * { flex: none !important; }
+        #print-area img, #print-area svg { max-width: 100% !important; height: auto !important; }
+        /* Ensure tables use available width and cells wrap in print */
+        #print-area table { width: 100% !important; table-layout: auto !important; border-collapse: collapse !important; max-width: 100% !important; }
+        #print-area th, #print-area td { white-space: normal !important; overflow: visible !important; word-break: break-word !important; }
+        #print-area th:last-child, #print-area td:last-child { min-width: 80px !important; }
+        #print-area .overflow-x-auto { overflow-x: visible !important; }
+        /* Slightly wider 'Unidade / Local' and narrower 'CIDS PRINCIPAIS' for print */
+        #print-area table th:nth-of-type(2), #print-area table td:nth-of-type(2) { width: 160px !important; max-width: 200px !important; }
+        #print-area table th:nth-of-type(3), #print-area table td:nth-of-type(3) { width: 120px !important; max-width: 140px !important; }
+        /* Allow remaining columns (4..) to auto-size using remaining space */
+        #print-area table th:nth-of-type(n+4), #print-area table td:nth-of-type(n+4) { width: auto !important; }
+        #print-area .StatisticCard .shrink-0, #print-area .StatisticCard svg { display: block !important; opacity: 1 !important; }
+        #print-area [class*="md:grid-cols-5"] { gap: 6px !important; }
+        #print-area [class*="md:grid-cols-5"] > * { padding: 6px 8px !important; }
+        #print-area { padding: 10px 12px !important; }
+        .print\\:hidden, .print-hidden, .print-hidden * { display: none !important; }
+        @media print { html, body { -webkit-print-color-adjust: exact; color-adjust: exact; } }
+      `;
+
+      const pageSize = layout === "landscape" ? "A4 landscape" : "A4 portrait";
+
+      const html = `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><base href="${window.location.origin}/" />
+        <title>Relatório Epidemiológico</title>
+        ${styles}
+        <style>
+          ${headerCss}
+          ${printOverrideCss}
+          @page { size: ${pageSize}; margin: 1cm; }
+          body{background:white;margin:0;padding:10px;color:#111;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;}
+          #print-area { display: block !important; width:100% !important; max-width:none !important; }
+        </style>
+      </head><body>${headerHtml}${printContentHtml}${footerHtml}</body></html>`;
+
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+
+      setTimeout(() => {
+        try {
+          win.focus();
+          win.print();
+          setTimeout(() => {
+            try {
+              win.close();
+            } catch (e) {}
+          }, 500);
+        } catch (e) {}
+      }, 700);
+    },
+    [userName, fetchContract],
+  );
 
   // -------------------------------------------------------------------------
   // Estado de inicialização
@@ -659,7 +935,9 @@ export default function EpidemiologiaPage() {
               >
                 <div className="bg-white border border-slate-200 shadow-2x shadow-slate-300 w-72 p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="space-y-1.5">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Data Inicial</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                      Data Inicial
+                    </span>
                     <input
                       type="date"
                       className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
@@ -668,7 +946,9 @@ export default function EpidemiologiaPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">Data Final</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                      Data Final
+                    </span>
                     <input
                       type="date"
                       className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
@@ -700,6 +980,36 @@ export default function EpidemiologiaPage() {
                 </div>
               </ActionIconButton>
 
+              <ActionIconButton
+                icon={<Printer className="w-3.5 h-3.5" />}
+                label="Impressão / Relatório"
+                variant="filter"
+                open={isPrintPopoverOpen}
+                onToggle={setIsPrintPopoverOpen}
+                showMenuIndicator={true}
+              >
+                <div className="bg-white border border-slate-200 shadow-sm p-2 w-44 space-y-1">
+                  <button
+                    onClick={() => {
+                      setIsPrintPopoverOpen(false);
+                      openPrintWindow("portrait");
+                    }}
+                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                  >
+                    Relatório — Retrato
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPrintPopoverOpen(false);
+                      openPrintWindow("landscape");
+                    }}
+                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                  >
+                    Relatório — Paisagem
+                  </button>
+                </div>
+              </ActionIconButton>
+
               <button
                 onClick={() => fetchContract(startDate, endDate)}
                 disabled={loading || !startDate || !endDate}
@@ -719,7 +1029,10 @@ export default function EpidemiologiaPage() {
         {/* ----------------------------------------------------------------- */}
         {/* CONTEÚDO PRINCIPAL                                                 */}
         {/* ----------------------------------------------------------------- */}
-        <div className="flex-1 overflow-y-auto px-2.5 sm:px-4 lg:px-6 py-4 space-y-6">
+        <div
+          id="print-area"
+          className="flex-1 overflow-y-auto px-2.5 sm:px-4 lg:px-6 py-4 space-y-6"
+        >
           {/* Estado de erro */}
           {fetchError && (
             <div className="flex items-start gap-3 bg-[#E31E24]/5 border border-[#E31E24]/20 border-l-4 border-l-[#E31E24] px-4 py-3">
