@@ -734,10 +734,10 @@ export default function AtestadosPage() {
                                   <th className="px-2 py-1 border-r border-slate-200 w-96">
                                     Cargo / PGR
                                   </th>
-                                  <th className="px-4 py-1 border-r border-slate-200 w-40">
+                                  <th className="px-4 py-1 border-r border-slate-200 w-80">
                                     Unidade / Local
                                   </th>
-                                  <th className="px-4 py-1 border-r border-slate-200 w-72">
+                                  <th className="px-4 py-1 border-r border-slate-200 w-[120px]">
                                     CIDS PRINCIPAIS
                                   </th>
                                   <th className="px-4 py-1 text-right w-[60px]">
@@ -927,8 +927,8 @@ export default function AtestadosPage() {
                                                   key={i}
                                                   className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
                                                 >
-                                                  <td className="px-2 py-1 align-middle w-96 max-w-[24rem]">
-                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight">
+                                                  <td className="px-2 py-1 align-middle w-96 max-w-none">
+                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight whitespace-normal break-words">
                                                       {cargo.cargo}
                                                       <span className="ml-2 text-xs font-medium">
                                                         (
@@ -939,7 +939,7 @@ export default function AtestadosPage() {
                                                       </span>
                                                     </div>
                                                   </td>
-                                                  <td className="px-3 py-1 align-middle w-40 max-w-[10rem]">
+                                                  <td className="px-3 py-1 align-middle w-80 max-w-[24rem]">
                                                     <div className="flex flex-col gap-0.5">
                                                       {displayedUnits.map(
                                                         (
@@ -948,7 +948,7 @@ export default function AtestadosPage() {
                                                         ) => (
                                                           <div
                                                             key={idx}
-                                                            className="text-[11px] text-slate-700 leading-tight font-normal truncate"
+                                                            className="text-[11px] text-slate-700 leading-tight font-normal whitespace-normal break-words"
                                                             title={unidade}
                                                           >
                                                             {unidade}
@@ -972,7 +972,7 @@ export default function AtestadosPage() {
                                                       )}
                                                     </div>
                                                   </td>
-                                                  <td className="px-3 py-1 align-middle w-72 max-w-[18rem]">
+                                                  <td className="px-3 py-1 align-middle">
                                                     <div className="flex flex-wrap gap-x-2 gap-y-1">
                                                       {Array.from(
                                                         cargo.cids as Set<string>,
