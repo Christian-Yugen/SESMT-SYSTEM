@@ -731,7 +731,7 @@ export default function AtestadosPage() {
                             <table className="w-full text-left border-collapse">
                               <thead>
                                 <tr className="bg-slate-50 text-[#1A3351] text-[12px] font-bold uppercase border-b border-slate-200">
-                                  <th className="px-3 py-1 border-r border-slate-200 w-56">
+                                  <th className="px-2 py-1 border-r border-slate-200 w-44">
                                     Cargo / PGR
                                   </th>
                                   <th className="px-4 py-1 border-r border-slate-200">
@@ -745,18 +745,6 @@ export default function AtestadosPage() {
                                   </th>
                                   <th className="px-4 py-1 text-right w-[80px]">
                                     Dias
-                                  </th>
-                                  <th className="px-4 py-1 text-center w-[140px] relative group overflow-visible">
-                                    <div className="flex items-center justify-center gap-1.5 py-1">
-                                      Risco de Absenteísmo
-                                      <button
-                                        title="Clique para ver o detalhamento do cálculo"
-                                        onClick={() => setShowMethodology(true)}
-                                        className="flex items-center justify-center transition-all"
-                                      >
-                                        <Info className="w-4 h-4 text-[#E31E24] hover:text-[#c4191f] cursor-pointer animate-pulse-subtle active:scale-90" />
-                                      </button>
-                                    </div>
                                   </th>
                                 </tr>
                               </thead>
@@ -939,8 +927,8 @@ export default function AtestadosPage() {
                                                   key={i}
                                                   className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
                                                 >
-                                                  <td className="px-3 py-1 align-middle w-56">
-                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight whitespace-nowrap">
+                                                  <td className="px-2 py-1 align-middle w-44 max-w-[11rem]">
+                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight truncate">
                                                       {cargo.cargo}
                                                       <span className="ml-2 text-xs font-medium">
                                                         (
