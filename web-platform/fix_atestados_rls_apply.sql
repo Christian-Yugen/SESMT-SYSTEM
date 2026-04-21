@@ -7,8 +7,18 @@ DROP INDEX IF EXISTS public.ux_atestados_mat_per_cid;
 
 -- 2) Criar constraint única compatível com ON CONFLICT (matricula, contrato, periodo, cid)
 -- Observação: incluímos `contrato` para permitir múltiplos contratos com a mesma matrícula.
-ALTER TABLE public.atestados_import
-  ADD CONSTRAINT IF NOT EXISTS ux_atestados_mat_per_cid UNIQUE (matricula, contrato, periodo, cid);
+-- Usamos bloco PL/pgSQL para criar a constraint apenas se ela não existir
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'ux_atestados_mat_per_cid'
+      AND conrelid = 'public.atestados_import'::regclass
+  ) THEN
+    EXECUTE 'ALTER TABLE public.atestados_import ADD CONSTRAINT ux_atestados_mat_per_cid UNIQUE (matricula, contrato, periodo, cid)';
+  END IF;
+END
+$$;
 
 -- 3) Habilitar RLS nas tabelas envolvidas
 ALTER TABLE public.atestados_import ENABLE ROW LEVEL SECURITY;
