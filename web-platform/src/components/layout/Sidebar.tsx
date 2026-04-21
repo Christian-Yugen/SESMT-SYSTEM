@@ -146,7 +146,10 @@ export default function Sidebar({
       setIsBenefitsOpen(true);
       setIsAfastamentosOpen(false);
       setIsAbonoOpen(false);
-    } else if (pathname.includes("/history") || pathname.includes("/analytics")) {
+    } else if (
+      pathname.includes("/history") ||
+      pathname.includes("/analytics")
+    ) {
       setIsHistoryOpen(true);
       setIsBenefitsOpen(false);
       setIsAfastamentosOpen(false);
@@ -264,6 +267,17 @@ export default function Sidebar({
         />
       )}
 
+      {/* ATESTADOS - novo submenu */}
+      <div className="space-y-1 mt-1">
+        <button
+          onClick={() => router.push("/abono/atestados")}
+          className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
+        >
+          <FileText className="w-3.5 h-3.5 shrink-0" />
+          <span>Atestados</span>
+        </button>
+      </div>
+
       {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
       <aside
         className={`
@@ -297,7 +311,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        <nav 
+        <nav
           ref={sidebarRef}
           className="flex-1 space-y-1 overflow-y-auto pr-1 scrollbar-none"
         >
@@ -349,7 +363,10 @@ export default function Sidebar({
                 <div className="flex flex-col space-y-1 bg-black/10 p-1">
                   {userRole !== "social_assistant" && (
                     <>
-                      {(userRole === "admin" || userRole === "nurse" || userRole === "analytic_manager" || userRole === "doctor") && (
+                      {(userRole === "admin" ||
+                        userRole === "nurse" ||
+                        userRole === "analytic_manager" ||
+                        userRole === "doctor") && (
                         <div className="space-y-1">
                           <button
                             onClick={handleToggleAfastamentos}
@@ -375,7 +392,9 @@ export default function Sidebar({
                               </button>
 
                               <button
-                                onClick={() => router.push("/afastamentos/cid-analytics")}
+                                onClick={() =>
+                                  router.push("/afastamentos/cid-analytics")
+                                }
                                 className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/cid-analytics") ? "bg-emerald-500/20 text-emerald-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <BarChart3 className="w-3 h-3 shrink-0" />
@@ -383,7 +402,9 @@ export default function Sidebar({
                               </button>
 
                               <button
-                                onClick={() => router.push("/afastamentos/epidemiologia")}
+                                onClick={() =>
+                                  router.push("/afastamentos/epidemiologia")
+                                }
                                 className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/epidemiologia") ? "bg-red-500/20 text-[#E31E24] font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <TrendingUp className="w-3 h-3 shrink-0" />
@@ -391,7 +412,11 @@ export default function Sidebar({
                               </button>
 
                               <button
-                                onClick={() => router.push("/afastamentos/psychosocial-analytics")}
+                                onClick={() =>
+                                  router.push(
+                                    "/afastamentos/psychosocial-analytics",
+                                  )
+                                }
                                 className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/psychosocial-analytics") ? "bg-purple-500/20 text-purple-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <Brain className="w-3 h-3 shrink-0" />
@@ -399,18 +424,22 @@ export default function Sidebar({
                               </button>
 
                               <button
-                                onClick={() => router.push("/afastamentos/ergonomia-analytics")}
+                                onClick={() =>
+                                  router.push(
+                                    "/afastamentos/ergonomia-analytics",
+                                  )
+                                }
                                 className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/ergonomia-analytics") ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                               >
                                 <Activity className="w-3 h-3 shrink-0" />
                                 <span>Ergonomia</span>
                               </button>
-
                             </div>
                           )}
 
                           {/* ABONO SALARIAL (NÍVEL 2) - Bloqueio Médico para versão padrão */}
-                          {(userRole === "admin" || userRole === "analytic_manager") && (
+                          {(userRole === "admin" ||
+                            userRole === "analytic_manager") && (
                             <div className="space-y-1 mt-1">
                               <button
                                 onClick={handleToggleAbono}
@@ -435,7 +464,9 @@ export default function Sidebar({
                                     <span>Painel de Gestão</span>
                                   </button>
                                   <button
-                                    onClick={() => router.push("/abono/portarias")}
+                                    onClick={() =>
+                                      router.push("/abono/portarias")
+                                    }
                                     className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/portarias" ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                                   >
                                     <FileText className="w-3 h-3 shrink-0" />
@@ -489,21 +520,20 @@ export default function Sidebar({
                             </div>
                           )}
 
-
-                           {/* Lic. Maternidade - Admin/Nurse (Full), Analytic_Manager (View) and Doctor (View) */}
-                           {true && (
-                             <button
-                               onClick={() => {
-                                 setIsAfastamentosOpen(false);
-                                 setIsAbonoOpen(false);
-                                 router.push("/afastamentos/maternidade");
-                               }}
-                               className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-pink-500/20 text-pink-300 font-medium shadow-md border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
-                             >
-                               <Baby className="w-3 h-3 shrink-0" />
-                               <span>Lic. Maternidade</span>
-                             </button>
-                           )}
+                          {/* Lic. Maternidade - Admin/Nurse (Full), Analytic_Manager (View) and Doctor (View) */}
+                          {true && (
+                            <button
+                              onClick={() => {
+                                setIsAfastamentosOpen(false);
+                                setIsAbonoOpen(false);
+                                router.push("/afastamentos/maternidade");
+                              }}
+                              className={`w-full flex items-center gap-1.5 py-1.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap is-active-folder ${pathname.startsWith("/afastamentos/maternidade") ? "bg-pink-500/20 text-pink-300 font-medium shadow-md border-l-2 border-pink-500/50" : "text-white/40 font-medium hover:bg-white/5 hover:text-white"}`}
+                            >
+                              <Baby className="w-3 h-3 shrink-0" />
+                              <span>Lic. Maternidade</span>
+                            </button>
+                          )}
                         </div>
                       )}
 
@@ -511,11 +541,15 @@ export default function Sidebar({
                         userRole === "analytic_manager" ||
                         userRole === "doctor") && (
                         <div className="space-y-1">
-                          <button className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}>
+                          <button
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}
+                          >
                             <TrendingUp className="w-3.5 h-3.5 shrink-0" />
                             <span>Redução de Jornada</span>
                           </button>
-                          <button className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}>
+                          <button
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 text-white/40 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider whitespace-nowrap ${userRole === "doctor" ? "cursor-default" : "cursor-not-allowed opacity-50"}`}
+                          >
                             <FileSearch className="w-3.5 h-3.5 shrink-0" />
                             <span>Readaptação</span>
                           </button>
@@ -523,8 +557,6 @@ export default function Sidebar({
                       )}
                     </>
                   )}
-
-
                 </div>
               )}
             </div>
@@ -550,41 +582,41 @@ export default function Sidebar({
             </div>
           )}
 
-             {userRole !== "viewer" && (
+          {userRole !== "viewer" && (
             <div className="space-y-1">
-                <button
-                  onClick={handleToggleHistory}
-                  className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <HistoryIcon className="w-4 h-4 shrink-0" />
-                    <span>Histórico</span>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
+              <button
+                onClick={handleToggleHistory}
+                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
+              >
+                <div className="flex items-center gap-1.5">
+                  <HistoryIcon className="w-4 h-4 shrink-0" />
+                  <span>Histórico</span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
+                />
+              </button>
 
-                {isHistoryOpen && (
-                  <div className="flex flex-col space-y-1 bg-black/10 p-1">
-                    <button
-                      onClick={() => router.push("/history")}
-                      className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/history") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
-                    >
-                      <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
-                      <span>Log Principal</span>
-                    </button>
-                    <button
-                      onClick={() => router.push("/analytics")}
-                      className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/analytics") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
-                    >
-                      <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                      <span>Indicadores BI</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+              {isHistoryOpen && (
+                <div className="flex flex-col space-y-1 bg-black/10 p-1">
+                  <button
+                    onClick={() => router.push("/history")}
+                    className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/history") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
+                  >
+                    <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Log Principal</span>
+                  </button>
+                  <button
+                    onClick={() => router.push("/analytics")}
+                    className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/analytics") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Indicadores BI</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {userRole !== "social_assistant" && (
             <button
