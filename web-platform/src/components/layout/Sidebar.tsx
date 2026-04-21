@@ -55,6 +55,7 @@ export default function Sidebar({
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAfastamentosOpen, setIsAfastamentosOpen] = useState(false);
+  const [isAtestadosOpen, setIsAtestadosOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -84,6 +85,19 @@ export default function Sidebar({
     e.stopPropagation();
     setIsAbonoOpen(!isAbonoOpen);
     if (!isAbonoOpen) {
+      setIsAfastamentosOpen(false);
+      // Ensure parent section is focused
+      setIsBenefitsOpen(true);
+      setIsHistoryOpen(false);
+      setIsAdminOpen(false);
+    }
+  };
+
+  const handleToggleAtestados = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAtestadosOpen(!isAtestadosOpen);
+    if (!isAtestadosOpen) {
+      setIsAbonoOpen(false);
       setIsAfastamentosOpen(false);
       // Ensure parent section is focused
       setIsBenefitsOpen(true);
@@ -137,6 +151,12 @@ export default function Sidebar({
       setIsHistoryOpen(false);
       setIsAdminOpen(false);
     } else if (pathname.startsWith("/afastamentos")) {
+    } else if (pathname.includes("/abono/atestados")) {
+      setIsBenefitsOpen(true);
+      setIsAtestadosOpen(true);
+      setIsAfastamentosOpen(false);
+      setIsAbonoOpen(false);
+      setIsHistoryOpen(false);
     } else if (pathname.includes("/abono")) {
       setIsBenefitsOpen(true);
       setIsAbonoOpen(true);
@@ -238,7 +258,7 @@ export default function Sidebar({
 
   // Auto-scroll when submenus open
   useEffect(() => {
-    if (isAfastamentosOpen || isAbonoOpen || isHistoryOpen || isAdminOpen) {
+    if (isAfastamentosOpen || isAbonoOpen || isAtestadosOpen || isHistoryOpen || isAdminOpen) {
       setTimeout(() => {
         const activeElement = document.querySelector(".is-active-folder");
         if (activeElement) {
@@ -246,7 +266,7 @@ export default function Sidebar({
         }
       }, 150);
     }
-  }, [isAfastamentosOpen, isAbonoOpen, isHistoryOpen, isAdminOpen]);
+  }, [isAfastamentosOpen, isAbonoOpen, isAtestadosOpen, isHistoryOpen, isAdminOpen]);
 
   return (
     <>
@@ -425,6 +445,38 @@ export default function Sidebar({
                                 <Activity className="w-3 h-3 shrink-0" />
                                 <span>Ergonomia</span>
                               </button>
+                            </div>
+                          )}
+
+                          {(userRole === "admin" ||
+                            userRole === "nurse" ||
+                            userRole === "analytic_manager" ||
+                            userRole === "doctor") && (
+                            <div className="space-y-1 mt-1">
+                              <button
+                                onClick={handleToggleAtestados}
+                                className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left is-active-folder ${pathname.startsWith("/abono/atestados") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileText className="w-3.5 h-3.5 shrink-0 group-hover:text-emerald-400" />
+                                  <span>Atestados</span>
+                                </div>
+                                <ChevronDown
+                                  className={`w-3 h-3 transition-transform duration-200 ${isAtestadosOpen ? "rotate-180" : ""}`}
+                                />
+                              </button>
+
+                              {isAtestadosOpen && (
+                                <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
+                                  <button
+                                    onClick={() => router.push("/abono/atestados")}
+                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
+                                  >
+                                    <LayoutDashboard className="w-3 h-3 shrink-0" />
+                                    <span>Listagem de Atestados</span>
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           )}
 
