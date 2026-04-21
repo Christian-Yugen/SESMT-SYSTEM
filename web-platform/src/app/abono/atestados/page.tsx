@@ -137,14 +137,23 @@ export default function AtestadosPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
-      <Sidebar
-        userRole={userRole}
-        userName={userName}
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+      <div className="print:hidden">
+        <Sidebar
+          userRole={userRole}
+          userName={userName}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      </div>
 
-      <main className="flex-1">
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 flex flex-col bg-[#F3F4F6] min-h-screen lg:h-screen lg:overflow-visible relative">
         <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold uppercase text-[#1A3351]">
