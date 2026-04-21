@@ -3,9 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
-import { Menu, FileText, Users, Clock3, RefreshCcw, Calendar } from "lucide-react";
+import {
+  Menu,
+  FileText,
+  Users,
+  Clock3,
+  RefreshCcw,
+  Calendar,
+  X,
+} from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
-import FilterChips from "@/components/filters/FilterChips";
 import { supabase } from "@/lib/supabase";
 import { getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
@@ -26,7 +33,7 @@ export default function AtestadosPage() {
   const [endDate, setEndDate] = useState<string>("");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (sd?: string, ed?: string) => {
     setLoading(true);
     try {
       // Supabase/PostgREST pode limitar a 1000 rows por requisição.
@@ -36,9 +43,11 @@ export default function AtestadosPage() {
       let from = 0;
       const all: any[] = [];
       while (true) {
+        const sdVal = typeof sd === "string" ? sd : startDate;
+        const edVal = typeof ed === "string" ? ed : endDate;
         let q: any = supabase.from("atestados_import").select("*");
-        if (startDate) q = q.gte("periodo", startDate);
-        if (endDate) q = q.lte("periodo", endDate);
+        if (sdVal) q = q.gte("periodo", sdVal);
+        if (edVal) q = q.lte("periodo", edVal);
         q = q.order("nome", { ascending: true }).range(from, from + BATCH - 1);
 
         const { data, error } = await q;
@@ -119,12 +128,18 @@ export default function AtestadosPage() {
     return { total, employees, totalDays, avgDays, topCid };
   }, [rows]);
 
-  const [cidDetailsMap, setCidDetailsMap] = useState<Record<string, { desc: string; chapter: string }>>({});
+  const [cidDetailsMap, setCidDetailsMap] = useState<
+    Record<string, { desc: string; chapter: string }>
+  >({});
 
   // Fetch CID descriptions for the top CIDs shown in the first block
   useEffect(() => {
-    const originalCodes = metrics.topCid.map((t) => String(t.cid)).filter((c) => c && c !== "SEM CID");
-    const normalizedKeys = Array.from(new Set(originalCodes.map((c) => normalizeCID(c))));
+    const originalCodes = metrics.topCid
+      .map((t) => String(t.cid))
+      .filter((c) => c && c !== "SEM CID");
+    const normalizedKeys = Array.from(
+      new Set(originalCodes.map((c) => normalizeCID(c))),
+    );
     if (normalizedKeys.length === 0) {
       setCidDetailsMap({});
       return;
@@ -138,7 +153,11 @@ export default function AtestadosPage() {
           normalizedKeys.map(async (nkey) => {
             try {
               const details = await getCIDDetailsFromDB(nkey);
-              return { nkey, desc: details.desc || "—", chapter: details.chapter || details.chapter_desc || "—" };
+              return {
+                nkey,
+                desc: details.desc || "—",
+                chapter: details.chapter || details.chapter_desc || "—",
+              };
             } catch (e) {
               return { nkey, desc: "—", chapter: "—" };
             }
@@ -147,7 +166,9 @@ export default function AtestadosPage() {
 
         if (cancelled) return;
         const map: Record<string, { desc: string; chapter: string }> = {};
-        results.forEach((r) => (map[r.nkey] = { desc: r.desc, chapter: r.chapter }));
+        results.forEach(
+          (r) => (map[r.nkey] = { desc: r.desc, chapter: r.chapter }),
+        );
         setCidDetailsMap(map);
       } catch (e) {
         if (!cancelled) setCidDetailsMap({});
@@ -193,62 +214,83 @@ export default function AtestadosPage() {
               Atestados — Análise Rápida
             </h1>
             <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2">
-                  <ActionIconButton
-                    icon={<Calendar className="w-4 h-4" />}
-                    label="Período"
-                    variant="filter"
-                    open={isDateFilterOpen}
-                    onToggle={setIsDateFilterOpen}
-                    active={Boolean(startDate || endDate)}
-                  >
-                    <div className="bg-white border border-slate-200 shadow-2x shadow-slate-300 w-72 p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
-                      <div className="space-y-1.5">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
-                          Data Inicial
-                        </span>
-                        <input
-                          type="date"
-                          className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
-                          Data Final
-                        </span>
-                        <input
-                          type="date"
-                          className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                        />
-                      </div>
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={() => {
-                            setStartDate("");
-                            setEndDate("");
-                            setIsDateFilterOpen(false);
-                          }}
-                          className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-[#E31E24] hover:bg-red-50 hover:border-red-100 transition-all"
-                        >
-                          Limpar
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsDateFilterOpen(false);
-                            fetchData();
-                          }}
-                          className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-md"
-                        >
-                          Consultar
-                        </button>
-                      </div>
+              <div className="hidden sm:flex items-center gap-3">
+                {startDate || endDate ? (
+                  <div className="inline-flex items-center h-9 px-3 bg-[#1A3351]/10 border border-[#1A3351]/20 text-base font-bold text-[#1A3351] uppercase tracking-wide rounded-none">
+                    <span className="px-2">
+                      {startDate || "..."} → {endDate || "..."}
+                    </span>
+                    <button
+                      onClick={async () => {
+                        setStartDate("");
+                        setEndDate("");
+                        await fetchData("", "");
+                      }}
+                      aria-label="Limpar período"
+                      title="Limpar período"
+                      className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-sm text-[#1A3351] hover:bg-[#1A3351]/20"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : null}
+
+                <ActionIconButton
+                  icon={<Calendar className="w-4 h-4" />}
+                  label="Período"
+                  variant="filter"
+                  open={isDateFilterOpen}
+                  onToggle={setIsDateFilterOpen}
+                  active={Boolean(startDate || endDate)}
+                >
+                  <div className="bg-white border border-slate-200 shadow-2x shadow-slate-300 w-72 p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="space-y-1.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                        Data Inicial
+                      </span>
+                      <input
+                        type="date"
+                        className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
                     </div>
-                  </ActionIconButton>
-                </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                        Data Final
+                      </span>
+                      <input
+                        type="date"
+                        className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={async () => {
+                          setStartDate("");
+                          setEndDate("");
+                          setIsDateFilterOpen(false);
+                          await fetchData("", "");
+                        }}
+                        className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-[#E31E24] hover:bg-red-50 hover:border-red-100 transition-all"
+                      >
+                        Limpar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsDateFilterOpen(false);
+                          fetchData();
+                        }}
+                        className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-md"
+                      >
+                        Consultar
+                      </button>
+                    </div>
+                  </div>
+                </ActionIconButton>
+              </div>
 
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -257,19 +299,6 @@ export default function AtestadosPage() {
                 <Menu className="w-6 h-6" />
               </button>
             </div>
-          </div>
-
-          <div className="mt-3">
-            <FilterChips
-              searchTerm={searchTerm}
-              startDate={startDate}
-              endDate={endDate}
-              filterUser={"all"}
-              filterSecretaria={"all"}
-              filterAsoType={"all"}
-              referrals={[]}
-              operatorsMap={{}}
-            />
           </div>
         </section>
 
@@ -339,8 +368,12 @@ export default function AtestadosPage() {
                           return (
                             <tr key={t.cid} className="text-sm border-b">
                               <td className="py-2 px-3">{t.cid}</td>
-                              <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
-                              <td className="py-2 px-3">{cidDetailsMap[key]?.chapter || "—"}</td>
+                              <td className="py-2 px-3">
+                                {cidDetailsMap[key]?.desc || "—"}
+                              </td>
+                              <td className="py-2 px-3">
+                                {cidDetailsMap[key]?.chapter || "—"}
+                              </td>
                               <td className="py-2 px-3">{t.count}</td>
                               <td className="py-2 px-3">{t.days}</td>
                             </tr>
