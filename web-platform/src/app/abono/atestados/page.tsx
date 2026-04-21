@@ -144,7 +144,7 @@ export default function AtestadosPage() {
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <main className="flex-1 pl-0 lg:pl-60">
+      <main className="flex-1">
         <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold uppercase text-[#1A3351]">
