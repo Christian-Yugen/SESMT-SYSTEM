@@ -11,6 +11,9 @@ export default function AtestadosPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 50;
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
@@ -50,7 +53,8 @@ export default function AtestadosPage() {
     const cidMap: Record<string, { count: number; days: number }> = {};
     rows.forEach((r) => {
       const raw = r.cid || "";
-      const cid = raw && String(raw).trim().length > 0 ? String(raw).trim() : "SEM CID";
+      const cid =
+        raw && String(raw).trim().length > 0 ? String(raw).trim() : "SEM CID";
       const entry = cidMap[cid] || { count: 0, days: 0 };
       entry.count += 1;
       entry.days += Number(r.qtde_dias) || 0;
@@ -64,6 +68,24 @@ export default function AtestadosPage() {
 
     return { total, employees, totalDays, avgDays, topCid };
   }, [rows]);
+
+  const filteredRows = useMemo(() => {
+    const term = (searchTerm || "").trim().toLowerCase();
+    if (!term) return rows;
+    return rows.filter((r) => {
+      const fields = [r.matricula, r.nome, r.nome_cargo, r.cid, r.nome_unidade]
+        .map((v) => (v || "") + "")
+        .join(" ")
+        .toLowerCase();
+      return fields.includes(term);
+    });
+  }, [rows, searchTerm]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const pageRows = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredRows.slice(start, start + PAGE_SIZE);
+  }, [filteredRows, page]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
@@ -148,9 +170,13 @@ export default function AtestadosPage() {
             </StatisticCardRow>
 
             <div>
-              <h2 className="text-sm font-bold text-slate-700 uppercase mb-2">Top CIDs</h2>
+              <h2 className="text-sm font-bold text-slate-700 uppercase mb-2">
+                Top CIDs
+              </h2>
               {loading ? (
-                <div className="py-6 text-center text-slate-500">Carregando...</div>
+                <div className="py-6 text-center text-slate-500">
+                  Carregando...
+                </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -184,6 +210,71 @@ export default function AtestadosPage() {
             </div>
           </div>
         </div>
+
+        <div className="p-6">
+          <div className="bg-white p-6 border-2 border-slate-200 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Buscar matrícula, nome, CID ou unidade..."
+                  className="h-9 px-3 border rounded-none text-sm"
+                />
+                <div className="text-sm text-slate-500">Total filtrados: {filteredRows.length}</div>
+              </div>
+              <div className="text-sm text-slate-500">Mostrando {pageRows.length} registros</div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="text-[11px] uppercase text-slate-400 bg-slate-50">
+                  <tr>
+                    <th className="py-2 px-3">Matrícula</th>
+                    <th className="py-2 px-3">Nome</th>
+                    <th className="py-2 px-3">Cargo</th>
+                    <th className="py-2 px-3">CID</th>
+                    <th className="py-2 px-3">Dias</th>
+                    <th className="py-2 px-3">Período</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageRows.map((r: any, idx: number) => (
+                    <tr key={`${r.matricula}-${r.periodo}-${idx}`} className="text-sm border-b">
+                      <td className="py-2 px-3">{r.matricula}</td>
+                      <td className="py-2 px-3">{r.nome}</td>
+                      <td className="py-2 px-3">{r.nome_cargo}</td>
+                      <td className="py-2 px-3">{r.cid || "SEM CID"}</td>
+                      <td className="py-2 px-3">{r.qtde_dias ?? ""}</td>
+                      <td className="py-2 px-3">{r.periodo ?? r.dt_admissao ?? ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex items-center justify-between mt-3">
+              <div className="text-sm text-slate-500">Página {page} de {pageCount}</div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1 border rounded-none"
+                  disabled={page <= 1}
+                >Anterior</button>
+                <button
+                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                  className="px-3 py-1 border rounded-none"
+                  disabled={page >= pageCount}
+                >Próxima</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
   );
