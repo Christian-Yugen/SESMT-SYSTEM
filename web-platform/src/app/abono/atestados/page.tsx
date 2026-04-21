@@ -746,6 +746,19 @@ export default function AtestadosPage() {
                                   <th className="px-4 py-1 text-right w-[80px]">
                                     Dias
                                   </th>
+                                  <th className="px-4 py-1 text-right w-[160px]">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <span className="uppercase font-bold text-[#1A3351] text-[12px]">Risco de Absenteísmo</span>
+                                      <button
+                                        onClick={() => setShowMethodology(true)}
+                                        aria-label="Abrir metodologia de risco"
+                                        title="Como é calculado o score"
+                                        className="p-1 text-slate-600 hover:text-[#E31E24]"
+                                      >
+                                        <Info className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100">
