@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Menu, FileText, Users, Clock3, RefreshCcw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 
 export default function AtestadosPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const router = useRouter();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("Usuário");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,6 +44,31 @@ export default function AtestadosPage() {
   };
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { session, error } = await safeGetSession();
+        if (error) {
+          await handleAuthError(error);
+          return;
+        }
+        if (session) {
+          const role = await syncProfile(session);
+          setUserRole(role);
+          const name =
+            session.user.user_metadata?.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Usuário";
+          setUserName(name);
+        } else {
+          router.push("/login");
+        }
+      } catch (err) {
+        await handleAuthError(err);
+      }
+    };
+
+    checkAuth();
+
     // fetch initially
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,8 +120,8 @@ export default function AtestadosPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
       <Sidebar
-        userRole={null}
-        userName="Usuário"
+        userRole={userRole}
+        userName={userName}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
       />
@@ -225,9 +255,13 @@ export default function AtestadosPage() {
                   placeholder="Buscar matrícula, nome, CID ou unidade..."
                   className="h-9 px-3 border rounded-none text-sm"
                 />
-                <div className="text-sm text-slate-500">Total filtrados: {filteredRows.length}</div>
+                <div className="text-sm text-slate-500">
+                  Total filtrados: {filteredRows.length}
+                </div>
               </div>
-              <div className="text-sm text-slate-500">Mostrando {pageRows.length} registros</div>
+              <div className="text-sm text-slate-500">
+                Mostrando {pageRows.length} registros
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -244,13 +278,18 @@ export default function AtestadosPage() {
                 </thead>
                 <tbody>
                   {pageRows.map((r: any, idx: number) => (
-                    <tr key={`${r.matricula}-${r.periodo}-${idx}`} className="text-sm border-b">
+                    <tr
+                      key={`${r.matricula}-${r.periodo}-${idx}`}
+                      className="text-sm border-b"
+                    >
                       <td className="py-2 px-3">{r.matricula}</td>
                       <td className="py-2 px-3">{r.nome}</td>
                       <td className="py-2 px-3">{r.nome_cargo}</td>
                       <td className="py-2 px-3">{r.cid || "SEM CID"}</td>
                       <td className="py-2 px-3">{r.qtde_dias ?? ""}</td>
-                      <td className="py-2 px-3">{r.periodo ?? r.dt_admissao ?? ""}</td>
+                      <td className="py-2 px-3">
+                        {r.periodo ?? r.dt_admissao ?? ""}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -258,23 +297,28 @@ export default function AtestadosPage() {
             </div>
 
             <div className="flex items-center justify-between mt-3">
-              <div className="text-sm text-slate-500">Página {page} de {pageCount}</div>
+              <div className="text-sm text-slate-500">
+                Página {page} de {pageCount}
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   className="px-3 py-1 border rounded-none"
                   disabled={page <= 1}
-                >Anterior</button>
+                >
+                  Anterior
+                </button>
                 <button
                   onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                   className="px-3 py-1 border rounded-none"
                   disabled={page >= pageCount}
-                >Próxima</button>
+                >
+                  Próxima
+                </button>
               </div>
             </div>
           </div>
         </div>
-
       </main>
     </div>
   );
