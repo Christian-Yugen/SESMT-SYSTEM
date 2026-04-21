@@ -18,7 +18,7 @@ BEGIN
     EXECUTE 'ALTER TABLE public.atestados_import ADD CONSTRAINT ux_atestados_mat_per_cid UNIQUE (matricula, contrato, periodo, cid)';
   END IF;
 END
-$$;
+$$ LANGUAGE plpgsql;
 
 -- 3) Habilitar RLS nas tabelas envolvidas
 ALTER TABLE public.atestados_import ENABLE ROW LEVEL SECURITY;
