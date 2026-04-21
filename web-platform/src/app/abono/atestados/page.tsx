@@ -49,8 +49,6 @@ export default function AtestadosPage() {
         from += BATCH;
       }
       setRows(all);
-      // reset page to first when data set changes (avoids stale page index)
-      setPage(1);
     } catch (err) {
       console.error(err);
       setRows([]);
@@ -137,28 +135,15 @@ export default function AtestadosPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
-      <div className="print:hidden">
-        <Sidebar
-          userRole={userRole}
-          userName={userName}
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-        />
-      </div>
-
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Overlay de Foco Progressivo - presente em outras páginas para manter consistência */}
-      <div className="fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none opacity-0" />
+      <Sidebar
+        userRole={userRole}
+        userName={userName}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
 
       <main className="flex-1 flex flex-col bg-[#F3F4F6] min-h-screen lg:h-screen lg:overflow-visible relative">
-        <div className="flex-1 flex flex-col relative overflow-visible">
-          <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
+        <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold uppercase text-[#1A3351]">
               Atestados — Análise Rápida
