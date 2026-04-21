@@ -731,10 +731,10 @@ export default function AtestadosPage() {
                             <table className="w-full text-left border-collapse">
                               <thead>
                                 <tr className="bg-slate-50 text-[#1A3351] text-[12px] font-bold uppercase border-b border-slate-200">
-                                  <th className="px-2 py-1 border-r border-slate-200 w-44">
+                                  <th className="px-2 py-1 border-r border-slate-200 w-72">
                                     Cargo / PGR
                                   </th>
-                                  <th className="px-4 py-1 border-r border-slate-200">
+                                  <th className="px-4 py-1 border-r border-slate-200 w-40">
                                     Unidade / Local
                                   </th>
                                   <th className="px-4 py-1 border-r border-slate-200 w-[120px]">
@@ -927,7 +927,7 @@ export default function AtestadosPage() {
                                                   key={i}
                                                   className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
                                                 >
-                                                  <td className="px-2 py-1 align-middle w-44 max-w-[11rem]">
+                                                  <td className="px-2 py-1 align-middle w-72 max-w-[18rem]">
                                                     <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight truncate">
                                                       {cargo.cargo}
                                                       <span className="ml-2 text-xs font-medium">
@@ -939,7 +939,7 @@ export default function AtestadosPage() {
                                                       </span>
                                                     </div>
                                                   </td>
-                                                  <td className="px-3 py-1 align-middle max-w-[280px]">
+                                                    <td className="px-3 py-1 align-middle w-40 max-w-[10rem]">
                                                     <div className="flex flex-col gap-0.5">
                                                       {displayedUnits.map(
                                                         (
