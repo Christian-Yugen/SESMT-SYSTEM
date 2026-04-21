@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Menu, FileText, Users, Clock3, RefreshCcw, Calendar } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import { supabase } from "@/lib/supabase";
+import { getCIDDetailsFromDB } from "@/lib/cid-utils";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
@@ -116,6 +117,45 @@ export default function AtestadosPage() {
 
     return { total, employees, totalDays, avgDays, topCid };
   }, [rows]);
+
+  const [cidDetailsMap, setCidDetailsMap] = useState<Record<string, { desc: string; chapter: string }>>({});
+
+  // Fetch CID descriptions for the top CIDs shown in the first block
+  useEffect(() => {
+    const codes = metrics.topCid.map((t) => String(t.cid)).filter((c) => c && c !== "SEM CID");
+    if (codes.length === 0) {
+      setCidDetailsMap({});
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const results = await Promise.all(
+          codes.map(async (code) => {
+            try {
+              const details = await getCIDDetailsFromDB(code);
+              return { code, desc: details.desc || "—", chapter: details.chapter || details.chapter_desc || "—" };
+            } catch (e) {
+              return { code, desc: "—", chapter: "—" };
+            }
+          }),
+        );
+
+        if (cancelled) return;
+        const map: Record<string, { desc: string; chapter: string }> = {};
+        results.forEach((r) => (map[r.code] = { desc: r.desc, chapter: r.chapter }));
+        setCidDetailsMap(map);
+      } catch (e) {
+        if (!cancelled) setCidDetailsMap({});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [JSON.stringify(metrics.topCid.map((t) => t.cid))]);
 
   const filteredRows = useMemo(() => {
     const term = (searchTerm || "").trim().toLowerCase();
@@ -265,6 +305,8 @@ export default function AtestadosPage() {
                     <thead>
                       <tr className="text-[11px] uppercase text-slate-400 border-b">
                         <th className="py-2 px-3">CID</th>
+                        <th className="py-2 px-3">Descrição</th>
+                        <th className="py-2 px-3">Capítulo</th>
                         <th className="py-2 px-3">Registros</th>
                         <th className="py-2 px-3">Dias Perdidos</th>
                       </tr>
@@ -272,7 +314,7 @@ export default function AtestadosPage() {
                     <tbody>
                       {metrics.topCid.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="py-4 text-slate-500">
+                          <td colSpan={5} className="py-4 text-slate-500">
                             Nenhum dado disponível para o período selecionado.
                           </td>
                         </tr>
@@ -280,6 +322,8 @@ export default function AtestadosPage() {
                         metrics.topCid.map((t) => (
                           <tr key={t.cid} className="text-sm border-b">
                             <td className="py-2 px-3">{t.cid}</td>
+                            <td className="py-2 px-3">{cidDetailsMap[t.cid]?.desc || "—"}</td>
+                            <td className="py-2 px-3">{cidDetailsMap[t.cid]?.chapter || "—"}</td>
                             <td className="py-2 px-3">{t.count}</td>
                             <td className="py-2 px-3">{t.days}</td>
                           </tr>
