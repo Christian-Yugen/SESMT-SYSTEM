@@ -75,17 +75,126 @@ export function getCIDChapter(code: string): CIDChapter | null {
 }
 
 export function getCIDDetails(code: string): CIDDetails {
-  const upperCode = code.toUpperCase().trim();
-  // Try exact match in categories
+  const upperRaw = (code || "").toUpperCase().trim();
+  // Use normalized form (remove stray dots and non-alnum) for matching
+  const upperCode = normalizeCID(upperRaw);
+
   const categories = cidData.categories as Record<string, CIDCategoryEntry>;
-  const category = categories[upperCode];
-  if (category) {
+
+  // 1) Direct exact match
+  const direct = categories[upperCode];
+  if (direct) {
     return {
       code: upperCode,
-      desc: category.desc,
-      chapter: category.cap,
-      chapter_desc: category.cap_desc,
+      desc: direct.desc,
+      chapter: direct.cap,
+      chapter_desc: direct.cap_desc,
     };
+  }
+
+  // Helper: parse a CID like 'A15.3' or 'Z00' into { letter, major, minor }
+  function parseParts(c: string) {
+    const raw = (c || "")
+      .toUpperCase()
+      .trim()
+      .replace(/[^A-Z0-9\.]/g, "");
+    const letter = raw.charAt(0) || "";
+    const rest = raw.slice(1);
+    const [majorStr, minorStr] = rest.split(".");
+    const major = parseInt(majorStr || "0", 10) || 0;
+    const minor =
+      minorStr !== undefined && minorStr !== ""
+        ? parseInt(minorStr, 10) || 0
+        : null;
+    return { letter, major, minor };
+  }
+
+  // Helper: check if code is inside the inclusive range start..end
+  function isInRange(codeStr: string, startStr: string, endStr: string) {
+    const c = parseParts(codeStr);
+    const s = parseParts(startStr);
+    const e = parseParts(endStr);
+
+    if (!c.letter || !s.letter || !e.letter) return false;
+    if (c.letter < s.letter || c.letter > e.letter) return false;
+
+    if (s.letter === e.letter) {
+      if (c.major < s.major || c.major > e.major) return false;
+      if (
+        c.major === s.major &&
+        c.minor !== null &&
+        s.minor !== null &&
+        c.minor < s.minor
+      )
+        return false;
+      if (
+        c.major === e.major &&
+        c.minor !== null &&
+        e.minor !== null &&
+        c.minor > e.minor
+      )
+        return false;
+      return true;
+    }
+
+    // If start and end letters differ, allow any code letter between them
+    if (c.letter > s.letter && c.letter < e.letter) return true;
+    if (c.letter === s.letter) {
+      if (c.major < s.major) return false;
+      if (
+        c.major === s.major &&
+        s.minor !== null &&
+        c.minor !== null &&
+        c.minor < s.minor
+      )
+        return false;
+      return true;
+    }
+    if (c.letter === e.letter) {
+      if (c.major > e.major) return false;
+      if (
+        c.major === e.major &&
+        e.minor !== null &&
+        c.minor !== null &&
+        c.minor > e.minor
+      )
+        return false;
+      return true;
+    }
+
+    return false;
+  }
+
+  // 2) Try to match against category keys that may contain ranges or lists (ex: "Z00-Z13" or "Z20, Z22-Z29")
+  for (const catKey of Object.keys(categories)) {
+    const parts = catKey.split(",").map((p) => p.trim());
+    for (const part of parts) {
+      if (!part) continue;
+      if (part.includes("-")) {
+        const [start, end] = part.split("-").map((p) => p.trim());
+        if (isInRange(upperCode, start, end)) {
+          const cat = categories[catKey];
+          return {
+            code: upperCode,
+            desc: cat.desc,
+            chapter: cat.cap,
+            chapter_desc: cat.cap_desc,
+          };
+        }
+      } else {
+        // exact single entry like "Z21" or possibly with dot
+        const cleanedPart = part.replace(/[^A-Z0-9]/g, "");
+        if (normalizeCID(cleanedPart) === upperCode) {
+          const cat = categories[catKey];
+          return {
+            code: upperCode,
+            desc: cat.desc,
+            chapter: cat.cap,
+            chapter_desc: cat.cap_desc,
+          };
+        }
+      }
+    }
   }
 
   // Fallback to chapter detection
@@ -191,5 +300,5 @@ export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
     };
   }
 
-  return getCIDDetails(code);
+  return getCIDDetails(normalizedCode);
 }
