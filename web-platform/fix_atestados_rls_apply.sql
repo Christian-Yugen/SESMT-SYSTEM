@@ -2,8 +2,8 @@
 -- Cole no SQL Editor do Supabase e execute (idempotente)
 
 -- 1) Remover possíveis índices/constraints conflitantes
-DROP INDEX IF EXISTS public.ux_atestados_mat_per_cid;
 ALTER TABLE public.atestados_import DROP CONSTRAINT IF EXISTS ux_atestados_mat_per_cid;
+DROP INDEX IF EXISTS public.ux_atestados_mat_per_cid;
 
 -- 2) Criar índice único compatível com ON CONFLICT (matricula, periodo, cid)
 CREATE UNIQUE INDEX IF NOT EXISTS ux_atestados_mat_per_cid
