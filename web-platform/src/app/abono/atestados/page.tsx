@@ -25,16 +25,30 @@ export default function AtestadosPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      let query = supabase.from("atestados_import").select("*").limit(10000);
-      if (startDate) query = query.gte("periodo", startDate);
-      if (endDate) query = query.lte("periodo", endDate);
-      const { data, error } = await query;
-      if (error) {
-        console.error("Erro ao buscar atestados:", error);
-        setRows([]);
-      } else {
-        setRows(data || []);
+      // Supabase/PostgREST pode limitar a 1000 rows por requisição.
+      // Fazemos fetch em lotes (batch) para obter todo o conjunto e
+      // manter os cálculos de métricas no cliente.
+      const BATCH = 1000;
+      let from = 0;
+      const all: any[] = [];
+      while (true) {
+        let q: any = supabase.from("atestados_import").select("*");
+        if (startDate) q = q.gte("periodo", startDate);
+        if (endDate) q = q.lte("periodo", endDate);
+        q = q.order("nome", { ascending: true }).range(from, from + BATCH - 1);
+
+        const { data, error } = await q;
+        if (error) {
+          console.error("Erro ao buscar atestados (batch):", error);
+          all.length = 0;
+          break;
+        }
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < BATCH) break;
+        from += BATCH;
       }
+      setRows(all);
     } catch (err) {
       console.error(err);
       setRows([]);
