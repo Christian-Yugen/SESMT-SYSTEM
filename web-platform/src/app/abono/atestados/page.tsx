@@ -32,6 +32,20 @@ export default function AtestadosPage() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  type TabId =
+    | "visao-geral"
+    | "cid-e-capitulos"
+    | "visao-ocupacional"
+    | "casos-recorrencia";
+
+  const TABS: { id: TabId; title: string }[] = [
+    { id: "visao-geral", title: "Visão Geral" },
+    { id: "cid-e-capitulos", title: "CID e Capítulos" },
+    { id: "visao-ocupacional", title: "Visão Ocupacional" },
+    { id: "casos-recorrencia", title: "Casos e Recorrência" },
+  ];
+
+  const [activeTab, setActiveTab] = useState<TabId>("visao-geral");
 
   const fetchData = async (sd?: string, ed?: string) => {
     setLoading(true);
@@ -303,67 +317,256 @@ export default function AtestadosPage() {
         </section>
 
         <div className="p-6">
-          <div className="bg-white p-6 border-2 border-slate-200 shadow-sm">
-            <StatisticCardRow columns={4} className="mb-4">
-              <StatisticCard
-                title="Total Atestados"
-                value={metrics.total}
-                helperText="Registros importados"
-                icon={<FileText className="w-6 h-6" />}
-                accent="primary"
-              />
-              <StatisticCard
-                title="Colaboradores"
-                value={metrics.employees}
-                helperText="Colaboradores distintos"
-                icon={<Users className="w-6 h-6" />}
-                accent="info"
-              />
-              <StatisticCard
-                title="Total de Dias"
-                value={metrics.totalDays}
-                helperText="Dias perdidos somados"
-                icon={<Clock3 className="w-6 h-6" />}
-                accent="warning"
-              />
-              <StatisticCard
-                title="Média por Registro"
-                value={metrics.avgDays}
-                helperText="Dias médios"
-                icon={<Clock3 className="w-6 h-6" />}
-                accent="neutral"
-              />
-            </StatisticCardRow>
+          <div className="bg-white border-2 border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
+                Núcleo Analítico Atestados
+              </h3>
+              <div className="w-full sm:w-auto min-w-0 max-w-full flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 sm:pb-0">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`shrink-0 h-8 px-3 border text-[10px] font-bold uppercase tracking-wide transition-all ${
+                      activeTab === tab.id
+                        ? "bg-[#1A3351] text-white border-[#1A3351]"
+                        : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    {tab.title}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            <div>
-              <h2 className="text-sm font-bold text-slate-700 uppercase mb-2">
-                Top CIDs
-              </h2>
-              {loading ? (
-                <div className="py-6 text-center text-slate-500">
-                  Carregando...
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="text-[11px] uppercase text-slate-400 border-b">
-                        <th className="py-2 px-3">CID</th>
-                        <th className="py-2 px-3">Descrição</th>
-                        <th className="py-2 px-3">Capítulo</th>
-                        <th className="py-2 px-3">Registros</th>
-                        <th className="py-2 px-3">Dias Perdidos</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.topCid.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="py-4 text-slate-500">
-                            Nenhum dado disponível para o período selecionado.
-                          </td>
+            <div className="p-6 space-y-6">
+              {activeTab === "visao-geral" && (
+                <>
+                  <StatisticCardRow columns={4} className="mb-4">
+                    <StatisticCard
+                      title="Total Atestados"
+                      value={metrics.total}
+                      helperText="Registros importados"
+                      icon={<FileText className="w-6 h-6" />}
+                      accent="primary"
+                    />
+                    <StatisticCard
+                      title="Colaboradores"
+                      value={metrics.employees}
+                      helperText="Colaboradores distintos"
+                      icon={<Users className="w-6 h-6" />}
+                      accent="info"
+                    />
+                    <StatisticCard
+                      title="Total de Dias"
+                      value={metrics.totalDays}
+                      helperText="Dias perdidos somados"
+                      icon={<Clock3 className="w-6 h-6" />}
+                      accent="warning"
+                    />
+                    <StatisticCard
+                      title="Média por Registro"
+                      value={metrics.avgDays}
+                      helperText="Dias médios"
+                      icon={<Clock3 className="w-6 h-6" />}
+                      accent="neutral"
+                    />
+                  </StatisticCardRow>
+
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-700 uppercase mb-2">
+                      Top CIDs
+                    </h2>
+                    {loading ? (
+                      <div className="py-6 text-center text-slate-500">
+                        Carregando...
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="text-[11px] uppercase text-slate-400 border-b">
+                              <th className="py-2 px-3">CID</th>
+                              <th className="py-2 px-3">Descrição</th>
+                              <th className="py-2 px-3">Capítulo</th>
+                              <th className="py-2 px-3">Registros</th>
+                              <th className="py-2 px-3">Dias Perdidos</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {metrics.topCid.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="py-4 text-slate-500">
+                                  Nenhum dado disponível para o período
+                                  selecionado.
+                                </td>
+                              </tr>
+                            ) : (
+                              metrics.topCid.map((t) => {
+                                const key = normalizeCID(String(t.cid || ""));
+                                return (
+                                  <tr key={t.cid} className="text-sm border-b">
+                                    <td className="py-2 px-3">{t.cid}</td>
+                                    <td className="py-2 px-3">
+                                      {cidDetailsMap[key]?.desc || "—"}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                      {cidDetailsMap[key]?.chapter || "—"}
+                                    </td>
+                                    <td className="py-2 px-3">{t.count}</td>
+                                    <td className="py-2 px-3">{t.days}</td>
+                                  </tr>
+                                );
+                              })
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="search"
+                          value={searchTerm}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setPage(1);
+                          }}
+                          placeholder="Buscar matrícula, nome, CID ou unidade..."
+                          className="h-9 px-3 border rounded-none text-sm"
+                        />
+                        <div className="text-sm text-slate-500">
+                          Total filtrados: {filteredRows.length}
+                        </div>
+                      </div>
+                      <div className="text-sm text-slate-500">
+                        Mostrando {pageRows.length} registros
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead className="text-[11px] uppercase text-slate-400 bg-slate-50">
+                          <tr>
+                            <th className="py-2 px-3">Matrícula</th>
+                            <th className="py-2 px-3">Nome</th>
+                            <th className="py-2 px-3">Cargo</th>
+                            <th className="py-2 px-3">CID</th>
+                            <th className="py-2 px-3">Dias</th>
+                            <th className="py-2 px-3">Período</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pageRows.map((r: any, idx: number) => (
+                            <tr
+                              key={`${r.matricula}-${r.periodo}-${idx}`}
+                              className="text-sm border-b"
+                            >
+                              <td className="py-2 px-3">{r.matricula}</td>
+                              <td className="py-2 px-3">{r.nome}</td>
+                              <td className="py-2 px-3">{r.nome_cargo}</td>
+                              <td className="py-2 px-3">
+                                {r.cid || "SEM CID"}
+                              </td>
+                              <td className="py-2 px-3">{r.qtde_dias ?? ""}</td>
+                              <td className="py-2 px-3">
+                                {r.periodo ?? r.dt_admissao ?? ""}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="text-sm text-slate-500">
+                        Página {page} de {pageCount}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setPage((p) => Math.max(1, p - 1))}
+                          className="px-3 py-1 border rounded-none"
+                          disabled={page <= 1}
+                        >
+                          Anterior
+                        </button>
+                        <button
+                          onClick={() =>
+                            setPage((p) => Math.min(pageCount, p + 1))
+                          }
+                          className="px-3 py-1 border rounded-none"
+                          disabled={page >= pageCount}
+                        >
+                          Próxima
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeTab !== "visao-geral" && (
+                <>
+                  <div className="text-sm font-bold text-slate-700 uppercase">
+                    {activeTab === "cid-e-capitulos"
+                      ? "CID e Capítulos"
+                      : activeTab === "visao-ocupacional"
+                        ? "Visão Ocupacional"
+                        : "Casos e Recorrência"}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Visão alternativa (mesmos dados de Atestados). Nesta aba os
+                    componentes e layouts seguem o padrão analítico; a fonte dos
+                    dados é a tabela <strong>atestados_import</strong>.
+                  </p>
+
+                  <StatisticCardRow columns={4} className="my-4">
+                    <StatisticCard
+                      title="Total Atestados"
+                      value={metrics.total}
+                      helperText="Registros importados"
+                      icon={<FileText className="w-6 h-6" />}
+                      accent="primary"
+                    />
+                    <StatisticCard
+                      title="Colaboradores"
+                      value={metrics.employees}
+                      helperText="Colaboradores distintos"
+                      icon={<Users className="w-6 h-6" />}
+                      accent="info"
+                    />
+                    <StatisticCard
+                      title="Total de Dias"
+                      value={metrics.totalDays}
+                      helperText="Dias perdidos somados"
+                      icon={<Clock3 className="w-6 h-6" />}
+                      accent="warning"
+                    />
+                    <StatisticCard
+                      title="Média por Registro"
+                      value={metrics.avgDays}
+                      helperText="Dias médios"
+                      icon={<Clock3 className="w-6 h-6" />}
+                      accent="neutral"
+                    />
+                  </StatisticCardRow>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="text-[11px] uppercase text-slate-400 border-b">
+                          <th className="py-2 px-3">CID</th>
+                          <th className="py-2 px-3">Descrição</th>
+                          <th className="py-2 px-3">Capítulo</th>
+                          <th className="py-2 px-3">Registros</th>
+                          <th className="py-2 px-3">Dias Perdidos</th>
                         </tr>
-                      ) : (
-                        metrics.topCid.map((t) => {
+                      </thead>
+                      <tbody>
+                        {metrics.topCid.map((t) => {
                           const key = normalizeCID(String(t.cid || ""));
                           return (
                             <tr key={t.cid} className="text-sm border-b">
@@ -378,91 +581,12 @@ export default function AtestadosPage() {
                               <td className="py-2 px-3">{t.days}</td>
                             </tr>
                           );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="bg-white p-6 border-2 border-slate-200 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(1);
-                  }}
-                  placeholder="Buscar matrícula, nome, CID ou unidade..."
-                  className="h-9 px-3 border rounded-none text-sm"
-                />
-                <div className="text-sm text-slate-500">
-                  Total filtrados: {filteredRows.length}
-                </div>
-              </div>
-              <div className="text-sm text-slate-500">
-                Mostrando {pageRows.length} registros
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="text-[11px] uppercase text-slate-400 bg-slate-50">
-                  <tr>
-                    <th className="py-2 px-3">Matrícula</th>
-                    <th className="py-2 px-3">Nome</th>
-                    <th className="py-2 px-3">Cargo</th>
-                    <th className="py-2 px-3">CID</th>
-                    <th className="py-2 px-3">Dias</th>
-                    <th className="py-2 px-3">Período</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.map((r: any, idx: number) => (
-                    <tr
-                      key={`${r.matricula}-${r.periodo}-${idx}`}
-                      className="text-sm border-b"
-                    >
-                      <td className="py-2 px-3">{r.matricula}</td>
-                      <td className="py-2 px-3">{r.nome}</td>
-                      <td className="py-2 px-3">{r.nome_cargo}</td>
-                      <td className="py-2 px-3">{r.cid || "SEM CID"}</td>
-                      <td className="py-2 px-3">{r.qtde_dias ?? ""}</td>
-                      <td className="py-2 px-3">
-                        {r.periodo ?? r.dt_admissao ?? ""}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex items-center justify-between mt-3">
-              <div className="text-sm text-slate-500">
-                Página {page} de {pageCount}
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-1 border rounded-none"
-                  disabled={page <= 1}
-                >
-                  Anterior
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                  className="px-3 py-1 border rounded-none"
-                  disabled={page >= pageCount}
-                >
-                  Próxima
-                </button>
-              </div>
             </div>
           </div>
         </div>
