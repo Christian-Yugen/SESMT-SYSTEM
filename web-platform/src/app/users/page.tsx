@@ -145,7 +145,12 @@ export default function UsersPage() {
   const handleInviteUser = async () => {
     if (!inviteEmail) return;
 
-    if (!inviteEmail.toLowerCase().endsWith("@treslagoas.ms.gov.br")) {
+    const normalized = inviteEmail.trim().toLowerCase();
+    const fullInviteEmail = normalized.includes("@")
+      ? normalized
+      : `${normalized}@treslagoas.ms.gov.br`;
+
+    if (!fullInviteEmail.endsWith("@treslagoas.ms.gov.br")) {
       alert(
         "Apenas e-mails corporativos @treslagoas.ms.gov.br são permitidos.",
       );
@@ -159,11 +164,12 @@ export default function UsersPage() {
       const { data: existing } = await supabase
         .from("profiles")
         .select("id")
-        .eq("email", inviteEmail.toLowerCase())
+        .eq("email", fullInviteEmail)
         .maybeSingle();
 
       if (existing) {
         alert("Este e-mail já possui um perfil cadastrado ou pré-autorizado.");
+        setInviteLoading(false);
         return;
       }
 
@@ -171,7 +177,7 @@ export default function UsersPage() {
       const tempId = generateUUID();
       const { error } = await supabase.from("profiles").insert({
         id: tempId,
-        email: inviteEmail.toLowerCase(),
+        email: fullInviteEmail,
         role: inviteRole,
         full_name: "CONVITE PENDENTE",
       });
@@ -594,11 +600,11 @@ export default function UsersPage() {
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
-                          type="email"
-                          placeholder="exemplo@treslagoas.ms.gov.br"
+                          type="text"
+                          placeholder="ex: joao.silva (apenas usuário)"
                           className="w-full h-10 px-10 bg-[#f8f8f8] border border-slate-200 font-bold text-sm outline-none focus:border-[#E31E24] uppercase rounded-none"
                           value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
+                          onChange={(e) => setInviteEmail(e.target.value.trim().toLowerCase())}
                         />
                       </div>
                     </div>

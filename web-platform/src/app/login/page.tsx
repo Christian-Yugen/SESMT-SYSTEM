@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const EMAIL_DOMAIN = "@treslagoas.ms.gov.br";
 
   useEffect(() => {
     const checkUser = async () => {
@@ -50,6 +51,11 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
 
+    const normalizedInput = email.trim().toLowerCase();
+    const fullEmail = normalizedInput.includes("@")
+      ? normalizedInput
+      : `${normalizedInput}${EMAIL_DOMAIN}`;
+
     if (mode === "signup") {
       if (password !== confirmPassword) {
         setError("As senhas digitadas não coincidem.");
@@ -57,9 +63,9 @@ export default function LoginPage() {
         return;
       }
 
-      if (!email.toLowerCase().endsWith("@treslagoas.ms.gov.br")) {
+      if (!fullEmail.endsWith(EMAIL_DOMAIN)) {
         setError(
-          "Apenas e-mails corporativos @treslagoas.ms.gov.br são permitidos.",
+          `Apenas e-mails corporativos ${EMAIL_DOMAIN} são permitidos.`,
         );
         setLoading(false);
         return;
@@ -68,7 +74,7 @@ export default function LoginPage() {
 
     if (mode === "login") {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: fullEmail,
         password,
       });
 
@@ -82,7 +88,7 @@ export default function LoginPage() {
       }
     } else if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: fullEmail,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/login`,
@@ -113,7 +119,7 @@ export default function LoginPage() {
         }
       }
     } else if (mode === "forgot-password") {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(fullEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
@@ -181,19 +187,17 @@ export default function LoginPage() {
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
-                  type="email"
+                  type="text"
                   required
-                  placeholder="SEU@EMAIL.GOV.BR"
+                  placeholder="ex: joao (apenas usuário)"
                   className="w-full px-10 py-2.5 bg-[#E8E8E8] border border-[#888] shadow-inner font-bold text-sm text-[#1A3351] outline-none focus:border-[#E31E24] uppercase transition-colors"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                  onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                 />
               </div>
-              {mode === "signup" && (
-                <p className="text-[9px] text-slate-400 font-bold mt-1 pl-1 italic">
-                  * Use apenas seu e-mail @treslagoas.ms.gov.br
-                </p>
-              )}
+              <p className="text-[9px] text-slate-400 font-bold mt-1 pl-1 italic">
+                * Digite apenas a parte local (ex: joao). O domínio {"@treslagoas.ms.gov.br"} será adicionado automaticamente.
+              </p>
             </div>
 
             {mode !== "forgot-password" && (
