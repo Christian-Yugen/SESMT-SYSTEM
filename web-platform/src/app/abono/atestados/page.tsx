@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
-import { Menu, FileText, Users, Clock3, RefreshCcw } from "lucide-react";
+import { Menu, FileText, Users, Clock3, RefreshCcw, Calendar } from "lucide-react";
+import ActionIconButton from "@/components/filters/ActionIconButton";
 import { supabase } from "@/lib/supabase";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
 import StatisticCard from "@/components/statistics/StatisticCard";
@@ -21,6 +22,7 @@ export default function AtestadosPage() {
   const PAGE_SIZE = 50;
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -149,28 +151,62 @@ export default function AtestadosPage() {
               Atestados — Análise Rápida
             </h1>
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="h-9 px-2 border rounded-none"
-                />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="h-9 px-2 border rounded-none"
-                />
-                <button
-                  onClick={() => fetchData()}
-                  className="h-9 px-3 bg-[#1A3351] text-white rounded-none"
-                  disabled={loading}
-                  title="Filtrar"
-                >
-                  <RefreshCcw className="w-4 h-4" />
-                </button>
-              </div>
+                <div className="hidden sm:flex items-center gap-2">
+                  <ActionIconButton
+                    icon={<Calendar className="w-4 h-4" />}
+                    label="Período"
+                    variant="filter"
+                    open={isDateFilterOpen}
+                    onToggle={setIsDateFilterOpen}
+                    active={Boolean(startDate || endDate)}
+                  >
+                    <div className="bg-white border border-slate-200 shadow-2x shadow-slate-300 w-72 p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="space-y-1.5">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                          Data Inicial
+                        </span>
+                        <input
+                          type="date"
+                          className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
+                          Data Final
+                        </span>
+                        <input
+                          type="date"
+                          className="w-full h-10 px-3 bg-slate-50 border border-slate-200 text-[11px] font-bold uppercase outline-none focus:border-[#1A3351] transition-colors"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => {
+                            setStartDate("");
+                            setEndDate("");
+                            setIsDateFilterOpen(false);
+                          }}
+                          className="flex-1 h-9 border border-slate-200 text-[9px] font-bold uppercase text-slate-500 hover:text-[#E31E24] hover:bg-red-50 hover:border-red-100 transition-all"
+                        >
+                          Limpar
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsDateFilterOpen(false);
+                            fetchData();
+                          }}
+                          className="flex-1 h-9 bg-[#1A3351] text-white text-[9px] font-bold uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-md"
+                        >
+                          Consultar
+                        </button>
+                      </div>
+                    </div>
+                  </ActionIconButton>
+                </div>
 
               <button
                 onClick={() => setIsSidebarOpen(true)}
