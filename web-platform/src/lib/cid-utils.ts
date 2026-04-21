@@ -248,20 +248,48 @@ export async function searchCIDs(query: string): Promise<CIDDetails[]> {
 export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
   const normalizedCode = normalizeCID(code);
   if (!normalizedCode) return getCIDDetails("");
-
-  // 1. Tenta correspondência exata com o código normalizado
-  const { data, error } = await supabase
+  // 1. Primeiro tenta correspondência exata com o código normalizado
+  const { data: exactData, error: exactErr } = await supabase
     .from("cid10")
     .select("codigo, descricao")
     .eq("codigo", normalizedCode)
     .maybeSingle();
 
-  let finalCode = normalizedCode;
-  let finalDesc = data?.descricao;
+  if (exactData && !exactErr) {
+    const chapter = getCIDChapter(exactData.codigo);
+    return {
+      code: exactData.codigo,
+      desc: exactData.descricao || "Descrição não encontrada",
+      chapter: chapter?.capitulo || "N/A",
+      chapter_desc: chapter?.descricao || "Capítulo não identificado",
+    };
+  }
 
-  // 2. Lógica Inteligente: Se não encontrou e o código não tem ponto (ex: I42), tenta variações
-  if (!data && !normalizedCode.includes(".")) {
-    // Tenta adicionar .0 (padrão comum)
+  // 2. Se não encontrou, tenta correspondência por prefixo (captura 'A09.', 'A09.0', 'A09.1', etc.)
+  try {
+    const { data: prefData } = await supabase
+      .from("cid10")
+      .select("codigo, descricao")
+      .ilike("codigo", `${normalizedCode}%`)
+      .order("codigo")
+      .limit(1);
+
+    if (prefData && Array.isArray(prefData) && prefData.length > 0) {
+      const d = prefData[0];
+      const chapter = getCIDChapter(d.codigo);
+      return {
+        code: d.codigo,
+        desc: d.descricao || "Descrição não encontrada",
+        chapter: chapter?.capitulo || "N/A",
+        chapter_desc: chapter?.descricao || "Capítulo não identificado",
+      };
+    }
+  } catch (e) {
+    // ignora e prossegue para heurísticas seguintes
+  }
+
+  // 3. Tenta variações comuns: com ".0" ou subitens (.1, .2...)
+  if (!normalizedCode.includes(".")) {
     const codeWithZero = `${normalizedCode}.0`;
     const { data: dataZero } = await supabase
       .from("cid10")
@@ -270,35 +298,34 @@ export async function getCIDDetailsFromDB(code: string): Promise<CIDDetails> {
       .maybeSingle();
 
     if (dataZero) {
-      finalCode = dataZero.codigo;
-      finalDesc = dataZero.descricao;
-    } else {
-      // Tenta qualquer subitem que comece com o código + ponto (ex: I42.1, I42.2...)
-      const { data: dataAny } = await supabase
-        .from("cid10")
-        .select("codigo, descricao")
-        .ilike("codigo", `${normalizedCode}.%`)
-        .order("codigo")
-        .limit(1)
-        .maybeSingle();
+      const chapter = getCIDChapter(dataZero.codigo);
+      return {
+        code: dataZero.codigo,
+        desc: dataZero.descricao || "Descrição não encontrada",
+        chapter: chapter?.capitulo || "N/A",
+        chapter_desc: chapter?.descricao || "Capítulo não identificado",
+      };
+    }
 
-      if (dataAny) {
-        finalCode = dataAny.codigo;
-        finalDesc = dataAny.descricao;
-      }
+    const { data: dataAny } = await supabase
+      .from("cid10")
+      .select("codigo, descricao")
+      .ilike("codigo", `${normalizedCode}.%`)
+      .order("codigo")
+      .limit(1)
+      .maybeSingle();
+
+    if (dataAny) {
+      const chapter = getCIDChapter(dataAny.codigo);
+      return {
+        code: dataAny.codigo,
+        desc: dataAny.descricao || "Descrição não encontrada",
+        chapter: chapter?.capitulo || "N/A",
+        chapter_desc: chapter?.descricao || "Capítulo não identificado",
+      };
     }
   }
 
-  const chapter = getCIDChapter(finalCode);
-
-  if (data && !error) {
-    return {
-      code: finalCode,
-      desc: finalDesc || "Descrição não encontrada",
-      chapter: chapter?.capitulo || "N/A",
-      chapter_desc: chapter?.descricao || "Capítulo não identificado",
-    };
-  }
-
+  // 4. Se nada foi encontrado no banco, recorre ao catálogo local (json)
   return getCIDDetails(normalizedCode);
 }
