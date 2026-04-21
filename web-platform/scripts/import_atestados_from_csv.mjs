@@ -103,7 +103,9 @@ const seen = new Set();
 const rows = [];
 for (const r of raw.map(transformRow)) {
   if (!r.matricula) continue;
-  const key = `${r.matricula}|${r.periodo ?? 'null'}|${r.cid ?? 'null'}`;
+  // Incluir `contrato` na chave de deduplicação — registros com mesma matrícula
+  // mas contratos diferentes devem ser mantidos separadamente.
+  const key = `${r.matricula}|${r.contrato ?? 'null'}|${r.periodo ?? 'null'}|${r.cid ?? 'null'}`;
   if (!seen.has(key)) { seen.add(key); rows.push(r); }
 }
 console.log('Linhas válidas para inserção (sem duplicatas por mat+per+cid):', rows.length);
@@ -117,7 +119,7 @@ const BATCH = 200;
     const batch = rows.slice(i, i + BATCH);
     const { data, error } = await supabase
       .from('atestados_import')
-      .upsert(batch, { onConflict: 'matricula,periodo,cid' })
+      .upsert(batch, { onConflict: 'matricula,contrato,periodo,cid' })
       .select('id');
     if (error) {
       console.error(`\n[ERRO] batch ${Math.floor(i / BATCH) + 1}:`, error.message);

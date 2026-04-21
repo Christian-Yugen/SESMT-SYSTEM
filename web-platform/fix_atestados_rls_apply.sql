@@ -5,9 +5,10 @@
 ALTER TABLE public.atestados_import DROP CONSTRAINT IF EXISTS ux_atestados_mat_per_cid;
 DROP INDEX IF EXISTS public.ux_atestados_mat_per_cid;
 
--- 2) Criar índice único compatível com ON CONFLICT (matricula, periodo, cid)
-CREATE UNIQUE INDEX IF NOT EXISTS ux_atestados_mat_per_cid
-  ON public.atestados_import (matricula, periodo, cid);
+-- 2) Criar constraint única compatível com ON CONFLICT (matricula, contrato, periodo, cid)
+-- Observação: incluímos `contrato` para permitir múltiplos contratos com a mesma matrícula.
+ALTER TABLE public.atestados_import
+  ADD CONSTRAINT IF NOT EXISTS ux_atestados_mat_per_cid UNIQUE (matricula, contrato, periodo, cid);
 
 -- 3) Habilitar RLS nas tabelas envolvidas
 ALTER TABLE public.atestados_import ENABLE ROW LEVEL SECURITY;
