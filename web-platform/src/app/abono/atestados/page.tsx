@@ -320,15 +320,18 @@ export default function AtestadosPage() {
                           </td>
                         </tr>
                       ) : (
-                        metrics.topCid.map((t) => (
-                          <tr key={t.cid} className="text-sm border-b">
-                            <td className="py-2 px-3">{t.cid}</td>
-                            <td className="py-2 px-3">{cidDetailsMap[t.cid]?.desc || "—"}</td>
-                            <td className="py-2 px-3">{cidDetailsMap[t.cid]?.chapter || "—"}</td>
-                            <td className="py-2 px-3">{t.count}</td>
-                            <td className="py-2 px-3">{t.days}</td>
-                          </tr>
-                        ))
+                        metrics.topCid.map((t) => {
+                          const key = normalizeCID(String(t.cid || ""));
+                          return (
+                            <tr key={t.cid} className="text-sm border-b">
+                              <td className="py-2 px-3">{t.cid}</td>
+                              <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
+                              <td className="py-2 px-3">{cidDetailsMap[key]?.chapter || "—"}</td>
+                              <td className="py-2 px-3">{t.count}</td>
+                              <td className="py-2 px-3">{t.days}</td>
+                            </tr>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>
