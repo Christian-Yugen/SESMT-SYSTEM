@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import { Menu, FileText, Users, Clock3, RefreshCcw, Calendar } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+import FilterChips from "@/components/filters/FilterChips";
 import { supabase } from "@/lib/supabase";
 import { getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
@@ -256,6 +257,19 @@ export default function AtestadosPage() {
                 <Menu className="w-6 h-6" />
               </button>
             </div>
+          </div>
+
+          <div className="mt-3">
+            <FilterChips
+              searchTerm={searchTerm}
+              startDate={startDate}
+              endDate={endDate}
+              filterUser={"all"}
+              filterSecretaria={"all"}
+              filterAsoType={"all"}
+              referrals={[]}
+              operatorsMap={{}}
+            />
           </div>
         </section>
 
