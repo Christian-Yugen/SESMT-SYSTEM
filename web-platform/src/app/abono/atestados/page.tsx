@@ -6,7 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Menu, FileText, Users, Clock3, RefreshCcw, Calendar } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
 import { supabase } from "@/lib/supabase";
-import { getCIDDetailsFromDB } from "@/lib/cid-utils";
+import { getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
 import StatisticCard from "@/components/statistics/StatisticCard";
 import StatisticCardRow from "@/components/statistics/StatisticCardRow";
@@ -122,8 +122,9 @@ export default function AtestadosPage() {
 
   // Fetch CID descriptions for the top CIDs shown in the first block
   useEffect(() => {
-    const codes = metrics.topCid.map((t) => String(t.cid)).filter((c) => c && c !== "SEM CID");
-    if (codes.length === 0) {
+    const originalCodes = metrics.topCid.map((t) => String(t.cid)).filter((c) => c && c !== "SEM CID");
+    const normalizedKeys = Array.from(new Set(originalCodes.map((c) => normalizeCID(c))));
+    if (normalizedKeys.length === 0) {
       setCidDetailsMap({});
       return;
     }
@@ -133,19 +134,19 @@ export default function AtestadosPage() {
     (async () => {
       try {
         const results = await Promise.all(
-          codes.map(async (code) => {
+          normalizedKeys.map(async (nkey) => {
             try {
-              const details = await getCIDDetailsFromDB(code);
-              return { code, desc: details.desc || "—", chapter: details.chapter || details.chapter_desc || "—" };
+              const details = await getCIDDetailsFromDB(nkey);
+              return { nkey, desc: details.desc || "—", chapter: details.chapter || details.chapter_desc || "—" };
             } catch (e) {
-              return { code, desc: "—", chapter: "—" };
+              return { nkey, desc: "—", chapter: "—" };
             }
           }),
         );
 
         if (cancelled) return;
         const map: Record<string, { desc: string; chapter: string }> = {};
-        results.forEach((r) => (map[r.code] = { desc: r.desc, chapter: r.chapter }));
+        results.forEach((r) => (map[r.nkey] = { desc: r.desc, chapter: r.chapter }));
         setCidDetailsMap(map);
       } catch (e) {
         if (!cancelled) setCidDetailsMap({});
@@ -155,7 +156,7 @@ export default function AtestadosPage() {
     return () => {
       cancelled = true;
     };
-  }, [JSON.stringify(metrics.topCid.map((t) => t.cid))]);
+  }, [JSON.stringify(metrics.topCid.map((t) => normalizeCID(String(t.cid))))]);
 
   const filteredRows = useMemo(() => {
     const term = (searchTerm || "").trim().toLowerCase();
