@@ -210,7 +210,14 @@ export default function AtestadosPage() {
     const term = (searchTerm || "").trim().toLowerCase();
     if (!term) return rows;
     return rows.filter((r) => {
-      const fields = [r.matricula, r.nome, r.nome_cargo, r.cid, r.nome_unidade]
+      const fields = [
+        r.matricula,
+        r.nome,
+        r.nome_cargo,
+        r.cid,
+        r.local_de_trabalho,
+        r.nome_unidade,
+      ]
         .map((v) => (v || "") + "")
         .join(" ")
         .toLowerCase();
@@ -245,7 +252,7 @@ export default function AtestadosPage() {
                 <div className="flex items-center gap-2">
                   <Info className="w-3.5 h-3.5 text-[#E31E24]" />
                   <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">
-                    Metodologia: Escore Psicossocial
+                    Metodologia: Risco de Absenteísmo (Atestados)
                   </h2>
                 </div>
                 <button
@@ -325,17 +332,21 @@ export default function AtestadosPage() {
 
                 <div className="mb-4">
                   <p className="text-[9px] text-slate-500 uppercase tracking-tight text-center mb-2">
-                    Matriz de Soma Ponderada NR-1 baseada em dados clínicos e
-                    indicadores epidemiológicos.
+                    Matriz de Soma Ponderada aplicada aos registros de
+                    atestados.
                   </p>
                   <div className="w-full bg-slate-50 p-3 border border-slate-200 text-center">
                     <p className="text-[11px] font-bold text-[#1A3351] uppercase mb-1.5 tracking-wider">
-                      Algoritmo de Vigilância (Matriz Ponderada)
+                      Algoritmo de Risco: Matriz Ponderada
                     </p>
                     <p className="text-[10px] text-slate-900 leading-none font-sans">
-                      Score = (CID F × 0.2) + (Exposição × 0.2) + (Morbidade
-                      Relativa DEA × 0.5) + (Tendência × 0.05) + (Recorrência ×
-                      0.05)
+                      Score = (Severidade × 0.30) + (Concentração CID × 0.25) +
+                      (Impacto Operacional × 0.20) + (Recorrência × 0.15) +
+                      (Tendência × 0.10)
+                    </p>
+                    <p className="text-[10px] text-slate-700 mt-2">
+                      Classificação: ≥75% — Crítico; 50–74% — Alto; &lt;50% —
+                      Moderado.
                     </p>
                   </div>
                 </div>
@@ -720,7 +731,7 @@ export default function AtestadosPage() {
                             <table className="w-full text-left border-collapse">
                               <thead>
                                 <tr className="bg-slate-50 text-[#1A3351] text-[12px] font-bold uppercase border-b border-slate-200">
-                                  <th className="px-4 py-1 border-r border-slate-200 w-[240px]">
+                                  <th className="px-3 py-1 border-r border-slate-200 w-56">
                                     Cargo / PGR
                                   </th>
                                   <th className="px-4 py-1 border-r border-slate-200">
@@ -737,7 +748,7 @@ export default function AtestadosPage() {
                                   </th>
                                   <th className="px-4 py-1 text-center w-[140px] relative group overflow-visible">
                                     <div className="flex items-center justify-center gap-1.5 py-1">
-                                      Risco Psicossocial
+                                      Risco de Absenteísmo
                                       <button
                                         title="Clique para ver o detalhamento do cálculo"
                                         onClick={() => setShowMethodology(true)}
@@ -786,8 +797,13 @@ export default function AtestadosPage() {
                                       }
 
                                       const c = sec.cargos[cargoKey];
-                                      if (r.nome_unidade)
-                                        c.unidades.add(r.nome_unidade);
+                                      const unidadeLabel =
+                                        (r.local_de_trabalho &&
+                                          String(r.local_de_trabalho).trim()) ||
+                                        (r.nome_unidade &&
+                                          String(r.nome_unidade).trim());
+                                      if (unidadeLabel)
+                                        c.unidades.add(unidadeLabel);
                                       const rawCid = (r.cid || "")
                                         .toString()
                                         .trim();
@@ -923,10 +939,10 @@ export default function AtestadosPage() {
                                                   key={i}
                                                   className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
                                                 >
-                                                  <td className="px-4 py-2 align-middle w-[320px]">
-                                                    <div className="text-[#1A3351] uppercase leading-tight text-[13px] tracking-tight whitespace-nowrap">
+                                                  <td className="px-3 py-1 align-middle w-56">
+                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight whitespace-nowrap">
                                                       {cargo.cargo}
-                                                      <span className="ml-2">
+                                                      <span className="ml-2 text-xs font-medium">
                                                         (
                                                         {
                                                           cargo.impactedServerCount
@@ -935,7 +951,7 @@ export default function AtestadosPage() {
                                                       </span>
                                                     </div>
                                                   </td>
-                                                  <td className="px-4 py-2 align-middle max-w-[400px]">
+                                                  <td className="px-3 py-1 align-middle max-w-[280px]">
                                                     <div className="flex flex-col gap-0.5">
                                                       {displayedUnits.map(
                                                         (
@@ -944,7 +960,7 @@ export default function AtestadosPage() {
                                                         ) => (
                                                           <div
                                                             key={idx}
-                                                            className="text-[12px] text-slate-700 leading-tight font-normal truncate"
+                                                            className="text-[11px] text-slate-700 leading-tight font-normal truncate"
                                                             title={unidade}
                                                           >
                                                             {unidade}
@@ -959,7 +975,7 @@ export default function AtestadosPage() {
                                                               rowId,
                                                             )
                                                           }
-                                                          className="text-[10px] text-[#1A3351] font-bold mt-1.5 uppercase tracking-tighter hover:underline flex items-center gap-1"
+                                                          className="text-[10px] text-[#1A3351] font-bold mt-1 uppercase tracking-tighter hover:underline flex items-center gap-1"
                                                         >
                                                           {isExpanded
                                                             ? "▲ RECOLHER LISTA"
@@ -968,7 +984,7 @@ export default function AtestadosPage() {
                                                       )}
                                                     </div>
                                                   </td>
-                                                  <td className="px-4 py-2 align-middle">
+                                                  <td className="px-3 py-1 align-middle">
                                                     <div className="flex flex-wrap gap-x-2 gap-y-1">
                                                       {Array.from(
                                                         cargo.cids as Set<string>,
@@ -981,7 +997,7 @@ export default function AtestadosPage() {
                                                           ) => (
                                                             <span
                                                               key={idx}
-                                                              className="text-slate-800 text-[12px] font-normal"
+                                                              className="text-slate-800 text-[11px] font-normal"
                                                             >
                                                               {cid}
                                                             </span>
