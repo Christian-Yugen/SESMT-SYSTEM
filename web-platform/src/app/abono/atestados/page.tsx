@@ -44,7 +44,7 @@ export default function AtestadosPage() {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const init = async () => {
       try {
         const { session, error } = await safeGetSession();
         if (error) {
@@ -61,16 +61,18 @@ export default function AtestadosPage() {
           setUserName(name);
         } else {
           router.push("/login");
+          return;
         }
       } catch (err) {
         await handleAuthError(err);
+        return;
       }
+
+      // fetch após autenticação para garantir sessão válida
+      await fetchData();
     };
 
-    checkAuth();
-
-    // fetch initially
-    fetchData();
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
