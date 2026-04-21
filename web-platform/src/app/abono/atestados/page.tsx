@@ -271,7 +271,7 @@ export default function AtestadosPage() {
                         <th className="px-3 py-2 w-[80px] text-center border-r border-slate-200">
                           Peso
                         </th>
-                        <th className="px-3 py-2 w-[180px] border-r border-slate-200">
+                        <th className="px-3 py-2 w-[220px] border-r border-slate-200">
                           Indicador Estrutural
                         </th>
                         <th className="px-3 py-2">Descrição Técnica</th>
@@ -280,29 +280,29 @@ export default function AtestadosPage() {
                     <tbody className="divide-y divide-slate-100">
                       {[
                         {
-                          weight: "20%",
-                          label: "Concentração CID F",
-                          desc: "Prevalência de afastamentos por transtornos mentais (F) em relação ao total de eventos clínicos compatíveis.",
+                          weight: "30%",
+                          label: "Severidade (DEA)",
+                          desc: "Impacto em dias perdidos por servidor — medida de gravidade dos afastamentos (média de dias por caso), normalizada pelo pior caso da mesma Secretaria.",
+                        },
+                        {
+                          weight: "25%",
+                          label: "Concentração CID",
+                          desc: "Prevalência de afastamentos atribuídos ao CID dominante em relação ao total de eventos clínicos compatíveis.",
                         },
                         {
                           weight: "20%",
-                          label: "Exposição Estimada",
-                          desc: "Média de escores em avaliações e questionários de vigilância ativa (NR-1/PGR).",
+                          label: "Impacto Operacional",
+                          desc: "Volume absoluto de dias perdidos no grupo, normalizado para comparações entre secretarias; representa a carga operacional.",
                         },
                         {
-                          weight: "5%",
+                          weight: "15%",
                           label: "Recorrência",
-                          desc: "Fração de servidores com episódios repetidos no período. Usado como sinal sentinela complementar.",
+                          desc: "Fração de servidores com episódios repetidos no período — sinal de persistência e necessidade de atenção contínua.",
                         },
                         {
-                          weight: "5%",
+                          weight: "10%",
                           label: "Tendência Temporal",
-                          desc: "Razão de evolução da patologia entre a primeira e segunda metade do período monitorado.",
-                        },
-                        {
-                          weight: "50%",
-                          label: "Morbidade Relativa (DEA)",
-                          desc: "Impacto absoluto do grupo em relação ao pior caso da mesma Secretaria: combina dias perdidos (70%) e volume de servidores afetados (30%).",
+                          desc: "Razão de evolução da patologia entre a primeira e segunda metade do período (indica aumento ou redução do problema).",
                         },
                       ].map((row, idx) => (
                         <tr
@@ -748,7 +748,9 @@ export default function AtestadosPage() {
                                   </th>
                                   <th className="px-4 py-1 text-right w-[160px]">
                                     <div className="flex items-center justify-end gap-2">
-                                      <span className="uppercase font-bold text-[#1A3351] text-[12px]">Risco de Absenteísmo</span>
+                                      <span className="uppercase font-bold text-[#1A3351] text-[12px]">
+                                        Risco de Absenteísmo
+                                      </span>
                                       <button
                                         onClick={() => setShowMethodology(true)}
                                         aria-label="Abrir metodologia de risco"
