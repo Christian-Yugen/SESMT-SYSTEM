@@ -153,8 +153,12 @@ export default function AtestadosPage() {
         />
       )}
 
+      {/* Overlay de Foco Progressivo - presente em outras páginas para manter consistência */}
+      <div className="fixed inset-0 z-[45] bg-black/20 backdrop-blur-[2px] transition-all duration-500 pointer-events-none opacity-0" />
+
       <main className="flex-1 flex flex-col bg-[#F3F4F6] min-h-screen lg:h-screen lg:overflow-visible relative">
-        <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
+        <div className="flex-1 flex flex-col relative overflow-visible">
+          <section className="bg-white px-4 py-3 border-b-[6px] border-[#1A3351]">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold uppercase text-[#1A3351]">
               Atestados — Análise Rápida
