@@ -267,21 +267,7 @@ export default function Sidebar({
         />
       )}
 
-      {/* ATESTADOS - submenu dentro de Benefícios */}
-      {(userRole === "admin" ||
-        userRole === "nurse" ||
-        userRole === "analytic_manager" ||
-        userRole === "doctor") && (
-        <div className="space-y-1">
-          <button
-            onClick={() => router.push("/abono/atestados")}
-            className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-          >
-            <FileText className="w-3 h-3 shrink-0" />
-            <span>Atestados</span>
-          </button>
-        </div>
-      )}
+      
 
       {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
       <aside
