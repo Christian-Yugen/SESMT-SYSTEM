@@ -292,7 +292,7 @@ export default function Sidebar({
       {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
       <aside
         className={`
-        fixed lg:sticky top-0 left-0 z-50 w-72 lg:w-60 bg-[#1A3351] border-r border-white/10 flex flex-col h-screen shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
+        fixed top-0 left-0 z-50 w-72 lg:w-60 bg-[#1A3351] border-r border-white/10 flex flex-col h-screen shrink-0 shadow-2xl transition-transform duration-300 transform ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
       >

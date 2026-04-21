@@ -49,6 +49,8 @@ export default function AtestadosPage() {
         from += BATCH;
       }
       setRows(all);
+      // reset page to first when data set changes (avoids stale page index)
+      setPage(1);
     } catch (err) {
       console.error(err);
       setRows([]);
