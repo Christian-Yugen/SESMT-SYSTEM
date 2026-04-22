@@ -246,7 +246,8 @@ export default function AtestadosPage() {
     const map: Record<string, any> = {};
     filteredRows.forEach((r: any) => {
       const rawCid = (r.cid || "").toString().trim();
-      const cid = rawCid && rawCid.length > 0 ? normalizeCID(rawCid) : "SEM CID";
+      const cid =
+        rawCid && rawCid.length > 0 ? normalizeCID(rawCid) : "SEM CID";
       if (!map[cid]) map[cid] = { cid, count: 0, days: 0, cargos: {} };
       const entry = map[cid];
       entry.count += 1;
@@ -293,7 +294,9 @@ export default function AtestadosPage() {
         if (cancelled) return;
         setCidDetailsMap((prev) => {
           const next = { ...prev };
-          results.forEach((r) => (next[r.nkey] = { desc: r.desc, chapter: r.chapter }));
+          results.forEach(
+            (r) => (next[r.nkey] = { desc: r.desc, chapter: r.chapter }),
+          );
           return next;
         });
       } catch (e) {
@@ -305,7 +308,11 @@ export default function AtestadosPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(cidOccupational.map((c: any) => normalizeCID(String(c.cid))).slice(0, 50))]);
+  }, [
+    JSON.stringify(
+      cidOccupational.map((c: any) => normalizeCID(String(c.cid))).slice(0, 50),
+    ),
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
@@ -744,544 +751,618 @@ export default function AtestadosPage() {
                 </>
               )}
 
-              {activeTab !== "visao-geral" && activeTab !== "casos-recorrencia" && (
-                <>
-                  <div className="text-sm font-bold text-slate-700 uppercase">
-                    {activeTab === "cid-e-capitulos"
-                      ? "DISTR POR SECRETARIA"
-                      : activeTab === "visao-ocupacional"
-                        ? "DISTR POR CARGO"
-                        : "Casos e Recorrência"}
-                  </div>
-                  <p className="text-sm text-slate-500">
-                    Visão alternativa (mesmos dados de Atestados). Nesta aba os
-                    componentes e layouts seguem o padrão analítico; a fonte dos
-                    dados é a tabela <strong>atestados_import</strong>.
+              {activeTab === "casos-recorrencia" && (
+                <div className="p-8 bg-white border rounded-md text-center">
+                  <h2 className="text-lg font-bold text-[#1A3351] uppercase">
+                    Casos e Recorrência — Em construção
+                  </h2>
+                  <p className="text-sm text-slate-500 mt-2 max-w-2xl mx-auto">
+                    Esta página está em construção. Os gráficos e painéis
+                    analíticos serão implementados em breve.
                   </p>
+                </div>
+              )}
 
-                  <StatisticCardRow columns={4} className="my-4">
-                    <StatisticCard
-                      title="Total Atestados"
-                      value={metrics.total}
-                      helperText="Registros importados"
-                      icon={<FileText className="w-6 h-6" />}
-                      accent="primary"
-                    />
-                    <StatisticCard
-                      title="Colaboradores"
-                      value={metrics.employees}
-                      helperText="Colaboradores distintos"
-                      icon={<Users className="w-6 h-6" />}
-                      accent="info"
-                    />
-                    <StatisticCard
-                      title="Total de Dias"
-                      value={metrics.totalDays}
-                      helperText="Dias perdidos somados"
-                      icon={<Clock3 className="w-6 h-6" />}
-                      accent="warning"
-                    />
-                    <StatisticCard
-                      title="Média por Registro"
-                      value={metrics.avgDays}
-                      helperText="Dias médios"
-                      icon={<Clock3 className="w-6 h-6" />}
-                      accent="neutral"
-                    />
-                  </StatisticCardRow>
+              {activeTab !== "visao-geral" &&
+                activeTab !== "casos-recorrencia" && (
+                  <>
+                    <div className="text-sm font-bold text-slate-700 uppercase">
+                      {activeTab === "cid-e-capitulos"
+                        ? "DISTR POR SECRETARIA"
+                        : activeTab === "visao-ocupacional"
+                          ? "DISTR POR CARGO"
+                          : "Casos e Recorrência"}
+                    </div>
+                    <p className="text-sm text-slate-500">
+                      Visão alternativa (mesmos dados de Atestados). Nesta aba
+                      os componentes e layouts seguem o padrão analítico; a
+                      fonte dos dados é a tabela{" "}
+                      <strong>atestados_import</strong>.
+                    </p>
 
-                  {activeTab === "cid-e-capitulos" ? (
-                    <div className="space-y-6 pb-20">
-                      <div className="grid grid-cols-1 gap-6">
-                        <div className="bg-white border-2 border-slate-200 shadow-lg overflow-hidden">
-                          <div className="bg-[#1A3351] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
-                            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">
-                              Capítulo CID Dominante
-                            </h4>
-                            <span className="text-[9px] text-white/50 font-bold uppercase">
-                              Vigilância Atestados
-                            </span>
-                          </div>
+                    <StatisticCardRow columns={4} className="my-4">
+                      <StatisticCard
+                        title="Total Atestados"
+                        value={metrics.total}
+                        helperText="Registros importados"
+                        icon={<FileText className="w-6 h-6" />}
+                        accent="primary"
+                      />
+                      <StatisticCard
+                        title="Colaboradores"
+                        value={metrics.employees}
+                        helperText="Colaboradores distintos"
+                        icon={<Users className="w-6 h-6" />}
+                        accent="info"
+                      />
+                      <StatisticCard
+                        title="Total de Dias"
+                        value={metrics.totalDays}
+                        helperText="Dias perdidos somados"
+                        icon={<Clock3 className="w-6 h-6" />}
+                        accent="warning"
+                      />
+                      <StatisticCard
+                        title="Média por Registro"
+                        value={metrics.avgDays}
+                        helperText="Dias médios"
+                        icon={<Clock3 className="w-6 h-6" />}
+                        accent="neutral"
+                      />
+                    </StatisticCardRow>
 
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                              <thead>
-                                <tr className="bg-slate-50 text-[#1A3351] text-[12px] font-bold uppercase border-b border-slate-200">
-                                  <th className="px-2 py-1 border-r border-slate-200 w-96">
-                                    Cargo / PGR
-                                  </th>
-                                  <th className="px-4 py-1 border-r border-slate-200 w-80">
-                                    Unidade / Local
-                                  </th>
-                                  <th className="px-4 py-1 border-r border-slate-200 w-[120px]">
-                                    CIDS PRINCIPAIS
-                                  </th>
-                                  <th className="px-4 py-1 text-right w-[60px]">
-                                    Freq.
-                                  </th>
-                                  <th className="px-4 py-1 text-right w-[80px]">
-                                    Dias
-                                  </th>
-                                  <th className="px-4 py-1 text-right w-[160px]">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <span className="uppercase font-bold text-[#1A3351] text-[12px]">
-                                        Risco de Absenteísmo
-                                      </span>
-                                      <button
-                                        onClick={() => setShowMethodology(true)}
-                                        aria-label="Abrir metodologia de risco"
-                                        title="Como é calculado o score"
-                                        className="p-1 text-slate-600 hover:text-[#E31E24]"
-                                      >
-                                        <Info className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-slate-100">
-                                {(() => {
-                                  const groups = rows.reduce(
-                                    (acc: Record<string, any>, r: any) => {
-                                      const secKey =
-                                        (
-                                          r.nome_divisao ||
-                                          r.nome_unidade ||
-                                          "SEM SECRETARIA"
-                                        )
-                                          ?.toString()
-                                          .trim() || "SEM SECRETARIA";
-                                      if (!acc[secKey]) {
-                                        acc[secKey] = {
-                                          name: secKey,
-                                          maxScore: 0,
-                                          cargos: {},
-                                        };
-                                      }
+                    {activeTab === "cid-e-capitulos" ? (
+                      <div className="space-y-6 pb-20">
+                        <div className="grid grid-cols-1 gap-6">
+                          <div className="bg-white border-2 border-slate-200 shadow-lg overflow-hidden">
+                            <div className="bg-[#1A3351] px-4 py-2 border-b border-slate-200 flex justify-between items-center">
+                              <h4 className="text-[10px] font-black text-white uppercase tracking-widest">
+                                Capítulo CID Dominante
+                              </h4>
+                              <span className="text-[9px] text-white/50 font-bold uppercase">
+                                Vigilância Atestados
+                              </span>
+                            </div>
 
-                                      const sec = acc[secKey];
-                                      const cargoKey = (r.nome_cargo || "---")
-                                        .toString()
-                                        .trim();
-                                      if (!sec.cargos[cargoKey]) {
-                                        sec.cargos[cargoKey] = {
-                                          cargo: cargoKey,
-                                          unidades: new Set<string>(),
-                                          cids: new Set<string>(),
-                                          totalWeight: 0,
-                                          totalDays: 0,
-                                          maxScore: 0,
-                                          impactedServerCount: 0,
-                                        };
-                                      }
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead>
+                                  <tr className="bg-slate-50 text-[#1A3351] text-[12px] font-bold uppercase border-b border-slate-200">
+                                    <th className="px-2 py-1 border-r border-slate-200 w-96">
+                                      Cargo / PGR
+                                    </th>
+                                    <th className="px-4 py-1 border-r border-slate-200 w-80">
+                                      Unidade / Local
+                                    </th>
+                                    <th className="px-4 py-1 border-r border-slate-200 w-[120px]">
+                                      CIDS PRINCIPAIS
+                                    </th>
+                                    <th className="px-4 py-1 text-right w-[60px]">
+                                      Freq.
+                                    </th>
+                                    <th className="px-4 py-1 text-right w-[80px]">
+                                      Dias
+                                    </th>
+                                    <th className="px-4 py-1 text-right w-[160px]">
+                                      <div className="flex items-center justify-end gap-2">
+                                        <span className="uppercase font-bold text-[#1A3351] text-[12px]">
+                                          Risco de Absenteísmo
+                                        </span>
+                                        <button
+                                          onClick={() =>
+                                            setShowMethodology(true)
+                                          }
+                                          aria-label="Abrir metodologia de risco"
+                                          title="Como é calculado o score"
+                                          className="p-1 text-slate-600 hover:text-[#E31E24]"
+                                        >
+                                          <Info className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                  {(() => {
+                                    const groups = rows.reduce(
+                                      (acc: Record<string, any>, r: any) => {
+                                        const secKey =
+                                          (
+                                            r.nome_divisao ||
+                                            r.nome_unidade ||
+                                            "SEM SECRETARIA"
+                                          )
+                                            ?.toString()
+                                            .trim() || "SEM SECRETARIA";
+                                        if (!acc[secKey]) {
+                                          acc[secKey] = {
+                                            name: secKey,
+                                            maxScore: 0,
+                                            cargos: {},
+                                          };
+                                        }
 
-                                      const c = sec.cargos[cargoKey];
-                                      const unidadeLabel =
-                                        (r.local_de_trabalho &&
-                                          String(r.local_de_trabalho).trim()) ||
-                                        (r.nome_unidade &&
-                                          String(r.nome_unidade).trim());
-                                      if (unidadeLabel)
-                                        c.unidades.add(unidadeLabel);
-                                      const rawCid = (r.cid || "")
-                                        .toString()
-                                        .trim();
-                                      if (rawCid)
-                                        c.cids.add(normalizeCID(rawCid));
-                                      const weight = rawCid ? 1 : 0;
-                                      c.totalWeight += weight;
-                                      c.totalDays += Number(r.qtde_dias) || 0;
-                                      c.impactedServerCount += 1;
+                                        const sec = acc[secKey];
+                                        const cargoKey = (r.nome_cargo || "---")
+                                          .toString()
+                                          .trim();
+                                        if (!sec.cargos[cargoKey]) {
+                                          sec.cargos[cargoKey] = {
+                                            cargo: cargoKey,
+                                            unidades: new Set<string>(),
+                                            cids: new Set<string>(),
+                                            totalWeight: 0,
+                                            totalDays: 0,
+                                            maxScore: 0,
+                                            impactedServerCount: 0,
+                                          };
+                                        }
 
-                                      return acc;
-                                    },
-                                    {} as Record<string, any>,
-                                  );
+                                        const c = sec.cargos[cargoKey];
+                                        const unidadeLabel =
+                                          (r.local_de_trabalho &&
+                                            String(
+                                              r.local_de_trabalho,
+                                            ).trim()) ||
+                                          (r.nome_unidade &&
+                                            String(r.nome_unidade).trim());
+                                        if (unidadeLabel)
+                                          c.unidades.add(unidadeLabel);
+                                        const rawCid = (r.cid || "")
+                                          .toString()
+                                          .trim();
+                                        if (rawCid)
+                                          c.cids.add(normalizeCID(rawCid));
+                                        const weight = rawCid ? 1 : 0;
+                                        c.totalWeight += weight;
+                                        c.totalDays += Number(r.qtde_dias) || 0;
+                                        c.impactedServerCount += 1;
 
-                                  const sortedSecretarias = Object.values(
-                                    groups,
-                                  ).sort((a: any, b: any) => {
-                                    const totalA = Object.values(
-                                      a.cargos,
-                                    ).reduce(
-                                      (s: number, c: any) =>
-                                        s + (c.impactedServerCount || 0),
-                                      0,
+                                        return acc;
+                                      },
+                                      {} as Record<string, any>,
                                     );
-                                    const totalB = Object.values(
-                                      b.cargos,
-                                    ).reduce(
-                                      (s: number, c: any) =>
-                                        s + (c.impactedServerCount || 0),
-                                      0,
-                                    );
-                                    if (totalB !== totalA)
-                                      return totalB - totalA;
-                                    return b.maxScore - a.maxScore;
-                                  });
 
-                                  return sortedSecretarias.map(
-                                    (sec: any, secIdx: number) => {
-                                      const cargosArr = Object.values(
-                                        sec.cargos,
-                                      );
-                                      const maxDays = cargosArr.reduce(
-                                        (m: number, c: any) =>
-                                          Math.max(m, c.totalDays || 0),
+                                    const sortedSecretarias = Object.values(
+                                      groups,
+                                    ).sort((a: any, b: any) => {
+                                      const totalA = Object.values(
+                                        a.cargos,
+                                      ).reduce(
+                                        (s: number, c: any) =>
+                                          s + (c.impactedServerCount || 0),
                                         0,
                                       );
-                                      const maxWeight = cargosArr.reduce(
-                                        (m: number, c: any) =>
-                                          Math.max(m, c.totalWeight || 0),
+                                      const totalB = Object.values(
+                                        b.cargos,
+                                      ).reduce(
+                                        (s: number, c: any) =>
+                                          s + (c.impactedServerCount || 0),
                                         0,
                                       );
+                                      if (totalB !== totalA)
+                                        return totalB - totalA;
+                                      return b.maxScore - a.maxScore;
+                                    });
 
-                                      cargosArr.forEach((c: any) => {
-                                        const weightPct =
-                                          maxWeight > 0
-                                            ? c.totalWeight / maxWeight
-                                            : 0;
-                                        const daysPct =
-                                          maxDays > 0
-                                            ? c.totalDays / maxDays
-                                            : 0;
-                                        c.maxScore = Math.round(
-                                          (weightPct * 0.6 + daysPct * 0.4) *
-                                            100,
+                                    return sortedSecretarias.map(
+                                      (sec: any, secIdx: number) => {
+                                        const cargosArr = Object.values(
+                                          sec.cargos,
                                         );
-                                        sec.maxScore = Math.max(
-                                          sec.maxScore,
-                                          c.maxScore,
+                                        const maxDays = cargosArr.reduce(
+                                          (m: number, c: any) =>
+                                            Math.max(m, c.totalDays || 0),
+                                          0,
                                         );
-                                      });
+                                        const maxWeight = cargosArr.reduce(
+                                          (m: number, c: any) =>
+                                            Math.max(m, c.totalWeight || 0),
+                                          0,
+                                        );
 
-                                      return (
-                                        <React.Fragment key={secIdx}>
-                                          <tr className="bg-slate-100/90 border-t-2 border-slate-300">
-                                            <td
-                                              colSpan={6}
-                                              className="px-4 py-3 border-y border-slate-200"
-                                            >
-                                              <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                  <div
-                                                    className={`w-2 h-5 ${sec.maxScore >= 75 ? "bg-[#E31E24]" : "bg-[#1A3351]"}`}
-                                                  ></div>
-                                                  <span className="text-[14px] font-black text-[#1A3351] uppercase tracking-normal">
-                                                    {sec.name}
-                                                  </span>
-                                                  <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">
-                                                    {
-                                                      Object.values(
-                                                        sec.cargos,
-                                                      ).filter(
-                                                        (c: any) =>
-                                                          c.impactedServerCount >
-                                                          0,
-                                                      ).length
-                                                    }{" "}
-                                                    CARGOS EM ALERTA
-                                                  </span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                  <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">
-                                                    SCORE MÁXIMO:{" "}
-                                                    {sec.maxScore.toFixed(0)}%
+                                        cargosArr.forEach((c: any) => {
+                                          const weightPct =
+                                            maxWeight > 0
+                                              ? c.totalWeight / maxWeight
+                                              : 0;
+                                          const daysPct =
+                                            maxDays > 0
+                                              ? c.totalDays / maxDays
+                                              : 0;
+                                          c.maxScore = Math.round(
+                                            (weightPct * 0.6 + daysPct * 0.4) *
+                                              100,
+                                          );
+                                          sec.maxScore = Math.max(
+                                            sec.maxScore,
+                                            c.maxScore,
+                                          );
+                                        });
+
+                                        return (
+                                          <React.Fragment key={secIdx}>
+                                            <tr className="bg-slate-100/90 border-t-2 border-slate-300">
+                                              <td
+                                                colSpan={6}
+                                                className="px-4 py-3 border-y border-slate-200"
+                                              >
+                                                <div className="flex items-center justify-between">
+                                                  <div className="flex items-center gap-3">
+                                                    <div
+                                                      className={`w-2 h-5 ${sec.maxScore >= 75 ? "bg-[#E31E24]" : "bg-[#1A3351]"}`}
+                                                    ></div>
+                                                    <span className="text-[14px] font-black text-[#1A3351] uppercase tracking-normal">
+                                                      {sec.name}
+                                                    </span>
+                                                    <span className="text-[9px] font-bold text-slate-400 border-l border-slate-300 pl-3 ml-1 uppercase tracking-tight">
+                                                      {
+                                                        Object.values(
+                                                          sec.cargos,
+                                                        ).filter(
+                                                          (c: any) =>
+                                                            c.impactedServerCount >
+                                                            0,
+                                                        ).length
+                                                      }{" "}
+                                                      CARGOS EM ALERTA
+                                                    </span>
+                                                  </div>
+                                                  <div className="flex items-center">
+                                                    <div className="px-3 py-1 bg-[#1A3351] text-white text-[10px] font-black rounded shadow-sm">
+                                                      SCORE MÁXIMO:{" "}
+                                                      {sec.maxScore.toFixed(0)}%
+                                                    </div>
                                                   </div>
                                                 </div>
-                                              </div>
-                                            </td>
-                                          </tr>
+                                              </td>
+                                            </tr>
 
-                                          {Object.values(sec.cargos)
-                                            .sort((a: any, b: any) => {
-                                              const diff =
-                                                b.maxScore - a.maxScore;
-                                              if (diff !== 0) return diff;
-                                              return b.totalDays - a.totalDays;
-                                            })
-                                            .map((cargo: any, i: number) => {
-                                              const rowId = `${sec.name}-${cargo.cargo}`;
-                                              const isExpanded =
-                                                expandedCargos.has(rowId);
-                                              const unidadesList = Array.from(
-                                                cargo.unidades as Set<string>,
-                                              ).sort((a: string, b: string) =>
-                                                a.localeCompare(b),
-                                              );
-                                              const displayedUnits = isExpanded
-                                                ? unidadesList
-                                                : unidadesList.slice(0, 3);
+                                            {Object.values(sec.cargos)
+                                              .sort((a: any, b: any) => {
+                                                const diff =
+                                                  b.maxScore - a.maxScore;
+                                                if (diff !== 0) return diff;
+                                                return (
+                                                  b.totalDays - a.totalDays
+                                                );
+                                              })
+                                              .map((cargo: any, i: number) => {
+                                                const rowId = `${sec.name}-${cargo.cargo}`;
+                                                const isExpanded =
+                                                  expandedCargos.has(rowId);
+                                                const unidadesList = Array.from(
+                                                  cargo.unidades as Set<string>,
+                                                ).sort((a: string, b: string) =>
+                                                  a.localeCompare(b),
+                                                );
+                                                const displayedUnits =
+                                                  isExpanded
+                                                    ? unidadesList
+                                                    : unidadesList.slice(0, 3);
 
-                                              return (
-                                                <tr
-                                                  key={i}
-                                                  className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
-                                                >
-                                                  <td className="px-2 py-1 align-middle w-96 max-w-none">
-                                                    <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight whitespace-normal break-words">
-                                                      {cargo.cargo}
-                                                      <span className="ml-2 text-xs font-medium">
-                                                        (
-                                                        {
-                                                          cargo.impactedServerCount
-                                                        }{" "}
-                                                        casos)
-                                                      </span>
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-1 align-middle w-80 max-w-[24rem]">
-                                                    <div className="flex flex-col gap-0.5">
-                                                      {displayedUnits.map(
-                                                        (
-                                                          unidade: string,
-                                                          idx: number,
-                                                        ) => (
-                                                          <div
-                                                            key={idx}
-                                                            className="text-[11px] text-slate-700 leading-tight font-normal whitespace-normal break-words"
-                                                            title={unidade}
-                                                          >
-                                                            {unidade}
-                                                          </div>
-                                                        ),
-                                                      )}
-                                                      {unidadesList.length >
-                                                        3 && (
-                                                        <button
-                                                          onClick={() =>
-                                                            toggleCargoExpansion(
-                                                              rowId,
-                                                            )
-                                                          }
-                                                          className="text-[10px] text-[#1A3351] font-bold mt-1 uppercase tracking-tighter hover:underline flex items-center gap-1"
-                                                        >
-                                                          {isExpanded
-                                                            ? "▲ RECOLHER LISTA"
-                                                            : `▼ + ${unidadesList.length - 3} UNIDADES ADICIONAIS (VER TODAS)`}
-                                                        </button>
-                                                      )}
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-1 align-middle">
-                                                    <div className="flex flex-wrap gap-x-2 gap-y-1">
-                                                      {Array.from(
-                                                        cargo.cids as Set<string>,
-                                                      )
-                                                        .slice(0, 5)
-                                                        .map(
+                                                return (
+                                                  <tr
+                                                    key={i}
+                                                    className="hover:bg-slate-50 text-[11px] border-b border-slate-200 last:border-0 transition-all"
+                                                  >
+                                                    <td className="px-2 py-1 align-middle w-96 max-w-none">
+                                                      <div className="text-[#1A3351] uppercase leading-tight text-sm tracking-tight whitespace-normal break-words">
+                                                        {cargo.cargo}
+                                                        <span className="ml-2 text-xs font-medium">
                                                           (
-                                                            cid: string,
+                                                          {
+                                                            cargo.impactedServerCount
+                                                          }{" "}
+                                                          casos)
+                                                        </span>
+                                                      </div>
+                                                    </td>
+                                                    <td className="px-3 py-1 align-middle w-80 max-w-[24rem]">
+                                                      <div className="flex flex-col gap-0.5">
+                                                        {displayedUnits.map(
+                                                          (
+                                                            unidade: string,
                                                             idx: number,
                                                           ) => (
-                                                            <span
+                                                            <div
                                                               key={idx}
-                                                              className="text-slate-800 text-[11px] font-normal"
+                                                              className="text-[11px] text-slate-700 leading-tight font-normal whitespace-normal break-words"
+                                                              title={unidade}
                                                             >
-                                                              {cid}
-                                                            </span>
+                                                              {unidade}
+                                                            </div>
                                                           ),
                                                         )}
-                                                      {cargo.cids.size > 5 && (
-                                                        <span className="text-[10px] text-slate-500 font-bold">
-                                                          +{cargo.cids.size - 5}
-                                                        </span>
-                                                      )}
-                                                      {cargo.cids.size ===
-                                                        0 && (
-                                                        <span className="text-[10px] text-slate-400 italic">
-                                                          N/A
-                                                        </span>
-                                                      )}
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-4 py-2 text-right tabular-nums text-slate-700 font-normal text-[12px] align-middle">
-                                                    {cargo.totalWeight.toFixed(
-                                                      1,
-                                                    )}
-                                                  </td>
-                                                  <td className="px-4 py-2 text-right tabular-nums text-slate-800 text-[13px] align-middle">
-                                                    {(
-                                                      cargo.totalDays || 0
-                                                    ).toLocaleString("pt-BR")}
-                                                  </td>
-                                                  <td className="px-4 py-2 align-middle">
-                                                    <div className="flex flex-col gap-1 w-[140px]">
-                                                      <div className="flex justify-between text-[11px] font-normal uppercase">
-                                                        <span
-                                                          className={`text-[13px] ${cargo.maxScore >= 50 ? "text-[#E31E24]" : "text-slate-800"}`}
-                                                        >
-                                                          {cargo.maxScore.toFixed(
-                                                            0,
+                                                        {unidadesList.length >
+                                                          3 && (
+                                                          <button
+                                                            onClick={() =>
+                                                              toggleCargoExpansion(
+                                                                rowId,
+                                                              )
+                                                            }
+                                                            className="text-[10px] text-[#1A3351] font-bold mt-1 uppercase tracking-tighter hover:underline flex items-center gap-1"
+                                                          >
+                                                            {isExpanded
+                                                              ? "▲ RECOLHER LISTA"
+                                                              : `▼ + ${unidadesList.length - 3} UNIDADES ADICIONAIS (VER TODAS)`}
+                                                          </button>
+                                                        )}
+                                                      </div>
+                                                    </td>
+                                                    <td className="px-3 py-1 align-middle">
+                                                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                                                        {Array.from(
+                                                          cargo.cids as Set<string>,
+                                                        )
+                                                          .slice(0, 5)
+                                                          .map(
+                                                            (
+                                                              cid: string,
+                                                              idx: number,
+                                                            ) => (
+                                                              <span
+                                                                key={idx}
+                                                                className="text-slate-800 text-[11px] font-normal"
+                                                              >
+                                                                {cid}
+                                                              </span>
+                                                            ),
                                                           )}
-                                                          %
-                                                        </span>
-                                                        <span className="text-slate-800 font-normal">
-                                                          {cargo.maxScore >= 75
-                                                            ? "Crítico"
-                                                            : cargo.maxScore >=
-                                                                50
-                                                              ? "Alto"
-                                                              : "Moderado"}
-                                                        </span>
+                                                        {cargo.cids.size >
+                                                          5 && (
+                                                          <span className="text-[10px] text-slate-500 font-bold">
+                                                            +
+                                                            {cargo.cids.size -
+                                                              5}
+                                                          </span>
+                                                        )}
+                                                        {cargo.cids.size ===
+                                                          0 && (
+                                                          <span className="text-[10px] text-slate-400 italic">
+                                                            N/A
+                                                          </span>
+                                                        )}
                                                       </div>
-                                                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
-                                                        <div
-                                                          className={`${cargo.maxScore >= 75 ? "bg-[#E31E24]" : cargo.maxScore >= 50 ? "bg-orange-500" : "bg-blue-400"} h-full transition-all duration-700`}
-                                                          style={{
-                                                            width: `${cargo.maxScore}%`,
-                                                          }}
-                                                        />
+                                                    </td>
+                                                    <td className="px-4 py-2 text-right tabular-nums text-slate-700 font-normal text-[12px] align-middle">
+                                                      {cargo.totalWeight.toFixed(
+                                                        1,
+                                                      )}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-right tabular-nums text-slate-800 text-[13px] align-middle">
+                                                      {(
+                                                        cargo.totalDays || 0
+                                                      ).toLocaleString("pt-BR")}
+                                                    </td>
+                                                    <td className="px-4 py-2 align-middle">
+                                                      <div className="flex flex-col gap-1 w-[140px]">
+                                                        <div className="flex justify-between text-[11px] font-normal uppercase">
+                                                          <span
+                                                            className={`text-[13px] ${cargo.maxScore >= 50 ? "text-[#E31E24]" : "text-slate-800"}`}
+                                                          >
+                                                            {cargo.maxScore.toFixed(
+                                                              0,
+                                                            )}
+                                                            %
+                                                          </span>
+                                                          <span className="text-slate-800 font-normal">
+                                                            {cargo.maxScore >=
+                                                            75
+                                                              ? "Crítico"
+                                                              : cargo.maxScore >=
+                                                                  50
+                                                                ? "Alto"
+                                                                : "Moderado"}
+                                                          </span>
+                                                        </div>
+                                                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                                                          <div
+                                                            className={`${cargo.maxScore >= 75 ? "bg-[#E31E24]" : cargo.maxScore >= 50 ? "bg-orange-500" : "bg-blue-400"} h-full transition-all duration-700`}
+                                                            style={{
+                                                              width: `${cargo.maxScore}%`,
+                                                            }}
+                                                          />
+                                                        </div>
                                                       </div>
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                              );
-                                            })}
-                                        </React.Fragment>
-                                      );
-                                    },
-                                  );
-                                })()}
-                              </tbody>
-                            </table>
-                          </div>
-                          <div className="bg-slate-50 p-3 border-t border-slate-200">
-                            <p className="text-[9px] text-slate-400 font-medium">
-                              <span className="font-bold text-slate-500">
-                                DIRETRIZES:
-                              </span>{" "}
-                              Este painel apresenta agregações por
-                              Secretaria/Cargo usando os registros de{" "}
-                              <strong>atestados_import</strong>.
-                            </p>
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                          </React.Fragment>
+                                        );
+                                      },
+                                    );
+                                  })()}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div className="bg-slate-50 p-3 border-t border-slate-200">
+                              <p className="text-[9px] text-slate-400 font-medium">
+                                <span className="font-bold text-slate-500">
+                                  DIRETRIZES:
+                                </span>{" "}
+                                Este painel apresenta agregações por
+                                Secretaria/Cargo usando os registros de{" "}
+                                <strong>atestados_import</strong>.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ) : activeTab === "visao-ocupacional" ? (
-                    <div className="space-y-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="search"
-                            value={occuSearch}
-                            onChange={(e) => setOccuSearch(e.target.value)}
-                            placeholder="Buscar CID ou cargo..."
-                            className="h-9 px-3 border rounded-none text-sm"
-                          />
-                          <div className="text-sm text-slate-500">
-                            Total CIDs: {cidOccupational.length}
+                    ) : activeTab === "visao-ocupacional" ? (
+                      <div className="space-y-4">
+                        <div className="mb-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="search"
+                              value={occuSearch}
+                              onChange={(e) => setOccuSearch(e.target.value)}
+                              placeholder="Buscar CID ou cargo..."
+                              className="h-9 px-3 border rounded-none text-sm"
+                            />
+                            <div className="text-sm text-slate-500">
+                              Total CIDs: {cidOccupational.length}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="text-[11px] uppercase text-slate-400 border-b">
+                                <th className="py-2 px-3">CID</th>
+                                <th className="py-2 px-3">Descrição</th>
+                                <th className="py-2 px-3">Cargos Principais</th>
+                                <th className="py-2 px-3 text-right">
+                                  Registros
+                                </th>
+                                <th className="py-2 px-3 text-right">Dias</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {cidOccupational
+                                .filter((c: any) => {
+                                  const s = (occuSearch || "")
+                                    .trim()
+                                    .toLowerCase();
+                                  if (!s) return true;
+                                  const key = normalizeCID(String(c.cid));
+                                  const desc = (
+                                    cidDetailsMap[key]?.desc || ""
+                                  ).toLowerCase();
+                                  const cargos = Object.keys(c.cargos)
+                                    .join(" ")
+                                    .toLowerCase();
+                                  return (
+                                    String(c.cid).toLowerCase().includes(s) ||
+                                    desc.includes(s) ||
+                                    cargos.includes(s)
+                                  );
+                                })
+                                .map((cidEntry: any) => {
+                                  const key = normalizeCID(
+                                    String(cidEntry.cid),
+                                  );
+                                  const cargosArr = Object.entries(
+                                    cidEntry.cargos,
+                                  ).sort(
+                                    (a: any, b: any) => b[1].count - a[1].count,
+                                  );
+                                  const topCargos = cargosArr.slice(0, 5);
+                                  const isExpanded = expandedCids.has(
+                                    cidEntry.cid,
+                                  );
+
+                                  return (
+                                    <React.Fragment key={cidEntry.cid}>
+                                      <tr className="text-sm border-b">
+                                        <td className="py-2 px-3">
+                                          {cidEntry.cid}
+                                        </td>
+                                        <td className="py-2 px-3">
+                                          {cidDetailsMap[key]?.desc || "—"}
+                                        </td>
+                                        <td className="py-2 px-3">
+                                          <div className="flex flex-wrap gap-2">
+                                            {topCargos.map(
+                                              ([cargo, stats]: any) => (
+                                                <div
+                                                  key={cargo}
+                                                  className="text-[11px] text-slate-800"
+                                                >
+                                                  {cargo}{" "}
+                                                  <span className="text-xs text-slate-500">
+                                                    ({stats.count})
+                                                  </span>
+                                                </div>
+                                              ),
+                                            )}
+                                            {cargosArr.length > 5 && (
+                                              <button
+                                                onClick={() =>
+                                                  toggleCidExpansion(
+                                                    cidEntry.cid,
+                                                  )
+                                                }
+                                                className="text-[10px] text-[#1A3351] font-bold uppercase"
+                                              >
+                                                {isExpanded
+                                                  ? "▲"
+                                                  : `▼ + ${cargosArr.length - 5} VER MAIS`}
+                                              </button>
+                                            )}
+                                          </div>
+
+                                          {isExpanded && (
+                                            <div className="mt-2 grid grid-cols-1 gap-1">
+                                              {cargosArr.map(
+                                                ([cargo, stats]: any) => (
+                                                  <div
+                                                    key={cargo}
+                                                    className="text-[11px] text-slate-700"
+                                                  >
+                                                    {cargo}{" "}
+                                                    <span className="text-xs text-slate-500">
+                                                      ({stats.count} •{" "}
+                                                      {stats.days} dias)
+                                                    </span>
+                                                  </div>
+                                                ),
+                                              )}
+                                            </div>
+                                          )}
+                                        </td>
+                                        <td className="py-2 px-3 text-right">
+                                          {cidEntry.count}
+                                        </td>
+                                        <td className="py-2 px-3 text-right">
+                                          {cidEntry.days}
+                                        </td>
+                                      </tr>
+                                    </React.Fragment>
+                                  );
+                                })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
                             <tr className="text-[11px] uppercase text-slate-400 border-b">
                               <th className="py-2 px-3">CID</th>
                               <th className="py-2 px-3">Descrição</th>
-                              <th className="py-2 px-3">Cargos Principais</th>
-                              <th className="py-2 px-3 text-right">Registros</th>
-                              <th className="py-2 px-3 text-right">Dias</th>
+                              <th className="py-2 px-3">Capítulo</th>
+                              <th className="py-2 px-3">Registros</th>
+                              <th className="py-2 px-3">Dias Perdidos</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {cidOccupational
-                              .filter((c: any) => {
-                                const s = (occuSearch || "").trim().toLowerCase();
-                                if (!s) return true;
-                                const key = normalizeCID(String(c.cid));
-                                const desc = (cidDetailsMap[key]?.desc || "").toLowerCase();
-                                const cargos = Object.keys(c.cargos).join(" ").toLowerCase();
-                                return (
-                                  String(c.cid).toLowerCase().includes(s) ||
-                                  desc.includes(s) ||
-                                  cargos.includes(s)
-                                );
-                              })
-                              .map((cidEntry: any) => {
-                                const key = normalizeCID(String(cidEntry.cid));
-                                const cargosArr = Object.entries(cidEntry.cargos).sort(
-                                  (a: any, b: any) => b[1].count - a[1].count,
-                                );
-                                const topCargos = cargosArr.slice(0, 5);
-                                const isExpanded = expandedCids.has(cidEntry.cid);
-
-                                return (
-                                  <React.Fragment key={cidEntry.cid}>
-                                    <tr className="text-sm border-b">
-                                      <td className="py-2 px-3">{cidEntry.cid}</td>
-                                      <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
-                                      <td className="py-2 px-3">
-                                        <div className="flex flex-wrap gap-2">
-                                          {topCargos.map(([cargo, stats]: any) => (
-                                            <div key={cargo} className="text-[11px] text-slate-800">
-                                              {cargo} <span className="text-xs text-slate-500">({stats.count})</span>
-                                            </div>
-                                          ))}
-                                          {cargosArr.length > 5 && (
-                                            <button
-                                              onClick={() => toggleCidExpansion(cidEntry.cid)}
-                                              className="text-[10px] text-[#1A3351] font-bold uppercase"
-                                            >
-                                              {isExpanded ? "▲" : `▼ + ${cargosArr.length - 5} VER MAIS`}
-                                            </button>
-                                          )}
-                                        </div>
-
-                                        {isExpanded && (
-                                          <div className="mt-2 grid grid-cols-1 gap-1">
-                                            {cargosArr.map(([cargo, stats]: any) => (
-                                              <div key={cargo} className="text-[11px] text-slate-700">
-                                                {cargo} <span className="text-xs text-slate-500">({stats.count} • {stats.days} dias)</span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </td>
-                                      <td className="py-2 px-3 text-right">{cidEntry.count}</td>
-                                      <td className="py-2 px-3 text-right">{cidEntry.days}</td>
-                                    </tr>
-                                  </React.Fragment>
-                                );
-                              })}
+                            {metrics.topCid.map((t) => {
+                              const key = normalizeCID(String(t.cid || ""));
+                              return (
+                                <tr key={t.cid} className="text-sm border-b">
+                                  <td className="py-2 px-3">{t.cid}</td>
+                                  <td className="py-2 px-3">
+                                    {cidDetailsMap[key]?.desc || "—"}
+                                  </td>
+                                  <td className="py-2 px-3">
+                                    {cidDetailsMap[key]?.chapter || "—"}
+                                  </td>
+                                  <td className="py-2 px-3">{t.count}</td>
+                                  <td className="py-2 px-3">{t.days}</td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="text-[11px] uppercase text-slate-400 border-b">
-                            <th className="py-2 px-3">CID</th>
-                            <th className="py-2 px-3">Descrição</th>
-                            <th className="py-2 px-3">Capítulo</th>
-                            <th className="py-2 px-3">Registros</th>
-                            <th className="py-2 px-3">Dias Perdidos</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {metrics.topCid.map((t) => {
-                            const key = normalizeCID(String(t.cid || ""));
-                            return (
-                              <tr key={t.cid} className="text-sm border-b">
-                                <td className="py-2 px-3">{t.cid}</td>
-                                <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
-                                <td className="py-2 px-3">{cidDetailsMap[key]?.chapter || "—"}</td>
-                                <td className="py-2 px-3">{t.count}</td>
-                                <td className="py-2 px-3">{t.days}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </>
-              )}
+                    )}
+                  </>
+                )}
             </div>
           </div>
         </div>
