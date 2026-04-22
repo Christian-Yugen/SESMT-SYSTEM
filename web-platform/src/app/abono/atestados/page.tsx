@@ -64,7 +64,7 @@ export default function AtestadosPage() {
   const TABS: { id: TabId; title: string }[] = [
     { id: "visao-geral", title: "Visão Geral" },
     { id: "cid-e-capitulos", title: "DISTR POR SECRETARIA" },
-    { id: "visao-ocupacional", title: "Visão Ocupacional" },
+    { id: "visao-ocupacional", title: "DISTR POR CARGO" },
     { id: "casos-recorrencia", title: "Casos e Recorrência" },
   ];
 
@@ -750,7 +750,7 @@ export default function AtestadosPage() {
                     {activeTab === "cid-e-capitulos"
                       ? "DISTR POR SECRETARIA"
                       : activeTab === "visao-ocupacional"
-                        ? "Visão Ocupacional"
+                        ? "DISTR POR CARGO"
                         : "Casos e Recorrência"}
                   </div>
                   <p className="text-sm text-slate-500">
