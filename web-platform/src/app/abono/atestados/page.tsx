@@ -2,111 +2,131 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-                  ) : activeTab === "visao-ocupacional" ? (
-                    <div className="space-y-4">
-                      <div className="mb-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="search"
-                            value={occuSearch}
-                            onChange={(e) => setOccuSearch(e.target.value)}
-                            placeholder="Buscar CID ou cargo..."
-                            className="h-9 px-3 border rounded-none text-sm"
-                          />
-                          <div className="text-sm text-slate-500">
-                            Total CIDs: {cidOccupational.length}
-                          </div>
-                        </div>
-                      </div>
+import Sidebar from "@/components/layout/Sidebar";
+import {
+  Menu,
+  FileText,
+  Users,
+  Clock3,
+  RefreshCcw,
+  Calendar,
+  X,
+  Info,
+} from "lucide-react";
+import ActionIconButton from "@/components/filters/ActionIconButton";
+import { supabase } from "@/lib/supabase";
+import { getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
+import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
+import StatisticCard from "@/components/statistics/StatisticCard";
+import StatisticCardRow from "@/components/statistics/StatisticCardRow";
 
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                          <thead>
-                            <tr className="text-[11px] uppercase text-slate-400 border-b">
-                              <th className="py-2 px-3">CID</th>
-                              <th className="py-2 px-3">Descrição</th>
-                              <th className="py-2 px-3">Cargos Principais</th>
-                              <th className="py-2 px-3 text-right">Registros</th>
-                              <th className="py-2 px-3 text-right">Dias</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {cidOccupational
-                              .filter((c: any) => {
-                                const s = (occuSearch || "").trim().toLowerCase();
-                                if (!s) return true;
-                                const key = normalizeCID(String(c.cid));
-                                const desc = (cidDetailsMap[key]?.desc || "").toLowerCase();
-                                const cargos = Object.keys(c.cargos).join(" ").toLowerCase();
-                                return (
-                                  String(c.cid).toLowerCase().includes(s) ||
-                                  desc.includes(s) ||
-                                  cargos.includes(s)
-                                );
-                              })
-                              .map((cidEntry: any) => {
-                                const key = normalizeCID(String(cidEntry.cid));
-                                const cargosArr = Object.entries(cidEntry.cargos).sort(
-                                  (a: any, b: any) => b[1].count - a[1].count,
-                                );
-                                const topCargos = cargosArr.slice(0, 5);
-                                const isExpanded = expandedCids.has(cidEntry.cid);
+export default function AtestadosPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const router = useRouter();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("Usuário");
+  const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 50;
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [showMethodology, setShowMethodology] = useState(false);
+  const [expandedCargos, setExpandedCargos] = useState<Set<string>>(new Set());
+  const [expandedCids, setExpandedCids] = useState<Set<string>>(new Set());
+  const [occuSearch, setOccuSearch] = useState<string>("");
 
-                                return (
-                                  <React.Fragment key={cidEntry.cid}>
-                                    <tr className="text-sm border-b">
-                                      <td className="py-2 px-3">{cidEntry.cid}</td>
-                                      <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
-                                      <td className="py-2 px-3">
-                                        <div className="flex flex-wrap gap-2">
-                                          {topCargos.map(([cargo, stats]: any) => (
-                                            <div key={cargo} className="text-[11px] text-slate-800">
-                                              {cargo} <span className="text-xs text-slate-500">({stats.count})</span>
-                                            </div>
-                                          ))}
-                                          {cargosArr.length > 5 && (
-                                            <button
-                                              onClick={() => toggleCidExpansion(cidEntry.cid)}
-                                              className="text-[10px] text-[#1A3351] font-bold uppercase"
-                                            >
-                                              {isExpanded ? "▲" : `▼ + ${cargosArr.length - 5} VER MAIS`}
-                                            </button>
-                                          )}
-                                        </div>
+  const toggleCargoExpansion = (id: string) => {
+    setExpandedCargos((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
-                                        {isExpanded && (
-                                          <div className="mt-2 grid grid-cols-1 gap-1">
-                                            {cargosArr.map(([cargo, stats]: any) => (
-                                              <div key={cargo} className="text-[11px] text-slate-700">
-                                                {cargo} <span className="text-xs text-slate-500">({stats.count} • {stats.days} dias)</span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </td>
-                                      <td className="py-2 px-3 text-right">{cidEntry.count}</td>
-                                      <td className="py-2 px-3 text-right">{cidEntry.days}</td>
-                                    </tr>
-                                  </React.Fragment>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-6 border border-dashed border-slate-200 rounded-md bg-white text-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="text-lg font-bold text-[#1A3351] uppercase">
-                          Casos e Recorrência — Painel de Gráficos (placeholder)
-                        </div>
-                        <p className="text-sm text-slate-600 max-w-2xl">
-                          Os gráficos analíticos serão implementados aqui. Serão incluídos: séries temporais de casos, distribuição por CID/cargo/unidade, métricas de recorrência e tendências. (Placeholder — em desenvolvimento)
-                        </p>
-                        <div className="text-sm text-slate-400">Se desejar, posso começar pelos gráficos de série temporal ou distribuição por cargo.</div>
-                      </div>
-                    </div>
-                  )}
+  const toggleCidExpansion = (cid: string) => {
+    setExpandedCids((prev) => {
+      const next = new Set(prev);
+      if (next.has(cid)) next.delete(cid);
+      else next.add(cid);
+      return next;
+    });
+  };
+  type TabId =
+    | "visao-geral"
+    | "cid-e-capitulos"
+    | "visao-ocupacional"
+    | "casos-recorrencia";
+
+  const TABS: { id: TabId; title: string }[] = [
+    { id: "visao-geral", title: "Visão Geral" },
+    { id: "cid-e-capitulos", title: "DISTR POR SECRETARIA" },
+    { id: "visao-ocupacional", title: "DISTR POR CARGO" },
+    { id: "casos-recorrencia", title: "Casos e Recorrência" },
+  ];
+
+  const [activeTab, setActiveTab] = useState<TabId>("visao-geral");
+
+  const fetchData = async (sd?: string, ed?: string) => {
+    setLoading(true);
+    try {
+      // Supabase/PostgREST pode limitar a 1000 rows por requisição.
+      // Fazemos fetch em lotes (batch) para obter todo o conjunto e
+      // manter os cálculos de métricas no cliente.
+      const BATCH = 1000;
+      let from = 0;
+      const all: any[] = [];
+      while (true) {
+        const sdVal = typeof sd === "string" ? sd : startDate;
+        const edVal = typeof ed === "string" ? ed : endDate;
+        let q: any = supabase.from("atestados_import").select("*");
+        if (sdVal) q = q.gte("periodo", sdVal);
+        if (edVal) q = q.lte("periodo", edVal);
+        q = q.order("nome", { ascending: true }).range(from, from + BATCH - 1);
+
+        const { data, error } = await q;
+        if (error) {
+          console.error("Erro ao buscar atestados (batch):", error);
+          all.length = 0;
+          break;
+        }
+        if (!data || data.length === 0) break;
+        all.push(...data);
+        if (data.length < BATCH) break;
+        from += BATCH;
+      }
+      setRows(all);
+    } catch (err) {
+      console.error(err);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const { session, error } = await safeGetSession();
+        if (error) {
+          await handleAuthError(error);
+          return;
+        }
+        if (session) {
+          const role = await syncProfile(session);
+          setUserRole(role);
+          const name =
+            session.user.user_metadata?.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Usuário";
+          setUserName(name);
+        } else {
+          router.push("/login");
+          return;
+        }
       } catch (err) {
         await handleAuthError(err);
         return;
@@ -226,8 +246,7 @@ import { useRouter } from "next/navigation";
     const map: Record<string, any> = {};
     filteredRows.forEach((r: any) => {
       const rawCid = (r.cid || "").toString().trim();
-      const cid =
-        rawCid && rawCid.length > 0 ? normalizeCID(rawCid) : "SEM CID";
+      const cid = rawCid && rawCid.length > 0 ? normalizeCID(rawCid) : "SEM CID";
       if (!map[cid]) map[cid] = { cid, count: 0, days: 0, cargos: {} };
       const entry = map[cid];
       entry.count += 1;
@@ -274,9 +293,7 @@ import { useRouter } from "next/navigation";
         if (cancelled) return;
         setCidDetailsMap((prev) => {
           const next = { ...prev };
-          results.forEach(
-            (r) => (next[r.nkey] = { desc: r.desc, chapter: r.chapter }),
-          );
+          results.forEach((r) => (next[r.nkey] = { desc: r.desc, chapter: r.chapter }));
           return next;
         });
       } catch (e) {
@@ -288,11 +305,7 @@ import { useRouter } from "next/navigation";
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    JSON.stringify(
-      cidOccupational.map((c: any) => normalizeCID(String(c.cid))).slice(0, 50),
-    ),
-  ]);
+  }, [JSON.stringify(cidOccupational.map((c: any) => normalizeCID(String(c.cid))).slice(0, 50))]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
@@ -1170,26 +1183,18 @@ import { useRouter } from "next/navigation";
                               <th className="py-2 px-3">CID</th>
                               <th className="py-2 px-3">Descrição</th>
                               <th className="py-2 px-3">Cargos Principais</th>
-                              <th className="py-2 px-3 text-right">
-                                Registros
-                              </th>
+                              <th className="py-2 px-3 text-right">Registros</th>
                               <th className="py-2 px-3 text-right">Dias</th>
                             </tr>
                           </thead>
                           <tbody>
                             {cidOccupational
                               .filter((c: any) => {
-                                const s = (occuSearch || "")
-                                  .trim()
-                                  .toLowerCase();
+                                const s = (occuSearch || "").trim().toLowerCase();
                                 if (!s) return true;
                                 const key = normalizeCID(String(c.cid));
-                                const desc = (
-                                  cidDetailsMap[key]?.desc || ""
-                                ).toLowerCase();
-                                const cargos = Object.keys(c.cargos)
-                                  .join(" ")
-                                  .toLowerCase();
+                                const desc = (cidDetailsMap[key]?.desc || "").toLowerCase();
+                                const cargos = Object.keys(c.cargos).join(" ").toLowerCase();
                                 return (
                                   String(c.cid).toLowerCase().includes(s) ||
                                   desc.includes(s) ||
@@ -1198,79 +1203,46 @@ import { useRouter } from "next/navigation";
                               })
                               .map((cidEntry: any) => {
                                 const key = normalizeCID(String(cidEntry.cid));
-                                const cargosArr = Object.entries(
-                                  cidEntry.cargos,
-                                ).sort(
+                                const cargosArr = Object.entries(cidEntry.cargos).sort(
                                   (a: any, b: any) => b[1].count - a[1].count,
                                 );
                                 const topCargos = cargosArr.slice(0, 5);
-                                const isExpanded = expandedCids.has(
-                                  cidEntry.cid,
-                                );
+                                const isExpanded = expandedCids.has(cidEntry.cid);
 
                                 return (
                                   <React.Fragment key={cidEntry.cid}>
                                     <tr className="text-sm border-b">
-                                      <td className="py-2 px-3">
-                                        {cidEntry.cid}
-                                      </td>
-                                      <td className="py-2 px-3">
-                                        {cidDetailsMap[key]?.desc || "—"}
-                                      </td>
+                                      <td className="py-2 px-3">{cidEntry.cid}</td>
+                                      <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
                                       <td className="py-2 px-3">
                                         <div className="flex flex-wrap gap-2">
-                                          {topCargos.map(
-                                            ([cargo, stats]: any) => (
-                                              <div
-                                                key={cargo}
-                                                className="text-[11px] text-slate-800"
-                                              >
-                                                {cargo}{" "}
-                                                <span className="text-xs text-slate-500">
-                                                  ({stats.count})
-                                                </span>
-                                              </div>
-                                            ),
-                                          )}
+                                          {topCargos.map(([cargo, stats]: any) => (
+                                            <div key={cargo} className="text-[11px] text-slate-800">
+                                              {cargo} <span className="text-xs text-slate-500">({stats.count})</span>
+                                            </div>
+                                          ))}
                                           {cargosArr.length > 5 && (
                                             <button
-                                              onClick={() =>
-                                                toggleCidExpansion(cidEntry.cid)
-                                              }
+                                              onClick={() => toggleCidExpansion(cidEntry.cid)}
                                               className="text-[10px] text-[#1A3351] font-bold uppercase"
                                             >
-                                              {isExpanded
-                                                ? "▲"
-                                                : `▼ + ${cargosArr.length - 5} VER MAIS`}
+                                              {isExpanded ? "▲" : `▼ + ${cargosArr.length - 5} VER MAIS`}
                                             </button>
                                           )}
                                         </div>
 
                                         {isExpanded && (
                                           <div className="mt-2 grid grid-cols-1 gap-1">
-                                            {cargosArr.map(
-                                              ([cargo, stats]: any) => (
-                                                <div
-                                                  key={cargo}
-                                                  className="text-[11px] text-slate-700"
-                                                >
-                                                  {cargo}{" "}
-                                                  <span className="text-xs text-slate-500">
-                                                    ({stats.count} •{" "}
-                                                    {stats.days} dias)
-                                                  </span>
-                                                </div>
-                                              ),
-                                            )}
+                                            {cargosArr.map(([cargo, stats]: any) => (
+                                              <div key={cargo} className="text-[11px] text-slate-700">
+                                                {cargo} <span className="text-xs text-slate-500">({stats.count} • {stats.days} dias)</span>
+                                              </div>
+                                            ))}
                                           </div>
                                         )}
                                       </td>
-                                      <td className="py-2 px-3 text-right">
-                                        {cidEntry.count}
-                                      </td>
-                                      <td className="py-2 px-3 text-right">
-                                        {cidEntry.days}
-                                      </td>
+                                      <td className="py-2 px-3 text-right">{cidEntry.count}</td>
+                                      <td className="py-2 px-3 text-right">{cidEntry.days}</td>
                                     </tr>
                                   </React.Fragment>
                                 );
@@ -1297,12 +1269,8 @@ import { useRouter } from "next/navigation";
                             return (
                               <tr key={t.cid} className="text-sm border-b">
                                 <td className="py-2 px-3">{t.cid}</td>
-                                <td className="py-2 px-3">
-                                  {cidDetailsMap[key]?.desc || "—"}
-                                </td>
-                                <td className="py-2 px-3">
-                                  {cidDetailsMap[key]?.chapter || "—"}
-                                </td>
+                                <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
+                                <td className="py-2 px-3">{cidDetailsMap[key]?.chapter || "—"}</td>
                                 <td className="py-2 px-3">{t.count}</td>
                                 <td className="py-2 px-3">{t.days}</td>
                               </tr>
