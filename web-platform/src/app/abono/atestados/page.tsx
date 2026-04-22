@@ -118,6 +118,28 @@ export default function AtestadosPage() {
         if (session) {
           const role = await syncProfile(session);
           setUserRole(role);
+
+          // Regras de acesso: apenas medicina, enfermagem, admin e gerente analítico
+          const allowed = new Set([
+            "doctor",
+            "medicina",
+            "medico",
+            "nurse",
+            "enfermagem",
+            "enfermeiro",
+            "admin",
+            "analytic_manager",
+            "gerente_analitico",
+            "gerente analitico",
+            "gerente-analitico",
+          ]);
+
+          if (!allowed.has(role)) {
+            // Redireciona usuários não autorizados para a tela principal de Abono
+            router.push("/abono");
+            return;
+          }
+
           const name =
             session.user.user_metadata?.full_name ||
             session.user.email?.split("@")[0] ||
