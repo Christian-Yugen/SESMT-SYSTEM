@@ -35,12 +35,23 @@ export default function AtestadosPage() {
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [expandedCargos, setExpandedCargos] = useState<Set<string>>(new Set());
+  const [expandedCids, setExpandedCids] = useState<Set<string>>(new Set());
+  const [occuSearch, setOccuSearch] = useState<string>("");
 
   const toggleCargoExpansion = (id: string) => {
     setExpandedCargos((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleCidExpansion = (cid: string) => {
+    setExpandedCids((prev) => {
+      const next = new Set(prev);
+      if (next.has(cid)) next.delete(cid);
+      else next.add(cid);
       return next;
     });
   };
@@ -230,6 +241,71 @@ export default function AtestadosPage() {
     const start = (page - 1) * PAGE_SIZE;
     return filteredRows.slice(start, start + PAGE_SIZE);
   }, [filteredRows, page]);
+
+  const cidOccupational = useMemo(() => {
+    const map: Record<string, any> = {};
+    filteredRows.forEach((r: any) => {
+      const rawCid = (r.cid || "").toString().trim();
+      const cid = rawCid && rawCid.length > 0 ? normalizeCID(rawCid) : "SEM CID";
+      if (!map[cid]) map[cid] = { cid, count: 0, days: 0, cargos: {} };
+      const entry = map[cid];
+      entry.count += 1;
+      entry.days += Number(r.qtde_dias) || 0;
+      const cargo = (r.nome_cargo || "---").toString().trim();
+      if (!entry.cargos[cargo]) entry.cargos[cargo] = { count: 0, days: 0 };
+      entry.cargos[cargo].count += 1;
+      entry.cargos[cargo].days += Number(r.qtde_dias) || 0;
+    });
+
+    return Object.values(map).sort((a: any, b: any) => b.count - a.count);
+  }, [filteredRows]);
+
+  // Pre-fetch CID descriptions for the most frequent CIDs shown in Visão Ocupacional
+  useEffect(() => {
+    const originalCodes = cidOccupational
+      .map((t) => String(t.cid))
+      .filter((c) => c && c !== "SEM CID")
+      .slice(0, 50);
+    const normalizedKeys = Array.from(
+      new Set(originalCodes.map((c) => normalizeCID(c))),
+    );
+    const toFetch = normalizedKeys.filter((k) => !cidDetailsMap[k]);
+    if (toFetch.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const results = await Promise.all(
+          toFetch.map(async (nkey) => {
+            try {
+              const details = await getCIDDetailsFromDB(nkey);
+              return {
+                nkey,
+                desc: details.desc || "—",
+                chapter: details.chapter || details.chapter_desc || "—",
+              };
+            } catch (e) {
+              return { nkey, desc: "—", chapter: "—" };
+            }
+          }),
+        );
+
+        if (cancelled) return;
+        setCidDetailsMap((prev) => {
+          const next = { ...prev };
+          results.forEach((r) => (next[r.nkey] = { desc: r.desc, chapter: r.chapter }));
+          return next;
+        });
+      } catch (e) {
+        /* ignore */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(cidOccupational.map((c: any) => normalizeCID(String(c.cid))).slice(0, 50))]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
@@ -1083,6 +1159,98 @@ export default function AtestadosPage() {
                         </div>
                       </div>
                     </div>
+                  ) : activeTab === "visao-ocupacional" ? (
+                    <div className="space-y-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="search"
+                            value={occuSearch}
+                            onChange={(e) => setOccuSearch(e.target.value)}
+                            placeholder="Buscar CID ou cargo..."
+                            className="h-9 px-3 border rounded-none text-sm"
+                          />
+                          <div className="text-sm text-slate-500">
+                            Total CIDs: {cidOccupational.length}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="text-[11px] uppercase text-slate-400 border-b">
+                              <th className="py-2 px-3">CID</th>
+                              <th className="py-2 px-3">Descrição</th>
+                              <th className="py-2 px-3">Cargos Principais</th>
+                              <th className="py-2 px-3 text-right">Registros</th>
+                              <th className="py-2 px-3 text-right">Dias</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cidOccupational
+                              .filter((c: any) => {
+                                const s = (occuSearch || "").trim().toLowerCase();
+                                if (!s) return true;
+                                const key = normalizeCID(String(c.cid));
+                                const desc = (cidDetailsMap[key]?.desc || "").toLowerCase();
+                                const cargos = Object.keys(c.cargos).join(" ").toLowerCase();
+                                return (
+                                  String(c.cid).toLowerCase().includes(s) ||
+                                  desc.includes(s) ||
+                                  cargos.includes(s)
+                                );
+                              })
+                              .map((cidEntry: any) => {
+                                const key = normalizeCID(String(cidEntry.cid));
+                                const cargosArr = Object.entries(cidEntry.cargos).sort(
+                                  (a: any, b: any) => b[1].count - a[1].count,
+                                );
+                                const topCargos = cargosArr.slice(0, 5);
+                                const isExpanded = expandedCids.has(cidEntry.cid);
+
+                                return (
+                                  <React.Fragment key={cidEntry.cid}>
+                                    <tr className="text-sm border-b">
+                                      <td className="py-2 px-3">{cidEntry.cid}</td>
+                                      <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
+                                      <td className="py-2 px-3">
+                                        <div className="flex flex-wrap gap-2">
+                                          {topCargos.map(([cargo, stats]: any) => (
+                                            <div key={cargo} className="text-[11px] text-slate-800">
+                                              {cargo} <span className="text-xs text-slate-500">({stats.count})</span>
+                                            </div>
+                                          ))}
+                                          {cargosArr.length > 5 && (
+                                            <button
+                                              onClick={() => toggleCidExpansion(cidEntry.cid)}
+                                              className="text-[10px] text-[#1A3351] font-bold uppercase"
+                                            >
+                                              {isExpanded ? "▲" : `▼ + ${cargosArr.length - 5} VER MAIS`}
+                                            </button>
+                                          )}
+                                        </div>
+
+                                        {isExpanded && (
+                                          <div className="mt-2 grid grid-cols-1 gap-1">
+                                            {cargosArr.map(([cargo, stats]: any) => (
+                                              <div key={cargo} className="text-[11px] text-slate-700">
+                                                {cargo} <span className="text-xs text-slate-500">({stats.count} • {stats.days} dias)</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </td>
+                                      <td className="py-2 px-3 text-right">{cidEntry.count}</td>
+                                      <td className="py-2 px-3 text-right">{cidEntry.days}</td>
+                                    </tr>
+                                  </React.Fragment>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
@@ -1101,12 +1269,8 @@ export default function AtestadosPage() {
                             return (
                               <tr key={t.cid} className="text-sm border-b">
                                 <td className="py-2 px-3">{t.cid}</td>
-                                <td className="py-2 px-3">
-                                  {cidDetailsMap[key]?.desc || "—"}
-                                </td>
-                                <td className="py-2 px-3">
-                                  {cidDetailsMap[key]?.chapter || "—"}
-                                </td>
+                                <td className="py-2 px-3">{cidDetailsMap[key]?.desc || "—"}</td>
+                                <td className="py-2 px-3">{cidDetailsMap[key]?.chapter || "—"}</td>
                                 <td className="py-2 px-3">{t.count}</td>
                                 <td className="py-2 px-3">{t.days}</td>
                               </tr>
