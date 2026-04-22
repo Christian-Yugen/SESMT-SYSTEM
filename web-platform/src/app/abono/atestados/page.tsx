@@ -10,10 +10,12 @@ import {
   Clock3,
   RefreshCcw,
   Calendar,
+  Printer,
   X,
   Info,
 } from "lucide-react";
 import ActionIconButton from "@/components/filters/ActionIconButton";
+
 import { supabase } from "@/lib/supabase";
 import { getCIDDetailsFromDB, normalizeCID } from "@/lib/cid-utils";
 import { safeGetSession, handleAuthError, syncProfile } from "@/lib/auth-utils";
@@ -33,6 +35,7 @@ export default function AtestadosPage() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [isPrintPopoverOpen, setIsPrintPopoverOpen] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [expandedCargos, setExpandedCargos] = useState<Set<string>>(new Set());
   const [expandedCids, setExpandedCids] = useState<Set<string>>(new Set());
@@ -336,6 +339,226 @@ export default function AtestadosPage() {
     ),
   ]);
 
+  const openPrintWindow = async (layout: "portrait" | "landscape") => {
+    const node = document.getElementById("print-area");
+    if (!node) {
+      try {
+        window.print();
+      } catch (e) {}
+      return;
+    }
+
+    const win = window.open("", "_blank");
+    if (!win) {
+      try {
+        window.print();
+      } catch (e) {}
+      return;
+    }
+
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    } catch (e) {}
+
+    const styles = Array.from(
+      document.querySelectorAll("link[rel=stylesheet], style"),
+    )
+      .map((el) => el.outerHTML)
+      .join("\n");
+
+    const today = new Date().toLocaleDateString("pt-BR");
+    const logoUrl = window.location.origin + "/images/logo.png";
+    const operatorName = (typeof userName === "string" && userName) || "";
+
+    const headerCss = `
+      .official-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #E31E24; padding-bottom: 8px; margin-bottom: 10px; }
+      .logo-area img { height: 42px; width: auto; }
+      .report-title-area { text-align: center; flex: 1; }
+      .report-title-area h1 { margin: 0; font-size: 14px; color: #1A3351; text-transform: uppercase; font-weight: 900; }
+      .report-info { font-size: 9px; color: #666; font-weight: 400; margin-top: 4px; }
+      @media print { .official-header, .official-header * { visibility: visible !important; } #print-area, #print-area * { visibility: visible !important; } .report-footer { page-break-inside: avoid !important; margin-top: 12px !important; display:block !important; } }
+      `;
+
+    const headerHtml = `
+      <div class="official-header">
+        <div class="logo-area"><img src="${logoUrl}" alt="Logo" /></div>
+        <div class="report-title-area">
+          <h1>Relatório Atestados - SESMT</h1>
+          <div class="report-info">(Painel de Atestados — dados agregados)</div>
+        </div>
+        <div style="text-align:right;font-size:9px;color:#666;min-width:120px;">
+          <div>Operador: ${operatorName}</div>
+          <div>Data: ${today}</div>
+        </div>
+      </div>
+    `;
+
+    const footerHtml = `
+      <div class="report-footer" style="margin-top:16px;border-top:2px solid #E5E7EB;padding-top:12px;text-align:center;max-width:90%;margin-left:auto;margin-right:auto;">
+        <p style="font-size:11px;font-weight:800;color:#111;text-transform:uppercase;margin:0 0 6px;">🛡️ IMPORTANTE: Privacidade e Proteção de Dados (LGPD)</p>
+        <p style="font-size:10px;color:#666;margin:0 0 8px;line-height:1.25;">Este relatório gerencial contém dados agregados para fins de Business Intelligence. O uso destas informações é restrito à gestão estratégica do SESMT.</p>
+        <div style="padding-top:8px;border-top:1px solid #E6E6E6;">
+          <p style="font-size:9px;color:#9CA3AF;letter-spacing:0.2em;font-weight:700;margin:6px 0 0;">Gerado via SESMT SYSTEM - Powered by UXBRAS®</p>
+        </div>
+      </div>
+    `;
+
+    let printContentHtml = node.outerHTML;
+    try {
+      const cloned = node.cloneNode(true) as HTMLElement;
+
+      try {
+        const liveSvgs = Array.from(node.querySelectorAll("svg"));
+        const clonedSvgs = Array.from(cloned.querySelectorAll("svg"));
+        const svgCount = Math.min(liveSvgs.length, clonedSvgs.length);
+        for (let i = 0; i < svgCount; i++) {
+          try {
+            clonedSvgs[i].outerHTML = (liveSvgs[i] as Element).outerHTML;
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        const liveCanvases = Array.from(
+          node.querySelectorAll("canvas"),
+        ) as HTMLCanvasElement[];
+        const clonedCanvases = Array.from(cloned.querySelectorAll("canvas"));
+        const canvasCount = Math.min(
+          liveCanvases.length,
+          clonedCanvases.length,
+        );
+        for (let i = 0; i < canvasCount; i++) {
+          try {
+            const data = liveCanvases[i].toDataURL();
+            clonedCanvases[i].outerHTML =
+              `<img src="${data}" style="max-width:100%;height:auto;" alt="canvas"/>`;
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      try {
+        const rows = Array.from(
+          cloned.querySelectorAll(".StatisticCardRow"),
+        ) as HTMLElement[];
+        rows.forEach((r) => {
+          try {
+            r.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
+            r.style.gap = "8px";
+            r.style.width = "100%";
+          } catch (e) {}
+        });
+      } catch (e) {}
+
+      try {
+        const candidateGrids = Array.from(
+          cloned.querySelectorAll(
+            '[class*="md:grid-cols-5"], [class*="lg:grid-cols-5"], [class*="grid-cols-5"]',
+          ),
+        ) as HTMLElement[];
+
+        candidateGrids.forEach((g) => {
+          try {
+            if (g.classList.contains("StatisticCardRow")) return;
+            if (g.querySelector("table") || (g.matches && g.matches("table")))
+              return;
+            const children = Array.from(g.children).filter(
+              (c) => (c as HTMLElement).innerHTML.trim().length > 0,
+            );
+            if (children.length < 2) return;
+
+            const newRow = cloned.ownerDocument!.createElement("div");
+            newRow.className = "StatisticCardRow";
+            newRow.style.display = "grid";
+            newRow.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
+            newRow.style.gap = "8px";
+
+            children.forEach((ch) => {
+              try {
+                const card = cloned.ownerDocument!.createElement("div");
+                card.className = "StatisticCard";
+                card.innerHTML = (ch as HTMLElement).innerHTML;
+                newRow.appendChild(card);
+              } catch (e) {}
+            });
+
+            g.parentElement?.replaceChild(newRow, g);
+          } catch (e) {}
+        });
+      } catch (e) {}
+
+      try {
+        const cards = Array.from(
+          cloned.querySelectorAll(".StatisticCard"),
+        ) as HTMLElement[];
+        cards.forEach((card) => {
+          try {
+            card.style.padding = "6px 8px";
+            const title = card.querySelector("p");
+            if (title) (title as HTMLElement).style.fontSize = "10px";
+            const value = card.querySelector("h3");
+            if (value) (value as HTMLElement).style.fontSize = "16px";
+          } catch (e) {}
+        });
+      } catch (e) {}
+
+      printContentHtml = cloned.outerHTML;
+    } catch (e) {
+      printContentHtml = node.outerHTML;
+    }
+
+    const printOverrideCss = `
+      html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+      #print-area { display:block !important; width: calc(100% - 2cm) !important; max-width: none !important; margin: 0 auto !important; padding: 0 !important; box-sizing: border-box !important; }
+      .StatisticCardRow { display: grid !important; grid-template-columns: repeat(5, minmax(0,1fr)) !important; gap: 8px !important; align-items: stretch !important; }
+      .StatisticCard { padding: 6px 8px !important; min-width: 0 !important; width: auto !important; box-sizing: border-box !important; }
+      .StatisticCard > .min-w-0 { overflow: visible !important; }
+      .StatisticCard p { font-size: 10px !important; white-space: normal !important; }
+      .StatisticCard h3 { font-size: 16px !important; }
+      .StatisticCard, .StatisticCard * { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .StatisticCardRow > * { flex: none !important; }
+      #print-area img, #print-area svg { max-width: 100% !important; height: auto !important; }
+      #print-area .StatisticCard .shrink-0, #print-area .StatisticCard svg { display: block !important; opacity: 1 !important; }
+      #print-area [class*="md:grid-cols-5"] { gap: 6px !important; }
+      #print-area [class*="md:grid-cols-5"] > * { padding: 6px 8px !important; }
+    `;
+
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          ${styles}
+          <style>${headerCss}</style>
+          <style>${printOverrideCss}</style>
+        </head>
+        <body>
+          <div id="print-root">
+            ${headerHtml}
+            <div id="print-area-root">${printContentHtml}</div>
+            ${footerHtml}
+          </div>
+        </body>
+      </html>
+    `;
+
+    try {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => {
+        try {
+          win.print();
+        } catch (e) {}
+      }, 300);
+    } catch (e) {
+      try {
+        win.print();
+      } catch (e) {}
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#F3F4F6] text-black font-sans overflow-x-hidden">
       <Sidebar
@@ -569,6 +792,35 @@ export default function AtestadosPage() {
                     </div>
                   </div>
                 </ActionIconButton>
+                <ActionIconButton
+                  icon={<Printer className="w-3.5 h-3.5" />}
+                  label="Impressão / Relatório"
+                  variant="filter"
+                  open={isPrintPopoverOpen}
+                  onToggle={setIsPrintPopoverOpen}
+                  showMenuIndicator={true}
+                >
+                  <div className="bg-white border border-slate-200 shadow-sm p-2 w-44 space-y-1">
+                    <button
+                      onClick={() => {
+                        setIsPrintPopoverOpen(false);
+                        openPrintWindow("portrait");
+                      }}
+                      className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                    >
+                      Relatório — Retrato
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsPrintPopoverOpen(false);
+                        openPrintWindow("landscape");
+                      }}
+                      className="w-full text-left px-3 py-2 text-[11px] hover:bg-slate-50"
+                    >
+                      Relatório — Paisagem
+                    </button>
+                  </div>
+                </ActionIconButton>
               </div>
 
               <button
@@ -581,7 +833,7 @@ export default function AtestadosPage() {
           </div>
         </section>
 
-        <div className="p-6">
+        <div id="print-area" className="p-6">
           <div className="bg-white border-2 border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-[#B0B0B0] px-4 sm:px-6 py-2.5 border-b-2 border-slate-400 flex items-center justify-between gap-3 flex-wrap min-w-0">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A3351]">
