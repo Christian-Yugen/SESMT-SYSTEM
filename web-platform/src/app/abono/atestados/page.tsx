@@ -744,7 +744,7 @@ export default function AtestadosPage() {
                 </>
               )}
 
-              {activeTab !== "visao-geral" && (
+              {activeTab !== "visao-geral" && activeTab !== "casos-recorrencia" && (
                 <>
                   <div className="text-sm font-bold text-slate-700 uppercase">
                     {activeTab === "cid-e-capitulos"
