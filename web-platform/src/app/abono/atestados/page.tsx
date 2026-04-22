@@ -65,7 +65,7 @@ export default function AtestadosPage() {
     { id: "visao-geral", title: "Visão Geral" },
     { id: "cid-e-capitulos", title: "DISTR POR SECRETARIA" },
     { id: "visao-ocupacional", title: "DISTR POR CARGO" },
-    { id: "casos-recorrencia", title: "Casos e Recorrência" },
+    { id: "casos-recorrencia", title: "GRAFICOS" },
   ];
 
   const [activeTab, setActiveTab] = useState<TabId>("visao-geral");
@@ -754,7 +754,7 @@ export default function AtestadosPage() {
               {activeTab === "casos-recorrencia" && (
                 <div className="p-8 bg-white border rounded-md text-center">
                   <h2 className="text-lg font-bold text-[#1A3351] uppercase">
-                    Casos e Recorrência — Em construção
+                    GRAFICOS — Em construção
                   </h2>
                   <p className="text-sm text-slate-500 mt-2 max-w-2xl mx-auto">
                     Esta página está em construção. Os gráficos e painéis
@@ -771,7 +771,7 @@ export default function AtestadosPage() {
                         ? "DISTR POR SECRETARIA"
                         : activeTab === "visao-ocupacional"
                           ? "DISTR POR CARGO"
-                          : "Casos e Recorrência"}
+                          : "GRAFICOS"}
                     </div>
                     <p className="text-sm text-slate-500">
                       Visão alternativa (mesmos dados de Atestados). Nesta aba
