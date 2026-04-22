@@ -159,7 +159,7 @@ export default function CidRecurrenceInvestigativeTable({
               </tr>
             </thead>
             <tbody>
-              {sorted.map((event) => {
+              {sorted.map((event, idx) => {
                 const name = nameMap.get(event.event.afastamentoId) || "";
                 const maskedCpf = maskCpf(event.event.servidorCpf);
                 const isRecurrent = event.recurrence.isRecurrentPrimary;
@@ -180,7 +180,7 @@ export default function CidRecurrenceInvestigativeTable({
 
                 return (
                   <tr
-                    key={event.event.eventKey}
+                    key={`${event.event.eventKey}-${idx}`}
                     className={`border-b border-slate-100 align-top ${isRecurrent ? "bg-orange-50" : "hover:bg-slate-50"}`}
                   >
                     <td className="px-3 py-2.5">
