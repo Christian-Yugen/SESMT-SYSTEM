@@ -79,12 +79,18 @@ function normalizeRecord(orig: any): PendingSyncRecord | null {
         return { name };
       }
     })
-    .filter((x) => x !== null) as Array<{ name: string; date?: string }>;
+    .filter(
+      (x: { name: string; date?: string } | null): x is { name: string; date?: string } =>
+        x !== null,
+    ) as Array<{
+    name: string;
+    date?: string;
+  }>;
 
   const normalized: PendingSyncRecord & { [key: string]: any } = {
     servidor_cpf,
     servidor_nome,
-    servidor_nascimento,
+    servidor_nascimento: servidor_nascimento ?? undefined,
     aso_type,
     contrato: orig.contrato ?? null,
     cargo: orig.cargo ?? null,
