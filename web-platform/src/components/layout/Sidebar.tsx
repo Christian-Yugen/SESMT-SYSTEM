@@ -31,6 +31,11 @@ import {
 import { supabase } from "@/lib/supabase";
 import { ensureISO } from "@/lib/utils";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
+import { maskCpf } from "@/lib/record-utils";
+import {
+  loadPendingAsoHistory,
+  savePendingAsoHistory,
+} from "@/lib/pending-aso-storage";
 import SyncModal from "@/components/SyncModal";
 import GreetingsManagerModal from "@/components/GreetingsManagerModal";
 import WelcomeModal from "@/components/WelcomeModal";
@@ -190,13 +195,8 @@ export default function Sidebar({
 
     // Sync Data Logic (Centralized)
     const loadPendingData = () => {
-      const pendingStr = localStorage.getItem("pending_aso_history");
-      if (pendingStr) {
-        const records = JSON.parse(pendingStr);
-        if (Array.isArray(records)) setPendingSyncs(records);
-      } else {
-        setPendingSyncs([]);
-      }
+      const records = loadPendingAsoHistory();
+      setPendingSyncs(records);
     };
 
     const getUserId = async () => {
@@ -215,32 +215,106 @@ export default function Sidebar({
     return () => clearInterval(interval);
   }, [pathname]);
 
+  // Helpers para normalização/tipo seguro
+  const asString = (v: unknown): string | null => {
+    if (v === undefined || v === null) return null;
+    const s = String(v).trim();
+    return s === "" ? null : s;
+  };
+
+  const toIsoFromMixed = (v: unknown): string | null => {
+    if (v === undefined || v === null) return null;
+    const iso = ensureISO(v);
+    if (!iso) return null;
+    try {
+      return new Date(`${iso}T00:00:00.000Z`).toISOString();
+    } catch {
+      return null;
+    }
+  };
+
   const handleForceSync = async () => {
     if (pendingSyncs.length === 0 || isSyncing) return;
     setIsSyncing(true);
-
     const remaining = [...pendingSyncs];
-    const failedToSync = [];
+    const failedToSync: PendingSyncRecord[] = [];
+
+    // Tenta obter token uma vez antes do loop
+    let sessionToken: string | null = null;
+    try {
+      const { session, error } = await safeGetSession();
+      if (error) {
+        await handleAuthError(error);
+      }
+      sessionToken = session?.access_token ?? null;
+    } catch (e) {
+      // falha ao obter sessão — prosseguir sem token (request pode falhar e será re-queued)
+      console.warn(
+        "Não foi possível recuperar sessão para reenvio (seguir sem token).",
+        e,
+      );
+      sessionToken = null;
+    }
 
     for (const record of remaining) {
       try {
-        // Higienizar antes de reenviar
-        const sanitizedRecord = {
-          ...record,
-          servidor_nascimento: ensureISO(record.servidor_nascimento),
+        // Higienizar antes de reenviar (normalizar datas dos exames)
+        const normalizedExams: { name: string; date?: string }[] = Array.isArray(
+          record.exams_json,
+        )
+          ? (record.exams_json as unknown[])
+              .map((e) => {
+                if (typeof e === "string") return { name: e };
+                if (!e || typeof e !== "object") return null;
+                const obj = e as Record<string, unknown>;
+                const name = asString(obj.name ?? obj.Nome ?? obj.nome);
+                if (!name) return null;
+                const rawDate = obj.date ?? obj.data ?? undefined;
+                const isoDate = toIsoFromMixed(rawDate);
+                if (isoDate) return { name, date: isoDate };
+                return { name };
+              })
+              .filter((x): x is { name: string; date?: string } => x !== null)
+          : [];
+
+        // Higienizar o registro principal (tipos seguros)
+        const sanitizedRecord: Record<string, unknown> = {
+          ...(record as Record<string, unknown>),
+          servidor_nascimento: toIsoFromMixed(record.servidor_nascimento),
+          exams_json: normalizedExams,
         };
 
-        const { error } = await supabase
-          .from("aso_history")
-          .insert(sanitizedRecord);
-        if (error) throw error;
-      } catch (err) {
-        console.error("Erro ao sincronizar:", err);
+        // Não logar payload completo — apenas CPF mascarado como diagnóstico (coerção segura)
+        console.log("Reenviando pendência — CPF:", maskCpf(asString(sanitizedRecord.servidor_cpf)));
+
+        const resp = await fetch("/api/aso-history", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(sessionToken
+              ? { Authorization: `Bearer ${sessionToken}` }
+              : {}),
+          },
+          body: JSON.stringify(sanitizedRecord),
+        });
+
+        if (!resp || resp.status !== 201) {
+          // Log reduzido e mantenha o registro na fila
+          console.error("Reenvio falhou (resumido).", { status: resp?.status });
+          throw new Error("SYNC_FAILED");
+        }
+        // sucesso — item não é adicionado ao failedToSync
+      } catch (err: unknown) {
+        const reason = err instanceof Error ? err.message : String(err);
+        console.error("Erro ao sincronizar (resumido):", {
+          reason,
+          cpf: maskCpf(asString((record as Record<string, unknown>)?.servidor_cpf)),
+        });
         failedToSync.push(record);
       }
     }
 
-    localStorage.setItem("pending_aso_history", JSON.stringify(failedToSync));
+    savePendingAsoHistory(failedToSync);
     setPendingSyncs(failedToSync);
     setIsSyncing(false);
 
@@ -258,7 +332,13 @@ export default function Sidebar({
 
   // Auto-scroll when submenus open
   useEffect(() => {
-    if (isAfastamentosOpen || isAbonoOpen || isAtestadosOpen || isHistoryOpen || isAdminOpen) {
+    if (
+      isAfastamentosOpen ||
+      isAbonoOpen ||
+      isAtestadosOpen ||
+      isHistoryOpen ||
+      isAdminOpen
+    ) {
       setTimeout(() => {
         const activeElement = document.querySelector(".is-active-folder");
         if (activeElement) {
@@ -266,7 +346,13 @@ export default function Sidebar({
         }
       }, 150);
     }
-  }, [isAfastamentosOpen, isAbonoOpen, isAtestadosOpen, isHistoryOpen, isAdminOpen]);
+  }, [
+    isAfastamentosOpen,
+    isAbonoOpen,
+    isAtestadosOpen,
+    isHistoryOpen,
+    isAdminOpen,
+  ]);
 
   return (
     <>
@@ -286,8 +372,6 @@ export default function Sidebar({
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-
-      
 
       {/* SIDEBAR - AZUL ESCURO (MARINHO #1A3351) */}
       <aside
@@ -469,7 +553,9 @@ export default function Sidebar({
                               {isAtestadosOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
                                   <button
-                                    onClick={() => router.push("/abono/atestados")}
+                                    onClick={() =>
+                                      router.push("/abono/atestados")
+                                    }
                                     className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
                                   >
                                     <LayoutDashboard className="w-3 h-3 shrink-0" />
