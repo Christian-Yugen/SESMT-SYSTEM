@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { Servidor, Funcao, ExameData } from "@/types";
 import { generateASOPDF, generateReferralPDF } from "@/lib/pdf-generator";
 import { syncProfile, handleAuthError, safeGetSession } from "@/lib/auth-utils";
+import { maskCpf } from "@/lib/record-utils";
+import { appendPendingAsoHistory } from "@/lib/pending-aso-storage";
 import { ensureISO, formatBirthInfo } from "@/lib/utils";
 import Sidebar from "@/components/layout/Sidebar";
 import CompactFilterBar from "@/components/filters/CompactFilterBar";
@@ -379,13 +381,28 @@ export default function Home() {
 
         // Encaminhamento nunca deve persistir exame clinico/clinico ocupacional
         const isReferral = endpoint.includes("referral");
+        const rawDates = dates || examDates;
         const examsJson = currentExams.exames
-          .map((exam, idx) => ({
-            name: exam,
-            date:
-              (dates || examDates)[idx] ||
-              new Date().toLocaleDateString("pt-BR"),
-          }))
+          .map((exam, idx) => {
+            const rawDate = rawDates?.[idx] ?? null;
+            if (!rawDate) {
+              // sem data explícita: usar data atual em ISO
+              return { name: exam, date: new Date().toISOString() };
+            }
+            const iso = ensureISO(rawDate);
+            if (!iso) {
+              // data inválida: omitir o campo date para não quebrar validação
+              return { name: exam };
+            }
+            try {
+              return {
+                name: exam,
+                date: new Date(`${iso}T00:00:00.000Z`).toISOString(),
+              };
+            } catch {
+              return { name: exam };
+            }
+          })
           .filter(
             (exam) => !isReferral || !isClinicalOccupationalExam(exam.name),
           );
@@ -410,31 +427,45 @@ export default function Home() {
           exams_json: examsJson,
         };
 
-        console.log("Tentando gravar histórico com payload:", payload);
-        const { error: histError } = await supabase
-          .from("aso_history")
-          .insert(payload);
+        // Não logar payload completo — somente CPF mascarado para diagnóstico
+        console.log(
+          "Tentando gravar histórico — CPF:",
+          maskCpf(payload.servidor_cpf),
+        );
 
-        if (histError) throw histError;
+        // Envia para a rota server-side segura
+        const _token = session?.access_token;
+        const resp = await fetch("/api/aso-history", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(typeof _token === "string" && _token
+              ? { Authorization: `Bearer ${_token}` }
+              : {}),
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp || resp.status !== 201) {
+          throw new Error(`API_ERROR:${resp?.status ?? "NO_RESPONSE"}`);
+        }
 
         // Se chegou aqui, salvou com sucesso no banco de dados
         resetForm();
         setShowDateModal(false);
         alert("Documento gerado e salvo no histórico com sucesso!");
       } catch (histError: unknown) {
-        console.error(
-          "Erro detalhado ao gravar histórico:",
-          JSON.stringify(histError, null, 2),
-        );
-        console.error("Erro ao gravar histórico (obj):", histError);
+        // Log reduzido sem expor detalhes sensíveis
+        console.error("Erro ao gravar histórico (resumido).", {
+          reason:
+            histError instanceof Error ? histError.message : String(histError),
+          cpf: maskCpf(selectedServidor?.CPF || selectedServidor?.["CPF."]),
+        });
         const histErrorMessage =
-          histError instanceof Error ? histError.message : "Falha de conexão";
+          "Falha ao salvar registro no servidor. Uma cópia foi guardada localmente.";
 
         // BACKUP AUTOMÁTICO EM CASO DE FALHA
         try {
-          const pending = JSON.parse(
-            localStorage.getItem("pending_aso_history") || "[]",
-          );
           const functionName =
             selectedFuncao?.Nome ||
             selectedFuncao?.FUNÇÃO ||
@@ -443,6 +474,7 @@ export default function Home() {
           const today = new Date().toLocaleDateString("pt-BR");
 
           const isReferral = endpoint.includes("referral");
+          const rawDates = dates || examDates;
           const backupPayload = {
             servidor_cpf: selectedServidor.CPF || selectedServidor["CPF."],
             servidor_nome: selectedServidor.Nome,
@@ -455,23 +487,31 @@ export default function Home() {
             cargo: selectedServidor.Cargo,
             secretaria: selectedServidor.Secretaria,
             ghe_conj: selectedFuncao?.["GHE CONJ"] || "-",
-            operator_name: operatorName,
-            generated_by: session?.user?.id,
             function_name: functionName,
             risks: risksText,
             exams_json: currentExams.exames
-              .map((exam, idx) => ({
-                name: exam,
-                date: (dates || examDates)[idx] || today,
-              }))
+              .map((exam, idx) => {
+                const rawDate = rawDates?.[idx] ?? null;
+                if (!rawDate) return { name: exam };
+                const iso = ensureISO(rawDate);
+                if (!iso) return { name: exam };
+                try {
+                  return {
+                    name: exam,
+                    date: new Date(`${iso}T00:00:00.000Z`).toISOString(),
+                  };
+                } catch {
+                  return { name: exam };
+                }
+              })
               .filter(
                 (exam) => !isReferral || !isClinicalOccupationalExam(exam.name),
               ),
             generated_at: new Date().toISOString(),
           };
 
-          pending.push(backupPayload);
-          localStorage.setItem("pending_aso_history", JSON.stringify(pending));
+          // Persistir somente o mínimo necessário; helper tratará TTL/limpeza
+          appendPendingAsoHistory(backupPayload);
         } catch (e) {
           console.error("Erro ao criar backup local:", e);
         }
