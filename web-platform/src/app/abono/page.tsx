@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import {
@@ -479,6 +479,54 @@ export default function AbonoPage() {
     return result;
   }, [filteredRecords, statusFilter, sortBy, renewalTargetIds]);
 
+  // Contagem exata no servidor para o número de benefícios filtrados (quando possível)
+  const [serverTotalBenefits, setServerTotalBenefits] = useState<number | null>(
+    null,
+  );
+
+  const countFinalRecords = useCallback(async () => {
+    try {
+      let query = supabase
+        .from("abono_salarial")
+        .select("*", { head: true, count: "exact" });
+
+      if (debouncedSearchTerm && debouncedSearchTerm.trim().length > 0) {
+        const t = debouncedSearchTerm.replace(/'/g, "''");
+        query = query.or(`nome.ilike.%${t}%,cpf.ilike.%${t}%`);
+      }
+
+      if (startDate) query = query.gte("inicio", startDate);
+      if (endDate) query = query.lte("inicio", endDate);
+
+      if (secretariaFilter && secretariaFilter !== "all")
+        query = query.eq("secretaria", secretariaFilter);
+      if (naturezaCargoFilter && naturezaCargoFilter !== "all")
+        query = query.eq("natureza_cargo", naturezaCargoFilter);
+
+      const { count, error } = await query;
+      if (error) {
+        console.error("Erro ao contar abonos no servidor:", error);
+        setServerTotalBenefits(null);
+      } else {
+        setServerTotalBenefits(count ?? 0);
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao contar abonos:", err);
+      setServerTotalBenefits(null);
+    }
+  }, [
+    debouncedSearchTerm,
+    startDate,
+    endDate,
+    secretariaFilter,
+    naturezaCargoFilter,
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => countFinalRecords(), 220);
+    return () => clearTimeout(t);
+  }, [countFinalRecords]);
+
   const stats = useMemo(() => {
     // finalRecords para a lista e PDF (aplica o filtro de status atual sobre o que já foi filtrado por busca/sec/data)
     const finalRecords = filteredRecords.filter((r) => {
@@ -609,7 +657,7 @@ export default function AbonoPage() {
                 <div class="info">OP: ${userName} | EMISSÃO: ${today}</div>
               </div>
             </div>
-            <div style="font-size:9px;margin-bottom:8px;text-transform:uppercase;color:#1A3351;font-weight:900;">Registros: ${stats.finalRecords.length} • Filtros: ${stats.printFilters}</div>
+            <div style="font-size:9px;margin-bottom:8px;text-transform:uppercase;color:#1A3351;font-weight:900;">Registros: ${serverTotalBenefits !== null ? serverTotalBenefits : stats.finalRecords.length} • Filtros: ${stats.printFilters}</div>
             <table>
               <thead>
                 <tr>
@@ -852,7 +900,10 @@ export default function AbonoPage() {
                 },
                 {
                   label: "Benefícios",
-                  value: stats.totalBenefits,
+                  value:
+                    serverTotalBenefits !== null
+                      ? serverTotalBenefits
+                      : stats.totalBenefits,
                   filter: "all" as const,
                   accent: "info" as const,
                   activeClass: "bg-blue-50",
@@ -1366,7 +1417,9 @@ export default function AbonoPage() {
               <p className="text-[8px] font-bold uppercase text-[#1A3351]">
                 REGISTROS:{" "}
                 <span className="text-[#E31E24]">
-                  {stats.finalRecords.length}
+                  {serverTotalBenefits !== null
+                    ? serverTotalBenefits
+                    : stats.finalRecords.length}
                 </span>
               </p>
             </div>

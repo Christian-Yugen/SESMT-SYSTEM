@@ -943,14 +943,79 @@ function CidAnalyticsPage() {
     filterRecurrence,
   ]);
 
+  // Contagem exata no servidor para total de eventos (afastamentos)
+  const [serverTotalEvents, setServerTotalEvents] = useState<number | null>(
+    null,
+  );
+
+  const countEvents = useCallback(async () => {
+    try {
+      let query = supabase
+        .from("afastamentos")
+        .select("*", { head: true, count: "exact" })
+        .not("tipo_afastamento", "ilike", "%MATERNIDADE%");
+
+      if (debouncedSearchTerm && debouncedSearchTerm.trim().length > 0) {
+        const t = debouncedSearchTerm.replace(/'/g, "''");
+        query = query.or(
+          `servidor_nome.ilike.%${t}%,servidor_cpf.ilike.%${t}%`,
+        );
+      }
+
+      if (startDate) query = query.gte("data_inicio", startDate);
+      if (endDate) query = query.lte("data_inicio", endDate);
+
+      if (filterSecretaria && filterSecretaria !== "all")
+        query = query.eq("servidor_secretaria", filterSecretaria);
+      if (filterCargo && filterCargo !== "all")
+        query = query.eq("servidor_cargo", filterCargo);
+      if (filterNatureza && filterNatureza !== "all")
+        query = query.eq("natureza_cargo", filterNatureza);
+      if (filterStatus && filterStatus !== "all")
+        query = query.eq("situacao", filterStatus);
+
+      const { count, error } = await query;
+      if (error) {
+        console.error("Erro ao contar eventos no servidor:", error);
+        setServerTotalEvents(null);
+      } else {
+        setServerTotalEvents(count ?? 0);
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao contar eventos:", err);
+      setServerTotalEvents(null);
+    }
+  }, [
+    debouncedSearchTerm,
+    startDate,
+    endDate,
+    filterSecretaria,
+    filterCargo,
+    filterNatureza,
+    filterStatus,
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      countEvents();
+    }, 220);
+    return () => clearTimeout(t);
+  }, [countEvents]);
+
   const filteredMetrics = useMemo(
     () =>
       buildCidAnalyticsMetrics(
         filtered.events,
         filtered.cidOccurrences,
         dataset.policy,
+        serverTotalEvents ?? undefined,
       ),
-    [filtered.events, filtered.cidOccurrences, dataset.policy],
+    [
+      filtered.events,
+      filtered.cidOccurrences,
+      dataset.policy,
+      serverTotalEvents,
+    ],
   );
 
   const chapterRanking = useMemo(
@@ -1023,7 +1088,8 @@ function CidAnalyticsPage() {
   }, [filtered.cidOccurrences]);
 
   const secretariaRanking = useMemo(() => {
-    const totalEvents = filtered.events.length;
+    const totalEvents =
+      serverTotalEvents !== null ? serverTotalEvents : filtered.events.length;
     const byGroup = new Map<
       string,
       {
@@ -1081,10 +1147,11 @@ function CidAnalyticsPage() {
         dominantCid: formatDominantCidLabel(dominantCid),
       } satisfies OccupationalRankingItem;
     });
-  }, [filtered.events, occsByEventId]);
+  }, [filtered.events, occsByEventId, serverTotalEvents]);
 
   const cargoRanking = useMemo(() => {
-    const totalEvents = filtered.events.length;
+    const totalEvents =
+      serverTotalEvents !== null ? serverTotalEvents : filtered.events.length;
     const byGroup = new Map<
       string,
       {
@@ -1142,10 +1209,11 @@ function CidAnalyticsPage() {
         dominantCid: formatDominantCidLabel(dominantCid),
       } satisfies OccupationalRankingItem;
     });
-  }, [filtered.events, occsByEventId]);
+  }, [filtered.events, occsByEventId, serverTotalEvents]);
 
   const naturezaImpact = useMemo(() => {
-    const totalEvents = filtered.events.length;
+    const totalEvents =
+      serverTotalEvents !== null ? serverTotalEvents : filtered.events.length;
     const byNature = new Map<
       string,
       { afastamentos: number; daysLost: number }
@@ -1173,10 +1241,10 @@ function CidAnalyticsPage() {
           totalEvents > 0 ? (value.afastamentos / totalEvents) * 100 : 0,
       }))
       .sort((a, b) => b.daysLost - a.daysLost) as NaturezaImpactItem[];
-  }, [filtered.events]);
+  }, [filtered.events, serverTotalEvents]);
 
   const recurrenceWindowSummary = useMemo(() => {
-    const total = filtered.events.length;
+    const total = serverTotalEvents !== null ? serverTotalEvents : filtered.events.length;
     const r90 = filtered.events.filter(
       (e) => e.recurrence.isRecurrent90,
     ).length;
@@ -1206,7 +1274,7 @@ function CidAnalyticsPage() {
         pct: total > 0 ? (r365 / total) * 100 : 0,
       },
     ];
-  }, [filtered.events]);
+  }, [filtered.events, serverTotalEvents]);
 
   const managerialIntelligence = useMemo(
     () =>
