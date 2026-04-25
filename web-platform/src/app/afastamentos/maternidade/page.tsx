@@ -730,6 +730,66 @@ export default function MaternidadeAfastamentosPage() {
     return result;
   }, [filteredRecords, sortBy]);
 
+  // Contagem exata no servidor (head + count: 'exact') para o card "Registros".
+  const [serverTotalRegistros, setServerTotalRegistros] = useState<
+    number | null
+  >(null);
+  const [isCountingRecords, setIsCountingRecords] = useState(false);
+
+  const countRecords = useCallback(async () => {
+    try {
+      setIsCountingRecords(true);
+
+      let query = supabase
+        .from("afastamentos")
+        .select("*", { head: true, count: "exact" })
+        .not("tipo_afastamento", "ilike", "%MATERNIDADE%");
+
+      if (secretariaFilter && secretariaFilter !== "all")
+        query = query.eq("servidor_secretaria", secretariaFilter);
+      if (naturezaCargoFilter && naturezaCargoFilter !== "all")
+        query = query.eq("natureza_cargo", naturezaCargoFilter);
+      if (cargoFilter && cargoFilter !== "all")
+        query = query.eq("servidor_cargo", cargoFilter);
+      if (startDate) query = query.gte("data_inicio", startDate);
+      if (endDate) query = query.lte("data_inicio", endDate);
+
+      if (debouncedSearchTerm && debouncedSearchTerm.trim().length > 0) {
+        const t = debouncedSearchTerm.replace(/'/g, "''");
+        query = query.or(
+          `servidor_nome.ilike.%${t}%,servidor_cpf.ilike.%${t}%`,
+        );
+      }
+
+      const { count, error } = await query;
+      if (error) {
+        console.error("Erro ao contar registros no servidor:", error);
+        setServerTotalRegistros(null);
+      } else {
+        setServerTotalRegistros(count ?? 0);
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao contar registros:", err);
+      setServerTotalRegistros(null);
+    } finally {
+      setIsCountingRecords(false);
+    }
+  }, [
+    secretariaFilter,
+    naturezaCargoFilter,
+    cargoFilter,
+    startDate,
+    endDate,
+    debouncedSearchTerm,
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      countRecords();
+    }, 220);
+    return () => clearTimeout(t);
+  }, [countRecords]);
+
   const uniqueSecretarias = useMemo(() => {
     const unique = new Set(
       records
@@ -1019,7 +1079,10 @@ export default function MaternidadeAfastamentosPage() {
               },
               {
                 label: "Registros",
-                value: stats.totalRegistros,
+                value:
+                  serverTotalRegistros !== null
+                    ? serverTotalRegistros
+                    : stats.totalRegistros,
                 filter: "all" as const,
                 accent: "neutral" as const,
                 activeClass: "bg-slate-100",

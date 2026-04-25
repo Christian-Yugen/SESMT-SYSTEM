@@ -381,8 +381,9 @@ export function buildCidAnalyticsMetrics(
   events: AfastamentoEventFact[],
   cidOccurrences: CidOccurrenceFact[],
   policy: CidAnalyticsPolicy,
+  totalEventsOverride?: number,
 ): CidAnalyticsMetrics {
-  const totalAfastamentos = events.length;
+  const totalAfastamentos = totalEventsOverride ?? events.length;
   const totalServidoresAfastados = new Set(
     events.map((e) => e.event.servidorCpf),
   ).size;

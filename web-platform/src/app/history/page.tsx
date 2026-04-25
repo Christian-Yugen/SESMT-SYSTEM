@@ -145,6 +145,16 @@ export default function HistoryPage() {
   const [isNameFilterOpen, setIsNameFilterOpen] = useState(false);
   const [nameSearch, setNameSearch] = useState("");
 
+  // Contagem exata no servidor para o número total de registros filtrados (quando possível)
+  const [serverTotalHistory, setServerTotalHistory] = useState<number | null>(
+    null,
+  );
+  // Contagens segmentadas (ASO / ENCAMINHAMENTO)
+  const [serverAsosCount, setServerAsosCount] = useState<number | null>(
+    null,
+  );
+  const [serverEncCount, setServerEncCount] = useState<number | null>(null);
+
   const setSearchTerm = (value: string) => {
     setFilters((prev) => ({ ...prev, searchTerm: value }));
   };
@@ -199,6 +209,185 @@ export default function HistoryPage() {
     selectedAsoSubtypes,
     selectedNames = [],
   } = filters;
+
+  const countHistory = useCallback(async () => {
+    try {
+      // Não tentamos replicar filtros complexos (ex: turno) server-side
+      if (filterShift !== "all") {
+        setServerTotalHistory(null);
+        return;
+      }
+
+      let query = supabase
+        .from("aso_history")
+        .select("*", { head: true, count: "exact" });
+
+      if (debouncedSearchTerm && debouncedSearchTerm.trim().length > 0) {
+        const t = debouncedSearchTerm.replace(/'/g, "''");
+        const digits = t.replace(/\D/g, "");
+        if (digits.length > 0) {
+          query = query.or(
+            `servidor_nome.ilike.%${t}%,servidor_cpf.ilike.%${digits}%`,
+          );
+        } else {
+          query = query.ilike("servidor_nome", `%${t}%`);
+        }
+      }
+
+      if (startDate) query = query.gte("generated_at", startDate + "T00:00:00");
+      if (endDate) query = query.lte("generated_at", endDate + "T23:59:59");
+
+      if (filterUser && filterUser !== "all") query = query.eq("generated_by", filterUser);
+      if (filterSecretaria && filterSecretaria !== "all") query = query.eq("secretaria", filterSecretaria);
+
+      if (filterType && filterType !== "all") {
+        if (filterType === "ASO") query = query.ilike("aso_type", "%aso%");
+        else if (filterType === "Encaminhamento") query = query.ilike("aso_type", "%encaminhamento%");
+      }
+
+      if (selectedAsoSubtypes && selectedAsoSubtypes.length > 0) {
+        const orStr = selectedAsoSubtypes
+          .map((s) => `aso_type.ilike.%${s}%`)
+          .join(",");
+        if (orStr) query = query.or(orStr);
+      }
+
+      if (selectedNames && selectedNames.length > 0) {
+        query = query.in("servidor_nome", selectedNames);
+      }
+
+      const { count, error } = await query;
+      if (error) {
+        console.error("Erro ao contar histórico no servidor:", error);
+        setServerTotalHistory(null);
+      } else {
+        setServerTotalHistory(count ?? 0);
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao contar histórico:", err);
+      setServerTotalHistory(null);
+    }
+  }, [
+    debouncedSearchTerm,
+    startDate,
+    endDate,
+    filterUser,
+    filterSecretaria,
+    filterType,
+    filterShift,
+    selectedAsoSubtypes,
+    selectedNames,
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => void countHistory(), 220);
+    return () => clearTimeout(t);
+  }, [countHistory]);
+
+  const countSegmentedCounts = useCallback(async () => {
+    try {
+      if (filterShift !== "all") {
+        setServerAsosCount(null);
+        setServerEncCount(null);
+        return;
+      }
+
+      let asoQuery = supabase
+        .from("aso_history")
+        .select("*", { head: true, count: "exact" });
+      let encQuery = supabase
+        .from("aso_history")
+        .select("*", { head: true, count: "exact" });
+
+      if (debouncedSearchTerm && debouncedSearchTerm.trim().length > 0) {
+        const t = debouncedSearchTerm.replace(/'/g, "''");
+        const digits = t.replace(/\D/g, "");
+        if (digits.length > 0) {
+          asoQuery = asoQuery.or(
+            `servidor_nome.ilike.%${t}%,servidor_cpf.ilike.%${digits}%`,
+          );
+          encQuery = encQuery.or(
+            `servidor_nome.ilike.%${t}%,servidor_cpf.ilike.%${digits}%`,
+          );
+        } else {
+          asoQuery = asoQuery.ilike("servidor_nome", `%${t}%`);
+          encQuery = encQuery.ilike("servidor_nome", `%${t}%`);
+        }
+      }
+
+      if (startDate) {
+        asoQuery = asoQuery.gte("generated_at", startDate + "T00:00:00");
+        encQuery = encQuery.gte("generated_at", startDate + "T00:00:00");
+      }
+      if (endDate) {
+        asoQuery = asoQuery.lte("generated_at", endDate + "T23:59:59");
+        encQuery = encQuery.lte("generated_at", endDate + "T23:59:59");
+      }
+
+      if (filterUser && filterUser !== "all") {
+        asoQuery = asoQuery.eq("generated_by", filterUser);
+        encQuery = encQuery.eq("generated_by", filterUser);
+      }
+      if (filterSecretaria && filterSecretaria !== "all") {
+        asoQuery = asoQuery.eq("secretaria", filterSecretaria);
+        encQuery = encQuery.eq("secretaria", filterSecretaria);
+      }
+
+      // Segment filters: ASO vs Encaminhamento
+      asoQuery = asoQuery.ilike("aso_type", "%aso%");
+      encQuery = encQuery.ilike("aso_type", "%encaminhamento%");
+
+      // Subtype filter (aplica principalmente para ASO)
+      if (selectedAsoSubtypes && selectedAsoSubtypes.length > 0) {
+        const orStr = selectedAsoSubtypes
+          .map((s) => `aso_type.ilike.%${s}%`)
+          .join(",");
+        if (orStr) {
+          asoQuery = asoQuery.or(orStr);
+        }
+      }
+
+      if (selectedNames && selectedNames.length > 0) {
+        asoQuery = asoQuery.in("servidor_nome", selectedNames);
+        encQuery = encQuery.in("servidor_nome", selectedNames);
+      }
+
+      const [asoRes, encRes] = await Promise.all([asoQuery, encQuery]);
+
+      if (asoRes.error) {
+        console.error("Erro ao contar ASOs no servidor:", asoRes.error);
+        setServerAsosCount(null);
+      } else {
+        setServerAsosCount(asoRes.count ?? 0);
+      }
+
+      if (encRes.error) {
+        console.error("Erro ao contar ENC no servidor:", encRes.error);
+        setServerEncCount(null);
+      } else {
+        setServerEncCount(encRes.count ?? 0);
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao contar segmentos:", err);
+      setServerAsosCount(null);
+      setServerEncCount(null);
+    }
+  }, [
+    debouncedSearchTerm,
+    startDate,
+    endDate,
+    filterUser,
+    filterSecretaria,
+    filterType,
+    filterShift,
+    selectedAsoSubtypes,
+    selectedNames,
+  ]);
+
+  useEffect(() => {
+    const t = setTimeout(() => void countSegmentedCounts(), 220);
+    return () => clearTimeout(t);
+  }, [countSegmentedCounts]);
 
   useEffect(() => {
     // Delay para permitir transição suave do popover anterior
@@ -1552,21 +1741,23 @@ export default function HistoryPage() {
               variant="informative"
               accent="primary"
               title="Total Registros"
-              value={stats.total}
+              value={
+                serverTotalHistory !== null ? serverTotalHistory : stats.total
+              }
               icon={<HistoryIcon className="w-5 h-5 text-slate-300" />}
             />
             <StatisticCard
               variant="informative"
               accent="success"
               title="ASOs Emitidos"
-              value={stats.asos}
+              value={serverAsosCount ?? stats.asos}
               icon={<Activity className="w-5 h-5 text-emerald-200" />}
             />
             <StatisticCard
               variant="informative"
               accent="info"
               title="ENC Emitidos"
-              value={stats.encs}
+              value={serverEncCount ?? stats.encs}
               icon={<Building2 className="w-5 h-5 text-blue-200" />}
             />
             <StatisticCard
