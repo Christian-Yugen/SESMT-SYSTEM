@@ -17,3 +17,6 @@ ASO/
 
 # Temporary Excel files
 ~$*.xlsx
+
+# Do not commit temporary Supabase artifacts
+supabase/.temp/
