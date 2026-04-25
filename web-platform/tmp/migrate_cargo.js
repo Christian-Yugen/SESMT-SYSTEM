@@ -1,7 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
+const dotenv = require('dotenv');
 
-const supabaseUrl = 'https://wybzkkejyraadabznjqg.supabase.co';
-const supabaseKey = 'sb_secret_drEXhEOy2iNURhBVSKc3ag_6PM9I-Y9'; // Service role para bypass RLS se necessário
+dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing environment variables: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+    process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
