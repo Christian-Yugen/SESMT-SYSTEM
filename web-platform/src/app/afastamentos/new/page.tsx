@@ -28,6 +28,7 @@ import {
   generateAfastamentoPDF,
   AfastamentoPortariaData,
 } from "@/lib/afastamento-portaria-pdf";
+import { generateAfastamentoDOCX } from "@/lib/afastamento-portaria-docx";
 
 interface Servidor {
   id?: number;
@@ -79,6 +80,7 @@ export default function NewAfastamentoPage() {
     perito_nome: "",
     perito_crm: "",
     observacoes: "",
+    portaria_numero_manual: "",
     renew_from_id: null as number | null,
   });
 
@@ -298,7 +300,21 @@ export default function NewAfastamentoPage() {
         .limit(1)
         .maybeSingle();
 
-      const nextNumber = (lastPortaria?.numero || 0) + 1;
+      let nextNumber = (lastPortaria?.numero || 0) + 1;
+      // Verifica se usuário informou número manualmente no formulário
+      const manualNumberParsed = formData.portaria_numero_manual
+        ? parseInt(formData.portaria_numero_manual, 10)
+        : NaN;
+      const manualProvided =
+        !isNaN(manualNumberParsed) && manualNumberParsed > 0;
+      let manualStartNumber: number | null = null;
+      if (manualProvided) {
+        manualStartNumber = manualNumberParsed;
+        // usar número manual como ponto de partida
+        nextNumber = manualStartNumber;
+      }
+      // flag para usar o número manual somente no primeiro insert (se aplicável)
+      let manualUsed = manualProvided;
 
       // Se for prorrogação, vamos buscar os registros anteriores (siblings) para vincular corretamente
       let previousRecords: Array<{
@@ -380,27 +396,101 @@ export default function NewAfastamentoPage() {
           });
         }
 
-        // Gerar Registro de Portaria
-        const { data: portariaRec, error: portariaError } = await supabase
-          .from("portarias_afastamento")
-          .insert({
-            afastamento_id: newAfastamento.id,
-            numero: nextNumber,
-            ano: currentYear,
-            data_emissao: new Date().toISOString().split("T")[0],
-            criado_por: user?.id || null,
-          })
-          .select()
-          .single();
+        // Gerar Registro de Portaria (inserção com retry para mitigar condição de corrida ao calcular número)
+        const insertPortariaWithRetry = async (
+          afastamentoId: number,
+          startNumber: number,
+        ) => {
+          let candidate = startNumber;
+          const maxRetries = 6;
+          for (let attempt = 0; attempt < maxRetries; attempt++) {
+            const { data: portariaRec, error: portariaError } = await supabase
+              .from("portarias_afastamento")
+              .insert({
+                afastamento_id: afastamentoId,
+                numero: candidate,
+                ano: currentYear,
+                data_emissao: new Date().toISOString().split("T")[0],
+                criado_por: user?.id || null,
+              })
+              .select()
+              .single();
 
-        if (portariaError)
+            if (!portariaError && portariaRec) {
+              return { portariaRec, usedNumber: candidate };
+            }
+
+            const msg = (portariaError?.message || "").toLowerCase();
+            const isConflict =
+              msg.includes("duplicate") ||
+              msg.includes("unique") ||
+              msg.includes("already");
+
+            if (!isConflict) {
+              throw new Error(
+                portariaError?.message || JSON.stringify(portariaError),
+              );
+            }
+
+            // Conflito de número — incrementa candidato e tenta novamente
+            candidate = candidate + 1;
+            await new Promise((r) => setTimeout(r, 120 * (attempt + 1)));
+          }
+
           throw new Error(
-            portariaError.message || JSON.stringify(portariaError),
+            "Não foi possível inserir portaria após várias tentativas (possível condição de corrida).",
           );
-        if (!portariaRec)
-          throw new Error(
-            "Resposta inesperada ao criar portaria (dados ausentes).",
+        };
+
+        let portariaRec: any = null;
+        let usedNumber: number | undefined = undefined;
+
+        if (manualUsed) {
+          // tentativa única com número informado; em caso de conflito aborta e solicita correção
+          const { data: portariaInserted, error: portariaError } =
+            await supabase
+              .from("portarias_afastamento")
+              .insert({
+                afastamento_id: newAfastamento.id,
+                numero: nextNumber,
+                ano: currentYear,
+                data_emissao: new Date().toISOString().split("T")[0],
+                criado_por: user?.id || null,
+              })
+              .select()
+              .single();
+
+          if (portariaError || !portariaInserted) {
+            const msg = (portariaError?.message || "").toLowerCase();
+            const isConflict =
+              msg.includes("duplicate") ||
+              msg.includes("unique") ||
+              msg.includes("already");
+            if (isConflict) {
+              throw new Error(
+                "Número de portaria informado já está em uso. Escolha outro número e tente novamente.",
+              );
+            }
+            throw new Error(
+              portariaError?.message || JSON.stringify(portariaError),
+            );
+          }
+
+          portariaRec = portariaInserted;
+          usedNumber = nextNumber;
+          // após usar o número manual, segue incremento normal para próximos vínculos
+          manualUsed = false;
+          nextNumber = (usedNumber ?? nextNumber) + 1;
+        } else {
+          const result = await insertPortariaWithRetry(
+            newAfastamento.id,
+            nextNumber,
           );
+          portariaRec = result.portariaRec;
+          usedNumber = result.usedNumber;
+          // Atualiza nextNumber para evitar colisões nas próximas iterações (se houver múltiplos vínculos)
+          nextNumber = (usedNumber ?? nextNumber) + 1;
+        }
 
         setGeneratedPortaria({
           ...portariaRec,
@@ -966,6 +1056,30 @@ export default function NewAfastamentoPage() {
                   />
                 </div>
 
+                <div className="mt-4">
+                  <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
+                    Número da Portaria (opcional)
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold"
+                    value={formData.portaria_numero_manual}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        portaria_numero_manual: e.target.value,
+                      })
+                    }
+                    placeholder="Informe o número da portaria (se aplicável)"
+                  />
+                  <p className="text-[10px] text-slate-500 uppercase mt-1">
+                    Se informado, este número será usado como início para a(s)
+                    portaria(s). Se já estiver em uso, a operação será
+                    interrompida.
+                  </p>
+                </div>
+
                 <div className="mt-10 flex justify-end gap-4 border-t pt-8">
                   <button
                     onClick={() => router.push("/afastamentos")}
@@ -1027,17 +1141,15 @@ export default function NewAfastamentoPage() {
                   <button
                     onClick={() => {
                       if (!generatedPortaria) return;
-                      generateAfastamentoPDF(
-                        {
-                          ...generatedPortaria,
-                          data_portaria: new Date().toLocaleDateString("pt-BR"),
-                        },
-                        "download",
-                      );
+                      // Baixar versão DOCX (editável)
+                      generateAfastamentoDOCX({
+                        ...generatedPortaria,
+                        data_portaria: new Date().toLocaleDateString("pt-BR"),
+                      } as any);
                     }}
                     className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                   >
-                    <Printer className="w-4 h-4" /> Baixar Portaria PDF
+                    <Printer className="w-4 h-4" /> Baixar Portaria DOCX (editável)
                   </button>
                   <button
                     onClick={() => router.push("/afastamentos")}
