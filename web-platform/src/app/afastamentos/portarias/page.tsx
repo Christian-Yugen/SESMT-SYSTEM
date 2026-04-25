@@ -30,6 +30,12 @@ interface PortariaRecord {
 }
 
 export default function AfastamentoPortariasPage() {
+  const formatDate = (d: string) => {
+    if (!d) return "";
+    const p = d.split("-");
+    if (p.length !== 3) return new Date(d).toLocaleDateString("pt-BR");
+    return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])).toLocaleDateString("pt-BR");
+  };
   const [records, setRecords] = useState<PortariaRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -140,11 +146,9 @@ export default function AfastamentoPortariasPage() {
         servidor_cargo: record.natureza_cargo,
         servidor_lotacao: record.servidor_secretaria,
         tipo_afastamento: record.tipo_afastamento,
-        data_inicio: new Date(record.data_inicio).toLocaleDateString("pt-BR"),
-        data_fim: new Date(record.data_fim).toLocaleDateString("pt-BR"),
-        data_portaria: new Date(record.data_emissao).toLocaleDateString(
-          "pt-BR",
-        ),
+        data_inicio: formatDate(record.data_inicio),
+        data_fim: formatDate(record.data_fim),
+        data_portaria: formatDate(record.data_emissao),
         perito_nome: record.perito_nome,
         perito_crm: record.perito_crm,
         servidor_contrato: record.servidor_contrato,
@@ -250,15 +254,9 @@ export default function AfastamentoPortariasPage() {
                             servidor_cargo: record.natureza_cargo,
                             servidor_lotacao: record.servidor_secretaria,
                             tipo_afastamento: record.tipo_afastamento,
-                            data_inicio: new Date(
-                              record.data_inicio,
-                            ).toLocaleDateString("pt-BR"),
-                            data_fim: new Date(
-                              record.data_fim,
-                            ).toLocaleDateString("pt-BR"),
-                            data_portaria: new Date(
-                              record.data_emissao,
-                            ).toLocaleDateString("pt-BR"),
+                            data_inicio: formatDate(record.data_inicio),
+                            data_fim: formatDate(record.data_fim),
+                            data_portaria: formatDate(record.data_emissao),
                             perito_nome: record.perito_nome,
                             perito_crm: record.perito_crm,
                             servidor_contrato: record.servidor_contrato,

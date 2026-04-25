@@ -656,13 +656,9 @@ export default function AfastamentosPage() {
         servidor_cargo: record.natureza_cargo,
         servidor_lotacao: record.servidor_secretaria,
         tipo_afastamento: record.tipo_afastamento,
-        data_inicio: new Date(record.data_inicio).toLocaleDateString("pt-BR"),
-        data_fim: record.data_fim
-          ? new Date(record.data_fim).toLocaleDateString("pt-BR")
-          : "---",
-        data_portaria: new Date(portaria.data_emissao).toLocaleDateString(
-          "pt-BR",
-        ),
+        data_inicio: formatDate(record.data_inicio),
+        data_fim: record.data_fim ? formatDate(record.data_fim) : "---",
+        data_portaria: formatDate(portaria.data_emissao),
         perito_nome: record.perito_nome,
         perito_crm: record.perito_crm,
         servidor_contrato: record.servidor_contrato,
