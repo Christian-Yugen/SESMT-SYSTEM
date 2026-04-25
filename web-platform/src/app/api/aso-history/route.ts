@@ -1,11 +1,6 @@
-Fica concedido o benefício auxílio doença Fica concedido o benefício auxílio doença Fica concedido o benefício auxílio doençaFica concedido o benefício auxílio doençaaarerepartireateClient } from "@supabase/supabase-js";
-import { maskCpf10f
+import { createClient } from "@supabase/supabase-js";
+import { maskCpf } from "@/lib/record-utils";
 
-
-
-
-rom "@/lib/record-ut5555;
-22211
 const REQUEST_ID_HEADER = "x-request-id";
 
 function resolveRequestId(request: Request): string {
