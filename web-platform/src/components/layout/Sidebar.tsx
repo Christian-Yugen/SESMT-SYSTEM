@@ -57,6 +57,9 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { groups: navigationGroups } = useMenu(userRole);
+  const principalNavigationGroup = navigationGroups.find((g) => g.id === "main");
+  const historyNavigationGroup = navigationGroups.find((g) => g.id === "history");
 
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
@@ -413,8 +416,7 @@ export default function Sidebar({
         >
           {/* Grupo Principal: renderizado a partir da config (apenas Principal) */}
           {userRole !== "social_assistant" && (() => {
-            const { groups } = useMenu(userRole);
-            const main = groups.find((g) => g.id === "main");
+            const main = principalNavigationGroup;
             if (!main || !main.items || main.items.length === 0) return null;
             return (
               <>
@@ -721,8 +723,7 @@ export default function Sidebar({
 
           {/* Grupo Histórico: renderizado a partir da config (apenas Histórico) */}
           {userRole !== "viewer" && (() => {
-            const { groups } = useMenu(userRole);
-            const history = groups.find((g) => g.id === "history");
+            const history = historyNavigationGroup;
             if (!history) return null;
             return (
               <div className="space-y-1">
