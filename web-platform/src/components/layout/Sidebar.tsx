@@ -57,13 +57,21 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { groups: navigationGroups } = useMenu(userRole);
+  const { groups: navigationGroups, isActive: isNavigationItemActive } =
+    useMenu(userRole);
   const principalNavigationGroup = navigationGroups.find(
     (g) => g.id === "main",
   );
   const historyNavigationGroup = navigationGroups.find(
     (g) => g.id === "history",
   );
+  const archiveNavigationGroup = navigationGroups.find(
+    (g) => g.id === "archive_admin",
+  );
+  const benefitsNavigationGroup = navigationGroups.find(
+    (g) => g.id === "benefits",
+  );
+  const abonoNavigationGroup = navigationGroups.find((g) => g.id === "abono");
 
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
@@ -502,57 +510,63 @@ export default function Sidebar({
 
                           {isAfastamentosOpen && (
                             <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                              <button
-                                onClick={() => router.push("/afastamentos")}
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/afastamentos" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                              >
-                                <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                <span>Listagem Geral</span>
-                              </button>
+                              {benefitsNavigationGroup?.items
+                                .filter(
+                                  (it) =>
+                                    it.path &&
+                                    it.path.startsWith("/afastamentos") &&
+                                    it.path !== "/afastamentos/maternidade",
+                                )
+                                .map((it) => {
+                                  const path = it.path || "/afastamentos";
 
-                              <button
-                                onClick={() =>
-                                  router.push("/afastamentos/cid-analytics")
-                                }
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/cid-analytics") ? "bg-emerald-500/20 text-emerald-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                              >
-                                <BarChart3 className="w-3 h-3 shrink-0" />
-                                <span>CID Analytics</span>
-                              </button>
+                                  let Icon = LayoutDashboard;
+                                  let activeClass =
+                                    pathname === path
+                                      ? "bg-white/15 text-white font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
 
-                              <button
-                                onClick={() =>
-                                  router.push("/afastamentos/epidemiologia")
-                                }
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/epidemiologia") ? "bg-red-500/20 text-[#E31E24] font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                              >
-                                <TrendingUp className="w-3 h-3 shrink-0" />
-                                <span>Epidemiologia</span>
-                              </button>
+                                  if (it.id === "cid-analytics") {
+                                    Icon = BarChart3;
+                                    activeClass = pathname.startsWith(
+                                      "/afastamentos/cid-analytics",
+                                    )
+                                      ? "bg-emerald-500/20 text-emerald-300 font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
+                                  } else if (it.id === "epidemiologia") {
+                                    Icon = TrendingUp;
+                                    activeClass = pathname.startsWith(
+                                      "/afastamentos/epidemiologia",
+                                    )
+                                      ? "bg-red-500/20 text-[#E31E24] font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
+                                  } else if (it.id === "psychosocial") {
+                                    Icon = Brain;
+                                    activeClass = pathname.startsWith(
+                                      "/afastamentos/psychosocial-analytics",
+                                    )
+                                      ? "bg-purple-500/20 text-purple-300 font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
+                                  } else if (it.id === "ergonomia") {
+                                    Icon = Activity;
+                                    activeClass = pathname.startsWith(
+                                      "/afastamentos/ergonomia-analytics",
+                                    )
+                                      ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
+                                  }
 
-                              <button
-                                onClick={() =>
-                                  router.push(
-                                    "/afastamentos/psychosocial-analytics",
-                                  )
-                                }
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/psychosocial-analytics") ? "bg-purple-500/20 text-purple-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                              >
-                                <Brain className="w-3 h-3 shrink-0" />
-                                <span>Psicossocial</span>
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  router.push(
-                                    "/afastamentos/ergonomia-analytics",
-                                  )
-                                }
-                                className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/afastamentos/ergonomia-analytics") ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                              >
-                                <Activity className="w-3 h-3 shrink-0" />
-                                <span>Ergonomia</span>
-                              </button>
+                                  return (
+                                    <button
+                                      key={it.id}
+                                      onClick={() => router.push(path)}
+                                      className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                                    >
+                                      <Icon className="w-3 h-3 shrink-0" />
+                                      <span>{it.label}</span>
+                                    </button>
+                                  );
+                                })}
                             </div>
                           )}
 
@@ -576,15 +590,26 @@ export default function Sidebar({
 
                               {isAtestadosOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  <button
-                                    onClick={() =>
-                                      router.push("/abono/atestados")
-                                    }
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                    <span>Listagem de Atestados</span>
-                                  </button>
+                                  {abonoNavigationGroup?.items
+                                    .filter(
+                                      (it) =>
+                                        it.path &&
+                                        it.path.startsWith("/abono/atestados"),
+                                    )
+                                    .map((it) => {
+                                      const path =
+                                        it.path || "/abono/atestados";
+                                      return (
+                                        <button
+                                          key={it.id}
+                                          onClick={() => router.push(path)}
+                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
+                                        >
+                                          <LayoutDashboard className="w-3 h-3 shrink-0" />
+                                          <span>{it.label}</span>
+                                        </button>
+                                      );
+                                    })}
                                 </div>
                               )}
                             </div>
@@ -609,29 +634,42 @@ export default function Sidebar({
                               {/* Centralizado para evitar duplicidade de submenus no código original */}
                               {isAbonoOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  <button
-                                    onClick={() => router.push("/abono")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                    <span>Painel de Gestão</span>
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      router.push("/abono/portarias")
-                                    }
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/portarias" ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <FileText className="w-3 h-3 shrink-0" />
-                                    <span>Portarias</span>
-                                  </button>
-                                  <button
-                                    onClick={() => router.push("/abono/lei")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/lei" ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <Scale className="w-3 h-3 shrink-0" />
-                                    <span>Legislação e Regras</span>
-                                  </button>
+                                  {abonoNavigationGroup?.items
+                                    .filter((it) => it.id !== "abono-atestados")
+                                    .map((it) => {
+                                      const path = it.path || "/abono";
+
+                                      let Icon = LayoutDashboard;
+                                      let activeClass =
+                                        pathname === path
+                                          ? "bg-white/15 text-white font-medium shadow-sm"
+                                          : "text-white/40 font-medium hover:text-white";
+
+                                      if (it.id === "abono-portarias") {
+                                        Icon = FileText;
+                                        activeClass =
+                                          pathname === "/abono/portarias"
+                                            ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
+                                            : "text-white/40 font-medium hover:text-white";
+                                      } else if (it.id === "abono-lei") {
+                                        Icon = Scale;
+                                        activeClass =
+                                          pathname === "/abono/lei"
+                                            ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
+                                            : "text-white/40 font-medium hover:text-white";
+                                      }
+
+                                      return (
+                                        <button
+                                          key={it.id}
+                                          onClick={() => router.push(path)}
+                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                                        >
+                                          <Icon className="w-3 h-3 shrink-0" />
+                                          <span>{it.label}</span>
+                                        </button>
+                                      );
+                                    })}
                                 </div>
                               )}
                             </div>
@@ -654,20 +692,36 @@ export default function Sidebar({
                               </button>
                               {isAbonoOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  <button
-                                    onClick={() => router.push("/abono")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono" ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                    <span>Consulta de Abonos</span>
-                                  </button>
-                                  <button
-                                    onClick={() => router.push("/abono/lei")}
-                                    className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname === "/abono/lei" ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                  >
-                                    <Scale className="w-3 h-3 shrink-0" />
-                                    <span>Legislação e Regras</span>
-                                  </button>
+                                  {abonoNavigationGroup?.items
+                                    .filter((it) => it.id !== "abono-atestados")
+                                    .map((it) => {
+                                      const path = it.path || "/abono";
+
+                                      let Icon = LayoutDashboard;
+                                      let activeClass =
+                                        pathname === path
+                                          ? "bg-white/15 text-white font-medium shadow-sm"
+                                          : "text-white/40 font-medium hover:text-white";
+
+                                      if (it.id === "abono-lei") {
+                                        Icon = Scale;
+                                        activeClass =
+                                          pathname === "/abono/lei"
+                                            ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
+                                            : "text-white/40 font-medium hover:text-white";
+                                      }
+
+                                      return (
+                                        <button
+                                          key={it.id}
+                                          onClick={() => router.push(path)}
+                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                                        >
+                                          <Icon className="w-3 h-3 shrink-0" />
+                                          <span>{it.label}</span>
+                                        </button>
+                                      );
+                                    })}
                                 </div>
                               )}
                             </div>
@@ -795,7 +849,7 @@ export default function Sidebar({
             );
             if (!archiveItem) return null;
             const path = archiveItem.path || "/archive";
-            const activeClass = isActive(path)
+            const activeClass = isNavigationItemActive(archiveItem)
               ? "bg-white/10 text-white font-medium shadow-sm border border-white/5"
               : "text-white/70 font-medium hover:bg-white/5 hover:text-white";
             const onClick = () => router.push(path);
@@ -828,20 +882,30 @@ export default function Sidebar({
 
               {isAdminOpen && (
                 <div className="flex flex-col space-y-1 bg-black/10 p-1">
-                  <button
-                    onClick={() => router.push("/users")}
-                    className={`w-full flex items-center gap-2 p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${isActive("/users") ? "text-white bg-white/5 font-medium" : "text-white/50 font-medium hover:text-white"}`}
-                  >
-                    <UsersIcon className="w-3.5 h-3.5" />
-                    <span>Gestão de Usuários</span>
-                  </button>
-                  <button
-                    onClick={() => router.push("/deletion-requests")}
-                    className={`w-full flex items-center gap-2 p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${isActive("/deletion-requests") ? "text-white bg-white/5 font-medium" : "text-white/50 font-medium hover:text-white"}`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Exclusões Pendentes</span>
-                  </button>
+                  {archiveNavigationGroup?.items
+                    .filter((it) => it.id !== "archive")
+                    .map((it) => {
+                      const onClick = () => router.push(it.path || "/");
+                      const activeClass = isNavigationItemActive(it)
+                        ? "text-white bg-white/5 font-medium"
+                        : "text-white/50 font-medium hover:text-white";
+                      const Icon =
+                        it.id === "users"
+                          ? UsersIcon
+                          : it.id === "deletion-requests"
+                            ? Trash2
+                            : UsersIcon;
+                      return (
+                        <button
+                          key={it.id}
+                          onClick={onClick}
+                          className={`w-full flex items-center gap-2 p-2.5 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider ${activeClass}`}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          <span>{it.label}</span>
+                        </button>
+                      );
+                    })}
                   <button
                     onClick={() => setShowGreetingsManager(true)}
                     className="w-full flex items-center gap-2 p-2.5 pl-9 text-white/50 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-[10px] uppercase tracking-wider"
