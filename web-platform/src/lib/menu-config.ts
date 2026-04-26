@@ -154,4 +154,27 @@ const menuConfig: MenuConfig = {
   ],
 };
 
+export const hiddenNavigationRoutes: string[] = [
+  "/login",
+  "/reset-password",
+  "/abono/new",
+  "/abono/edit/[id]",
+  "/abono/portarias/new",
+  "/abono/portarias/edit/[id]",
+  "/afastamentos/new",
+];
+
+export const decisionRequiredNavigationRoutes = [
+  {
+    path: "/afastamentos/portarias",
+    reason:
+      "Rota existente no App Router; decidir se deve entrar no grupo Afastamentos ou permanecer como fluxo interno.",
+  },
+  {
+    path: "/abono/analytics",
+    reason:
+      "Rota existente no App Router; decidir se deve entrar no grupo Abono ou permanecer como análise técnica/oculta.",
+  },
+];
+
 export default menuConfig;
