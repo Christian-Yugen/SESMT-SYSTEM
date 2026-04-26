@@ -58,8 +58,12 @@ export default function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
   const { groups: navigationGroups } = useMenu(userRole);
-  const principalNavigationGroup = navigationGroups.find((g) => g.id === "main");
-  const historyNavigationGroup = navigationGroups.find((g) => g.id === "history");
+  const principalNavigationGroup = navigationGroups.find(
+    (g) => g.id === "main",
+  );
+  const historyNavigationGroup = navigationGroups.find(
+    (g) => g.id === "history",
+  );
 
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
@@ -263,23 +267,22 @@ export default function Sidebar({
     for (const record of remaining) {
       try {
         // Higienizar antes de reenviar (normalizar datas dos exames)
-        const normalizedExams: { name: string; date?: string }[] = Array.isArray(
-          record.exams_json,
-        )
-          ? (record.exams_json as unknown[])
-              .map((e) => {
-                if (typeof e === "string") return { name: e };
-                if (!e || typeof e !== "object") return null;
-                const obj = e as Record<string, unknown>;
-                const name = asString(obj.name ?? obj.Nome ?? obj.nome);
-                if (!name) return null;
-                const rawDate = obj.date ?? obj.data ?? undefined;
-                const isoDate = toIsoFromMixed(rawDate);
-                if (isoDate) return { name, date: isoDate };
-                return { name };
-              })
-              .filter((x): x is { name: string; date?: string } => x !== null)
-          : [];
+        const normalizedExams: { name: string; date?: string }[] =
+          Array.isArray(record.exams_json)
+            ? (record.exams_json as unknown[])
+                .map((e) => {
+                  if (typeof e === "string") return { name: e };
+                  if (!e || typeof e !== "object") return null;
+                  const obj = e as Record<string, unknown>;
+                  const name = asString(obj.name ?? obj.Nome ?? obj.nome);
+                  if (!name) return null;
+                  const rawDate = obj.date ?? obj.data ?? undefined;
+                  const isoDate = toIsoFromMixed(rawDate);
+                  if (isoDate) return { name, date: isoDate };
+                  return { name };
+                })
+                .filter((x): x is { name: string; date?: string } => x !== null)
+            : [];
 
         // Higienizar o registro principal (tipos seguros)
         const sanitizedRecord: Record<string, unknown> = {
@@ -289,7 +292,10 @@ export default function Sidebar({
         };
 
         // Não logar payload completo — apenas CPF mascarado como diagnóstico (coerção segura)
-        console.log("Reenviando pendência — CPF:", maskCpf(asString(sanitizedRecord.servidor_cpf)));
+        console.log(
+          "Reenviando pendência — CPF:",
+          maskCpf(asString(sanitizedRecord.servidor_cpf)),
+        );
 
         const resp = await fetch("/api/aso-history", {
           method: "POST",
@@ -312,7 +318,9 @@ export default function Sidebar({
         const reason = err instanceof Error ? err.message : String(err);
         console.error("Erro ao sincronizar (resumido):", {
           reason,
-          cpf: maskCpf(asString((record as Record<string, unknown>)?.servidor_cpf)),
+          cpf: maskCpf(
+            asString((record as Record<string, unknown>)?.servidor_cpf),
+          ),
         });
         failedToSync.push(record);
       }
@@ -415,38 +423,44 @@ export default function Sidebar({
           className="flex-1 space-y-1 overflow-y-auto pr-1 scrollbar-none"
         >
           {/* Grupo Principal: renderizado a partir da config (apenas Principal) */}
-          {userRole !== "social_assistant" && (() => {
-            const main = principalNavigationGroup;
-            if (!main || !main.items || main.items.length === 0) return null;
-            return (
-              <>
-                {main.items.map((it) => {
-                  const path = it.path || "/";
-                  const activeClass = isActive(path)
-                    ? "bg-white/10 text-white font-medium shadow-sm border border-white/5"
-                    : "text-white/70 font-medium hover:bg-white/5 hover:text-white";
+          {userRole !== "social_assistant" &&
+            (() => {
+              const main = principalNavigationGroup;
+              if (!main || !main.items || main.items.length === 0) return null;
+              return (
+                <>
+                  {main.items.map((it) => {
+                    const path = it.path || "/";
+                    const activeClass = isActive(path)
+                      ? "bg-white/10 text-white font-medium shadow-sm border border-white/5"
+                      : "text-white/70 font-medium hover:bg-white/5 hover:text-white";
 
-                  const onClick = () => {
-                    handleCollapseAll();
-                    router.push(path);
-                  };
+                    const onClick = () => {
+                      handleCollapseAll();
+                      router.push(path);
+                    };
 
-                  const Icon = it.id === "create-docs" ? LayoutDashboard : it.id === "referrals" ? ClipboardList : LayoutDashboard;
+                    const Icon =
+                      it.id === "create-docs"
+                        ? LayoutDashboard
+                        : it.id === "referrals"
+                          ? ClipboardList
+                          : LayoutDashboard;
 
-                  return (
-                    <button
-                      key={it.id}
-                      onClick={onClick}
-                      className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{it.label}</span>
-                    </button>
-                  );
-                })}
-              </>
-            );
-          })()}
+                    return (
+                      <button
+                        key={it.id}
+                        onClick={onClick}
+                        className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                      >
+                        <Icon className="w-4 h-4 shrink-0" />
+                        <span>{it.label}</span>
+                      </button>
+                    );
+                  })}
+                </>
+              );
+            })()}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
           {(userRole !== "viewer" || pathname.includes("/afastamentos")) && (
@@ -722,57 +736,80 @@ export default function Sidebar({
           )}
 
           {/* Grupo Histórico: renderizado a partir da config (apenas Histórico) */}
-          {userRole !== "viewer" && (() => {
-            const history = historyNavigationGroup;
-            if (!history) return null;
-            return (
-              <div className="space-y-1">
-                <button
-                  onClick={handleToggleHistory}
-                  className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <HistoryIcon className="w-4 h-4 shrink-0" />
-                    <span>Histórico</span>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
+          {userRole !== "viewer" &&
+            (() => {
+              const history = historyNavigationGroup;
+              if (!history) return null;
+              return (
+                <div className="space-y-1">
+                  <button
+                    onClick={handleToggleHistory}
+                    className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <HistoryIcon className="w-4 h-4 shrink-0" />
+                      <span>Histórico</span>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
 
-                {isHistoryOpen && (
-                  <div className="flex flex-col space-y-1 bg-black/10 p-1">
-                    {history.items.map((it) => {
-                      const path = it.path || "/history";
-                      const activeClass = isActive(path) ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white";
-                      const onClick = () => router.push(path);
-                      const Icon = it.id === "history-log" ? HistoryIcon : it.id === "analytics" ? BarChart3 : HistoryIcon;
-                      return (
-                        <button
-                          key={it.id}
-                          onClick={onClick}
-                          className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
-                        >
-                          <Icon className="w-3.5 h-3.5 shrink-0" />
-                          <span>{it.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                  {isHistoryOpen && (
+                    <div className="flex flex-col space-y-1 bg-black/10 p-1">
+                      {history.items.map((it) => {
+                        const path = it.path || "/history";
+                        const activeClass = isActive(path)
+                          ? "text-white bg-white/5 font-medium"
+                          : "text-white/60 font-medium hover:text-white";
+                        const onClick = () => router.push(path);
+                        const Icon =
+                          it.id === "history-log"
+                            ? HistoryIcon
+                            : it.id === "analytics"
+                              ? BarChart3
+                              : HistoryIcon;
+                        return (
+                          <button
+                            key={it.id}
+                            onClick={onClick}
+                            className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                          >
+                            <Icon className="w-3.5 h-3.5 shrink-0" />
+                            <span>{it.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+          {(() => {
+            const archiveGroup = navigationGroups.find(
+              (g) => g.id === "archive_admin",
+            );
+            const archiveItem = archiveGroup?.items.find(
+              (it) => it.id === "archive",
+            );
+            if (!archiveItem) return null;
+            const path = archiveItem.path || "/archive";
+            const activeClass = isActive(path)
+              ? "bg-white/10 text-white font-medium shadow-sm border border-white/5"
+              : "text-white/70 font-medium hover:bg-white/5 hover:text-white";
+            const onClick = () => router.push(path);
+
+            return (
+              <button
+                onClick={onClick}
+                className={`w-full flex items-center gap-1.5 p-3 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-xs uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+              >
+                <FolderOpen className="w-4 h-4 shrink-0" />
+                <span>{archiveItem.label}</span>
+              </button>
             );
           })()}
-
-          {userRole !== "social_assistant" && (
-            <button
-              onClick={() => router.push("/archive")}
-              className={`w-full flex items-center gap-1.5 p-3 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-xs uppercase tracking-wider whitespace-nowrap ${isActive("/archive") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
-            >
-              <FolderOpen className="w-4 h-4 shrink-0" />
-              <span>Arquivo Médico</span>
-            </button>
-          )}
 
           {(userRole === "admin" || userRole === "analytic_manager") && (
             <div className="space-y-1">
