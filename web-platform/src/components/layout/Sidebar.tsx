@@ -719,41 +719,49 @@ export default function Sidebar({
             </div>
           )}
 
-          {userRole !== "viewer" && (
-            <div className="space-y-1">
-              <button
-                onClick={handleToggleHistory}
-                className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
-              >
-                <div className="flex items-center gap-1.5">
-                  <HistoryIcon className="w-4 h-4 shrink-0" />
-                  <span>Histórico</span>
-                </div>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
-                />
-              </button>
+          {/* Grupo Histórico: renderizado a partir da config (apenas Histórico) */}
+          {userRole !== "viewer" && (() => {
+            const { groups } = useMenu(userRole);
+            const history = groups.find((g) => g.id === "history");
+            if (!history) return null;
+            return (
+              <div className="space-y-1">
+                <button
+                  onClick={handleToggleHistory}
+                  className="w-full flex items-center justify-between p-3 text-white/70 hover:bg-white/5 hover:text-white active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left font-medium text-xs uppercase tracking-wider"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <HistoryIcon className="w-4 h-4 shrink-0" />
+                    <span>Histórico</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${isHistoryOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
 
-              {isHistoryOpen && (
-                <div className="flex flex-col space-y-1 bg-black/10 p-1">
-                  <button
-                    onClick={() => router.push("/history")}
-                    className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/history") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
-                  >
-                    <HistoryIcon className="w-3.5 h-3.5 shrink-0" />
-                    <span>Log Principal</span>
-                  </button>
-                  <button
-                    onClick={() => router.push("/analytics")}
-                    className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${isActive("/analytics") ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white"}`}
-                  >
-                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                    <span>Indicadores BI</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+                {isHistoryOpen && (
+                  <div className="flex flex-col space-y-1 bg-black/10 p-1">
+                    {history.items.map((it) => {
+                      const path = it.path || "/history";
+                      const activeClass = isActive(path) ? "text-white bg-white/5 font-medium" : "text-white/60 font-medium hover:text-white";
+                      const onClick = () => router.push(path);
+                      const Icon = it.id === "history-log" ? HistoryIcon : it.id === "analytics" ? BarChart3 : HistoryIcon;
+                      return (
+                        <button
+                          key={it.id}
+                          onClick={onClick}
+                          className={`w-full flex items-center gap-1.5 p-2 pl-9 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[10px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                        >
+                          <Icon className="w-3.5 h-3.5 shrink-0" />
+                          <span>{it.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {userRole !== "social_assistant" && (
             <button
