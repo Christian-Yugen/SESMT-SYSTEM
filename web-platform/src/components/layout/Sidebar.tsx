@@ -32,6 +32,7 @@ import { supabase } from "@/lib/supabase";
 import { ensureISO } from "@/lib/utils";
 import { safeGetSession, handleAuthError } from "@/lib/auth-utils";
 import { maskCpf } from "@/lib/record-utils";
+import { useMenu } from "@/lib/use-menu";
 import {
   loadPendingAsoHistory,
   savePendingAsoHistory,
@@ -410,33 +411,40 @@ export default function Sidebar({
           ref={sidebarRef}
           className="flex-1 space-y-1 overflow-y-auto pr-1 scrollbar-none"
         >
-          {userRole !== "social_assistant" && (
-            <>
-              <button
-                onClick={() => {
-                  handleCollapseAll();
-                  router.push("/");
-                }}
-                className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
-              >
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                <span>Criar documentos</span>
-              </button>
+          {/* Grupo Principal: renderizado a partir da config (apenas Principal) */}
+          {userRole !== "social_assistant" && (() => {
+            const { groups } = useMenu(userRole);
+            const main = groups.find((g) => g.id === "main");
+            if (!main || !main.items || main.items.length === 0) return null;
+            return (
+              <>
+                {main.items.map((it) => {
+                  const path = it.path || "/";
+                  const activeClass = isActive(path)
+                    ? "bg-white/10 text-white font-medium shadow-sm border border-white/5"
+                    : "text-white/70 font-medium hover:bg-white/5 hover:text-white";
 
-              {userRole !== "viewer" && (
-                <button
-                  onClick={() => {
+                  const onClick = () => {
                     handleCollapseAll();
-                    router.push("/referrals");
-                  }}
-                  className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${isActive("/referrals") ? "bg-white/10 text-white font-medium shadow-sm border border-white/5" : "text-white/70 font-medium hover:bg-white/5 hover:text-white"}`}
-                >
-                  <ClipboardList className="w-4 h-4 shrink-0" />
-                  <span>Central de Evidências</span>
-                </button>
-              )}
-            </>
-          )}
+                    router.push(path);
+                  };
+
+                  const Icon = it.id === "create-docs" ? LayoutDashboard : it.id === "referrals" ? ClipboardList : LayoutDashboard;
+
+                  return (
+                    <button
+                      key={it.id}
+                      onClick={onClick}
+                      className={`w-full flex items-center gap-1.5 p-2.5 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[11px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span>{it.label}</span>
+                    </button>
+                  );
+                })}
+              </>
+            );
+          })()}
 
           {/* BENEFÍCIOS COM SUBMENU CONSOLIDADO */}
           {(userRole !== "viewer" || pathname.includes("/afastamentos")) && (
