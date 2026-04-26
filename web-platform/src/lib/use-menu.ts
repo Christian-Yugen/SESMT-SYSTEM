@@ -24,12 +24,7 @@ export function useMenu(userRole: string | null) {
     const mode = item.match || "exact";
     if (mode === "exact") return pathname === item.path;
     if (mode === "startsWith") return pathname.startsWith(item.path);
-    try {
-      const re = new RegExp(item.path as string);
-      return re.test(pathname);
-    } catch {
-      return false;
-    }
+    return false;
   };
 
   return { groups, isActive } as const;

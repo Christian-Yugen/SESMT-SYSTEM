@@ -1,4 +1,4 @@
-import type { MenuConfig } from "./menu-types";
+import type { MenuConfig, DecisionRequiredNavigationRoute } from "./menu-types";
 
 const menuConfig: MenuConfig = {
   groups: [
@@ -164,7 +164,7 @@ export const hiddenNavigationRoutes: string[] = [
   "/afastamentos/new",
 ];
 
-export const decisionRequiredNavigationRoutes = [
+export const decisionRequiredNavigationRoutes: DecisionRequiredNavigationRoute[] = [
   {
     path: "/afastamentos/portarias",
     reason:

@@ -9,6 +9,11 @@ export type Role =
 
 export type MatchMode = "exact" | "startsWith" | "regex";
 
+export interface DecisionRequiredNavigationRoute {
+  path: string;
+  reason: string;
+}
+
 export interface MenuItem {
   id: string;
   label: string;
