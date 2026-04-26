@@ -7,7 +7,7 @@ export type Role =
   | "social_assistant"
   | "operator";
 
-export type MatchMode = "exact" | "startsWith" | "regex";
+export type MatchMode = "exact" | "startsWith";
 
 export interface DecisionRequiredNavigationRoute {
   path: string;
