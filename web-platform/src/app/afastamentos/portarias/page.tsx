@@ -27,7 +27,7 @@ interface PortariaRecord {
   perito_nome: string;
   perito_crm: string;
   servidor_contrato?: string;
-  servidor_sexo?: string;
+  servidor_sexo?: "F" | "M" | undefined;
 }
 
 export default function AfastamentoPortariasPage() {
@@ -154,7 +154,7 @@ export default function AfastamentoPortariasPage() {
         perito_nome: record.perito_nome,
         perito_crm: record.perito_crm,
         servidor_contrato: record.servidor_contrato,
-        sexo: record.servidor_sexo,
+        sexo: record.servidor_sexo as "F" | "M" | undefined,
       },
       "view",
     );
@@ -263,7 +263,7 @@ export default function AfastamentoPortariasPage() {
                             perito_nome: record.perito_nome,
                             perito_crm: record.perito_crm,
                             servidor_contrato: record.servidor_contrato,
-                            sexo: record.servidor_sexo,
+                            sexo: record.servidor_sexo as "F" | "M" | undefined,
                           },
                           "download",
                         );
