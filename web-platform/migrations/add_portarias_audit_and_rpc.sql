@@ -12,6 +12,36 @@ CREATE TABLE IF NOT EXISTS public.portarias_afastamento_audit (
   changed_by text
 );
 
+-- Habilitar RLS e políticas para permitir inserção por usuários autorizados
+ALTER TABLE IF EXISTS public.portarias_afastamento_audit ENABLE ROW LEVEL SECURITY;
+
+-- Permitir inserção de logs por perfis com role 'admin' ou 'nurse'
+DROP POLICY IF EXISTS "Portarias audit: Permitir inserção" ON public.portarias_afastamento_audit;
+CREATE POLICY "Portarias audit: Permitir inserção" ON public.portarias_afastamento_audit
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    -- Permite inserção quando o campo changed_by for igual ao usuário atual (trigger grava auth.uid())
+    changed_by = auth.uid()::text
+    -- ou quando o usuário possui role admin ou nurse
+    OR EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+        AND (profiles.role = 'admin' OR profiles.role = 'nurse')
+    )
+  );
+
+-- Permitir leitura dos logs apenas para admin ou nurse
+DROP POLICY IF EXISTS "Portarias audit: Leitura restrita" ON public.portarias_afastamento_audit;
+CREATE POLICY "Portarias audit: Leitura restrita" ON public.portarias_afastamento_audit
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid()
+        AND (profiles.role = 'admin' OR profiles.role = 'nurse')
+    )
+  );
+
 -- 2) Função trigger para registrar inserts/updates relevantes
 CREATE OR REPLACE FUNCTION public.portarias_afastamento_audit_trigger()
 RETURNS trigger LANGUAGE plpgsql AS $$
