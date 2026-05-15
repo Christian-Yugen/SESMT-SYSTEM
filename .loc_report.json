@@ -1,0 +1,48 @@
+﻿{
+    "total_tracked_files":  414,
+    "total_lines":  17336,
+    "ext_counts":  [
+                       {
+                           "lines":  17,
+                           "ext":  "gitignore"
+                       },
+                       {
+                           "lines":  55,
+                           "ext":  "js"
+                       },
+                       {
+                           "lines":  472,
+                           "ext":  "md"
+                       },
+                       {
+                           "lines":  16792,
+                           "ext":  "xlsx"
+                       }
+                   ],
+    "folder_counts":  [
+                          {
+                              "folder":  ".gitignore",
+                              "lines":  17
+                          },
+                          {
+                              "folder":  "AGENTS.md",
+                              "lines":  59
+                          },
+                          {
+                              "folder":  "check_parens.js",
+                              "lines":  55
+                          },
+                          {
+                              "folder":  "dados",
+                              "lines":  16792
+                          },
+                          {
+                              "folder":  "PR_BODY_ASO_FIX.md",
+                              "lines":  37
+                          },
+                          {
+                              "folder":  "PROGRESSO_FILTROS_FASE5.md",
+                              "lines":  376
+                          }
+                      ]
+}

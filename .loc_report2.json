@@ -1,0 +1,129 @@
+﻿{
+    "total_files_considered":  472,
+    "ext_counts":  [
+                       {
+                           "lines":  74,
+                           "ext":  "bat"
+                       },
+                       {
+                           "lines":  49,
+                           "ext":  "css"
+                       },
+                       {
+                           "lines":  3312,
+                           "ext":  "csv"
+                       },
+                       {
+                           "lines":  3,
+                           "ext":  "example"
+                       },
+                       {
+                           "lines":  888214,
+                           "ext":  "exe"
+                       },
+                       {
+                           "lines":  49,
+                           "ext":  "gitignore"
+                       },
+                       {
+                           "lines":  63083,
+                           "ext":  "html"
+                       },
+                       {
+                           "lines":  77,
+                           "ext":  "ico"
+                       },
+                       {
+                           "lines":  1666,
+                           "ext":  "js"
+                       },
+                       {
+                           "lines":  393343,
+                           "ext":  "json"
+                       },
+                       {
+                           "lines":  4,
+                           "ext":  "local"
+                       },
+                       {
+                           "lines":  14,
+                           "ext":  "log"
+                       },
+                       {
+                           "lines":  12688,
+                           "ext":  "md"
+                       },
+                       {
+                           "lines":  3539,
+                           "ext":  "mjs"
+                       },
+                       {
+                           "lines":  38243,
+                           "ext":  "pdf"
+                       },
+                       {
+                           "lines":  442017,
+                           "ext":  "pkg"
+                       },
+                       {
+                           "lines":  4189,
+                           "ext":  "png"
+                       },
+                       {
+                           "lines":  133,
+                           "ext":  "ps1"
+                       },
+                       {
+                           "lines":  1398,
+                           "ext":  "py"
+                       },
+                       {
+                           "lines":  671,
+                           "ext":  "pyc"
+                       },
+                       {
+                           "lines":  131607,
+                           "ext":  "pyz"
+                       },
+                       {
+                           "lines":  82,
+                           "ext":  "spec"
+                       },
+                       {
+                           "lines":  9620,
+                           "ext":  "sql"
+                       },
+                       {
+                           "lines":  5,
+                           "ext":  "svg"
+                       },
+                       {
+                           "lines":  28274,
+                           "ext":  "toc"
+                       },
+                       {
+                           "lines":  16912,
+                           "ext":  "ts"
+                       },
+                       {
+                           "lines":  1,
+                           "ext":  "tsbuildinfo"
+                       },
+                       {
+                           "lines":  32371,
+                           "ext":  "tsx"
+                       },
+                       {
+                           "lines":  2094,
+                           "ext":  "txt"
+                       },
+                       {
+                           "lines":  19444,
+                           "ext":  "xlsx"
+                       },
+                       {
+                           "lines":  10774,
+                           "ext":  "zip"
+                       }
+                   ]
+}
