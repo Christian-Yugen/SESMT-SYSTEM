@@ -53,10 +53,14 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   let art1Body: string;
   // Construir texto de lotação com fallback quando não houver informação
   const generoIsF = genero === "F" || genero === "FEMININO";
-  const lotadoGrammar = getLotadoGrammar(generoIsF ? "F" : "M", data.servidor_lotacao || "");
-  const lotacaoText = data.servidor_lotacao && data.servidor_lotacao.trim()
-    ? `${lotadoGrammar} ${data.servidor_lotacao}`
-    : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
+  const lotadoGrammar = getLotadoGrammar(
+    generoIsF ? "F" : "M",
+    data.servidor_lotacao || "",
+  );
+  const lotacaoText =
+    data.servidor_lotacao && data.servidor_lotacao.trim()
+      ? `${lotadoGrammar} ${data.servidor_lotacao}`
+      : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
 
   if (generoIsF) {
     art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
@@ -127,17 +131,26 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   const bodyColumnIndent = 1110; // aproxima o bodyStartX do PDF
   const authorityLeftIndent = 3960; // aproxima o bloco do preâmbulo do PDF
   const articleFirstLineIndent = 709; // 1.25cm
+  const fixedHeaderLeftWidth = 1134; // 2cm
+  const fixedHeaderCenterWidth = 6758; // largura restante util dentro das margens
+  const fixedHeaderRightWidth = 1134; // 2cm
+  const headerRowHeight = 1134; // 2cm
+  const headerImageLeftWidth = 64;
+  const headerImageLeftHeight = 38;
+  const headerImageRightWidth = 68;
+  const headerImageRightHeight = 38;
 
   // montar cabeçalho como tabela (brasão | textos centrais | logo)
   const headerTable = new Table({
     width: {
-      size: 100,
-      type: WidthType.PERCENTAGE,
+      size:
+        fixedHeaderLeftWidth + fixedHeaderCenterWidth + fixedHeaderRightWidth,
+      type: WidthType.DXA,
     },
     layout: TableLayoutType.FIXED,
     rows: [
       new TableRow({
-        height: { value: 900, rule: HeightRule.EXACT },
+        height: { value: headerRowHeight, rule: HeightRule.EXACT },
         cantSplit: true,
         tableHeader: true,
         children: [
@@ -148,8 +161,11 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   ? [
                       new ImageRun({
                         data: brazaoData!.data,
-                        type: (brazaoData!.type as any) || 'png',
-                        transformation: { width: 106, height: 64 },
+                        type: (brazaoData!.type as any) || "png",
+                        transformation: {
+                          width: headerImageLeftWidth,
+                          height: headerImageLeftHeight,
+                        },
                       }),
                     ]
                   : [new TextRun({ text: "" })],
@@ -157,9 +173,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
-            width: { size: 25, type: WidthType.PERCENTAGE },
-            verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0, left: 0, right: 0 },
+            width: { size: fixedHeaderLeftWidth, type: WidthType.DXA },
+            verticalAlign: "center" as any,
+            margins: { top: 0, bottom: 0, left: 20, right: 20 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -174,7 +190,7 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   new TextRun({
                     text: "PREFEITURA MUNICIPAL DE TRÊS LAGOAS",
                     bold: true,
-                    size: 26,
+                    size: 22,
                     font: bodyFont,
                     color: headerHex,
                   }),
@@ -186,8 +202,7 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 children: [
                   new TextRun({
                     text: "ESTADO DE MATO GROSSO DO SUL",
-                    bold: true,
-                    size: 26,
+                    size: 20,
                     font: bodyFont,
                     color: headerHex,
                   }),
@@ -207,9 +222,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
-            width: { size: 50, type: WidthType.PERCENTAGE },
-            verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0, left: 0, right: 0 },
+            width: { size: fixedHeaderCenterWidth, type: WidthType.DXA },
+            verticalAlign: "center" as any,
+            margins: { top: 0, bottom: 0, left: 20, right: 20 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -224,8 +239,11 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   ? [
                       new ImageRun({
                         data: logoData!.data,
-                        type: (logoData!.type as any) || 'png',
-                        transformation: { width: 128, height: 64 },
+                        type: (logoData!.type as any) || "png",
+                        transformation: {
+                          width: headerImageRightWidth,
+                          height: headerImageRightHeight,
+                        },
                       }),
                     ]
                   : [new TextRun({ text: "" })],
@@ -233,9 +251,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
-            width: { size: 25, type: WidthType.PERCENTAGE },
-            verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0, left: 0, right: 0 },
+            width: { size: fixedHeaderRightWidth, type: WidthType.DXA },
+            verticalAlign: "center" as any,
+            margins: { top: 0, bottom: 0, left: 20, right: 20 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -249,7 +267,12 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
         height: { value: 120, rule: HeightRule.EXACT },
         children: [
           new TableCell({
-            children: [new Paragraph({ text: "", spacing: { before: 0, after: 0, line: 240 } })],
+            children: [
+              new Paragraph({
+                text: "",
+                spacing: { before: 0, after: 0, line: 240 },
+              }),
+            ],
             columnSpan: 3,
             borders: {
               top: { style: BorderStyle.SINGLE, size: 8, color: headerHex },
@@ -272,23 +295,38 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
         // colocar o cabeçalho real do Word para garantir posicionamento
         headers: { default: header },
         properties: {
-          page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440, header: 360 } },
+          page: {
+            margin: {
+              top: 1440,
+              right: 1440,
+              bottom: 1440,
+              left: 1440,
+              header: 360,
+            },
+          },
         },
         children: [
           // Título da Portaria
           new Paragraph({
             children: [
-              new TextRun({ text: titulo, bold: true, size: 26, font: bodyFont }),
+              new TextRun({
+                text: titulo,
+                bold: true,
+                size: 26,
+                font: bodyFont,
+              }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 240, after: 120, line: 240 },
+            spacing: { before: 160, after: 80, line: 240 },
           }),
 
           // Ementa / resumo
           new Paragraph({
-            children: [new TextRun({ text: subtitle, size: bodySize, font: bodyFont })],
+            children: [
+              new TextRun({ text: subtitle, size: bodySize, font: bodyFont }),
+            ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 240, line: 240 },
+            spacing: { before: 0, after: 160, line: 240 },
           }),
 
           // Autoridade (deve vir antes do RESOLVE:)
@@ -301,22 +339,34 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 240, line: lineSpacing },
+            spacing: { before: 0, after: 160, line: lineSpacing },
             indent: { left: authorityLeftIndent },
           }),
 
           // RESOLVE:
           new Paragraph({
-            children: [new TextRun({ text: "RESOLVE:", bold: true, size: bodySize, font: bodyFont })],
+            children: [
+              new TextRun({
+                text: "RESOLVE:",
+                bold: true,
+                size: bodySize,
+                font: bodyFont,
+              }),
+            ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 240, line: lineSpacing },
+            spacing: { before: 160, after: 80, line: lineSpacing },
             indent: { left: bodyColumnIndent },
           }),
 
           // Artigo 1
           new Paragraph({
             children: [
-              new TextRun({ text: "Art. 1º - ", bold: true, size: bodySize, font: bodyFont }),
+              new TextRun({
+                text: "Art. 1º - ",
+                bold: true,
+                size: bodySize,
+                font: bodyFont,
+              }),
               new TextRun({ text: art1Body, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
@@ -327,42 +377,70 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
           // Artigo 2
           new Paragraph({
             children: [
-              new TextRun({ text: "Art. 2º - ", bold: true, size: bodySize, font: bodyFont }),
+              new TextRun({
+                text: "Art. 2º - ",
+                bold: true,
+                size: bodySize,
+                font: bodyFont,
+              }),
               new TextRun({ text: art2, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 240, line: lineSpacing },
+            spacing: { before: 0, after: 0, line: lineSpacing },
             indent: { firstLine: articleFirstLineIndent, left: 0, right: 0 },
           }),
 
           // Fechamento / Publique-se
           new Paragraph({
-            children: [new TextRun({ text: "Registre-se, Publique-se.", size: bodySize, font: bodyFont })],
+            children: [
+              new TextRun({
+                text: "Registre-se, Publique-se.",
+                size: bodySize,
+                font: bodyFont,
+              }),
+            ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 240, line: lineSpacing },
+            spacing: { before: 0, after: 0, line: lineSpacing },
             indent: { left: bodyColumnIndent },
           }),
 
           // Data
           new Paragraph({
             children: [
-              new TextRun({ text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`, size: bodySize, font: bodyFont }),
+              new TextRun({
+                text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`,
+                size: bodySize,
+                font: bodyFont,
+              }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 0, after: 720, line: lineSpacing },
+            spacing: { before: 0, after: 0, line: lineSpacing },
             indent: { left: bodyColumnIndent },
           }),
 
           // Assinatura
           new Paragraph({
-            children: [new TextRun({ text: "VANESSA DOS SANTOS SÊNA", bold: true, size: bodySize, font: bodyFont })],
+            children: [
+              new TextRun({
+                text: "VANESSA DOS SANTOS SÊNA",
+                bold: true,
+                size: bodySize,
+                font: bodyFont,
+              }),
+            ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 0 },
+            spacing: { before: 480, after: 0, line: 240 },
           }),
           new Paragraph({
-            children: [new TextRun({ text: "Secretária Municipal de Gestão de Pessoas", size: bodySize, font: bodyFont })],
+            children: [
+              new TextRun({
+                text: "Secretária Municipal de Gestão de Pessoas",
+                size: bodySize,
+                font: bodyFont,
+              }),
+            ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 0 },
+            spacing: { before: 0, after: 0, line: 240 },
           }),
         ],
       },
