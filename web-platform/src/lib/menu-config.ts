@@ -68,6 +68,13 @@ const menuConfig: MenuConfig = {
           match: "startsWith",
           roles: ["admin", "nurse", "analytic_manager", "doctor"],
         },
+        {
+          id: "afastamentos-portarias",
+          label: "Portarias",
+          path: "/afastamentos/portarias",
+          match: "startsWith",
+          roles: ["admin", "nurse", "analytic_manager", "doctor"],
+        },
       ],
     },
     {
@@ -165,11 +172,6 @@ export const hiddenNavigationRoutes: string[] = [
 ];
 
 export const decisionRequiredNavigationRoutes: DecisionRequiredNavigationRoute[] = [
-  {
-    path: "/afastamentos/portarias",
-    reason:
-      "Rota existente no App Router; decidir se deve entrar no grupo Afastamentos ou permanecer como fluxo interno.",
-  },
   {
     path: "/abono/analytics",
     reason:
