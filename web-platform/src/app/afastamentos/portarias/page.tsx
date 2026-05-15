@@ -35,7 +35,11 @@ export default function AfastamentoPortariasPage() {
     if (!d) return "";
     const p = d.split("-");
     if (p.length !== 3) return new Date(d).toLocaleDateString("pt-BR");
-    return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])).toLocaleDateString("pt-BR");
+    return new Date(
+      parseInt(p[0]),
+      parseInt(p[1]) - 1,
+      parseInt(p[2]),
+    ).toLocaleDateString("pt-BR");
   };
   const [records, setRecords] = useState<PortariaRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +65,11 @@ export default function AfastamentoPortariasPage() {
             .single();
           if (data) {
             setUserRole(data.role);
-            if (data.role !== "admin" && data.role !== "nurse" && data.role !== "analytic_manager") {
+            if (
+              data.role !== "admin" &&
+              data.role !== "nurse" &&
+              data.role !== "analytic_manager"
+            ) {
               router.push("/");
               return;
             }
