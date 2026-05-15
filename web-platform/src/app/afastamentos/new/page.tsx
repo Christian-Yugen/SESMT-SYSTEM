@@ -386,6 +386,7 @@ export default function NewAfastamentoPage() {
             servidor_cpf: bond.cpf,
             servidor_nome: bond.nome,
             servidor_matricula: bond.matricula,
+            servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? null,
             servidor_contrato: bond.contrato,
             servidor_secretaria: bond.secretaria,
             servidor_cargo: bond.cargo || bond.natureza_cargo,
@@ -523,6 +524,7 @@ export default function NewAfastamentoPage() {
           nextNumber = (usedNumber ?? nextNumber) + 1;
         }
 
+        // Anexa informação de sexo do vínculo/servidor para geração correta do texto
         setGeneratedPortaria({
           ...portariaRec,
           servidor_nome: bond.nome,
@@ -536,6 +538,10 @@ export default function NewAfastamentoPage() {
           perito_nome: formData.perito_nome,
           perito_crm: formData.perito_crm,
           servidor_contrato: contractsForPortaria,
+          // pode vir como 'M'|'F' ou 'MASCULINO'/'FEMININO' — o gerador normaliza
+          sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+          servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+          servidor_genero: bond.sexo ?? selectedServidor?.sexo ?? undefined,
         });
 
         // Prorrogação: Procurar o registro anterior correspondente a este vínculo
