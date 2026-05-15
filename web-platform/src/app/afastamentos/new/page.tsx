@@ -386,6 +386,7 @@ export default function NewAfastamentoPage() {
             servidor_cpf: bond.cpf,
             servidor_nome: bond.nome,
             servidor_matricula: bond.matricula,
+            servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? null,
             servidor_contrato: bond.contrato,
             servidor_secretaria: bond.secretaria,
             servidor_cargo: bond.cargo || bond.natureza_cargo,
