@@ -1,26 +1,15 @@
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  AlignmentType,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
-  ImageRun,
-  BorderStyle,
-  Header,
-  HeightRule,
-  TableLayoutType,
-} from "docx";
 import { saveAs } from "file-saver";
+import PizZip from "pizzip";
 import { capitalizeName, getLotadoGrammar } from "./portaria-utils";
 import type { AfastamentoPortariaData } from "./afastamento-portaria-pdf";
+
+const TEMPLATE_PATH = "/templates/afastamento-portaria-template.docx";
+const WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 function formatDateExtended(dateStr: string): string {
   const parts = dateStr.split("/");
   if (parts.length !== 3) return dateStr;
+
   const day = Number.parseInt(parts[0], 10);
   const month = Number.parseInt(parts[1], 10) - 1;
   const year = Number.parseInt(parts[2], 10);
@@ -43,413 +32,274 @@ function formatDateExtended(dateStr: string): string {
   return `${day} de ${meses[month]} de ${year}`;
 }
 
-export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
-  const nomeFormatado = capitalizeName(data.servidor_nome || "");
+function getDescendantsByLocalName(
+  root: Document | Element,
+  localName: string,
+): Element[] {
+  const descendants = Array.from(root.getElementsByTagName("*")) as Element[];
+  return descendants.filter((node) => node.localName === localName);
+}
 
-  // decidir gênero conforme informação no banco
+function getDirectChildrenByLocalName(
+  root: Element,
+  localName: string,
+): Element[] {
+  const children = Array.from(root.childNodes) as ChildNode[];
+  return children.filter(
+    (node): node is Element =>
+      node.nodeType === Node.ELEMENT_NODE &&
+      (node as Element).localName === localName,
+  );
+}
+
+function getParagraphText(paragraph: Element): string {
+  return getDescendantsByLocalName(paragraph, "t")
+    .map((node) => node.textContent ?? "")
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function ensureTextNode(run: Element): Element {
+  const textNodes = getDescendantsByLocalName(run, "t");
+  if (textNodes[0]) return textNodes[0];
+
+  const textNode = run.ownerDocument.createElementNS(WORD_NS, "w:t");
+  textNode.setAttributeNS(
+    "http://www.w3.org/XML/1998/namespace",
+    "xml:space",
+    "preserve",
+  );
+  run.appendChild(textNode);
+  return textNode;
+}
+
+function normalizeRunText(run: Element, text: string): void {
+  const textNodes = getDescendantsByLocalName(run, "t");
+  const target = textNodes[0] ?? ensureTextNode(run);
+  target.textContent = text;
+
+  if (text.startsWith(" ") || text.endsWith(" ")) {
+    target.setAttributeNS(
+      "http://www.w3.org/XML/1998/namespace",
+      "xml:space",
+      "preserve",
+    );
+  }
+
+  for (const extra of textNodes.slice(1)) {
+    extra.parentNode?.removeChild(extra);
+  }
+}
+
+function setParagraphRuns(paragraph: Element, texts: string[]): void {
+  const paragraphProperties =
+    getDirectChildrenByLocalName(paragraph, "pPr")[0] ?? null;
+  const existingRuns = getDirectChildrenByLocalName(paragraph, "r");
+
+  for (const child of [
+    ...getDirectChildrenByLocalName(paragraph, "r"),
+    ...getDirectChildrenByLocalName(paragraph, "hyperlink"),
+  ]) {
+    paragraph.removeChild(child);
+  }
+
+  const fallbackRun = paragraph.ownerDocument.createElementNS(WORD_NS, "w:r");
+  const templates = existingRuns.length > 0 ? existingRuns : [fallbackRun];
+  const insertBeforeNode = paragraphProperties?.nextSibling ?? null;
+
+  texts.forEach((text, index) => {
+    const template = templates[Math.min(index, templates.length - 1)];
+    const run = template.cloneNode(true) as Element;
+    normalizeRunText(run, text);
+    paragraph.insertBefore(run, insertBeforeNode);
+  });
+}
+
+function findFirstParagraph(
+  paragraphs: Element[],
+  predicate: (text: string) => boolean,
+): Element {
+  const paragraph = paragraphs.find((candidate) =>
+    predicate(getParagraphText(candidate)),
+  );
+
+  if (!paragraph) {
+    throw new Error(
+      "Nao foi possivel localizar um bloco esperado no template DOCX.",
+    );
+  }
+
+  return paragraph;
+}
+
+function findParagraphAfter(
+  paragraphs: Element[],
+  startIndex: number,
+  predicate: (text: string) => boolean,
+): { paragraph: Element; index: number } {
+  for (let index = startIndex; index < paragraphs.length; index += 1) {
+    const text = getParagraphText(paragraphs[index]);
+    if (predicate(text)) {
+      return { paragraph: paragraphs[index], index };
+    }
+  }
+
+  throw new Error(
+    "Nao foi possivel localizar um bloco sequencial esperado no template DOCX.",
+  );
+}
+
+function buildPortariaContent(data: AfastamentoPortariaData) {
+  const nomeFormatado = capitalizeName(data.servidor_nome || "");
+  const lotacaoFormatada = capitalizeName(data.servidor_lotacao || "");
   const sexoRaw = data.sexo ?? data.servidor_sexo ?? data.servidor_genero;
   const genero = sexoRaw ? String(sexoRaw).toUpperCase() : "M";
-
-  let art1Body: string;
-  // Construir texto de lotação com fallback quando não houver informação
   const generoIsF = genero === "F" || genero === "FEMININO";
   const lotadoGrammar = getLotadoGrammar(
     generoIsF ? "F" : "M",
-    data.servidor_lotacao || "",
+    lotacaoFormatada,
   );
-  const lotacaoText =
-    data.servidor_lotacao && data.servidor_lotacao.trim()
-      ? `${lotadoGrammar} ${data.servidor_lotacao}`
-      : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
+  const lotacaoText = lotacaoFormatada
+    ? `${lotadoGrammar} ${lotacaoFormatada}`
+    : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
 
-  if (generoIsF) {
-    art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
-  } else {
-    art1Body = `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+  const art1Body = generoIsF
+    ? `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`
+    : `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+
+  return {
+    titulo: `PORTARIA Nº ${String(data.numero).padStart(4, "0")}/DSSQV/SEGP/${data.ano}`,
+    ementa: '"Dispõe sobre a concessão do benefício AUXÍLIO DOENÇA."',
+    autoridade:
+      "VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.",
+    resolve: "RESOLVE:",
+    art1Label: "Art. 1º - ",
+    art1Body,
+    art2Label: "Art. 2º - ",
+    art2Body: `Esta Portaria entra em vigor na data de sua publicação, retroagindo seus efeitos a partir de ${data.data_inicio}, revogadas as disposições em contrário.`,
+    fechamento: "Registre-se, Publique-se.",
+    dataCidade: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`,
+    assinaturaNome: "VANESSA DOS SANTOS SÊNA",
+    assinaturaCargo: "Secretária Municipal de Gestão de Pessoas",
+  };
+}
+
+function applyTemplateContent(
+  documentXml: string,
+  content: ReturnType<typeof buildPortariaContent>,
+): string {
+  const xmlDocument = new DOMParser().parseFromString(
+    documentXml,
+    "application/xml",
+  );
+  const parserError = xmlDocument.getElementsByTagName("parsererror")[0];
+  if (parserError) {
+    throw new Error("Falha ao interpretar o XML do template DOCX.");
   }
 
-  const art2 = `Esta Portaria entra em vigor na data de sua publicação, retroagindo seus efeitos a partir de ${data.data_inicio}, revogadas as disposições em contrário.`;
+  const paragraphs = getDescendantsByLocalName(xmlDocument, "p");
 
-  const titulo = `PORTARIA Nº ${String(data.numero).padStart(4, "0")}/DSSQV/SEGP/${data.ano}`;
-  const subtitle = '"Dispõe sobre a concessão do benefício AUXÍLIO DOENÇA."';
+  setParagraphRuns(
+    findFirstParagraph(paragraphs, (text) => text.startsWith("PORTARIA")),
+    [content.titulo],
+  );
+  setParagraphRuns(
+    findFirstParagraph(paragraphs, (text) =>
+      text.includes("Dispõe sobre a concessão do benefício"),
+    ),
+    [content.ementa],
+  );
 
-  // Função utilitária para carregar imagem pública como Uint8Array
-  // Retorna também o tipo (png, jpeg, svg, gif) quando possível — necessário para ImageRun
-  async function fetchImageAsUint8WithType(
-    url: string,
-  ): Promise<{ data: Uint8Array; type: string | null } | null> {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const contentType = res.headers.get("content-type") || "";
-      const ctMatch = contentType.match(/image\/(png|jpe?g|gif|svg\+xml)/i);
-      const fromHeader = ctMatch ? ctMatch[1].toLowerCase() : null;
+  const authorityMatch = findParagraphAfter(paragraphs, 0, (text) =>
+    text.startsWith(
+      "VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas",
+    ),
+  );
+  setParagraphRuns(authorityMatch.paragraph, [content.autoridade]);
 
-      const extMatch =
-        url.split("?")[0].split(".").pop()?.toLowerCase() || null;
-      let extType: string | null = null;
-      if (extMatch === "png") extType = "png";
-      else if (extMatch === "jpg" || extMatch === "jpeg") extType = "jpeg";
-      else if (extMatch === "gif") extType = "gif";
-      else if (extMatch === "svg") extType = "svg";
+  const resolveMatch = findParagraphAfter(
+    paragraphs,
+    authorityMatch.index + 1,
+    (text) => text === "RESOLVE:",
+  );
+  setParagraphRuns(resolveMatch.paragraph, [content.resolve]);
 
-      const ab = await res.arrayBuffer();
-      return { data: new Uint8Array(ab), type: fromHeader || extType };
-    } catch {
-      return null;
-    }
+  const art1Match = findParagraphAfter(
+    paragraphs,
+    resolveMatch.index + 1,
+    (text) => text.startsWith("Art. 1º"),
+  );
+  setParagraphRuns(art1Match.paragraph, [content.art1Label, content.art1Body]);
+
+  const art2Match = findParagraphAfter(
+    paragraphs,
+    art1Match.index + 1,
+    (text) => text.startsWith("Art. 2º"),
+  );
+  setParagraphRuns(art2Match.paragraph, [content.art2Label, content.art2Body]);
+
+  const fechamentoMatch = findParagraphAfter(
+    paragraphs,
+    art2Match.index + 1,
+    (text) => text.includes("Registre-se, Publique-se."),
+  );
+  setParagraphRuns(fechamentoMatch.paragraph, [content.fechamento]);
+
+  const dataMatch = findParagraphAfter(
+    paragraphs,
+    fechamentoMatch.index + 1,
+    (text) => text.startsWith("Três Lagoas, ao"),
+  );
+  setParagraphRuns(dataMatch.paragraph, [content.dataCidade]);
+
+  const assinaturaNomeMatch = findParagraphAfter(
+    paragraphs,
+    dataMatch.index + 1,
+    (text) => text === "VANESSA DOS SANTOS SÊNA",
+  );
+  setParagraphRuns(assinaturaNomeMatch.paragraph, [content.assinaturaNome]);
+
+  const assinaturaCargoMatch = findParagraphAfter(
+    paragraphs,
+    assinaturaNomeMatch.index + 1,
+    (text) => text.includes("Secretária Municipal de Gestão de Pessoas"),
+  );
+  setParagraphRuns(assinaturaCargoMatch.paragraph, [content.assinaturaCargo]);
+
+  return new XMLSerializer().serializeToString(xmlDocument);
+}
+
+export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
+  const response = await fetch(TEMPLATE_PATH);
+  if (!response.ok) {
+    throw new Error("Nao foi possivel carregar o template DOCX da portaria.");
   }
 
-  const brazaoCandidates = [
-    "/imagens/BRASAO TL - AZUL.png",
-    "/images/BRASAO TL - AZUL.png",
-  ];
-  const logoCandidates = ["/imagens/logo.png", "/images/logo.png"];
+  const templateBuffer = await response.arrayBuffer();
+  const zip = new PizZip(templateBuffer);
+  const documentFile = zip.file("word/document.xml");
 
-  let brazaoData: { data: Uint8Array; type: string | null } | null = null;
-  let logoData: { data: Uint8Array; type: string | null } | null = null;
-  for (const c of brazaoCandidates) {
-    const d = await fetchImageAsUint8WithType(c);
-    if (d) {
-      brazaoData = d;
-      break;
-    }
-  }
-  for (const c of logoCandidates) {
-    const d = await fetchImageAsUint8WithType(c);
-    if (d) {
-      logoData = d;
-      break;
-    }
+  if (!documentFile) {
+    throw new Error(
+      "Template DOCX invalido: word/document.xml nao encontrado.",
+    );
   }
 
-  // cor do cabeçalho em hex
-  const headerHex = "4472A9"; // RGB(68,114,169)
-  const bodyFont = "Times New Roman";
-  const bodySize = 24; // 12pt -> docx size is half-points (24)
-  const lineSpacing = 240; // simple spacing
-  const bodyColumnIndent = 1110; // aproxima o bodyStartX do PDF
-  const authorityLeftIndent = 3960; // aproxima o bloco do preâmbulo do PDF
-  const articleFirstLineIndent = 709; // 1.25cm
-  const fixedHeaderLeftWidth = 1134; // 2cm
-  const fixedHeaderCenterWidth = 6758; // largura restante util dentro das margens
-  const fixedHeaderRightWidth = 1134; // 2cm
-  const headerRowHeight = 1134; // 2cm
-  const headerImageLeftWidth = 64;
-  const headerImageLeftHeight = 38;
-  const headerImageRightWidth = 68;
-  const headerImageRightHeight = 38;
+  const updatedDocumentXml = applyTemplateContent(
+    documentFile.asText(),
+    buildPortariaContent(data),
+  );
 
-  // montar cabeçalho como tabela (brasão | textos centrais | logo)
-  const headerTable = new Table({
-    width: {
-      size:
-        fixedHeaderLeftWidth + fixedHeaderCenterWidth + fixedHeaderRightWidth,
-      type: WidthType.DXA,
-    },
-    layout: TableLayoutType.FIXED,
-    rows: [
-      new TableRow({
-        height: { value: headerRowHeight, rule: HeightRule.EXACT },
-        cantSplit: true,
-        tableHeader: true,
-        children: [
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: brazaoData
-                  ? [
-                      new ImageRun({
-                        data: brazaoData!.data,
-                        type: (brazaoData!.type as any) || "png",
-                        transformation: {
-                          width: headerImageLeftWidth,
-                          height: headerImageLeftHeight,
-                        },
-                      }),
-                    ]
-                  : [new TextRun({ text: "" })],
-                alignment: AlignmentType.LEFT,
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-            ],
-            width: { size: fixedHeaderLeftWidth, type: WidthType.DXA },
-            verticalAlign: "center" as any,
-            margins: { top: 0, bottom: 0, left: 20, right: 20 },
-            borders: {
-              top: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              left: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              right: { style: BorderStyle.NONE, size: 0, color: headerHex },
-            },
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: "PREFEITURA MUNICIPAL DE TRÊS LAGOAS",
-                    bold: true,
-                    size: 22,
-                    font: bodyFont,
-                    color: headerHex,
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: "ESTADO DE MATO GROSSO DO SUL",
-                    size: 20,
-                    font: bodyFont,
-                    color: headerHex,
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: "SECRETARIA MUNICIPAL DE GESTÃO DE PESSOAS",
-                    size: 20,
-                    font: bodyFont,
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-            ],
-            width: { size: fixedHeaderCenterWidth, type: WidthType.DXA },
-            verticalAlign: "center" as any,
-            margins: { top: 0, bottom: 0, left: 20, right: 20 },
-            borders: {
-              top: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              left: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              right: { style: BorderStyle.NONE, size: 0, color: headerHex },
-            },
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: logoData
-                  ? [
-                      new ImageRun({
-                        data: logoData!.data,
-                        type: (logoData!.type as any) || "png",
-                        transformation: {
-                          width: headerImageRightWidth,
-                          height: headerImageRightHeight,
-                        },
-                      }),
-                    ]
-                  : [new TextRun({ text: "" })],
-                alignment: AlignmentType.RIGHT,
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-            ],
-            width: { size: fixedHeaderRightWidth, type: WidthType.DXA },
-            verticalAlign: "center" as any,
-            margins: { top: 0, bottom: 0, left: 20, right: 20 },
-            borders: {
-              top: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              left: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              right: { style: BorderStyle.NONE, size: 0, color: headerHex },
-            },
-          }),
-        ],
-      }),
-      new TableRow({
-        height: { value: 120, rule: HeightRule.EXACT },
-        children: [
-          new TableCell({
-            children: [
-              new Paragraph({
-                text: "",
-                spacing: { before: 0, after: 0, line: 240 },
-              }),
-            ],
-            columnSpan: 3,
-            borders: {
-              top: { style: BorderStyle.SINGLE, size: 8, color: headerHex },
-              bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              left: { style: BorderStyle.NONE, size: 0, color: headerHex },
-              right: { style: BorderStyle.NONE, size: 0, color: headerHex },
-            },
-          }),
-        ],
-      }),
-    ],
-  });
+  zip.file("word/document.xml", updatedDocumentXml);
 
-  // Usar header real do documento para garantir posicionamento consistente
-  const header = new Header({ children: [headerTable] });
-
-  const doc = new Document({
-    sections: [
-      {
-        // colocar o cabeçalho real do Word para garantir posicionamento
-        headers: { default: header },
-        properties: {
-          page: {
-            margin: {
-              top: 1440,
-              right: 1440,
-              bottom: 1440,
-              left: 1440,
-              header: 360,
-            },
-          },
-        },
-        children: [
-          // Título da Portaria
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: titulo,
-                bold: true,
-                size: 26,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 160, after: 80, line: 240 },
-          }),
-
-          // Ementa / resumo
-          new Paragraph({
-            children: [
-              new TextRun({ text: subtitle, size: bodySize, font: bodyFont }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 160, line: 240 },
-          }),
-
-          // Autoridade (deve vir antes do RESOLVE:)
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da competência que lhe confere o Decreto nº 1512/2025.`,
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 160, line: lineSpacing },
-            indent: { left: authorityLeftIndent },
-          }),
-
-          // RESOLVE:
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "RESOLVE:",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 160, after: 80, line: lineSpacing },
-            indent: { left: bodyColumnIndent },
-          }),
-
-          // Artigo 1
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Art. 1º - ",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
-              new TextRun({ text: art1Body, size: bodySize, font: bodyFont }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 0, line: lineSpacing },
-            indent: { firstLine: articleFirstLineIndent, left: 0, right: 0 },
-          }),
-
-          // Artigo 2
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Art. 2º - ",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
-              new TextRun({ text: art2, size: bodySize, font: bodyFont }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 0, line: lineSpacing },
-            indent: { firstLine: articleFirstLineIndent, left: 0, right: 0 },
-          }),
-
-          // Fechamento / Publique-se
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Registre-se, Publique-se.",
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 0, line: lineSpacing },
-            indent: { left: bodyColumnIndent },
-          }),
-
-          // Data
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`,
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.LEFT,
-            spacing: { before: 0, after: 0, line: lineSpacing },
-            indent: { left: bodyColumnIndent },
-          }),
-
-          // Assinatura
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "VANESSA DOS SANTOS SÊNA",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 480, after: 0, line: 240 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Secretária Municipal de Gestão de Pessoas",
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 0, line: 240 },
-          }),
-        ],
-      },
-    ],
+  const blob = zip.generate({
+    type: "blob",
+    mimeType:
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
 
   const fileName = `Portaria_Afastamento_${String(data.numero).padStart(4, "0")}_${data.ano}.docx`;
-
-  const blob = await Packer.toBlob(doc);
   saveAs(blob, fileName);
 }
 
