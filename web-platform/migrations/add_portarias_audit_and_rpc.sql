@@ -20,7 +20,10 @@ DROP POLICY IF EXISTS "Portarias audit: Permitir inserção" ON public.portarias
 CREATE POLICY "Portarias audit: Permitir inserção" ON public.portarias_afastamento_audit
   FOR INSERT TO authenticated
   WITH CHECK (
-    EXISTS (
+    -- Permite inserção quando o campo changed_by for igual ao usuário atual (trigger grava auth.uid())
+    changed_by = auth.uid()::text
+    -- ou quando o usuário possui role admin ou nurse
+    OR EXISTS (
       SELECT 1 FROM public.profiles
       WHERE profiles.id = auth.uid()
         AND (profiles.role = 'admin' OR profiles.role = 'nurse')
