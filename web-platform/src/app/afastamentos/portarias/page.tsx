@@ -8,6 +8,7 @@ import {
   FileText,
   Eye,
   PlusCircle,
+  PencilLine,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
@@ -136,11 +137,13 @@ export default function AfastamentoPortariasPage() {
           (r: AfastamentoPortariaJoinRow) => ({
             ...r,
             servidor_nome: r.afastamentos?.servidor_nome ?? "NÃO INFORMADO",
-            servidor_matricula: r.afastamentos?.servidor_matricula ?? "NÃO INFORMADO",
+            servidor_matricula:
+              r.afastamentos?.servidor_matricula ?? "NÃO INFORMADO",
             natureza_cargo: r.afastamentos?.natureza_cargo ?? "NÃO INFORMADO",
             servidor_secretaria:
               r.afastamentos?.servidor_secretaria ?? "NÃO INFORMADO",
-            tipo_afastamento: r.afastamentos?.tipo_afastamento ?? "NÃO INFORMADO",
+            tipo_afastamento:
+              r.afastamentos?.tipo_afastamento ?? "NÃO INFORMADO",
             data_inicio: r.afastamentos?.data_inicio ?? "",
             data_fim: r.afastamentos?.data_fim ?? "",
             perito_nome: r.afastamentos?.perito_nome ?? "NÃO INFORMADO",
@@ -386,10 +389,12 @@ export default function AfastamentoPortariasPage() {
                           {record.servidor_nome}
                         </h4>
                         <p className="text-[11px] font-normal text-slate-600 uppercase mt-1 wrap-break-word">
-                          Matrícula {record.servidor_matricula} • {record.natureza_cargo} • {record.servidor_secretaria}
+                          Matrícula {record.servidor_matricula} •{" "}
+                          {record.natureza_cargo} • {record.servidor_secretaria}
                         </p>
                         <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">
-                          {record.tipo_afastamento} • emitida em {formatDate(record.data_emissao)}
+                          {record.tipo_afastamento} • emitida em{" "}
+                          {formatDate(record.data_emissao)}
                         </p>
                       </div>
                     </div>
@@ -403,6 +408,18 @@ export default function AfastamentoPortariasPage() {
                         </p>
                       </div>
                       <div className="flex gap-2 justify-end">
+                        {userRole === "analytic_manager" ? null : (
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/afastamentos/portarias/edit/${record.id}`,
+                              )
+                            }
+                            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-[10px] font-bold uppercase rounded-none shadow hover:brightness-110"
+                          >
+                            <PencilLine className="w-3.5 h-3.5" /> Editar
+                          </button>
+                        )}
                         <button
                           onClick={() => handleViewPDF(record)}
                           className="flex items-center gap-2 px-4 py-2 bg-[#1A3351] text-white text-[10px] font-bold uppercase rounded-none shadow hover:brightness-110"
@@ -445,7 +462,8 @@ export default function AfastamentoPortariasPage() {
                     Nenhuma portaria encontrada com os filtros atuais.
                   </p>
                   <p className="text-[11px] text-slate-500 uppercase mt-2">
-                    Ajuste a busca por nome, número ou ano para localizar o registro.
+                    Ajuste a busca por nome, número ou ano para localizar o
+                    registro.
                   </p>
                 </div>
               )}
