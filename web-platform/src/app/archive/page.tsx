@@ -40,6 +40,14 @@ interface MedicalFolder {
   ultima_movimentacao: string;
 }
 
+interface FolderLocationConflict {
+  id: string;
+  servidor_nome: string;
+  armario: number;
+  gaveta: number;
+  pasta: number;
+}
+
 interface FolderLog {
   id: string;
   folder_id: string;
@@ -290,11 +298,72 @@ export default function ArchivePage() {
         ultima_movimentacao: new Date().toISOString(),
       };
 
-      // Se mudou de local
-      if (returnData.novo_armario) {
-        updateData.armario = parseInt(returnData.novo_armario);
-        updateData.gaveta = parseInt(returnData.nova_gaveta);
-        updateData.pasta = parseInt(returnData.nova_pasta);
+      const isChangingLocation = Boolean(
+        returnData.novo_armario ||
+        returnData.nova_gaveta ||
+        returnData.nova_pasta,
+      );
+
+      if (isChangingLocation) {
+        if (
+          !returnData.novo_armario ||
+          !returnData.nova_gaveta ||
+          !returnData.nova_pasta
+        ) {
+          alert(
+            "Para realocar a pasta, informe armário, gaveta e pasta completos.",
+          );
+          return;
+        }
+
+        const novoArmario = Number.parseInt(returnData.novo_armario, 10);
+        const novaGaveta = Number.parseInt(returnData.nova_gaveta, 10);
+        const novaPasta = Number.parseInt(returnData.nova_pasta, 10);
+
+        if (
+          Number.isNaN(novoArmario) ||
+          Number.isNaN(novaGaveta) ||
+          Number.isNaN(novaPasta) ||
+          novoArmario <= 0 ||
+          novaGaveta <= 0 ||
+          novaPasta <= 0
+        ) {
+          alert(
+            "Armário, gaveta e pasta devem ser números válidos maiores que zero.",
+          );
+          return;
+        }
+
+        const sameLocation =
+          selectedFolder.armario === novoArmario &&
+          selectedFolder.gaveta === novaGaveta &&
+          selectedFolder.pasta === novaPasta;
+
+        if (!sameLocation) {
+          const { data: conflictFolder, error: conflictError } = await supabase
+            .from("medical_folders")
+            .select("id, servidor_nome, armario, gaveta, pasta")
+            .eq("armario", novoArmario)
+            .eq("gaveta", novaGaveta)
+            .eq("pasta", novaPasta)
+            .neq("id", selectedFolder.id)
+            .maybeSingle<FolderLocationConflict>();
+
+          if (conflictError) {
+            throw conflictError;
+          }
+
+          if (conflictFolder) {
+            alert(
+              `A localização ${novoArmario}/${novaGaveta}/${novaPasta} já está ocupada pela pasta de ${conflictFolder.servidor_nome}.`,
+            );
+            return;
+          }
+        }
+
+        updateData.armario = novoArmario;
+        updateData.gaveta = novaGaveta;
+        updateData.pasta = novaPasta;
       }
 
       const { error: updateError } = await supabase
@@ -302,7 +371,22 @@ export default function ArchivePage() {
         .update(updateData)
         .eq("id", selectedFolder.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        const msg = (updateError.message || "").toLowerCase();
+        const isUniqueConflict =
+          msg.includes("duplicate") ||
+          msg.includes("unique") ||
+          msg.includes("already exists");
+
+        if (isUniqueConflict) {
+          alert(
+            "Conflito ao salvar a localização da pasta. O sistema deve validar a combinação armário/gaveta/pasta, não apenas o número da pasta.",
+          );
+          return;
+        }
+
+        throw updateError;
+      }
 
       // Registrar no log
       const { error: logError } = await supabase
