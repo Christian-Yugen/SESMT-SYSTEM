@@ -530,6 +530,7 @@ export default function MaternidadeAfastamentosPage() {
         perito_nome: record.perito_nome,
         perito_crm: record.perito_crm,
         servidor_contrato: record.servidor_contrato,
+        sexo: (record as any).servidor_sexo ?? (record as any).sexo,
       },
       "view",
     );
