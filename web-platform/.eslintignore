@@ -1,0 +1,9 @@
+# Ignore project scripts and temporary files that are not part of the Next.js app
+scripts/
+tmp/
+*.mjs
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
