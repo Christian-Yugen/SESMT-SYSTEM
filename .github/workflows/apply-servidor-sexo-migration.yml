@@ -1,0 +1,71 @@
+name: Apply servidor_sexo migration (backup + apply + verify)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apply-migration:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare artifacts directory
+        run: mkdir -p migration-artifacts
+
+      - name: Fail early if DATABASE_URL secret missing
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "ERROR: DATABASE_URL secret is not set. Add it at Settings → Secrets." >&2
+            exit 1
+          fi
+        shell: bash
+
+      - name: Create pg_dump backup
+        run: |
+          TS=$(date +%Y%m%d_%H%M%S)
+          OUT="/github/workspace/migration-artifacts/backup_full_${TS}.dump"
+          echo "Running pg_dump to $OUT"
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            pg_dump "$DATABASE_URL" -F c -b -v -f "$OUT"
+          ls -l migration-artifacts || true
+        shell: bash
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: servidor_sexo-backup
+          path: migration-artifacts/*.dump
+
+      - name: Apply migration SQL
+        run: |
+          echo "Applying migration: web-platform/migrations/2026_05_14_add_servidor_sexo_and_backfill.sql"
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            psql "$DATABASE_URL" -f /work/web-platform/migrations/2026_05_14_add_servidor_sexo_and_backfill.sql
+        shell: bash
+
+      - name: Run verification queries and save results
+        run: |
+          echo "Running verification queries..."
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            psql "$DATABASE_URL" -c "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='afastamentos' AND column_name='servidor_sexo';" > /github/workspace/migration-artifacts/verification.txt || true
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            psql "$DATABASE_URL" -c "SELECT count(*) FROM public.afastamentos WHERE servidor_sexo IS NULL;" >> /github/workspace/migration-artifacts/verification.txt || true
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            psql "$DATABASE_URL" -c "SELECT servidor_sexo, count(*) FROM public.afastamentos GROUP BY servidor_sexo;" >> /github/workspace/migration-artifacts/verification.txt || true
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work postgres:15 \
+            psql "$DATABASE_URL" -c "SELECT tgname FROM pg_trigger WHERE tgname IN ('trg_set_afastamentos_servidor_sexo','trg_propagate_servidores_sexo');" >> /github/workspace/migration-artifacts/verification.txt || true
+          echo "==== verification ===="
+          cat migration-artifacts/verification.txt || true
+        shell: bash
+
+      - name: Upload verification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-verification
+          path: migration-artifacts/verification.txt
+
+      - name: Done
+        run: echo "Migration run completed. Backup and verification artifacts uploaded."
