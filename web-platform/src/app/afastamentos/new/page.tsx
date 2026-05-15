@@ -523,6 +523,7 @@ export default function NewAfastamentoPage() {
           nextNumber = (usedNumber ?? nextNumber) + 1;
         }
 
+        // Anexa informação de sexo do vínculo/servidor para geração correta do texto
         setGeneratedPortaria({
           ...portariaRec,
           servidor_nome: bond.nome,
@@ -536,6 +537,10 @@ export default function NewAfastamentoPage() {
           perito_nome: formData.perito_nome,
           perito_crm: formData.perito_crm,
           servidor_contrato: contractsForPortaria,
+          // pode vir como 'M'|'F' ou 'MASCULINO'/'FEMININO' — o gerador normaliza
+          sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+          servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+          servidor_genero: bond.sexo ?? selectedServidor?.sexo ?? undefined,
         });
 
         // Prorrogação: Procurar o registro anterior correspondente a este vínculo

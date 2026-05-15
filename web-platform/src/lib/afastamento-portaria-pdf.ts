@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { capitalizeName } from "./portaria-utils";
+import { capitalizeName, getLotadoGrammar } from "./portaria-utils";
 
 export interface AfastamentoPortariaData {
   numero: number;
@@ -303,9 +303,11 @@ export async function generateAfastamentoPDF(
   if (!sexoRaw2) console.warn("Aviso: sexo do servidor não informado; assumindo masculino por padrão.");
   let art1Body: string;
   if (genero2 === "F" || genero2 === "FEMININO") {
-    art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} lotada na ${lotacaoFormatada}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+    const lotadoGrammar = getLotadoGrammar("F", data.servidor_lotacao || "");
+    art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotadoGrammar} ${lotacaoFormatada}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
   } else {
-    art1Body = `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} lotado na ${lotacaoFormatada}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+    const lotadoGrammar = getLotadoGrammar("M", data.servidor_lotacao || "");
+    art1Body = `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotadoGrammar} ${lotacaoFormatada}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
   }
   const art1Lines = doc.splitTextToSize(art1Body, bodyMaxWidth);
   // aumentar espaçamento interno das linhas apenas para os artigos (visual mais arejado)
