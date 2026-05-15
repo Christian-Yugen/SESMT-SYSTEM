@@ -116,6 +116,43 @@ function setParagraphRuns(paragraph: Element, texts: string[]): void {
   });
 }
 
+function runHasBold(run: Element): boolean {
+  const runProperties = getDirectChildrenByLocalName(run, "rPr")[0];
+  if (!runProperties) return false;
+
+  return getDirectChildrenByLocalName(runProperties, "b").length > 0;
+}
+
+function setLabeledParagraphRuns(
+  paragraph: Element,
+  labelText: string,
+  bodyText: string,
+): void {
+  const existingRuns = getDirectChildrenByLocalName(paragraph, "r");
+  const boldTemplate = existingRuns.find((run) => runHasBold(run)) ?? existingRuns[0];
+  const normalTemplate = existingRuns.find((run) => !runHasBold(run)) ?? existingRuns[existingRuns.length - 1] ?? boldTemplate;
+
+  const paragraphProperties =
+    getDirectChildrenByLocalName(paragraph, "pPr")[0] ?? null;
+
+  for (const child of [
+    ...getDirectChildrenByLocalName(paragraph, "r"),
+    ...getDirectChildrenByLocalName(paragraph, "hyperlink"),
+  ]) {
+    paragraph.removeChild(child);
+  }
+
+  const insertBeforeNode = paragraphProperties?.nextSibling ?? null;
+  const labelRun = (boldTemplate ?? paragraph.ownerDocument.createElementNS(WORD_NS, "w:r")).cloneNode(true) as Element;
+  const bodyRun = (normalTemplate ?? paragraph.ownerDocument.createElementNS(WORD_NS, "w:r")).cloneNode(true) as Element;
+
+  normalizeRunText(labelRun, labelText);
+  normalizeRunText(bodyRun, bodyText);
+
+  paragraph.insertBefore(labelRun, insertBeforeNode);
+  paragraph.insertBefore(bodyRun, insertBeforeNode);
+}
+
 function findFirstParagraph(
   paragraphs: Element[],
   predicate: (text: string) => boolean,
@@ -263,14 +300,22 @@ function applyTemplateContent(
     "artigo 1",
     (text) => text.startsWith("Art. 1º") || text.startsWith("Art. 1o"),
   );
-  setParagraphRuns(art1Match.paragraph, [content.art1Label, content.art1Body]);
+  setLabeledParagraphRuns(
+    art1Match.paragraph,
+    content.art1Label,
+    content.art1Body,
+  );
 
   const art2Match = findParagraphByText(
     paragraphs,
     "artigo 2",
     (text) => text.startsWith("Art. 2º") || text.startsWith("Art. 2o"),
   );
-  setParagraphRuns(art2Match.paragraph, [content.art2Label, content.art2Body]);
+  setLabeledParagraphRuns(
+    art2Match.paragraph,
+    content.art2Label,
+    content.art2Body,
+  );
 
   const fechamentoMatch = findParagraphByText(
     paragraphs,
@@ -291,9 +336,9 @@ function applyTemplateContent(
   );
   setParagraphRuns(assinaturaNomeMatch.paragraph, [content.assinaturaNome]);
 
-  const assinaturaCargoMatch = findParagraphByText(
+  const assinaturaCargoMatch = findParagraphAfter(
     paragraphs,
-    "assinatura cargo",
+    assinaturaNomeMatch.index + 1,
     (text) => text.includes("Secretária Municipal de Gestão de Pessoas"),
   );
   setParagraphRuns(assinaturaCargoMatch.paragraph, [content.assinaturaCargo]);
