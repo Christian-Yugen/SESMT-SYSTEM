@@ -66,7 +66,8 @@ $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    PERFORM cron.schedule('cleanup_portarias_backups_daily', '0 3 * * *', $$SELECT public.cleanup_portarias_backups()$$);
+    -- usar string simples para evitar conflito com dollar-quoting
+    PERFORM cron.schedule('cleanup_portarias_backups_daily', '0 3 * * *', 'SELECT public.cleanup_portarias_backups()');
   END IF;
 END;
 $$;
