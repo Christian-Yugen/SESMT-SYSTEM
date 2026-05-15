@@ -153,6 +153,30 @@ function setLabeledParagraphRuns(
   paragraph.insertBefore(bodyRun, insertBeforeNode);
 }
 
+function setParagraphLineSpacing(
+  paragraph: Element,
+  line: number,
+  before = 0,
+  after = 0,
+): void {
+  let paragraphProperties = getDirectChildrenByLocalName(paragraph, "pPr")[0];
+  if (!paragraphProperties) {
+    paragraphProperties = paragraph.ownerDocument.createElementNS(WORD_NS, "w:pPr");
+    paragraph.insertBefore(paragraphProperties, paragraph.firstChild);
+  }
+
+  let spacing = getDirectChildrenByLocalName(paragraphProperties, "spacing")[0];
+  if (!spacing) {
+    spacing = paragraph.ownerDocument.createElementNS(WORD_NS, "w:spacing");
+    paragraphProperties.appendChild(spacing);
+  }
+
+  spacing.setAttributeNS(WORD_NS, "w:line", String(line));
+  spacing.setAttributeNS(WORD_NS, "w:lineRule", "auto");
+  spacing.setAttributeNS(WORD_NS, "w:before", String(before));
+  spacing.setAttributeNS(WORD_NS, "w:after", String(after));
+}
+
 function findFirstParagraph(
   paragraphs: Element[],
   predicate: (text: string) => boolean,
@@ -273,6 +297,7 @@ function applyTemplateContent(
     text.startsWith("VANESSA DOS SANTOS SÊNA"),
   );
   setParagraphRuns(authorityMatch.paragraph, [content.autoridade]);
+  setParagraphLineSpacing(authorityMatch.paragraph, 360);
 
   const authorityContinuation = paragraphs[authorityMatch.index + 1];
   if (authorityContinuation) {
