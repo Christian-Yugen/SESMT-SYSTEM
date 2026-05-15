@@ -84,6 +84,10 @@ export default function NewAfastamentoPage() {
     renew_from_id: null as number | null,
   });
 
+  // Validação / erros do formulário
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const [selectedCids, setSelectedCids] = useState<CIDDetails[]>([]);
   const [cidInput, setCidInput] = useState("");
   const [foundCids, setFoundCids] = useState<CIDDetails[]>([]);
@@ -269,18 +273,31 @@ export default function NewAfastamentoPage() {
   };
 
   const handleSave = async () => {
+    // Limpar erros anteriores
+    setFormErrors({});
+    setSaveError(null);
+
     if (!selectedServidor || allBonds.length === 0) {
-      alert("Selecione um servidor primeiro.");
+      setFormErrors({ server: "Selecione um servidor primeiro." });
       return;
     }
 
     if (!formData.data_inicio || !formData.data_fim) {
-      alert("Preencha a data de início e a quantidade de dias.");
+      setFormErrors({ dates: "Preencha a data de início e a quantidade de dias." });
       return;
     }
 
     if (allBonds.length > 1 && !applyToAll && targetBondIndex === null) {
-      alert("Selecione a matrícula alvo para o afastamento.");
+      setFormErrors({ targetBond: "Selecione a matrícula alvo para o afastamento." });
+      return;
+    }
+
+    // Validação: número da portaria é obrigatório e deve ser inteiro > 0
+    const manualNumberParsed = formData.portaria_numero_manual
+      ? parseInt(formData.portaria_numero_manual, 10)
+      : NaN;
+    if (isNaN(manualNumberParsed) || manualNumberParsed <= 0) {
+      setFormErrors({ portaria: "Informe o número da portaria (inteiro maior que 0)." });
       return;
     }
 
@@ -290,31 +307,11 @@ export default function NewAfastamentoPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // 1. Obter próximo número de portaria
       const currentYear = new Date().getFullYear();
-      const { data: lastPortaria } = await supabase
-        .from("portarias_afastamento")
-        .select("numero")
-        .eq("ano", currentYear)
-        .order("numero", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      let nextNumber = (lastPortaria?.numero || 0) + 1;
-      // Verifica se usuário informou número manualmente no formulário
-      const manualNumberParsed = formData.portaria_numero_manual
-        ? parseInt(formData.portaria_numero_manual, 10)
-        : NaN;
-      const manualProvided =
-        !isNaN(manualNumberParsed) && manualNumberParsed > 0;
-      let manualStartNumber: number | null = null;
-      if (manualProvided) {
-        manualStartNumber = manualNumberParsed;
-        // usar número manual como ponto de partida
-        nextNumber = manualStartNumber;
-      }
-      // flag para usar o número manual somente no primeiro insert (se aplicável)
-      let manualUsed = manualProvided;
+      // O número já foi validado acima; usaremos como ponto de partida.
+      let nextNumber = manualNumberParsed;
+      // considerar que o número manual será usado no primeiro insert
+      let manualUsed = true;
 
       // Se for prorrogação, vamos buscar os registros anteriores (siblings) para vincular corretamente
       let previousRecords: Array<{
@@ -542,10 +539,10 @@ export default function NewAfastamentoPage() {
             ? `${err.name}: ${err.message}\n${err.stack}`
             : JSON.stringify(err, Object.getOwnPropertyNames(err));
         console.error("handleSave details:", printable);
-        alert("Erro ao salvar: " + printable);
+        setSaveError("Erro ao salvar: " + (err instanceof Error ? err.message : String(err)));
       } catch (e) {
         console.error("Erro ao serializar erro de salvamento:", e, err);
-        alert("Erro ao salvar (ver console para mais detalhes).");
+        setSaveError("Erro ao salvar (ver console para mais detalhes).");
       }
     } finally {
       setSaving(false);
@@ -761,6 +758,17 @@ export default function NewAfastamentoPage() {
                 <h3 className="text-sm font-bold uppercase text-slate-400 mb-4 tracking-widest">
                   Informações do Afastamento
                 </h3>
+
+                {(saveError || Object.keys(formErrors).length > 0) && (
+                  <div className="bg-red-50 border border-red-300 text-red-700 p-3 mb-2">
+                    {saveError && (
+                      <div className="font-bold text-sm mb-1">{saveError}</div>
+                    )}
+                    {Object.values(formErrors).map((m, i) => (
+                      <div key={i} className="text-sm">{m}</div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {!isMaternidadeContext && (
@@ -1058,11 +1066,12 @@ export default function NewAfastamentoPage() {
 
                 <div className="mt-4">
                   <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                    Número da Portaria (opcional)
+                    Número da Portaria
                   </label>
                   <input
                     type="number"
                     min={1}
+                    required
                     className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold"
                     value={formData.portaria_numero_manual}
                     onChange={(e) =>
@@ -1071,13 +1080,21 @@ export default function NewAfastamentoPage() {
                         portaria_numero_manual: e.target.value,
                       })
                     }
-                    placeholder="Informe o número da portaria (se aplicável)"
+                    placeholder="Informe o número da portaria (obrigatório)"
                   />
-                  <p className="text-[10px] text-slate-500 uppercase mt-1">
-                    Se informado, este número será usado como início para a(s)
-                    portaria(s). Se já estiver em uso, a operação será
-                    interrompida.
-                  </p>
+                  {formErrors.portaria ? (
+                    <p className="text-[12px] text-red-600 mt-1">
+                      {formErrors.portaria}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-500 uppercase mt-1">
+                      Número obrigatório: informe o número que constará na
+                      portaria. Se houver múltiplos vínculos, o sistema tentará
+                      incrementar números subsequentes a partir deste número.
+                      Se o número já estiver em uso, a operação será
+                      interrompida.
+                    </p>
+                  )}
                 </div>
 
                 <div className="mt-10 flex justify-end gap-4 border-t pt-8">

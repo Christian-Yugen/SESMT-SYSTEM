@@ -1,0 +1,53 @@
+﻿{
+    "total_tracked_files":  414,
+    "ext_counts":  [
+                       {
+                           "lines":  17,
+                           "ext":  "gitignore"
+                       },
+                       {
+                           "lines":  55,
+                           "ext":  "js"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "json"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "jsx"
+                       },
+                       {
+                           "lines":  472,
+                           "ext":  "md"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "mjs"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "ps1"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "py"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "sql"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "ts"
+                       },
+                       {
+                           "lines":  0,
+                           "ext":  "tsx"
+                       },
+                       {
+                           "lines":  16792,
+                           "ext":  "xlsx"
+                       }
+                   ]
+}
