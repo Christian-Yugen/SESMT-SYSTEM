@@ -66,12 +66,27 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   const subtitle = '"Dispõe sobre a concessão do benefício AUXÍLIO DOENÇA."';
 
   // Função utilitária para carregar imagem pública como Uint8Array
-  async function fetchImageAsUint8(url: string) {
+  // Retorna também o tipo (png, jpeg, svg, gif) quando possível — necessário para ImageRun
+  async function fetchImageAsUint8WithType(
+    url: string,
+  ): Promise<{ data: Uint8Array; type: string | null } | null> {
     try {
       const res = await fetch(url);
       if (!res.ok) return null;
+      const contentType = res.headers.get("content-type") || "";
+      const ctMatch = contentType.match(/image\/(png|jpe?g|gif|svg\+xml)/i);
+      const fromHeader = ctMatch ? ctMatch[1].toLowerCase() : null;
+
+      const extMatch =
+        url.split("?")[0].split(".").pop()?.toLowerCase() || null;
+      let extType: string | null = null;
+      if (extMatch === "png") extType = "png";
+      else if (extMatch === "jpg" || extMatch === "jpeg") extType = "jpeg";
+      else if (extMatch === "gif") extType = "gif";
+      else if (extMatch === "svg") extType = "svg";
+
       const ab = await res.arrayBuffer();
-      return new Uint8Array(ab);
+      return { data: new Uint8Array(ab), type: fromHeader || extType };
     } catch {
       return null;
     }
@@ -83,17 +98,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   ];
   const logoCandidates = ["/imagens/logo.png", "/images/logo.png"];
 
-  let brazaoData: Uint8Array | null = null;
-  let logoData: Uint8Array | null = null;
+  let brazaoData: { data: Uint8Array; type: string | null } | null = null;
+  let logoData: { data: Uint8Array; type: string | null } | null = null;
   for (const c of brazaoCandidates) {
-    const d = await fetchImageAsUint8(c);
+    const d = await fetchImageAsUint8WithType(c);
     if (d) {
       brazaoData = d;
       break;
     }
   }
   for (const c of logoCandidates) {
-    const d = await fetchImageAsUint8(c);
+    const d = await fetchImageAsUint8WithType(c);
     if (d) {
       logoData = d;
       break;
@@ -117,9 +132,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               new Paragraph({
                 children: brazaoData
                   ? [
-                      // @ts-expect-error: ImageRun typings differ from runtime Uint8Array in this environment
                       new ImageRun({
-                        data: brazaoData,
+                        data: brazaoData!.data,
+                        type: (brazaoData!.type as any) || "png",
                         transformation: { width: 90, height: 50 },
                       }),
                     ]
@@ -184,9 +199,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               new Paragraph({
                 children: logoData
                   ? [
-                      // @ts-expect-error: ImageRun typings differ from runtime Uint8Array in this environment
                       new ImageRun({
-                        data: logoData,
+                        data: logoData!.data,
+                        type: (logoData!.type as any) || "png",
                         transformation: { width: 110, height: 50 },
                       }),
                     ]
