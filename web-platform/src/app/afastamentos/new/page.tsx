@@ -301,6 +301,40 @@ export default function NewAfastamentoPage() {
       return;
     }
 
+    // Pré-checagem de disponibilidade via RPC para evitar duplicatas futuras.
+    const portariaAno = formData.data_inicio
+      ? new Date(formData.data_inicio).getFullYear()
+      : new Date().getFullYear();
+    try {
+      const candidateCount = applyToAll ? allBonds.length : 1;
+      for (let i = 0; i < candidateCount; i++) {
+        const numToCheck = manualNumberParsed + i;
+        const { data: availability, error: availabilityError } = await supabase.rpc(
+          "check_portaria_availability",
+          { numero: numToCheck, ano: portariaAno },
+        );
+        if (availabilityError) {
+          console.error("check_portaria_availability error:", availabilityError);
+          setFormErrors({ portaria: "Erro ao verificar disponibilidade da portaria." });
+          return;
+        }
+        const isAvailable =
+          availability === true ||
+          (Array.isArray(availability) && availability[0] === true) ||
+          Boolean(availability);
+        if (!isAvailable) {
+          setFormErrors({
+            portaria: `Número da portaria ${numToCheck}/${portariaAno} já está em uso.`,
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao validar disponibilidade de portaria:", e);
+      setFormErrors({ portaria: "Erro ao verificar disponibilidade da portaria." });
+      return;
+    }
+
     setSaving(true);
     try {
       const {
