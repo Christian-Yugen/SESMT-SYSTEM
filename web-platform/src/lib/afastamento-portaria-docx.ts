@@ -150,6 +150,23 @@ function findParagraphAfter(
   );
 }
 
+function findParagraphByText(
+  paragraphs: Element[],
+  blockName: string,
+  predicate: (text: string) => boolean,
+): { paragraph: Element; index: number } {
+  for (let index = 0; index < paragraphs.length; index += 1) {
+    const text = getParagraphText(paragraphs[index]);
+    if (predicate(text)) {
+      return { paragraph: paragraphs[index], index };
+    }
+  }
+
+  throw new Error(
+    `Nao foi possivel localizar o bloco '${blockName}' no template DOCX.`,
+  );
+}
+
 function buildPortariaContent(data: AfastamentoPortariaData) {
   const nomeFormatado = capitalizeName(data.servidor_nome || "");
   const lotacaoFormatada = capitalizeName(data.servidor_lotacao || "");
@@ -200,69 +217,83 @@ function applyTemplateContent(
 
   const paragraphs = getDescendantsByLocalName(xmlDocument, "p");
 
-  setParagraphRuns(
-    findFirstParagraph(paragraphs, (text) => text.startsWith("PORTARIA")),
-    [content.titulo],
+  const tituloMatch = findParagraphByText(
+    paragraphs,
+    "titulo",
+    (text) =>
+      text.startsWith("PORTARIA Nº") ||
+      text.startsWith("PORTARIA N") ||
+      text.startsWith("PORTARIA"),
   );
-  setParagraphRuns(
-    findFirstParagraph(paragraphs, (text) =>
-      text.includes("Dispõe sobre a concessão do benefício"),
-    ),
-    [content.ementa],
-  );
+  setParagraphRuns(tituloMatch.paragraph, [content.titulo]);
 
-  const authorityMatch = findParagraphAfter(paragraphs, 0, (text) =>
-    text.startsWith(
-      "VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas",
-    ),
+  const ementaMatch = findParagraphByText(paragraphs, "ementa", (text) =>
+    text.includes("Dispõe sobre a concessão do benefício"),
+  );
+  setParagraphRuns(ementaMatch.paragraph, [content.ementa]);
+
+  const authorityMatch = findParagraphByText(paragraphs, "autoridade", (text) =>
+    text.startsWith("VANESSA DOS SANTOS SÊNA"),
   );
   setParagraphRuns(authorityMatch.paragraph, [content.autoridade]);
 
-  const resolveMatch = findParagraphAfter(
+  const authorityContinuation = paragraphs[authorityMatch.index + 1];
+  if (authorityContinuation) {
+    const continuationText = getParagraphText(authorityContinuation);
+    if (
+      continuationText &&
+      !continuationText.startsWith("RESOLVE") &&
+      (continuationText.includes("Prefeitura Municipal de Três Lagoas") ||
+        continuationText.includes("Competência que lhe confere") ||
+        continuationText.includes("Municipal de Gestão de Pessoas"))
+    ) {
+      setParagraphRuns(authorityContinuation, []);
+    }
+  }
+
+  const resolveMatch = findParagraphByText(
     paragraphs,
-    authorityMatch.index + 1,
-    (text) => text === "RESOLVE:",
+    "resolve",
+    (text) => text === "RESOLVE:" || text.startsWith("RESOLVE"),
   );
   setParagraphRuns(resolveMatch.paragraph, [content.resolve]);
 
-  const art1Match = findParagraphAfter(
+  const art1Match = findParagraphByText(
     paragraphs,
-    resolveMatch.index + 1,
-    (text) => text.startsWith("Art. 1º"),
+    "artigo 1",
+    (text) => text.startsWith("Art. 1º") || text.startsWith("Art. 1o"),
   );
   setParagraphRuns(art1Match.paragraph, [content.art1Label, content.art1Body]);
 
-  const art2Match = findParagraphAfter(
+  const art2Match = findParagraphByText(
     paragraphs,
-    art1Match.index + 1,
-    (text) => text.startsWith("Art. 2º"),
+    "artigo 2",
+    (text) => text.startsWith("Art. 2º") || text.startsWith("Art. 2o"),
   );
   setParagraphRuns(art2Match.paragraph, [content.art2Label, content.art2Body]);
 
-  const fechamentoMatch = findParagraphAfter(
+  const fechamentoMatch = findParagraphByText(
     paragraphs,
-    art2Match.index + 1,
+    "fechamento",
     (text) => text.includes("Registre-se, Publique-se."),
   );
   setParagraphRuns(fechamentoMatch.paragraph, [content.fechamento]);
 
-  const dataMatch = findParagraphAfter(
-    paragraphs,
-    fechamentoMatch.index + 1,
-    (text) => text.startsWith("Três Lagoas, ao"),
+  const dataMatch = findParagraphByText(paragraphs, "data", (text) =>
+    text.startsWith("Três Lagoas, ao"),
   );
   setParagraphRuns(dataMatch.paragraph, [content.dataCidade]);
 
-  const assinaturaNomeMatch = findParagraphAfter(
+  const assinaturaNomeMatch = findParagraphByText(
     paragraphs,
-    dataMatch.index + 1,
+    "assinatura nome",
     (text) => text === "VANESSA DOS SANTOS SÊNA",
   );
   setParagraphRuns(assinaturaNomeMatch.paragraph, [content.assinaturaNome]);
 
-  const assinaturaCargoMatch = findParagraphAfter(
+  const assinaturaCargoMatch = findParagraphByText(
     paragraphs,
-    assinaturaNomeMatch.index + 1,
+    "assinatura cargo",
     (text) => text.includes("Secretária Municipal de Gestão de Pessoas"),
   );
   setParagraphRuns(assinaturaCargoMatch.paragraph, [content.assinaturaCargo]);
