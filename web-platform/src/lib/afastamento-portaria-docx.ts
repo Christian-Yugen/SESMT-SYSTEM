@@ -10,6 +10,7 @@ import {
   WidthType,
   ImageRun,
   BorderStyle,
+  Header,
 } from "docx";
 import { saveAs } from "file-saver";
 import { capitalizeName, getLotadoGrammar } from "./portaria-utils";
@@ -48,16 +49,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   const genero = sexoRaw ? String(sexoRaw).toUpperCase() : "M";
 
   let art1Body: string;
-  if (genero === "F" || genero === "FEMININO") {
-    art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${getLotadoGrammar(
-      "F",
-      data.servidor_lotacao || "",
-    )}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+  // Construir texto de lotação com fallback quando não houver informação
+  const generoIsF = genero === "F" || genero === "FEMININO";
+  const lotadoGrammar = getLotadoGrammar(generoIsF ? "F" : "M", data.servidor_lotacao || "");
+  const lotacaoText = data.servidor_lotacao && data.servidor_lotacao.trim()
+    ? `${lotadoGrammar} ${data.servidor_lotacao}`
+    : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
+
+  if (generoIsF) {
+    art1Body = `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
   } else {
-    art1Body = `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${getLotadoGrammar(
-      "M",
-      data.servidor_lotacao || "",
-    )}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
+    art1Body = `Fica concedido o benefício auxílio doença ao Servidor Público Municipal, o Sr. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`;
   }
 
   const art2 = `Esta Portaria entra em vigor na data de sua publicação, retroagindo seus efeitos a partir de ${data.data_inicio}, revogadas as disposições em contrário.`;
@@ -158,34 +160,36 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   new TextRun({
                     text: "PREFEITURA MUNICIPAL DE TRÊS LAGOAS",
                     bold: true,
-                    size: 26, // 13pt
+                    size: 24, // 12pt
                     font: "Times New Roman",
                     color: headerHex,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
-                spacing: { after: 120 },
+                spacing: { before: 0, after: 0, line: 240 },
               }),
               new Paragraph({
                 children: [
                   new TextRun({
                     text: "ESTADO DE MATO GROSSO DO SUL",
-                    size: 20, // 10pt
+                    size: 24, // 12pt
                     font: "Times New Roman",
                     color: headerHex,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
+                spacing: { before: 0, after: 0, line: 240 },
               }),
               new Paragraph({
                 children: [
                   new TextRun({
                     text: "SECRETARIA MUNICIPAL DE GESTÃO DE PESSOAS",
-                    size: 20, // 10pt
+                    size: 24, // 12pt
                     font: "Times New Roman",
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
+                spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
             width: { size: 50, type: WidthType.PERCENTAGE },
@@ -241,130 +245,107 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
     ],
   });
 
-  // corpo: Times New Roman, 12pt, espaçamento 1.5
+  // Usar header real do documento para garantir posicionamento consistente
+  const header = new Header({ children: [headerTable] });
+
+  // corpo: Times New Roman, 12pt, espaçamento simples
   const bodyFont = "Times New Roman";
   const bodySize = 24; // 12pt -> docx size is half-points (24)
-  const lineSpacing = 360; // 1.5 lines (approx 240*1.5 = 360)
+  const lineSpacing = 240; // single line (twips units where 240 ≈ single)
 
   const doc = new Document({
     sections: [
       {
-        properties: {},
+        // colocar o cabeçalho real do Word para garantir posicionamento
+        headers: { default: header },
+        properties: {
+          page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+        },
         children: [
-          headerTable,
-          new Paragraph({ text: "", spacing: { after: 200 } }),
+          // Título da Portaria
+          new Paragraph({
+            children: [
+              new TextRun({ text: titulo, bold: true, size: 26, font: bodyFont }),
+            ],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 240, after: 120 },
+          }),
+
+          // Ementa / resumo
+          new Paragraph({
+            children: [new TextRun({ text: subtitle, size: bodySize, font: bodyFont })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 120 },
+          }),
+
+          // Autoridade (deve vir antes do RESOLVE:)
           new Paragraph({
             children: [
               new TextRun({
-                text: titulo,
-                bold: true,
-                size: 26,
-                font: bodyFont,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 160 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({ text: subtitle, size: bodySize, font: bodyFont }),
-            ],
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 200 },
-          }),
-          new Paragraph({ text: "", spacing: { after: 120 } }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "RESOLVE:",
-                bold: true,
+                text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da competência que lhe confere o Decreto nº 1512/2025.`,
                 size: bodySize,
                 font: bodyFont,
               }),
             ],
-            spacing: { after: 160 },
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 120 },
           }),
-          new Paragraph({ text: "", spacing: { after: 80 } }),
+
+          // RESOLVE:
+          new Paragraph({
+            children: [new TextRun({ text: "RESOLVE:", bold: true, size: bodySize, font: bodyFont })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 120 },
+          }),
+
+          // Artigo 1
           new Paragraph({
             children: [
-              new TextRun({
-                text: "Art. 1º - ",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
+              new TextRun({ text: "Art. 1º - ", bold: true, size: bodySize, font: bodyFont }),
               new TextRun({ text: art1Body, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { line: lineSpacing },
+            spacing: { before: 0, after: 120, line: lineSpacing },
+            indent: { firstLine: 720 },
           }),
-          new Paragraph({ text: "", spacing: { after: 120 } }),
+
+          // Artigo 2
           new Paragraph({
             children: [
-              new TextRun({
-                text: "Art. 2º - ",
-                bold: true,
-                size: bodySize,
-                font: bodyFont,
-              }),
+              new TextRun({ text: "Art. 2º - ", bold: true, size: bodySize, font: bodyFont }),
               new TextRun({ text: art2, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { line: lineSpacing },
+            spacing: { before: 0, after: 120, line: lineSpacing },
+            indent: { firstLine: 720 },
           }),
-          new Paragraph({ text: "", spacing: { after: 120 } }),
+
+          // Fechamento / Publique-se
+          new Paragraph({
+            children: [new TextRun({ text: "Registre-se, Publique-se.", size: bodySize, font: bodyFont })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 120 },
+          }),
+
+          // Data
           new Paragraph({
             children: [
-              new TextRun({
-                text: "Registre-se, Publique-se.",
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            spacing: { after: 120 },
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
-                size: 20,
-                font: bodyFont,
-              }),
+              new TextRun({ text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
+            spacing: { before: 0, after: 240 },
           }),
+
+          // Assinatura
           new Paragraph({
-            children: [
-              new TextRun({
-                text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`,
-                size: bodySize,
-                font: bodyFont,
-              }),
-            ],
-            spacing: { after: 200 },
-          }),
-          new Paragraph({ text: "", spacing: { after: 200 } }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "VANESSA DOS SANTOS SÊNA",
-                bold: true,
-                size: 22,
-                font: bodyFont,
-              }),
-            ],
+            children: [new TextRun({ text: "VANESSA DOS SANTOS SÊNA", bold: true, size: bodySize, font: bodyFont })],
             alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 0 },
           }),
           new Paragraph({
-            children: [
-              new TextRun({
-                text: "Secretária Municipal de Gestão de Pessoas",
-                size: 20,
-                font: bodyFont,
-              }),
-            ],
+            children: [new TextRun({ text: "Secretária Municipal de Gestão de Pessoas", size: bodySize, font: bodyFont })],
             alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 0 },
           }),
         ],
       },
