@@ -41,7 +41,7 @@ interface PortariaRecord {
   perito_nome: string;
   perito_crm: string;
   servidor_contrato?: string;
-  servidor_sexo?: "F" | "M" | undefined;
+  servidor_sexo?: "F" | "M";
 }
 
 export default function AfastamentoPortariasPage() {
@@ -50,9 +50,9 @@ export default function AfastamentoPortariasPage() {
     const p = d.split("-");
     if (p.length !== 3) return new Date(d).toLocaleDateString("pt-BR");
     return new Date(
-      parseInt(p[0]),
-      parseInt(p[1]) - 1,
-      parseInt(p[2]),
+      Number.parseInt(p[0], 10),
+      Number.parseInt(p[1], 10) - 1,
+      Number.parseInt(p[2], 10),
     ).toLocaleDateString("pt-BR");
   };
   const [records, setRecords] = useState<PortariaRecord[]>([]);
@@ -114,7 +114,7 @@ export default function AfastamentoPortariasPage() {
         .select(
           `
                   *,
-                  afastamentos (
+                  afastamentos!inner (
                       servidor_nome,
                       servidor_matricula,
                       natureza_cargo,
@@ -124,7 +124,8 @@ export default function AfastamentoPortariasPage() {
                       data_fim,
                       perito_nome,
                       perito_crm,
-                      servidor_contrato
+                      servidor_contrato,
+                      servidor_sexo
                   )
               `,
         )
@@ -134,17 +135,18 @@ export default function AfastamentoPortariasPage() {
         const formatted: PortariaRecord[] = data.map(
           (r: AfastamentoPortariaJoinRow) => ({
             ...r,
-            servidor_nome: r.afastamentos.servidor_nome,
-            servidor_matricula: r.afastamentos.servidor_matricula,
-            natureza_cargo: r.afastamentos.natureza_cargo,
-            servidor_secretaria: r.afastamentos.servidor_secretaria,
-            tipo_afastamento: r.afastamentos.tipo_afastamento,
-            data_inicio: r.afastamentos.data_inicio,
-            data_fim: r.afastamentos.data_fim,
-            perito_nome: r.afastamentos.perito_nome,
-            perito_crm: r.afastamentos.perito_crm,
-            servidor_contrato: r.afastamentos.servidor_contrato,
-            servidor_sexo: r.afastamentos.servidor_sexo,
+            servidor_nome: r.afastamentos?.servidor_nome ?? "NÃO INFORMADO",
+            servidor_matricula: r.afastamentos?.servidor_matricula ?? "NÃO INFORMADO",
+            natureza_cargo: r.afastamentos?.natureza_cargo ?? "NÃO INFORMADO",
+            servidor_secretaria:
+              r.afastamentos?.servidor_secretaria ?? "NÃO INFORMADO",
+            tipo_afastamento: r.afastamentos?.tipo_afastamento ?? "NÃO INFORMADO",
+            data_inicio: r.afastamentos?.data_inicio ?? "",
+            data_fim: r.afastamentos?.data_fim ?? "",
+            perito_nome: r.afastamentos?.perito_nome ?? "NÃO INFORMADO",
+            perito_crm: r.afastamentos?.perito_crm ?? "NÃO INFORMADO",
+            servidor_contrato: r.afastamentos?.servidor_contrato,
+            servidor_sexo: r.afastamentos?.servidor_sexo,
           }),
         );
         setRecords(formatted);
@@ -220,7 +222,7 @@ export default function AfastamentoPortariasPage() {
         perito_nome: record.perito_nome,
         perito_crm: record.perito_crm,
         servidor_contrato: record.servidor_contrato,
-        sexo: record.servidor_sexo as "F" | "M" | undefined,
+        sexo: record.servidor_sexo,
       },
       "view",
     );
@@ -313,14 +315,14 @@ export default function AfastamentoPortariasPage() {
                         onChange={(e) => setPortariaAnoTerm(e.target.value)}
                       />
                     </div>
-                    {userRole !== "analytic_manager" ? (
+                    {userRole === "analytic_manager" ? undefined : (
                       <ActionIconButton
                         icon={<PlusCircle className="w-4 h-4" />}
                         label="Nova portaria"
                         variant="success"
                         onClick={() => router.push("/afastamentos/new")}
                       />
-                    ) : undefined}
+                    )}
                   </>
                 }
               />
@@ -383,7 +385,7 @@ export default function AfastamentoPortariasPage() {
                         <h4 className="font-bold text-[#1A3351] uppercase text-sm sm:text-base truncate">
                           {record.servidor_nome}
                         </h4>
-                        <p className="text-[11px] font-normal text-slate-600 uppercase mt-1 break-words">
+                        <p className="text-[11px] font-normal text-slate-600 uppercase mt-1 wrap-break-word">
                           Matrícula {record.servidor_matricula} • {record.natureza_cargo} • {record.servidor_secretaria}
                         </p>
                         <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">
@@ -392,7 +394,7 @@ export default function AfastamentoPortariasPage() {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 xl:gap-4 shrink-0">
-                      <div className="min-w-[124px] border-2 border-[#1A3351] bg-[#1A3351]/5 px-3 py-2 text-center rounded-none">
+                      <div className="min-w-31 border-2 border-[#1A3351] bg-[#1A3351]/5 px-3 py-2 text-center rounded-none">
                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.18em]">
                           Portaria
                         </p>
@@ -424,7 +426,7 @@ export default function AfastamentoPortariasPage() {
                                 perito_nome: record.perito_nome,
                                 perito_crm: record.perito_crm,
                                 servidor_contrato: record.servidor_contrato,
-                                sexo: record.servidor_sexo as "F" | "M" | undefined,
+                                sexo: record.servidor_sexo,
                               },
                               "download",
                             );
