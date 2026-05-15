@@ -134,7 +134,7 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   ? [
                       new ImageRun({
                         data: brazaoData!.data,
-                        type: (brazaoData!.type as any) || "png",
+                        type: (brazaoData!.type as any) || 'png',
                         transformation: { width: 90, height: 50 },
                       }),
                     ]
@@ -142,6 +142,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               }),
             ],
             width: { size: 25, type: WidthType.PERCENTAGE },
+            verticalAlign: ('center' as any),
+            margins: { top: 0, bottom: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -187,6 +189,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               }),
             ],
             width: { size: 50, type: WidthType.PERCENTAGE },
+            verticalAlign: ('center' as any),
+            margins: { top: 0, bottom: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -201,7 +205,7 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   ? [
                       new ImageRun({
                         data: logoData!.data,
-                        type: (logoData!.type as any) || "png",
+                        type: (logoData!.type as any) || 'png',
                         transformation: { width: 110, height: 50 },
                       }),
                     ]
@@ -209,6 +213,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               }),
             ],
             width: { size: 25, type: WidthType.PERCENTAGE },
+            verticalAlign: ('center' as any),
+            margins: { top: 0, bottom: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -315,6 +321,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 font: bodyFont,
               }),
             ],
+            spacing: { after: 120 },
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `VANESSA DOS SANTOS SÊNA, Secretária Municipal de Gestão de Pessoas da Prefeitura Municipal de Três Lagoas/MS, no uso da Competência que lhe confere o Decreto nº 1512/2025.`,
+                size: 20,
+                font: bodyFont,
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
             spacing: { after: 120 },
           }),
           new Paragraph({
