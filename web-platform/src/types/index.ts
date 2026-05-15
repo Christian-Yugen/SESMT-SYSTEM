@@ -156,6 +156,7 @@ export interface AfastamentoPortariaJoinRow {
     perito_nome: string;
     perito_crm: string;
     servidor_contrato?: string;
+    servidor_sexo?: string;
   };
 }
 
