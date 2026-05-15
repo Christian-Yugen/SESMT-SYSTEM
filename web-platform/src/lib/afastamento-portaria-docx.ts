@@ -11,6 +11,8 @@ import {
   ImageRun,
   BorderStyle,
   Header,
+  HeightRule,
+  TableLayoutType,
 } from "docx";
 import { saveAs } from "file-saver";
 import { capitalizeName, getLotadoGrammar } from "./portaria-utils";
@@ -119,6 +121,12 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
 
   // cor do cabeçalho em hex
   const headerHex = "4472A9"; // RGB(68,114,169)
+  const bodyFont = "Times New Roman";
+  const bodySize = 24; // 12pt -> docx size is half-points (24)
+  const lineSpacing = 240; // simple spacing
+  const bodyColumnIndent = 1110; // aproxima o bodyStartX do PDF
+  const authorityLeftIndent = 3960; // aproxima o bloco do preâmbulo do PDF
+  const articleFirstLineIndent = 709; // 1.25cm
 
   // montar cabeçalho como tabela (brasão | textos centrais | logo)
   const headerTable = new Table({
@@ -126,8 +134,12 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
       size: 100,
       type: WidthType.PERCENTAGE,
     },
+    layout: TableLayoutType.FIXED,
     rows: [
       new TableRow({
+        height: { value: 900, rule: HeightRule.EXACT },
+        cantSplit: true,
+        tableHeader: true,
         children: [
           new TableCell({
             children: [
@@ -137,15 +149,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                       new ImageRun({
                         data: brazaoData!.data,
                         type: (brazaoData!.type as any) || 'png',
-                        transformation: { width: 90, height: 50 },
+                        transformation: { width: 106, height: 64 },
                       }),
                     ]
                   : [new TextRun({ text: "" })],
+                alignment: AlignmentType.LEFT,
+                spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
             width: { size: 25, type: WidthType.PERCENTAGE },
             verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0 },
+            margins: { top: 0, bottom: 0, left: 0, right: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -160,8 +174,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                   new TextRun({
                     text: "PREFEITURA MUNICIPAL DE TRÊS LAGOAS",
                     bold: true,
-                    size: 24, // 12pt
-                    font: "Times New Roman",
+                    size: 26,
+                    font: bodyFont,
                     color: headerHex,
                   }),
                 ],
@@ -172,8 +186,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 children: [
                   new TextRun({
                     text: "ESTADO DE MATO GROSSO DO SUL",
-                    size: 24, // 12pt
-                    font: "Times New Roman",
+                    bold: true,
+                    size: 26,
+                    font: bodyFont,
                     color: headerHex,
                   }),
                 ],
@@ -184,8 +199,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 children: [
                   new TextRun({
                     text: "SECRETARIA MUNICIPAL DE GESTÃO DE PESSOAS",
-                    size: 24, // 12pt
-                    font: "Times New Roman",
+                    size: 20,
+                    font: bodyFont,
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -194,7 +209,7 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
             ],
             width: { size: 50, type: WidthType.PERCENTAGE },
             verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0 },
+            margins: { top: 0, bottom: 0, left: 0, right: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -210,15 +225,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                       new ImageRun({
                         data: logoData!.data,
                         type: (logoData!.type as any) || 'png',
-                        transformation: { width: 110, height: 50 },
+                        transformation: { width: 128, height: 64 },
                       }),
                     ]
                   : [new TextRun({ text: "" })],
+                alignment: AlignmentType.RIGHT,
+                spacing: { before: 0, after: 0, line: 240 },
               }),
             ],
             width: { size: 25, type: WidthType.PERCENTAGE },
             verticalAlign: ('center' as any),
-            margins: { top: 0, bottom: 0 },
+            margins: { top: 0, bottom: 0, left: 0, right: 0 },
             borders: {
               top: { style: BorderStyle.NONE, size: 0, color: headerHex },
               bottom: { style: BorderStyle.NONE, size: 0, color: headerHex },
@@ -229,9 +246,10 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
         ],
       }),
       new TableRow({
+        height: { value: 120, rule: HeightRule.EXACT },
         children: [
           new TableCell({
-            children: [new Paragraph({ text: "" })],
+            children: [new Paragraph({ text: "", spacing: { before: 0, after: 0, line: 240 } })],
             columnSpan: 3,
             borders: {
               top: { style: BorderStyle.SINGLE, size: 8, color: headerHex },
@@ -248,18 +266,13 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
   // Usar header real do documento para garantir posicionamento consistente
   const header = new Header({ children: [headerTable] });
 
-  // corpo: Times New Roman, 12pt, espaçamento simples
-  const bodyFont = "Times New Roman";
-  const bodySize = 24; // 12pt -> docx size is half-points (24)
-  const lineSpacing = 240; // single line (twips units where 240 ≈ single)
-
   const doc = new Document({
     sections: [
       {
         // colocar o cabeçalho real do Word para garantir posicionamento
         headers: { default: header },
         properties: {
-          page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+          page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440, header: 360 } },
         },
         children: [
           // Título da Portaria
@@ -268,14 +281,14 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               new TextRun({ text: titulo, bold: true, size: 26, font: bodyFont }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 240, after: 120 },
+            spacing: { before: 240, after: 120, line: 240 },
           }),
 
           // Ementa / resumo
           new Paragraph({
             children: [new TextRun({ text: subtitle, size: bodySize, font: bodyFont })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 120 },
+            spacing: { before: 0, after: 240, line: 240 },
           }),
 
           // Autoridade (deve vir antes do RESOLVE:)
@@ -287,15 +300,17 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
                 font: bodyFont,
               }),
             ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 120 },
+            alignment: AlignmentType.JUSTIFIED,
+            spacing: { before: 0, after: 240, line: lineSpacing },
+            indent: { left: authorityLeftIndent },
           }),
 
           // RESOLVE:
           new Paragraph({
             children: [new TextRun({ text: "RESOLVE:", bold: true, size: bodySize, font: bodyFont })],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 120 },
+            alignment: AlignmentType.JUSTIFIED,
+            spacing: { before: 0, after: 240, line: lineSpacing },
+            indent: { left: bodyColumnIndent },
           }),
 
           // Artigo 1
@@ -305,8 +320,8 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               new TextRun({ text: art1Body, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 120, line: lineSpacing },
-            indent: { firstLine: 720 },
+            spacing: { before: 0, after: 0, line: lineSpacing },
+            indent: { firstLine: articleFirstLineIndent, left: 0, right: 0 },
           }),
 
           // Artigo 2
@@ -316,15 +331,16 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
               new TextRun({ text: art2, size: bodySize, font: bodyFont }),
             ],
             alignment: AlignmentType.JUSTIFIED,
-            spacing: { before: 0, after: 120, line: lineSpacing },
-            indent: { firstLine: 720 },
+            spacing: { before: 0, after: 240, line: lineSpacing },
+            indent: { firstLine: articleFirstLineIndent, left: 0, right: 0 },
           }),
 
           // Fechamento / Publique-se
           new Paragraph({
             children: [new TextRun({ text: "Registre-se, Publique-se.", size: bodySize, font: bodyFont })],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 120 },
+            alignment: AlignmentType.JUSTIFIED,
+            spacing: { before: 0, after: 240, line: lineSpacing },
+            indent: { left: bodyColumnIndent },
           }),
 
           // Data
@@ -332,8 +348,9 @@ export async function generateAfastamentoDOCX(data: AfastamentoPortariaData) {
             children: [
               new TextRun({ text: `Três Lagoas, ao ${formatDateExtended(data.data_portaria)}.`, size: bodySize, font: bodyFont }),
             ],
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 240 },
+            alignment: AlignmentType.LEFT,
+            spacing: { before: 0, after: 720, line: lineSpacing },
+            indent: { left: bodyColumnIndent },
           }),
 
           // Assinatura
