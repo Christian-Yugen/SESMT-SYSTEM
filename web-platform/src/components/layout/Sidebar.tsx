@@ -172,6 +172,12 @@ export default function Sidebar({
       setIsHistoryOpen(false);
       setIsAdminOpen(false);
     } else if (pathname.startsWith("/afastamentos")) {
+      setIsBenefitsOpen(true);
+      setIsAfastamentosOpen(true);
+      setIsAbonoOpen(false);
+      setIsAtestadosOpen(false);
+      setIsHistoryOpen(false);
+      setIsAdminOpen(false);
     } else if (pathname.includes("/abono/atestados")) {
       setIsBenefitsOpen(true);
       setIsAtestadosOpen(true);
@@ -553,6 +559,13 @@ export default function Sidebar({
                                       "/afastamentos/ergonomia-analytics",
                                     )
                                       ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
+                                      : "text-white/40 font-medium hover:text-white";
+                                  } else if (it.id === "afastamentos-portarias") {
+                                    Icon = FileText;
+                                    activeClass = pathname.startsWith(
+                                      "/afastamentos/portarias",
+                                    )
+                                      ? "bg-blue-500/20 text-blue-300 font-medium shadow-sm"
                                       : "text-white/40 font-medium hover:text-white";
                                   }
 

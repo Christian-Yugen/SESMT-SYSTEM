@@ -68,6 +68,13 @@ const menuConfig: MenuConfig = {
           match: "startsWith",
           roles: ["admin", "nurse", "analytic_manager", "doctor"],
         },
+        {
+          id: "afastamentos-portarias",
+          label: "Portarias",
+          path: "/afastamentos/portarias",
+          match: "startsWith",
+          roles: ["admin", "nurse", "analytic_manager", "doctor"],
+        },
       ],
     },
     {
@@ -162,19 +169,16 @@ export const hiddenNavigationRoutes: string[] = [
   "/abono/portarias/new",
   "/abono/portarias/edit/[id]",
   "/afastamentos/new",
+  "/afastamentos/portarias/edit/[id]",
 ];
 
-export const decisionRequiredNavigationRoutes: DecisionRequiredNavigationRoute[] = [
-  {
-    path: "/afastamentos/portarias",
-    reason:
-      "Rota existente no App Router; decidir se deve entrar no grupo Afastamentos ou permanecer como fluxo interno.",
-  },
-  {
-    path: "/abono/analytics",
-    reason:
-      "Rota existente no App Router; decidir se deve entrar no grupo Abono ou permanecer como análise técnica/oculta.",
-  },
-];
+export const decisionRequiredNavigationRoutes: DecisionRequiredNavigationRoute[] =
+  [
+    {
+      path: "/abono/analytics",
+      reason:
+        "Rota existente no App Router; decidir se deve entrar no grupo Abono ou permanecer como análise técnica/oculta.",
+    },
+  ];
 
 export default menuConfig;
