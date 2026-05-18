@@ -425,32 +425,64 @@ export default function NewAfastamentoPage() {
         .join(" e ");
 
       for (const bond of bondsToPersist) {
-        const { data: newAfastamento, error: insertError } = await supabase
+        const afastamentoPayload: any = {
+          servidor_cpf: bond.cpf,
+          servidor_nome: bond.nome,
+          servidor_matricula: bond.matricula,
+          servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? null,
+          servidor_contrato: bond.contrato,
+          servidor_secretaria: bond.secretaria,
+          servidor_cargo: bond.cargo || bond.natureza_cargo,
+          natureza_cargo: bond.natureza_cargo,
+          tipo_afastamento: formData.tipo_afastamento,
+          is_acidente_trabalho: formData.is_acidente_trabalho,
+          data_inicio: formData.data_inicio,
+          data_fim: formData.data_fim,
+          data_pericia: formData.data_pericia || null,
+          perito_nome: formData.perito_nome || null,
+          perito_crm: formData.perito_crm || null,
+          observacoes: formData.observacoes,
+          encaminhamento_inss: formData.encaminhamento_inss,
+          situacao: "EM_ANDAMENTO",
+          criado_por: user?.id || null,
+          hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+        };
+
+        let newAfastamento: any = null;
+        let insertError: any = null;
+
+        // Primeiro tentativa: inclui o campo `encaminhamento_inss`.
+        ({ data: newAfastamento, error: insertError } = await supabase
           .from("afastamentos")
-          .insert({
-            servidor_cpf: bond.cpf,
-            servidor_nome: bond.nome,
-            servidor_matricula: bond.matricula,
-            servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? null,
-            servidor_contrato: bond.contrato,
-            servidor_secretaria: bond.secretaria,
-            servidor_cargo: bond.cargo || bond.natureza_cargo,
-            natureza_cargo: bond.natureza_cargo,
-            tipo_afastamento: formData.tipo_afastamento,
-            is_acidente_trabalho: formData.is_acidente_trabalho,
-            data_inicio: formData.data_inicio,
-            data_fim: formData.data_fim,
-            data_pericia: formData.data_pericia || null,
-            perito_nome: formData.perito_nome || null,
-            perito_crm: formData.perito_crm || null,
-            observacoes: formData.observacoes,
-            encaminhamento_inss: formData.encaminhamento_inss,
-            situacao: "EM_ANDAMENTO",
-            criado_por: user?.id || null,
-            hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-          })
+          .insert(afastamentoPayload)
           .select()
-          .single();
+          .single());
+
+        // Se houver erro e parecer ser falta da coluna no schema cache do PostgREST/Supabase,
+        // tenta novamente sem enviar essa propriedade (fallback seguro).
+        if (insertError) {
+          const msg = (insertError?.message || "").toLowerCase();
+          if (
+            msg.includes("could not find the 'encaminhamento_inss' column") ||
+            msg.includes("encaminhamento_inss")
+          ) {
+            console.warn(
+              "Fallback: servidor não reconhece 'encaminhamento_inss' no schema; tentando inserir sem a coluna.",
+            );
+            const payloadNoInss = { ...afastamentoPayload };
+            delete payloadNoInss.encaminhamento_inss;
+            ({ data: newAfastamento, error: insertError } = await supabase
+              .from("afastamentos")
+              .insert(payloadNoInss)
+              .select()
+              .single());
+            if (!insertError) {
+              console.info(
+                "Inserido sem 'encaminhamento_inss' (fallback usado).",
+              );
+            }
+          }
+        }
 
         if (insertError)
           throw new Error(insertError.message || JSON.stringify(insertError));
@@ -1207,12 +1239,14 @@ export default function NewAfastamentoPage() {
                         }`}
                       >
                         {formData.encaminhamento_inss
-                          ? "Encaminhar ao INSS — sem portaria"
+                          ? "Encaminhar ao INSS — sem portaria (persistido)"
                           : "Não — marcar se for o caso"}
                       </span>
                       <span className="text-[10px] text-slate-500 uppercase font-medium">
-                        Afastamentos de não-efetivos (contratos temporários)
-                        normalmente são encaminhados ao INSS sem portaria.
+                        Sugerido automaticamente pela natureza do cargo. Se
+                        marcado, não será criada portaria e a decisão será
+                        persistida no registro. É possível sobrescrever
+                        manualmente.
                       </span>
                       {suggestedEncaminhamentoInss &&
                         !encaminhamentoOverridden && (
@@ -1291,7 +1325,9 @@ export default function NewAfastamentoPage() {
                     ) : (
                       <Save className="w-4 h-4" />
                     )}
-                    {formData.encaminhamento_inss ? "Salvar (Encaminhar ao INSS)" : "Salvar e Gerar Portaria"}
+                    {formData.encaminhamento_inss
+                      ? "Salvar (Encaminhar ao INSS)"
+                      : "Salvar e Gerar Portaria"}
                   </button>
                 </div>
               </div>
@@ -1312,9 +1348,17 @@ export default function NewAfastamentoPage() {
                 </h3>
                 <p className="text-slate-500 text-sm font-bold uppercase mb-8">
                   {generatedPortaria ? (
-                    <>O registro foi concluído e a Portaria Nº {generatedPortaria.numero}/{generatedPortaria.ano} foi gerada com sucesso.</>
+                    <>
+                      O registro foi concluído e a Portaria Nº{" "}
+                      {generatedPortaria.numero}/{generatedPortaria.ano} foi
+                      gerada com sucesso.
+                    </>
                   ) : (
-                    <>O registro foi concluído. Este afastamento foi marcado para encaminhamento ao INSS; não foi gerada portaria.</>
+                    <>
+                      O registro foi concluído. Este afastamento foi marcado
+                      para encaminhamento ao INSS e não gerou portaria; a opção
+                      foi salva no registro.
+                    </>
                   )}
                 </p>
 
@@ -1327,7 +1371,9 @@ export default function NewAfastamentoPage() {
                           generateAfastamentoPDF(
                             {
                               ...generatedPortaria,
-                              data_portaria: new Date().toLocaleDateString("pt-BR"),
+                              data_portaria: new Date().toLocaleDateString(
+                                "pt-BR",
+                              ),
                             },
                             "view",
                           );
@@ -1341,12 +1387,15 @@ export default function NewAfastamentoPage() {
                           if (!generatedPortaria) return;
                           generateAfastamentoDOCX({
                             ...generatedPortaria,
-                            data_portaria: new Date().toLocaleDateString("pt-BR"),
+                            data_portaria: new Date().toLocaleDateString(
+                              "pt-BR",
+                            ),
                           } as any);
                         }}
                         className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
                       >
-                        <Printer className="w-4 h-4" /> Baixar Portaria DOCX (editável)
+                        <Printer className="w-4 h-4" /> Baixar Portaria DOCX
+                        (editável)
                       </button>
                     </>
                   )}
