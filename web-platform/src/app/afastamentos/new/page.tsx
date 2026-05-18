@@ -29,6 +29,7 @@ import {
   AfastamentoPortariaData,
 } from "@/lib/afastamento-portaria-pdf";
 import { generateAfastamentoDOCX } from "@/lib/afastamento-portaria-docx";
+import suggestEncaminhamentoInss from "@/lib/encaminhamento-inss-utils";
 
 interface Servidor {
   id?: number;
@@ -82,6 +83,7 @@ export default function NewAfastamentoPage() {
     observacoes: "",
     portaria_numero_manual: "",
     renew_from_id: null as number | null,
+    encaminhamento_inss: false,
   });
 
   // Validação / erros do formulário
@@ -113,6 +115,33 @@ export default function NewAfastamentoPage() {
     },
     [formData.tipo_afastamento],
   );
+
+  // Sugestão automática de encaminhamento para INSS baseada em natureza_cargo
+  const [suggestedEncaminhamentoInss, setSuggestedEncaminhamentoInss] =
+    useState<boolean>(false);
+  const [encaminhamentoOverridden, setEncaminhamentoOverridden] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (!selectedServidor) return;
+    const bonds = applyToAll
+      ? allBonds
+      : targetBondIndex !== null && allBonds[targetBondIndex]
+        ? [allBonds[targetBondIndex]]
+        : [selectedServidor];
+    if (!bonds || bonds.length === 0) return;
+    try {
+      const count = bonds.filter((b) =>
+        suggestEncaminhamentoInss(b.natureza_cargo),
+      ).length;
+      const suggested = count === bonds.length;
+      setSuggestedEncaminhamentoInss(suggested);
+      setFormData((prev) => ({ ...prev, encaminhamento_inss: suggested }));
+      setEncaminhamentoOverridden(false);
+    } catch (e) {
+      console.error("Erro ao calcular sugestão INSS:", e);
+    }
+  }, [selectedServidor, allBonds, applyToAll, targetBondIndex]);
 
   const performSearch = useCallback(
     async (queryStr: string, autoSelectFirst = false) => {
@@ -283,56 +312,72 @@ export default function NewAfastamentoPage() {
     }
 
     if (!formData.data_inicio || !formData.data_fim) {
-      setFormErrors({ dates: "Preencha a data de início e a quantidade de dias." });
+      setFormErrors({
+        dates: "Preencha a data de início e a quantidade de dias.",
+      });
       return;
     }
 
     if (allBonds.length > 1 && !applyToAll && targetBondIndex === null) {
-      setFormErrors({ targetBond: "Selecione a matrícula alvo para o afastamento." });
+      setFormErrors({
+        targetBond: "Selecione a matrícula alvo para o afastamento.",
+      });
       return;
     }
 
-    // Validação: número da portaria é obrigatório e deve ser inteiro > 0
+    // Validação: número da portaria é obrigatório apenas se NÃO for INSS
     const manualNumberParsed = formData.portaria_numero_manual
       ? parseInt(formData.portaria_numero_manual, 10)
       : NaN;
-    if (isNaN(manualNumberParsed) || manualNumberParsed <= 0) {
-      setFormErrors({ portaria: "Informe o número da portaria (inteiro maior que 0)." });
-      return;
-    }
-
-    // Pré-checagem de disponibilidade via RPC para evitar duplicatas futuras.
-    const portariaAno = formData.data_inicio
-      ? new Date(formData.data_inicio).getFullYear()
-      : new Date().getFullYear();
-    try {
-      const candidateCount = applyToAll ? allBonds.length : 1;
-      for (let i = 0; i < candidateCount; i++) {
-        const numToCheck = manualNumberParsed + i;
-        const { data: availability, error: availabilityError } = await supabase.rpc(
-          "check_portaria_availability",
-          { numero: numToCheck, ano: portariaAno },
-        );
-        if (availabilityError) {
-          console.error("check_portaria_availability error:", availabilityError);
-          setFormErrors({ portaria: "Erro ao verificar disponibilidade da portaria." });
-          return;
-        }
-        const isAvailable =
-          availability === true ||
-          (Array.isArray(availability) && availability[0] === true) ||
-          Boolean(availability);
-        if (!isAvailable) {
-          setFormErrors({
-            portaria: `Número da portaria ${numToCheck}/${portariaAno} já está em uso.`,
-          });
-          return;
-        }
+    if (!formData.encaminhamento_inss) {
+      if (isNaN(manualNumberParsed) || manualNumberParsed <= 0) {
+        setFormErrors({
+          portaria: "Informe o número da portaria (inteiro maior que 0).",
+        });
+        return;
       }
-    } catch (e) {
-      console.error("Erro ao validar disponibilidade de portaria:", e);
-      setFormErrors({ portaria: "Erro ao verificar disponibilidade da portaria." });
-      return;
+
+      // Pré-checagem de disponibilidade via RPC para evitar duplicatas futuras.
+      const portariaAno = formData.data_inicio
+        ? new Date(formData.data_inicio).getFullYear()
+        : new Date().getFullYear();
+      try {
+        const candidateCount = applyToAll ? allBonds.length : 1;
+        for (let i = 0; i < candidateCount; i++) {
+          const numToCheck = manualNumberParsed + i;
+          const { data: availability, error: availabilityError } =
+            await supabase.rpc("check_portaria_availability", {
+              numero: numToCheck,
+              ano: portariaAno,
+            });
+          if (availabilityError) {
+            console.error(
+              "check_portaria_availability error:",
+              availabilityError,
+            );
+            setFormErrors({
+              portaria: "Erro ao verificar disponibilidade da portaria.",
+            });
+            return;
+          }
+          const isAvailable =
+            availability === true ||
+            (Array.isArray(availability) && availability[0] === true) ||
+            Boolean(availability);
+          if (!isAvailable) {
+            setFormErrors({
+              portaria: `Número da portaria ${numToCheck}/${portariaAno} já está em uso.`,
+            });
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Erro ao validar disponibilidade de portaria:", e);
+        setFormErrors({
+          portaria: "Erro ao verificar disponibilidade da portaria.",
+        });
+        return;
+      }
     }
 
     setSaving(true);
@@ -399,6 +444,7 @@ export default function NewAfastamentoPage() {
             perito_nome: formData.perito_nome || null,
             perito_crm: formData.perito_crm || null,
             observacoes: formData.observacoes,
+            encaminhamento_inss: formData.encaminhamento_inss,
             situacao: "EM_ANDAMENTO",
             criado_por: user?.id || null,
             hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
@@ -477,72 +523,82 @@ export default function NewAfastamentoPage() {
         let portariaRec: any = null;
         let usedNumber: number | undefined = undefined;
 
-        if (manualUsed) {
-          // tentativa única com número informado; em caso de conflito aborta e solicita correção
-          const { data: portariaInserted, error: portariaError } =
-            await supabase
-              .from("portarias_afastamento")
-              .insert({
-                afastamento_id: newAfastamento.id,
-                numero: nextNumber,
-                ano: currentYear,
-                data_emissao: new Date().toISOString().split("T")[0],
-                criado_por: user?.id || null,
-              })
-              .select()
-              .single();
+        if (!formData.encaminhamento_inss) {
+          if (manualUsed) {
+            // tentativa única com número informado; em caso de conflito aborta e solicita correção
+            const { data: portariaInserted, error: portariaError } =
+              await supabase
+                .from("portarias_afastamento")
+                .insert({
+                  afastamento_id: newAfastamento.id,
+                  numero: nextNumber,
+                  ano: currentYear,
+                  data_emissao: new Date().toISOString().split("T")[0],
+                  criado_por: user?.id || null,
+                })
+                .select()
+                .single();
 
-          if (portariaError || !portariaInserted) {
-            const msg = (portariaError?.message || "").toLowerCase();
-            const isConflict =
-              msg.includes("duplicate") ||
-              msg.includes("unique") ||
-              msg.includes("already");
-            if (isConflict) {
+            if (portariaError || !portariaInserted) {
+              const msg = (portariaError?.message || "").toLowerCase();
+              const isConflict =
+                msg.includes("duplicate") ||
+                msg.includes("unique") ||
+                msg.includes("already");
+              if (isConflict) {
+                throw new Error(
+                  "Número de portaria informado já está em uso. Escolha outro número e tente novamente.",
+                );
+              }
               throw new Error(
-                "Número de portaria informado já está em uso. Escolha outro número e tente novamente.",
+                portariaError?.message || JSON.stringify(portariaError),
               );
             }
-            throw new Error(
-              portariaError?.message || JSON.stringify(portariaError),
-            );
-          }
 
-          portariaRec = portariaInserted;
-          usedNumber = nextNumber;
-          // após usar o número manual, segue incremento normal para próximos vínculos
-          manualUsed = false;
-          nextNumber = (usedNumber ?? nextNumber) + 1;
+            portariaRec = portariaInserted;
+            usedNumber = nextNumber;
+            // após usar o número manual, segue incremento normal para próximos vínculos
+            manualUsed = false;
+            nextNumber = (usedNumber ?? nextNumber) + 1;
+          } else {
+            const result = await insertPortariaWithRetry(
+              newAfastamento.id,
+              nextNumber,
+            );
+            portariaRec = result.portariaRec;
+            usedNumber = result.usedNumber;
+            // Atualiza nextNumber para evitar colisões nas próximas iterações (se houver múltiplos vínculos)
+            nextNumber = (usedNumber ?? nextNumber) + 1;
+          }
         } else {
-          const result = await insertPortariaWithRetry(
-            newAfastamento.id,
-            nextNumber,
-          );
-          portariaRec = result.portariaRec;
-          usedNumber = result.usedNumber;
-          // Atualiza nextNumber para evitar colisões nas próximas iterações (se houver múltiplos vínculos)
-          nextNumber = (usedNumber ?? nextNumber) + 1;
+          // Encaminhamento para INSS: não gerar portaria
+          portariaRec = null;
+          usedNumber = undefined;
         }
 
         // Anexa informação de sexo do vínculo/servidor para geração correta do texto
-        setGeneratedPortaria({
-          ...portariaRec,
-          servidor_nome: bond.nome,
-          servidor_matricula: bond.matricula,
-          servidor_cargo: bond.cargo || bond.natureza_cargo,
-          servidor_lotacao: bond.secretaria,
-          data_inicio: formData.data_inicio.split("-").reverse().join("/"),
-          data_fim: formData.data_fim.split("-").reverse().join("/"),
-          tipo_afastamento: formData.tipo_afastamento,
-          is_acidente_trabalho: formData.is_acidente_trabalho,
-          perito_nome: formData.perito_nome,
-          perito_crm: formData.perito_crm,
-          servidor_contrato: contractsForPortaria,
-          // pode vir como 'M'|'F' ou 'MASCULINO'/'FEMININO' — o gerador normaliza
-          sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
-          servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
-          servidor_genero: bond.sexo ?? selectedServidor?.sexo ?? undefined,
-        });
+        if (portariaRec) {
+          setGeneratedPortaria({
+            ...portariaRec,
+            servidor_nome: bond.nome,
+            servidor_matricula: bond.matricula,
+            servidor_cargo: bond.cargo || bond.natureza_cargo,
+            servidor_lotacao: bond.secretaria,
+            data_inicio: formData.data_inicio.split("-").reverse().join("/"),
+            data_fim: formData.data_fim.split("-").reverse().join("/"),
+            tipo_afastamento: formData.tipo_afastamento,
+            is_acidente_trabalho: formData.is_acidente_trabalho,
+            perito_nome: formData.perito_nome,
+            perito_crm: formData.perito_crm,
+            servidor_contrato: contractsForPortaria,
+            // pode vir como 'M'|'F' ou 'MASCULINO'/'FEMININO' — o gerador normaliza
+            sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+            servidor_sexo: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+            servidor_genero: bond.sexo ?? selectedServidor?.sexo ?? undefined,
+          });
+        } else {
+          setGeneratedPortaria(null);
+        }
 
         // Prorrogação: Procurar o registro anterior correspondente a este vínculo
         const prevBondRec = previousRecords.find(
@@ -579,7 +635,10 @@ export default function NewAfastamentoPage() {
             ? `${err.name}: ${err.message}\n${err.stack}`
             : JSON.stringify(err, Object.getOwnPropertyNames(err));
         console.error("handleSave details:", printable);
-        setSaveError("Erro ao salvar: " + (err instanceof Error ? err.message : String(err)));
+        setSaveError(
+          "Erro ao salvar: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
       } catch (e) {
         console.error("Erro ao serializar erro de salvamento:", e, err);
         setSaveError("Erro ao salvar (ver console para mais detalhes).");
@@ -805,7 +864,9 @@ export default function NewAfastamentoPage() {
                       <div className="font-bold text-sm mb-1">{saveError}</div>
                     )}
                     {Object.values(formErrors).map((m, i) => (
-                      <div key={i} className="text-sm">{m}</div>
+                      <div key={i} className="text-sm">
+                        {m}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -1104,38 +1165,114 @@ export default function NewAfastamentoPage() {
                   />
                 </div>
 
+                {/* Encaminhamento INSS (checkbox + sugestão automática) */}
                 <div className="mt-4">
                   <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                    Número da Portaria
+                    Encaminhar ao INSS
                   </label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold"
-                    value={formData.portaria_numero_manual}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        portaria_numero_manual: e.target.value,
-                      })
-                    }
-                    placeholder="Informe o número da portaria (obrigatório)"
-                  />
-                  {formErrors.portaria ? (
-                    <p className="text-[12px] text-red-600 mt-1">
-                      {formErrors.portaria}
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-500 uppercase mt-1">
-                      Número obrigatório: informe o número que constará na
-                      portaria. Se houver múltiplos vínculos, o sistema tentará
-                      incrementar números subsequentes a partir deste número.
-                      Se o número já estiver em uso, a operação será
-                      interrompida.
-                    </p>
-                  )}
+                  <div
+                    className={`flex items-center gap-3 px-4 py-3 border-2 rounded-none cursor-pointer select-none transition-all group ${
+                      formData.encaminhamento_inss
+                        ? "bg-blue-50 border-blue-500 shadow-md shadow-blue-100"
+                        : "bg-white border-slate-400 hover:border-blue-400 hover:bg-blue-50"
+                    }`}
+                    onClick={() => {
+                      const newVal = !formData.encaminhamento_inss;
+                      setFormData((prev) => ({
+                        ...prev,
+                        encaminhamento_inss: newVal,
+                      }));
+                      setEncaminhamentoOverridden(
+                        newVal !== suggestedEncaminhamentoInss,
+                      );
+                    }}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                        formData.encaminhamento_inss
+                          ? "bg-blue-600 border-blue-600"
+                          : "border-slate-400 bg-white group-hover:border-blue-500"
+                      }`}
+                    >
+                      {formData.encaminhamento_inss && (
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-[12px] font-bold uppercase leading-tight ${
+                          formData.encaminhamento_inss
+                            ? "text-blue-700"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        {formData.encaminhamento_inss
+                          ? "Encaminhar ao INSS — sem portaria"
+                          : "Não — marcar se for o caso"}
+                      </span>
+                      <span className="text-[10px] text-slate-500 uppercase font-medium">
+                        Afastamentos de não-efetivos (contratos temporários)
+                        normalmente são encaminhados ao INSS sem portaria.
+                      </span>
+                      {suggestedEncaminhamentoInss &&
+                        !encaminhamentoOverridden && (
+                          <span className="text-[10px] text-blue-700 uppercase font-bold mt-1">
+                            Sugerido pela natureza do cargo
+                          </span>
+                        )}
+                      {encaminhamentoOverridden && (
+                        <span className="text-[10px] text-amber-700 uppercase font-bold mt-1">
+                          Alterado manualmente
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {!formData.encaminhamento_inss ? (
+                  <div className="mt-4">
+                    <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
+                      Número da Portaria
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      required
+                      className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold"
+                      value={formData.portaria_numero_manual}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          portaria_numero_manual: e.target.value,
+                        })
+                      }
+                      placeholder="Informe o número da portaria (obrigatório)"
+                    />
+                    {formErrors.portaria ? (
+                      <p className="text-[12px] text-red-600 mt-1">
+                        {formErrors.portaria}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-500 uppercase mt-1">
+                        Número obrigatório: informe o número que constará na
+                        portaria. Se houver múltiplos vínculos, o sistema
+                        tentará incrementar números subsequentes a partir deste
+                        número. Se o número já estiver em uso, a operação será
+                        interrompida.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-4 p-4 border border-slate-200 bg-slate-50">
+                    <p className="text-[12px] font-bold uppercase text-slate-700">
+                      Encaminhado ao INSS — sem portaria
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Este afastamento foi marcado para encaminhamento ao INSS e
+                      não gerará portaria.
+                    </p>
+                  </div>
+                )}
 
                 <div className="mt-10 flex justify-end gap-4 border-t pt-8">
                   <button
@@ -1154,7 +1291,7 @@ export default function NewAfastamentoPage() {
                     ) : (
                       <Save className="w-4 h-4" />
                     )}
-                    Salvar e Gerar Portaria
+                    {formData.encaminhamento_inss ? "Salvar (Encaminhar ao INSS)" : "Salvar e Gerar Portaria"}
                   </button>
                 </div>
               </div>
@@ -1174,40 +1311,45 @@ export default function NewAfastamentoPage() {
                   Afastamento Registrado!
                 </h3>
                 <p className="text-slate-500 text-sm font-bold uppercase mb-8">
-                  O registro foi concluído e a Portaria Nº{" "}
-                  {generatedPortaria?.numero}/{generatedPortaria?.ano} foi
-                  gerada com sucesso.
+                  {generatedPortaria ? (
+                    <>O registro foi concluído e a Portaria Nº {generatedPortaria.numero}/{generatedPortaria.ano} foi gerada com sucesso.</>
+                  ) : (
+                    <>O registro foi concluído. Este afastamento foi marcado para encaminhamento ao INSS; não foi gerada portaria.</>
+                  )}
                 </p>
 
                 <div className="grid grid-cols-1 gap-3 w-full">
-                  <button
-                    onClick={() => {
-                      if (!generatedPortaria) return;
-                      generateAfastamentoPDF(
-                        {
-                          ...generatedPortaria,
-                          data_portaria: new Date().toLocaleDateString("pt-BR"),
-                        },
-                        "view",
-                      );
-                    }}
-                    className="flex items-center justify-center gap-3 w-full py-4 bg-[#1A3351] text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
-                  >
-                    <Eye className="w-4 h-4" /> Visualizar Portaria PDF
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!generatedPortaria) return;
-                      // Baixar versão DOCX (editável)
-                      generateAfastamentoDOCX({
-                        ...generatedPortaria,
-                        data_portaria: new Date().toLocaleDateString("pt-BR"),
-                      } as any);
-                    }}
-                    className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
-                  >
-                    <Printer className="w-4 h-4" /> Baixar Portaria DOCX (editável)
-                  </button>
+                  {generatedPortaria && (
+                    <>
+                      <button
+                        onClick={() => {
+                          if (!generatedPortaria) return;
+                          generateAfastamentoPDF(
+                            {
+                              ...generatedPortaria,
+                              data_portaria: new Date().toLocaleDateString("pt-BR"),
+                            },
+                            "view",
+                          );
+                        }}
+                        className="flex items-center justify-center gap-3 w-full py-4 bg-[#1A3351] text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
+                      >
+                        <Eye className="w-4 h-4" /> Visualizar Portaria PDF
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!generatedPortaria) return;
+                          generateAfastamentoDOCX({
+                            ...generatedPortaria,
+                            data_portaria: new Date().toLocaleDateString("pt-BR"),
+                          } as any);
+                        }}
+                        className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white font-bold uppercase text-xs rounded-none hover:brightness-110 transition-all shadow-lg"
+                      >
+                        <Printer className="w-4 h-4" /> Baixar Portaria DOCX (editável)
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={() => router.push("/afastamentos")}
                     className="w-full py-4 text-slate-400 font-bold uppercase text-[10px] hover:text-[#1A3351] transition-all pt-4"
