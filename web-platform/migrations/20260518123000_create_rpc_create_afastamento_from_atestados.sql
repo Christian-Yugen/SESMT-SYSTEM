@@ -41,6 +41,8 @@ DECLARE
   v_portaria_data date := NULL;
   v_servidor_nome text := NULL;
   v_natureza_cargo text := NULL;
+  v_servidor_cargo text := NULL;
+  v_servidor_secretaria text := NULL;
   v_matricula text := p_servidor_matricula;
   v_atestados_json jsonb := '[]'::jsonb;
 BEGIN
@@ -123,12 +125,14 @@ BEGIN
 
   -- Try to enrich servidor info when possible
   IF p_servidor_cpf IS NOT NULL THEN
-    SELECT nome, natureza_cargo, matricula, contrato INTO v_servidor_nome, v_natureza_cargo, v_matricula, p_servidor_contrato
+    SELECT nome, natureza_cargo, matricula, contrato, cargo, secretaria
+      INTO v_servidor_nome, v_natureza_cargo, v_matricula, p_servidor_contrato, v_servidor_cargo, v_servidor_secretaria
     FROM public.servidores
     WHERE regexp_replace(coalesce(cpf,''),'[^0-9]','','g') = regexp_replace(p_servidor_cpf,'[^0-9]','','g')
     LIMIT 1;
   ELSIF v_matricula IS NOT NULL THEN
-    SELECT nome, natureza_cargo, matricula, contrato INTO v_servidor_nome, v_natureza_cargo, v_matricula, p_servidor_contrato
+    SELECT nome, natureza_cargo, matricula, contrato, cargo, secretaria
+      INTO v_servidor_nome, v_natureza_cargo, v_matricula, p_servidor_contrato, v_servidor_cargo, v_servidor_secretaria
     FROM public.servidores
     WHERE matricula = v_matricula
     LIMIT 1;
@@ -149,7 +153,7 @@ BEGIN
 
   -- Create afastamento record
   INSERT INTO public.afastamentos(
-    servidor_cpf, servidor_nome, servidor_matricula, servidor_contrato,
+    servidor_cpf, servidor_nome, servidor_matricula, servidor_contrato, servidor_cargo, servidor_secretaria,
     natureza_cargo, tipo_afastamento, dias_afastado, data_inicio, data_fim,
     perito_nome, perito_crm, observacoes, is_juncao_atestados, juncao_meta, criado_por
   )
@@ -158,6 +162,8 @@ BEGIN
     COALESCE(v_servidor_nome, 'Desconhecido'),
     COALESCE(v_matricula, COALESCE(p_servidor_matricula,'')),
     p_servidor_contrato,
+    v_servidor_cargo,
+    v_servidor_secretaria,
     v_natureza_cargo,
     p_tipo_afastamento,
     total_days,
