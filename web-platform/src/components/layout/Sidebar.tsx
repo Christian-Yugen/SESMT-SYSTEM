@@ -76,7 +76,6 @@ export default function Sidebar({
   const [isBenefitsOpen, setIsBenefitsOpen] = useState(false);
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAfastamentosOpen, setIsAfastamentosOpen] = useState(false);
-  const [isAtestadosOpen, setIsAtestadosOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -106,19 +105,6 @@ export default function Sidebar({
     e.stopPropagation();
     setIsAbonoOpen(!isAbonoOpen);
     if (!isAbonoOpen) {
-      setIsAfastamentosOpen(false);
-      // Ensure parent section is focused
-      setIsBenefitsOpen(true);
-      setIsHistoryOpen(false);
-      setIsAdminOpen(false);
-    }
-  };
-
-  const handleToggleAtestados = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsAtestadosOpen(!isAtestadosOpen);
-    if (!isAtestadosOpen) {
-      setIsAbonoOpen(false);
       setIsAfastamentosOpen(false);
       // Ensure parent section is focused
       setIsBenefitsOpen(true);
@@ -175,15 +161,8 @@ export default function Sidebar({
       setIsBenefitsOpen(true);
       setIsAfastamentosOpen(true);
       setIsAbonoOpen(false);
-      setIsAtestadosOpen(false);
       setIsHistoryOpen(false);
       setIsAdminOpen(false);
-    } else if (pathname.includes("/abono/atestados")) {
-      setIsBenefitsOpen(true);
-      setIsAtestadosOpen(true);
-      setIsAfastamentosOpen(false);
-      setIsAbonoOpen(false);
-      setIsHistoryOpen(false);
     } else if (pathname.includes("/abono")) {
       setIsBenefitsOpen(true);
       setIsAbonoOpen(true);
@@ -358,13 +337,7 @@ export default function Sidebar({
 
   // Auto-scroll when submenus open
   useEffect(() => {
-    if (
-      isAfastamentosOpen ||
-      isAbonoOpen ||
-      isAtestadosOpen ||
-      isHistoryOpen ||
-      isAdminOpen
-    ) {
+    if (isAfastamentosOpen || isAbonoOpen || isHistoryOpen || isAdminOpen) {
       setTimeout(() => {
         const activeElement = document.querySelector(".is-active-folder");
         if (activeElement) {
@@ -372,13 +345,7 @@ export default function Sidebar({
         }
       }, 150);
     }
-  }, [
-    isAfastamentosOpen,
-    isAbonoOpen,
-    isAtestadosOpen,
-    isHistoryOpen,
-    isAdminOpen,
-  ]);
+  }, [isAfastamentosOpen, isAbonoOpen, isHistoryOpen, isAdminOpen]);
 
   return (
     <>
@@ -560,7 +527,9 @@ export default function Sidebar({
                                     )
                                       ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
                                       : "text-white/40 font-medium hover:text-white";
-                                  } else if (it.id === "afastamentos-portarias") {
+                                  } else if (
+                                    it.id === "afastamentos-portarias"
+                                  ) {
                                     Icon = FileText;
                                     activeClass = pathname.startsWith(
                                       "/afastamentos/portarias",
@@ -583,51 +552,6 @@ export default function Sidebar({
                             </div>
                           )}
 
-                          {(userRole === "admin" ||
-                            userRole === "nurse" ||
-                            userRole === "analytic_manager" ||
-                            userRole === "doctor") && (
-                            <div className="space-y-1 mt-1">
-                              <button
-                                onClick={handleToggleAtestados}
-                                className={`w-full flex items-center justify-between p-2 pl-9 text-[10px] uppercase tracking-wider group active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left is-active-folder ${pathname.startsWith("/abono/atestados") ? "text-white font-medium" : "text-white/60 font-medium hover:bg-white/5 hover:text-white"}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <FileText className="w-3.5 h-3.5 shrink-0 group-hover:text-emerald-400" />
-                                  <span>Atestados</span>
-                                </div>
-                                <ChevronDown
-                                  className={`w-3 h-3 transition-transform duration-200 ${isAtestadosOpen ? "rotate-180" : ""}`}
-                                />
-                              </button>
-
-                              {isAtestadosOpen && (
-                                <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  {abonoNavigationGroup?.items
-                                    .filter(
-                                      (it) =>
-                                        it.path &&
-                                        it.path.startsWith("/abono/atestados"),
-                                    )
-                                    .map((it) => {
-                                      const path =
-                                        it.path || "/abono/atestados";
-                                      return (
-                                        <button
-                                          key={it.id}
-                                          onClick={() => router.push(path)}
-                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${pathname.startsWith("/abono/atestados") ? "bg-white/15 text-white font-medium shadow-sm" : "text-white/40 font-medium hover:text-white"}`}
-                                        >
-                                          <LayoutDashboard className="w-3 h-3 shrink-0" />
-                                          <span>{it.label}</span>
-                                        </button>
-                                      );
-                                    })}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
                           {/* ABONO SALARIAL (NÍVEL 2) - Bloqueio Médico para versão padrão */}
                           {(userRole === "admin" ||
                             userRole === "analytic_manager") && (
@@ -647,42 +571,40 @@ export default function Sidebar({
                               {/* Centralizado para evitar duplicidade de submenus no código original */}
                               {isAbonoOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  {abonoNavigationGroup?.items
-                                    .filter((it) => it.id !== "abono-atestados")
-                                    .map((it) => {
-                                      const path = it.path || "/abono";
+                                  {abonoNavigationGroup?.items.map((it) => {
+                                    const path = it.path || "/abono";
 
-                                      let Icon = LayoutDashboard;
-                                      let activeClass =
-                                        pathname === path
-                                          ? "bg-white/15 text-white font-medium shadow-sm"
+                                    let Icon = LayoutDashboard;
+                                    let activeClass =
+                                      pathname === path
+                                        ? "bg-white/15 text-white font-medium shadow-sm"
+                                        : "text-white/40 font-medium hover:text-white";
+
+                                    if (it.id === "abono-portarias") {
+                                      Icon = FileText;
+                                      activeClass =
+                                        pathname === "/abono/portarias"
+                                          ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
                                           : "text-white/40 font-medium hover:text-white";
+                                    } else if (it.id === "abono-lei") {
+                                      Icon = Scale;
+                                      activeClass =
+                                        pathname === "/abono/lei"
+                                          ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
+                                          : "text-white/40 font-medium hover:text-white";
+                                    }
 
-                                      if (it.id === "abono-portarias") {
-                                        Icon = FileText;
-                                        activeClass =
-                                          pathname === "/abono/portarias"
-                                            ? "bg-amber-500/20 text-amber-300 font-medium shadow-sm"
-                                            : "text-white/40 font-medium hover:text-white";
-                                      } else if (it.id === "abono-lei") {
-                                        Icon = Scale;
-                                        activeClass =
-                                          pathname === "/abono/lei"
-                                            ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
-                                            : "text-white/40 font-medium hover:text-white";
-                                      }
-
-                                      return (
-                                        <button
-                                          key={it.id}
-                                          onClick={() => router.push(path)}
-                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
-                                        >
-                                          <Icon className="w-3 h-3 shrink-0" />
-                                          <span>{it.label}</span>
-                                        </button>
-                                      );
-                                    })}
+                                    return (
+                                      <button
+                                        key={it.id}
+                                        onClick={() => router.push(path)}
+                                        className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                                      >
+                                        <Icon className="w-3 h-3 shrink-0" />
+                                        <span>{it.label}</span>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
@@ -705,36 +627,34 @@ export default function Sidebar({
                               </button>
                               {isAbonoOpen && (
                                 <div className="flex flex-col space-y-1 pl-4 bg-white/5 mx-1 py-1">
-                                  {abonoNavigationGroup?.items
-                                    .filter((it) => it.id !== "abono-atestados")
-                                    .map((it) => {
-                                      const path = it.path || "/abono";
+                                  {abonoNavigationGroup?.items.map((it) => {
+                                    const path = it.path || "/abono";
 
-                                      let Icon = LayoutDashboard;
-                                      let activeClass =
-                                        pathname === path
-                                          ? "bg-white/15 text-white font-medium shadow-sm"
+                                    let Icon = LayoutDashboard;
+                                    let activeClass =
+                                      pathname === path
+                                        ? "bg-white/15 text-white font-medium shadow-sm"
+                                        : "text-white/40 font-medium hover:text-white";
+
+                                    if (it.id === "abono-lei") {
+                                      Icon = Scale;
+                                      activeClass =
+                                        pathname === "/abono/lei"
+                                          ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
                                           : "text-white/40 font-medium hover:text-white";
+                                    }
 
-                                      if (it.id === "abono-lei") {
-                                        Icon = Scale;
-                                        activeClass =
-                                          pathname === "/abono/lei"
-                                            ? "bg-sky-500/20 text-sky-300 font-medium shadow-sm"
-                                            : "text-white/40 font-medium hover:text-white";
-                                      }
-
-                                      return (
-                                        <button
-                                          key={it.id}
-                                          onClick={() => router.push(path)}
-                                          className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
-                                        >
-                                          <Icon className="w-3 h-3 shrink-0" />
-                                          <span>{it.label}</span>
-                                        </button>
-                                      );
-                                    })}
+                                    return (
+                                      <button
+                                        key={it.id}
+                                        onClick={() => router.push(path)}
+                                        className={`w-full flex items-center gap-1.5 py-1.5 pl-8 active:scale-95 hover:scale-[1.08] transition-all duration-200 origin-left text-[9px] uppercase tracking-wider whitespace-nowrap ${activeClass}`}
+                                      >
+                                        <Icon className="w-3 h-3 shrink-0" />
+                                        <span>{it.label}</span>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
