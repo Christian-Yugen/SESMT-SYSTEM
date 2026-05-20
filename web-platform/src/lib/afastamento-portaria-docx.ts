@@ -240,7 +240,7 @@ function buildPortariaContent(data: AfastamentoPortariaData) {
   );
   const lotacaoText = lotacaoFormatada
     ? `${lotadoGrammar} ${lotacaoFormatada}`
-    : `${lotadoGrammar} Secretária Municipal de Gestão de Pessoas`;
+    : `${lotadoGrammar} Secretaria Municipal de Gestão de Pessoas`;
 
   const art1Body = generoIsF
     ? `Fica concedido o benefício auxílio doença a Servidora Pública Municipal, a Sra. ${nomeFormatado}, matrícula ${data.servidor_matricula} ${lotacaoText}, pelo período de ${data.data_inicio} até o dia ${data.data_fim}, conforme avaliação médica.`

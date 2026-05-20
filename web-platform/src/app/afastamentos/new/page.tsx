@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { handleAuthError, safeGetSession } from "@/lib/auth-utils";
@@ -95,6 +95,18 @@ export default function NewAfastamentoPage() {
   const [foundCids, setFoundCids] = useState<CIDDetails[]>([]);
   const [searchingCids, setSearchingCids] = useState(false);
   const [diasAfastamento, setDiasAfastamento] = useState<string>("");
+
+  // Junção de atestados: removida (feature descontinuada)
+
+  const formatDateISO = (d: Date) => d.toISOString().split("T")[0];
+  const formatDateDMY = (d: Date) => {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  // Agregação de atestados removida
 
   const selectServidor = useCallback(
     async (s: Servidor) => {
@@ -424,6 +436,10 @@ export default function NewAfastamentoPage() {
         .map((b) => b.contrato)
         .join(" e ");
 
+      // Junção de atestados descontinuada — sem agregados
+      const agg = null;
+      const aggISO = null;
+
       for (const bond of bondsToPersist) {
         const afastamentoPayload: any = {
           servidor_cpf: bond.cpf,
@@ -447,6 +463,8 @@ export default function NewAfastamentoPage() {
           criado_por: user?.id || null,
           hash_auditoria: `AF-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         };
+
+        // Junção de atestados foi removida — payload usa `formData.data_inicio`/`data_fim`
 
         let newAfastamento: any = null;
         let insertError: any = null;
@@ -495,16 +513,25 @@ export default function NewAfastamentoPage() {
           );
         }
 
-        // Inserir CIDs
-        for (const cid of selectedCids) {
-          const chapter = getCIDChapter(cid.code);
-          await supabase.from("afastamento_cids").insert({
-            afastamento_id: newAfastamento.id,
-            cid_codigo: cid.code,
-            cid_descricao: cid.desc,
-            cid_capitulo: chapter?.capitulo || "Desconhecido",
-          });
+        // Inserir CIDs: união entre CIDs selecionados no formulário e CIDs por atestado (se houver)
+        try {
+          const cidSet = new Set<string>();
+          selectedCids.forEach((c) => cidSet.add(String(c.code)));
+          for (const cidCode of Array.from(cidSet)) {
+            const chapter = getCIDChapter(cidCode);
+            await supabase.from("afastamento_cids").insert({
+              afastamento_id: newAfastamento.id,
+              cid_codigo: cidCode,
+              cid_descricao: cidCode,
+              cid_capitulo: chapter?.capitulo || "Desconhecido",
+            });
+          }
+        } catch (e) {
+          console.warn("Erro ao inserir afastamento_cids:", e);
         }
+
+        // A funcionalidade de junção de atestados foi removida;
+        // não inserimos registros em `atestados` a partir daqui.
 
         // Gerar Registro de Portaria (inserção com retry para mitigar condição de corrida ao calcular número)
         const insertPortariaWithRetry = async (
@@ -610,14 +637,20 @@ export default function NewAfastamentoPage() {
 
         // Anexa informação de sexo do vínculo/servidor para geração correta do texto
         if (portariaRec) {
+          const pdfDataInicio = formData.data_inicio
+            ? formData.data_inicio.split("-").reverse().join("/")
+            : "";
+          const pdfDataFim = formData.data_fim
+            ? formData.data_fim.split("-").reverse().join("/")
+            : "";
           setGeneratedPortaria({
             ...portariaRec,
             servidor_nome: bond.nome,
             servidor_matricula: bond.matricula,
             servidor_cargo: bond.cargo || bond.natureza_cargo,
             servidor_lotacao: bond.secretaria,
-            data_inicio: formData.data_inicio.split("-").reverse().join("/"),
-            data_fim: formData.data_fim.split("-").reverse().join("/"),
+            data_inicio: pdfDataInicio,
+            data_fim: pdfDataFim,
             tipo_afastamento: formData.tipo_afastamento,
             is_acidente_trabalho: formData.is_acidente_trabalho,
             perito_nome: formData.perito_nome,
@@ -905,51 +938,55 @@ export default function NewAfastamentoPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {!isMaternidadeContext && (
-                    <div className="flex flex-col">
-                      <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                        Acidente de Trabalho
-                      </label>
-                      <div
-                        className={`flex items-center gap-3 px-4 py-3 border-2 rounded-none cursor-pointer select-none transition-all group ${
-                          formData.is_acidente_trabalho
-                            ? "bg-red-50 border-red-500 shadow-md shadow-red-100"
-                            : "bg-white border-slate-400 hover:border-red-400 hover:bg-red-50"
-                        }`}
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            is_acidente_trabalho: !prev.is_acidente_trabalho,
-                          }))
-                        }
-                      >
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className="flex flex-col">
+                        <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
+                          Acidente de Trabalho
+                        </label>
                         <div
-                          className={`w-5 h-5 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          className={`flex items-center gap-3 px-4 py-3 border-2 rounded-none cursor-pointer select-none transition-all group ${
                             formData.is_acidente_trabalho
-                              ? "bg-red-600 border-red-600"
-                              : "border-slate-400 bg-white group-hover:border-red-500"
+                              ? "bg-red-50 border-red-500 shadow-md shadow-red-100"
+                              : "bg-white border-slate-400 hover:border-red-400 hover:bg-red-50"
                           }`}
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              is_acidente_trabalho: !prev.is_acidente_trabalho,
+                            }))
+                          }
                         >
-                          {formData.is_acidente_trabalho && (
-                            <Activity className="w-3 h-3 text-white" />
-                          )}
-                        </div>
-                        <div className="flex flex-col">
-                          <span
-                            className={`text-[12px] font-bold uppercase leading-tight ${
+                          <div
+                            className={`w-5 h-5 rounded-none border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                               formData.is_acidente_trabalho
-                                ? "text-red-700"
-                                : "text-slate-700"
+                                ? "bg-red-600 border-red-600"
+                                : "border-slate-400 bg-white group-hover:border-red-500"
                             }`}
                           >
-                            {formData.is_acidente_trabalho
-                              ? "Sim — acidente de trabalho"
-                              : "Não — marcar se for o caso"}
-                          </span>
-                          <span className="text-[10px] text-slate-500 uppercase font-medium">
-                            Relacionado à atividade ocupacional
-                          </span>
+                            {formData.is_acidente_trabalho && (
+                              <Activity className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <span
+                              className={`text-[12px] font-bold uppercase leading-tight ${
+                                formData.is_acidente_trabalho
+                                  ? "text-red-700"
+                                  : "text-slate-700"
+                              }`}
+                            >
+                              {formData.is_acidente_trabalho
+                                ? "Sim — acidente de trabalho"
+                                : "Não — marcar se for o caso"}
+                            </span>
+                            <span className="text-[10px] text-slate-500 uppercase font-medium">
+                              Relacionado à atividade ocupacional
+                            </span>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Junção de atestados: funcionalidade descontinuada */}
                     </div>
                   )}
 
@@ -1182,20 +1219,7 @@ export default function NewAfastamentoPage() {
                   </div>
                 </div>
 
-                <div className="pt-4">
-                  <label className="text-[11px] font-bold uppercase text-slate-600 mb-1 block">
-                    Observações Gerais
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-none font-bold uppercase resize-none"
-                    value={formData.observacoes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, observacoes: e.target.value })
-                    }
-                    placeholder="Informaçõe adicionais..."
-                  />
-                </div>
+                {/* Junção de atestados: funcionalidade descontinuada */}
 
                 {/* Encaminhamento INSS (checkbox + sugestão automática) */}
                 <div className="mt-4">

@@ -102,13 +102,6 @@ const menuConfig: MenuConfig = {
           match: "startsWith",
           roles: ["admin", "analytic_manager", "doctor", "social_assistant"],
         },
-        {
-          id: "abono-atestados",
-          label: "Atestados",
-          path: "/abono/atestados",
-          match: "startsWith",
-          roles: ["admin", "nurse", "analytic_manager", "doctor"],
-        },
       ],
     },
     {
