@@ -21,7 +21,7 @@ USING (auth.uid() = id)
 WITH CHECK (
   auth.uid() = id
   -- Permite atualizar somente se o valor de `role` não for alterado.
-  AND (role = (SELECT role FROM public.profiles WHERE id = auth.uid()) OR role IS NULL)
+  AND role = (SELECT role FROM public.profiles WHERE id = auth.uid())
 );
 
 COMMIT;

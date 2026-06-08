@@ -8,10 +8,10 @@ export interface Profile {
   full_name?: string | null;
 }
 
-export const NURSE_EMAILS = [
-  "eliane.tavares@treslagoas.ms.gov.br",
-  "yvy.coelho@treslagoas.ms.gov.br",
-];
+// Nota: roles são gerenciadas exclusivamente pelo admin via painel/DB.
+// Removemos a atribuição automática de `role` no cliente para evitar
+// sobrescrita por fluxos de login. Qualquer alteração de role deve ser
+// feita apenas por um administrador ou via chave de serviço (server-side).
 
 /**
  * Sincroniza o perfil do usuário atual com a tabela 'profiles'.
@@ -33,28 +33,17 @@ export async function syncProfile(session: Session | null): Promise<string> {
       .maybeSingle();
 
     if (existingProfileById) {
-      // Se for um e-mail de enfermeira, tenta ajustar para 'nurse',
-      // mas NÃO sobrescreve cargos protegidos (ex: 'admin' ou 'analytic_manager').
-        // NÃO sobrescrever `role` definido por um admin.
-        // Atualiza role somente se estiver vazio/nulo (caso especial de nurse list).
-        if (
-          (!existingProfileById.role || existingProfileById.role === null) &&
-          NURSE_EMAILS.includes(userEmail)
-        ) {
-          await supabase.from("profiles").update({ role: "nurse" }).eq("id", user.id);
-          return "nurse";
-        }
+      // Não alteramos `role` aqui — somente campos não sensíveis.
+      const updates: Record<string, unknown> = {};
+      const fullName = user.user_metadata?.full_name || "";
+      if (existingProfileById.email !== userEmail) updates.email = userEmail;
+      if ((existingProfileById.full_name || "") !== fullName)
+        updates.full_name = fullName;
+      if (Object.keys(updates).length > 0) {
+        await supabase.from("profiles").update(updates).eq("id", user.id);
+      }
 
-        // Atualiza apenas campos não sensíveis (email/full_name), preservando `role`.
-        const updates: Record<string, unknown> = {};
-        const fullName = user.user_metadata?.full_name || "";
-        if (existingProfileById.email !== userEmail) updates.email = userEmail;
-        if ((existingProfileById.full_name || "") !== fullName) updates.full_name = fullName;
-        if (Object.keys(updates).length > 0) {
-          await supabase.from("profiles").update(updates).eq("id", user.id);
-        }
-
-      return existingProfileById.role;
+      return existingProfileById.role || "viewer";
     }
 
     // 2. Não existe pelo ID. Verificar se existe pelo E-MAIL (pré-autorizado pelo admin)
@@ -64,45 +53,36 @@ export async function syncProfile(session: Session | null): Promise<string> {
       .eq("email", userEmail)
       .maybeSingle();
 
-    // Decide qual role aplicar ao criar um novo profile:
-    // - Se já existe um profile pré-autorizado pelo e-mail COM role, preserva esse role (provavelmente definido pelo admin).
-    // - Caso contrário, aplica regra especial para enfermeiras ou 'viewer' por padrão.
-    let roleToApply: string;
-    if (existingProfileByEmail && existingProfileByEmail.role) {
-      roleToApply = existingProfileByEmail.role;
-    } else if (NURSE_EMAILS.includes(userEmail)) {
-      roleToApply = "nurse";
-    } else {
-      roleToApply = "viewer";
-    }
+    // Decide criar o profile sem tocar em `role` — somente admin pode gerenciar roles.
+    // Se existir um registro pelo e-mail com outro ID, mantemos esse registro (não o deletamos),
+    // para evitar remover configurações feitas por administradores. Criamos/atualizamos apenas
+    // o registro associado ao `user.id` com dados não-sensíveis.
 
-    // Se existia pelo e-mail com outro ID (ID temporário do admin), transferimos o registro
-    // removendo o temporário antes de criar o definitivo. Mantemos o role preservado acima.
-    if (existingProfileByEmail && existingProfileByEmail.id !== user.id) {
-      await supabase.from("profiles").delete().eq("id", existingProfileByEmail.id);
-    }
-
-    // 3. Criar/atualizar o perfil definitivo de forma idempotente
-    // Não sobrescreveremos roles já protegidos (caso exista um registro pelo id, já retornamos antes).
     const upsertPayload: any = {
       id: user.id,
       email: userEmail,
       full_name: user.user_metadata?.full_name || "",
     };
-    // Inclui role no payload apenas quando sabemos qual valor aplicar (sempre definido acima),
-    // mas esta lógica evita incluir role em situações em que não queremos sobrescrever um valor já existente.
-    upsertPayload.role = roleToApply;
 
-    const { error: upsertError } = await supabase.from("profiles").upsert(upsertPayload, {
-      onConflict: "id",
-      ignoreDuplicates: false,
-    });
+    const { error: upsertError } = await supabase
+      .from("profiles")
+      .upsert(upsertPayload, {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      });
 
     if (upsertError) {
       console.error("Erro ao sincronizar perfil:", upsertError.message);
     }
 
-    return roleToApply;
+    // Ler o profile definitivo e devolver o `role` real (pode ser null)
+    const { data: finalProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    return finalProfile?.role || "viewer";
   } catch (err) {
     console.error("Erro na sincronização de perfil:", err);
     return "viewer";
