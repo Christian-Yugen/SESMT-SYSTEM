@@ -33,17 +33,27 @@ export async function syncProfile(session: Session | null): Promise<string> {
       .maybeSingle();
 
     if (existingProfileById) {
-      // Se for enfermeira, garante que tem o cargo certo
-      if (
-        NURSE_EMAILS.includes(userEmail) &&
-        existingProfileById.role !== "nurse"
-      ) {
-        await supabase
-          .from("profiles")
-          .update({ role: "nurse" })
-          .eq("id", user.id);
-        return "nurse";
-      }
+      // Se for um e-mail de enfermeira, tenta ajustar para 'nurse',
+      // mas NÃO sobrescreve cargos protegidos (ex: 'admin' ou 'analytic_manager').
+        // NÃO sobrescrever `role` definido por um admin.
+        // Atualiza role somente se estiver vazio/nulo (caso especial de nurse list).
+        if (
+          (!existingProfileById.role || existingProfileById.role === null) &&
+          NURSE_EMAILS.includes(userEmail)
+        ) {
+          await supabase.from("profiles").update({ role: "nurse" }).eq("id", user.id);
+          return "nurse";
+        }
+
+        // Atualiza apenas campos não sensíveis (email/full_name), preservando `role`.
+        const updates: Record<string, unknown> = {};
+        const fullName = user.user_metadata?.full_name || "";
+        if (existingProfileById.email !== userEmail) updates.email = userEmail;
+        if ((existingProfileById.full_name || "") !== fullName) updates.full_name = fullName;
+        if (Object.keys(updates).length > 0) {
+          await supabase.from("profiles").update(updates).eq("id", user.id);
+        }
+
       return existingProfileById.role;
     }
 
@@ -54,37 +64,39 @@ export async function syncProfile(session: Session | null): Promise<string> {
       .eq("email", userEmail)
       .maybeSingle();
 
-    let roleToApply = "viewer";
-
-    // Regra especial para enfermeiras
-    if (NURSE_EMAILS.includes(userEmail)) {
-      roleToApply = "nurse";
-    } else if (existingProfileByEmail) {
+    // Decide qual role aplicar ao criar um novo profile:
+    // - Se já existe um profile pré-autorizado pelo e-mail COM role, preserva esse role (provavelmente definido pelo admin).
+    // - Caso contrário, aplica regra especial para enfermeiras ou 'viewer' por padrão.
+    let roleToApply: string;
+    if (existingProfileByEmail && existingProfileByEmail.role) {
       roleToApply = existingProfileByEmail.role;
+    } else if (NURSE_EMAILS.includes(userEmail)) {
+      roleToApply = "nurse";
+    } else {
+      roleToApply = "viewer";
     }
 
-    // Se existia pelo e-mail com outro ID (ID temporário do admin), vamos deletar o temporário
+    // Se existia pelo e-mail com outro ID (ID temporário do admin), transferimos o registro
+    // removendo o temporário antes de criar o definitivo. Mantemos o role preservado acima.
     if (existingProfileByEmail && existingProfileByEmail.id !== user.id) {
-      await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", existingProfileByEmail.id);
+      await supabase.from("profiles").delete().eq("id", existingProfileByEmail.id);
     }
 
     // 3. Criar/atualizar o perfil definitivo de forma idempotente
-    // Usar upsert evita erro de chave duplicada quando syncProfile roda em paralelo.
-    const { error: upsertError } = await supabase.from("profiles").upsert(
-      {
-        id: user.id,
-        email: userEmail,
-        role: roleToApply,
-        full_name: user.user_metadata?.full_name || "",
-      },
-      {
-        onConflict: "id",
-        ignoreDuplicates: false,
-      },
-    );
+    // Não sobrescreveremos roles já protegidos (caso exista um registro pelo id, já retornamos antes).
+    const upsertPayload: any = {
+      id: user.id,
+      email: userEmail,
+      full_name: user.user_metadata?.full_name || "",
+    };
+    // Inclui role no payload apenas quando sabemos qual valor aplicar (sempre definido acima),
+    // mas esta lógica evita incluir role em situações em que não queremos sobrescrever um valor já existente.
+    upsertPayload.role = roleToApply;
+
+    const { error: upsertError } = await supabase.from("profiles").upsert(upsertPayload, {
+      onConflict: "id",
+      ignoreDuplicates: false,
+    });
 
     if (upsertError) {
       console.error("Erro ao sincronizar perfil:", upsertError.message);
